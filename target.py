@@ -1,12 +1,12 @@
 import os
 import dataFile
-import commonArgs
+import tGenArgs
 
 vector = []
 
 def writeToFile(pProgName):
    targetName = pProgName
-   targetFile=open(commonArgs.args.d+"/"+targetName+".target","w")
+   targetFile=open(tGenArgs.args.d+"/"+targetName+".target","w")
    for targetRow in vector:
       for target in targetRow:
          targetFile.write("%s," % (target))

@@ -1,17 +1,18 @@
+#!/usr/bin/python
 import os
 import colNumberOfData
 import dataFile
-import commonArgs
+import fGenArgs
 import feature
 import importlib
 
-user_module = importlib.import_module(commonArgs.args.m)
+user_module = importlib.import_module(fGenArgs.args.m)
 
 def main():
    dataFile.getDataIntoMatrix()
    feature.initVector()
    user_module.extractFeatureFromDataMatrix()
-   feature.writeToFile(commonArgs.args.m)
+   feature.writeToFile(fGenArgs.args.m)
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 import os
-import commonArgs
+import fGenArgs
 import dataFile
 
 vector = []
@@ -7,7 +7,7 @@ vector = []
 
 def writeToFile(pProgName):
    featureName = pProgName
-   featureFile=open(commonArgs.args.d+"/"+featureName+".feature","w")
+   featureFile=open(fGenArgs.args.d+"/"+featureName+".feature","w")
    for featureRow in vector:
       for feature in featureRow:
          featureFile.write("%s," % (feature))
