@@ -10,7 +10,7 @@ user_module = importlib.import_module(tGenArgs.args.m)
 
 
 def main():
-   dataFile.getDataIntoMatrix()
+   dataFile.getDataIntoMatrix(tGenArgs.args.d)
    target.initVector()
    user_module.extractTargetFromDataMatrix()
    target.writeToFile(tGenArgs.args.m)

@@ -9,7 +9,7 @@ import importlib
 user_module = importlib.import_module(fGenArgs.args.m)
 
 def main():
-   dataFile.getDataIntoMatrix()
+   dataFile.getDataIntoMatrix(fGenArgs.args.d)
    feature.initVector()
    user_module.extractFeatureFromDataMatrix()
    feature.writeToFile(fGenArgs.args.m)

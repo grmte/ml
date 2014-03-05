@@ -1,7 +1,7 @@
 import os
 import colNumberOfData
 import dataFile
-import commonArgs
+import tGenArgs
 import target
 
 def extractTargetFromDataMatrix():

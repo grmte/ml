@@ -1,4 +1,3 @@
-import commonArgs
 import os
 
 matrix = []
@@ -13,14 +12,14 @@ def printMatrix():
       print "The data row is" , dataRow
 
 
-def getNameFromCommandLineParam():
+def getNameFromCommandLineParam(pDirName):
    global confDataFileName
    foundFile=False
-   list_of_files = os.listdir(commonArgs.args.d) #list of files in the directory                                                                                                                                          
+   list_of_files = os.listdir(pDirName) #list of files in the directory                                                                                                                                          
    for each_file in list_of_files:
       if each_file.startswith('data'):  #since its all type str you can simply use startswith
          foundFile = True
-         confDataFileName = commonArgs.args.d+"/"+each_file
+         confDataFileName = pDirName+"/"+each_file
          break
    if(foundFile != True):
       print "Did not find the data file"
@@ -28,8 +27,8 @@ def getNameFromCommandLineParam():
    else:   
       print "Found the data file "+confDataFileName   
 
-def getDataIntoMatrix():
-   getNameFromCommandLineParam()
+def getDataIntoMatrix(pDirName):
+   getNameFromCommandLineParam(pDirName)
    fileHasHeader = 1
    headerSkipped = 0
    for dataRow in open(confDataFileName):
