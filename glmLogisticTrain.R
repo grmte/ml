@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 rm(list=ls())
 getwd()
 setwd("~/Downloads/data/")
