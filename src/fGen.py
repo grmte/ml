@@ -8,7 +8,11 @@ import fGenArgs
 import feature
 
 sys.path.append(os.path.dirname(fGenArgs.args.m))
-import colNumberOfData
+try:
+   import colNumberOfData
+except:
+   print "There is some problem with the path. I cannot import colNumberOfData"
+   os._exit(-1)
 
 user_module = importlib.import_module(os.path.basename(fGenArgs.args.m))
 
