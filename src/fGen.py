@@ -1,20 +1,22 @@
 #!/usr/bin/python
 import os
 import sys
-sys.path.append(os.getcwd())
-import colNumberOfData
+import importlib
+
 import dataFile
 import fGenArgs
 import feature
-import importlib
 
-user_module = importlib.import_module(fGenArgs.args.m)
+sys.path.append(os.path.dirname(fGenArgs.args.m))
+import colNumberOfData
+
+user_module = importlib.import_module(os.path.basename(fGenArgs.args.m))
 
 def main():
    dataFile.getDataIntoMatrix(fGenArgs.args.d)
    feature.initVector()
    user_module.extractFeatureFromDataMatrix()
-   feature.writeToFile(fGenArgs.args.m)
+   feature.writeToFile(os.path.basename(fGenArgs.args.m))
 
 if __name__ == "__main__":
     main()
