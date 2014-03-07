@@ -19,28 +19,28 @@ print ""
 f = open(args.c[:args.c.find('.')]+'.train.r','w')
 
 f.write('#!/usr/bin/Rscript \n')
-f.write('# Section1: Setting the environment \n')
+f.write('print ("Section1: Setting the environment") \n')
 f.write('rm(list=ls()) \n')
 f.write('setwd("'+ config["workingDirectory"] +'") \n\n')
 
 
-f.write('# Section2: Read in the target files \n')
+f.write('print ("Section2: Read in the target files") \n')
 f.write('targetVector=read.csv("'+config["target"]+'.target", header=FALSE) \n\n')
 
 
-f.write('\n# Section3: Read in the feature files \n')
+f.write('\nprint ("Section3: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
     f.write(feature+'=read.csv("'+features[feature]+'.feature", header=FALSE) \n')
 
 
-f.write('\n# Section4: Creating the data frame \n')
+f.write('\nprint ("Section4: Creating the data frame") \n')
 f.write('df = data.frame('+config["target"]+'=targetVector$V2')
 for feature in features:
     f.write(','+features[feature]+'='+feature+'$V2')
 f.write(")\n\n")
 
-f.write('# Section5: Running logistic regression \n')
+f.write('print ("Section5: Running logistic regression") \n')
 f.write('logistic.fit <- glm ('+config["target"]+' ~ ')
 currentFeatureNumber=0
 for feature in features:
@@ -50,7 +50,7 @@ for feature in features:
         f.write('+')
 f.write(' , data = df,family = binomial(link="logit") ) \n')
 
-f.write('\n# Section6: Saving the model to a file \n')
+f.write('\nprint ("Section6: Saving the model to a file") \n')
 f.write('save(logistic.fit, file = "' +  args.c[:args.c.find('.')] +'.model1.rda")')
 
 f.close()
