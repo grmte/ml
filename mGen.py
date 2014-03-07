@@ -14,7 +14,7 @@ config = ConfigObj(args.c)
 
 print config
 
-f = open('glmGen.r','w')
+f = open(args.c[:args.c.find('.')]+'.train.r','w')
 
 f.write('# Setting the environment \n')
 f.write('#!/usr/bin/Rscript \n')
