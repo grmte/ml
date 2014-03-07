@@ -50,8 +50,8 @@ for feature in features:
         f.write('+')
 f.write(' , data = df,family = binomial(link="logit") ) \n')
 
-f.write('\nprint ("Section6: Saving the model in directory '+ config["workingDirectory"] +' in file '+args.c[:args.c.find('.')] +'.model1.rda") \n')
-f.write('save(logistic.fit, file = "' +  args.c[:args.c.find('.')] +'.model1.rda")')
+f.write('\nprint ("Section6: Saving the model in directory '+ config["workingDirectory"] +' in file '+args.c[:args.c.find('.')] +'.model") \n')
+f.write('save(logistic.fit, file = "' +  args.c[:args.c.find('.')] +'.model")')
 
 f.close()
 
