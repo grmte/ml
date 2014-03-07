@@ -18,8 +18,8 @@ print ""
 
 f = open(args.c[:args.c.find('.')]+'.train.r','w')
 
-f.write('# Section1: Setting the environment \n')
 f.write('#!/usr/bin/Rscript \n')
+f.write('# Section1: Setting the environment \n')
 f.write('rm(list=ls()) \n')
 f.write('setwd("'+ config["workingDirectory"] +'") \n\n')
 
@@ -31,7 +31,7 @@ f.write('targetVector=read.csv("'+config["target"]+'.target", header=FALSE) \n\n
 f.write('\n# Section3: Read in the feature files \n')
 features = config["features"]
 for feature in features:
-    f.write(feature+'=read.csv('+features[feature]+'.feature, header=FALSE) \n')
+    f.write(feature+'=read.csv("'+features[feature]+'.feature", header=FALSE) \n')
 
 
 f.write('\n# Section4: Creating the data frame \n')
@@ -42,11 +42,18 @@ f.write(")\n\n")
 
 f.write('# Section5: Running logistic regression \n')
 f.write('logistic.fit <- glm ('+config["target"]+' ~ ')
+currentFeatureNumber=0
 for feature in features:
-    f.write(features[feature]+'+')
+    f.write(features[feature])
+    currentFeatureNumber = currentFeatureNumber+1
+    if(len(features) > currentFeatureNumber):
+        f.write('+')
 f.write(' , data = df,family = binomial(link="logit") ) \n')
-f.close()
 
+f.write('\n# Section6: Saving the model to a file \n')
+f.write('save(logistic.fit, file = "' +  args.c[:args.c.find('.')] +'.model1.rda")')
+
+f.close()
 
 print "Finished generating the file"
 print args.c[:args.c.find('.')]+'.train.r' + "\n"
