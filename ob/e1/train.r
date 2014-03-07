@@ -1,5 +1,5 @@
 #!/usr/bin/Rscript 
-print ("Section1: Clearing the environment and setting the working directory") 
+print ("Section1: Clearing the environment and making sure the data directory has been passed") 
 rm(list=ls()) 
 args <- commandArgs(trailingOnly = TRUE) 
 if(length(args) < 2) 

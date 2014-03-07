@@ -4,19 +4,19 @@ import os
 import argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGen.py -c ob/e1/design.ini. ')
-parser.add_argument('-c', required=True,help='Config file to use to find the features and targets')
+parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGen.py -e ob/e1/ ')
+parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
 args = parser.parse_args()
 
-print "Using the config file " + args.c
+print "Using the experiment folder " + args.e
 
-config = ConfigObj(args.c)
+config = ConfigObj(args.e+"/design.ini")
 
 print "\nThe config parameters that I am working with are"
 print config 
 print ""
 
-dirName=os.path.dirname(args.c)
+dirName=os.path.dirname(args.e)
 
 f = open(dirName+'/train.r','w')
 
@@ -63,8 +63,8 @@ for feature in features:
         f.write('+')
 f.write(' , data = df,family = binomial(link="logit") ) \n')
 
-f.write('\nprint (paste("Section6: Saving the model in file '+args.c[:args.c.find('.')] +'.model")) \n')
-f.write('save(logistic.fit, file = "'+ args.c[:args.c.find('.')]+'.model' +'")')
+f.write('\nprint (paste("Section6: Saving the model in file '+args.e +'design.model")) \n')
+f.write('save(logistic.fit, file = "'+ args.e+'design.model' +'")')
 
 f.close()
 

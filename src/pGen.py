@@ -4,19 +4,19 @@ import os
 import argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGen.py -c ob/e1/design.ini')
-parser.add_argument('-c', required=True,help='Config file to use to find the features')
+parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGen.py -e ob/e1/')
+parser.add_argument('-e', required=True,help='Directory to find the experiement designs')
 args = parser.parse_args()
 
-print "Using the config file " + args.c
+print "Using the experiment folder " + args.e
 
-config = ConfigObj(args.c)
+config = ConfigObj(args.e+"/design.ini")
 
 print "\nThe config parameters that I am working with are"
 print config 
 print ""
 
-dirName=os.path.dirname(args.c)
+dirName=os.path.dirname(args.e)
 
 f = open(dirName+'/predict.r','w')
 
@@ -43,7 +43,7 @@ for feature in features:
     f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 f.write('\nprint ("Section3: Read in the prediction model") \n')
-f.write('load("'+args.c[:args.c.find('.')]+'.model")')
+f.write('load("'+args.e+'/design.model")')
 
 
 f.write('\n\nprint ("Section4: Creating the data frame") \n')
@@ -60,8 +60,10 @@ f.write('print ("Section5: Running logistic regression prediction") \n')
 f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
 f.write("\n\n")
 
-f.write('\nprint ("Section6: Saving the predictions in file '+args.c[:args.c.find('.')] +'.predictions") \n')
-f.write('write.table(df, file = "' +  args.c[:args.c.find('.')] +'.predictions")')
+f.write('\nprint ("Section6: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
+f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) +'.predictions",sep="") \n')
+f.write('print (fileName) \n')
+f.write('write.table(df, file = fileName)')
 
 f.close()
 
