@@ -48,7 +48,7 @@ f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
 f.write("\n\n")
 
 f.write('\nprint ("Section6: Saving the predictions in directory '+ config["workingDirectory"] +' in file '+args.c[:args.c.find('.')] +'.predictions") \n')
-f.write('save(df, file = "' +  args.c[:args.c.find('.')] +'.predictions")')
+f.write('write.table(df, file = "' +  args.c[:args.c.find('.')] +'.predictions")')
 
 f.close()
 
