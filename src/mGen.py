@@ -31,8 +31,6 @@ f.write('{ \n')
 f.write('  stop("Not enough arguments. Please supply 2 arguments.") \n')
 f.write('} \n')
 
-
-
 f.write('if((args[1]=="-d") == TRUE ) { \n')
 f.write('   print ("Parameter check passed") \n')
 f.write('}else{ \n')

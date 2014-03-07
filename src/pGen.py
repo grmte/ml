@@ -23,13 +23,24 @@ f = open(dirName+'/predict.r','w')
 f.write('#!/usr/bin/Rscript \n')
 f.write('print ("Section1: Setting the environment") \n')
 f.write('rm(list=ls()) \n')
-f.write('setwd("'+ config["workingDirectory"] +'") \n\n')
 
+f.write('args <- commandArgs(trailingOnly = TRUE) \n')
+
+f.write('if(length(args) < 2) \n')
+f.write('{ \n')
+f.write('  stop("Not enough arguments. Please supply 2 arguments.") \n')
+f.write('} \n')
+
+f.write('if((args[1]=="-d") == TRUE ) { \n')
+f.write('   print ("Parameter check passed") \n')
+f.write('}else{ \n')
+f.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is predict.r -d data/20140207") \n')    
+f.write('} \n')
 
 f.write('\nprint ("Section2: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
-    f.write(feature+'=read.csv("'+features[feature]+'.feature", header=FALSE) \n')
+    f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 f.write('\nprint ("Section3: Read in the prediction model") \n')
 f.write('load("'+args.c[:args.c.find('.')]+'.model")')
@@ -49,7 +60,7 @@ f.write('print ("Section5: Running logistic regression prediction") \n')
 f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
 f.write("\n\n")
 
-f.write('\nprint ("Section6: Saving the predictions in directory '+ config["workingDirectory"] +' in file '+args.c[:args.c.find('.')] +'.predictions") \n')
+f.write('\nprint ("Section6: Saving the predictions in file '+args.c[:args.c.find('.')] +'.predictions") \n')
 f.write('write.table(df, file = "' +  args.c[:args.c.find('.')] +'.predictions")')
 
 f.close()
