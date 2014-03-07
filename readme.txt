@@ -14,7 +14,7 @@ mGen.py -h
 pGen.py -h
 
 6. To do training
-train.r
+train.r -d [dirname]
 
 7. To do predictions
-predict.r
+predict.r [dirname]

@@ -4,7 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='Generate the R script to train the model. A sample command is ./mGen.py -c experiment1.ini')
+parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGen.py -c ob/e1/design.ini. ')
 parser.add_argument('-c', required=True,help='Config file to use to find the features and targets')
 args = parser.parse_args()
 
