@@ -1,7 +1,17 @@
 #!/usr/bin/Rscript 
-print ("Section1: Setting the environment") 
+print ("Section1: Clearing the environment and setting the working directory") 
 rm(list=ls()) 
-setwd("~/Downloads/src/data/20140207/") 
+args <- commandArgs(trailingOnly = TRUE) 
+if(length(args) < 2) 
+{ 
+  stop("Not enough arguments. Please supply 2 arguments.") 
+} 
+if((args[1]=="-d") == TRUE ) { 
+   print ("Parameter check passed") 
+}else{ 
+   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train.r -d data/20140207") 
+} 
+setwd(args[2]) 
 
 print ("Section2: Read in the target files") 
 targetVector=read.csv("tBidGreaterThanAskInNext100.target", header=FALSE) 

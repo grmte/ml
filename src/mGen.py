@@ -21,9 +21,25 @@ dirName=os.path.dirname(args.c)
 f = open(dirName+'/train.r','w')
 
 f.write('#!/usr/bin/Rscript \n')
-f.write('print ("Section1: Setting the environment") \n')
+f.write('print ("Section1: Clearing the environment and setting the working directory") \n')
 f.write('rm(list=ls()) \n')
-f.write('setwd("'+ config["workingDirectory"] +'") \n\n')
+
+f.write('args <- commandArgs(trailingOnly = TRUE) \n')
+
+f.write('if(length(args) < 2) \n')
+f.write('{ \n')
+f.write('  stop("Not enough arguments. Please supply 2 arguments.") \n')
+f.write('} \n')
+
+
+
+f.write('if((args[1]=="-d") == TRUE ) { \n')
+f.write('   print ("Parameter check passed") \n')
+f.write('}else{ \n')
+f.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train.r -d data/20140207") \n')    
+f.write('} \n')
+
+f.write('setwd(args[2]) \n\n')
 
 
 f.write('print ("Section2: Read in the target files") \n')
