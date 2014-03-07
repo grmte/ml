@@ -17,5 +17,5 @@ df = data.frame(tBidGreaterThanAskInNext100=targetVector$V2,fBidP0OfCurrentRow=f
 print ("Section5: Running logistic regression") 
 logistic.fit <- glm (tBidGreaterThanAskInNext100 ~ fBidP0OfCurrentRow+fLTPOfCurrentRow , data = df,family = binomial(link="logit") ) 
 
-print ("Section6: Saving the model in directory ~/Downloads/src/data/20140207/ in file experiment1.model") 
-save(logistic.fit, file = "experiment1.model")
+print ("Section6: Saving the model in directory ~/Downloads/src/data/20140207/ in file e1/design.model") 
+save(logistic.fit, file = "e1/design.model")

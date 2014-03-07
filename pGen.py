@@ -16,7 +16,9 @@ print "\nThe config parameters that I am working with are"
 print config 
 print ""
 
-f = open(args.c[:args.c.find('.')]+'.predict.r','w')
+dirName=os.path.dirname(args.c)
+
+f = open(dirName+'/predict.r','w')
 
 f.write('#!/usr/bin/Rscript \n')
 f.write('print ("Section1: Setting the environment") \n')
@@ -53,4 +55,4 @@ f.write('write.table(df, file = "' +  args.c[:args.c.find('.')] +'.predictions")
 f.close()
 
 print "Finished generating the R program"
-print args.c[:args.c.find('.')]+'.predict.r' + "\n"
+print 'predict.r' + "\n"
