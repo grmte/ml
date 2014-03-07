@@ -4,7 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='Generate the R script which will use a model to make predictions. Sample command is ./pGen.py -c experiment1.ini')
+parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGen.py -c ob/e1/design.ini')
 parser.add_argument('-c', required=True,help='Config file to use to find the features')
 args = parser.parse_args()
 
