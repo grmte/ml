@@ -21,7 +21,7 @@ dirName=os.path.dirname(args.c)
 f = open(dirName+'/train.r','w')
 
 f.write('#!/usr/bin/Rscript \n')
-f.write('print ("Section1: Clearing the environment and setting the working directory") \n')
+f.write('print ("Section1: Clearing the environment and making sure the data directory has been passed") \n')
 f.write('rm(list=ls()) \n')
 
 f.write('args <- commandArgs(trailingOnly = TRUE) \n')
@@ -39,17 +39,14 @@ f.write('}else{ \n')
 f.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train.r -d data/20140207") \n')    
 f.write('} \n')
 
-f.write('setwd(args[2]) \n\n')
-
-
 f.write('print ("Section2: Read in the target files") \n')
-f.write('targetVector=read.csv("'+config["target"]+'.target", header=FALSE) \n\n')
+f.write('targetVector=read.csv(paste(args[2],"'+config["target"]+'.target",sep=""), header=FALSE) \n\n')
 
 
 f.write('\nprint ("Section3: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
-    f.write(feature+'=read.csv("'+features[feature]+'.feature", header=FALSE) \n')
+    f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 
 f.write('\nprint ("Section4: Creating the data frame") \n')
@@ -68,8 +65,8 @@ for feature in features:
         f.write('+')
 f.write(' , data = df,family = binomial(link="logit") ) \n')
 
-f.write('\nprint ("Section6: Saving the model in directory '+ config["workingDirectory"] +' in file '+args.c[:args.c.find('.')] +'.model") \n')
-f.write('save(logistic.fit, file = "' +  args.c[:args.c.find('.')] +'.model")')
+f.write('\nprint (paste("Section6: Saving the model in file '+args.c[:args.c.find('.')] +'.model")) \n')
+f.write('save(logistic.fit, file = "'+ args.c[:args.c.find('.')]+'.model' +'")')
 
 f.close()
 
