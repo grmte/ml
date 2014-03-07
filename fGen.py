@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import os
+import sys
+sys.path.append(os.getcwd())
 import colNumberOfData
 import dataFile
 import fGenArgs
