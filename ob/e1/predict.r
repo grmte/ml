@@ -26,7 +26,11 @@ print ("Section5: Running logistic regression prediction")
 df$Prob <- predict (logistic.fit, newdata = df, type = "response")
 
 
-print ("Section6: Saving the predictions in file e1.predictions") 
+print ("Section6: Putting the timestamps in the data frame as a sanity check mechanism") 
+df <- cbind(df,feature1$V1) 
+df <- cbind(df,feature2$V1) 
+
+print ("Section7: Saving the predictions in file e1.predictions") 
 fileName = paste(args[2],"e1.predictions",sep="") 
 print (fileName) 
 write.table(df, file = fileName)
