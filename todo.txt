@@ -1,0 +1,1 @@
+Running a generator if it is going to overwrite an exisiting file. warn the user does he really want to run that generator.
