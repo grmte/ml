@@ -14,13 +14,15 @@ except:
    print "There is some problem with the path. I cannot import colNumberOfData"
    os._exit(-1)
 
-user_module = importlib.import_module(os.path.basename(fGenArgs.args.m))
+moduleName = os.path.basename(fGenArgs.args.m)
+moduleName = os.path.splitext(moduleName)[0]
+userModule = importlib.import_module(moduleName)
 
 def main():
    dataFile.getDataIntoMatrix(fGenArgs.args.d)
    feature.initVector()
-   user_module.extractFeatureFromDataMatrix()
-   feature.writeToFile(os.path.basename(fGenArgs.args.m))
+   userModule.extractFeatureFromDataMatrix()
+   feature.writeToFile(os.path.basename(moduleName))
 
 if __name__ == "__main__":
     main()

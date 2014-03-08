@@ -14,14 +14,16 @@ except:
    print "There is some problem with the path. I cannot import colNumberOfData"
    os._exit(-1)
 
-user_module = importlib.import_module(os.path.basename(tGenArgs.args.m))
+moduleName = os.path.basename(tGenArgs.args.m)
+moduleName = os.path.splitext(moduleName)[0]
+userModule = importlib.import_module(moduleName)
 
 
 def main():
    dataFile.getDataIntoMatrix(tGenArgs.args.d)
    target.initVector()
-   user_module.extractTargetFromDataMatrix()
-   target.writeToFile(os.path.basename(tGenArgs.args.m))
+   userModule.extractTargetFromDataMatrix()
+   target.writeToFile(os.path.basename(moduleName))
 
 if __name__ == "__main__":
     main()
