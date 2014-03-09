@@ -3,6 +3,7 @@ import colNumberOfData
 import dataFile
 import tGenArgs
 import target
+import common
 
 def extractTargetFromDataMatrix():
    """
@@ -13,7 +14,7 @@ def extractTargetFromDataMatrix():
    while currentRowCount < len(dataFile.matrix)-101:
       futureRowCount = 1
 
-      target.vector[currentRowCount][0] = dataFile.matrix[currentRowCount][colNumberOfData.TimeStamp]
+      target.vector[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
       while(futureRowCount < 100):
          if( float(dataFile.matrix[currentRowCount+futureRowCount][colNumberOfData.BidP0]) > float(dataFile.matrix[currentRowCount][colNumberOfData.AskP0]) ):
             target.vector[currentRowCount][1] = 1
