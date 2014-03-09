@@ -1,4 +1,3 @@
-""" author = VK """
 import dataFile
 import colNumberOfData
 import feature
@@ -6,8 +5,8 @@ import feature
 def extractFeatureFromDataMatrix():
    currentRowCount = 0
    for dataRow in dataFile.matrix:
-      askP0OfCurrentRow = float(dataFile.matrix[currentRowCount][colNumberOfData.AskP0])
+      bidQ3OfCurrentRow = float(dataFile.matrix[currentRowCount][colNumberOfData.BidQ3])
       feature.vector[currentRowCount][0] = dataFile.matrix[currentRowCount][colNumberOfData.TimeStamp]
-      feature.vector[currentRowCount][1] = askP0OfCurrentRow
+      feature.vector[currentRowCount][1] = bidQ3OfCurrentRow
       currentRowCount = currentRowCount + 1
       print "Processed row number " + str(currentRowCount)

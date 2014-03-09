@@ -6,8 +6,8 @@ import feature
 def extractFeatureFromDataMatrix():
    currentRowCount = 0
    for dataRow in dataFile.matrix:
-      askP0OfCurrentRow = float(dataFile.matrix[currentRowCount][colNumberOfData.AskP0])
+      askP2OfCurrentRow = float(dataFile.matrix[currentRowCount][colNumberOfData.AskP2])
       feature.vector[currentRowCount][0] = dataFile.matrix[currentRowCount][colNumberOfData.TimeStamp]
-      feature.vector[currentRowCount][1] = askP0OfCurrentRow
+      feature.vector[currentRowCount][1] = askP2OfCurrentRow
       currentRowCount = currentRowCount + 1
       print "Processed row number " + str(currentRowCount)
