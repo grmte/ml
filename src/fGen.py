@@ -19,6 +19,7 @@ moduleName = os.path.splitext(moduleName)[0]
 userModule = importlib.import_module(moduleName)
 
 def main():
+   feature.checkIfFeatureFileExists(os.path.basename(moduleName))
    dataFile.getDataIntoMatrix(fGenArgs.args.d)
    feature.initVector()
    userModule.extractFeatureFromDataMatrix()

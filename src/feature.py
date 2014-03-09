@@ -4,6 +4,13 @@ import dataFile
 
 vector = []
 
+def checkIfFeatureFileExists(pProgName):
+   featureName = pProgName
+   featureFile=fGenArgs.args.d+"/"+featureName+".feature"
+   print "Checking if feature file exists " + featureFile + " \n"
+   if (os.path.isfile(featureFile)):
+      print "The feature has already been generated. If you want to re-generate it then first delete the feature file"
+      os._exit(-1)
 
 def writeToFile(pProgName):
    featureName = pProgName
