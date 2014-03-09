@@ -40,13 +40,23 @@ f.write('} \n')
 f.write('\nprint ("Section2: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
+    f.write('print ("Reading in '+ features[feature] +'.feature' + '") \n')
     f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
-f.write('\nprint ("Section3: Read in the prediction model") \n')
+f.write('\nprint ("Section3: Making sure all feature vectors are of same length and have same time stamp over each row") \n')
+features = config["features"]
+currentFeatureNumber = 0
+while currentFeatureNumber  <  (len(features) - 1) :
+  f.write('if (length(' + features.keys()[currentFeatureNumber] + ') != length(' + features.keys()[currentFeatureNumber+1] + ')) { \n')
+  f.write('print ("The feature lengths do not match. This is an error I cannot recover from") \n')
+  f.write('quit() \n')
+  f.write('} \n')
+  currentFeatureNumber = currentFeatureNumber + 1
+f.write('\nprint ("Section4: Read in the prediction model") \n')
 f.write('load("'+args.e+'/design.model")')
 
 
-f.write('\n\nprint ("Section4: Creating the data frame") \n')
+f.write('\n\nprint ("Section5: Creating the data frame") \n')
 f.write('df = data.frame(')
 currentFeatureNumber=0
 for feature in features:
@@ -56,18 +66,17 @@ for feature in features:
             f.write(',')
 f.write(")\n\n")
 
-f.write('print ("Section5: Running logistic regression prediction") \n')
+f.write('print ("Section6: Running logistic regression prediction") \n')
 f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
 f.write("\n\n")
 
-f.write('\nprint ("Section6: Creating the time stamps to write in the file") \n')
+f.write('\nprint ("Section7: Creating the data frame to write in the file") \n')
 f.write('dfForFile <- data.frame(df$Prob)')
 
-f.write('\nprint ("Section7: Putting the timestamps in the data frame as a sanity check mechanism") \n')
-for feature in features:
-    f.write('dfForFile <- cbind(dfForFile,'+feature+') \n')
+f.write('\nprint ("Section8: Putting the timestamps in the data frame as a sanity check mechanism") \n')
+f.write('dfForFile <- cbind(dfForFile,'+features.keys()[0]+'$V1) \n')
 
-f.write('\nprint ("Section8: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
+f.write('\nprint ("Section9: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
 f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) +'.predictions",sep="") \n')
 
 

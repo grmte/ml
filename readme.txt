@@ -4,6 +4,9 @@ export PATH="$HOME/ml/src:$PATH"
 2. To generate features see:
 fGen.py -h
 
+To general all features see:
+fGenAll.py
+
 3. To generate targets see:
 tGen.py -h
 
@@ -14,7 +17,7 @@ mGen.py -h
 pGen.py -h
 
 6. To do training
-train.r -d [dirname]
+train.r -d -d [dirname]
 
 7. To do predictions
-predict.r [dirname]
+predict.r -d [dirname]

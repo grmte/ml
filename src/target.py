@@ -10,7 +10,7 @@ def writeToFile(pProgName):
    for targetRow in vector:
       targetCount = 1
       for target in targetRow:
-         targetFile.write("%d" % (target))
+         targetFile.write("%s" % (target))
          if(targetCount < len (targetRow)):
             targetFile.write(",")
          targetCount = targetCount + 1
