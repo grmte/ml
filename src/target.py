@@ -8,8 +8,12 @@ def writeToFile(pProgName):
    targetName = pProgName
    targetFile=open(tGenArgs.args.d+"/"+targetName+".target","w")
    for targetRow in vector:
+      targetCount = 1
       for target in targetRow:
-         targetFile.write("%s," % (target))
+         targetFile.write("%s" % (target))
+         if(targetCount < len (targetRow)):
+            targetFile.write(",")
+         targetCount = targetCount + 1
       targetFile.write('\n')   
 
 def initVector():

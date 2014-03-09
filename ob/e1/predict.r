@@ -17,7 +17,7 @@ feature1=read.csv(paste(args[2],"fBidP0OfCurrentRow.feature",sep=""), header=FAL
 feature2=read.csv(paste(args[2],"fLTPOfCurrentRow.feature",sep=""), header=FALSE) 
 
 print ("Section3: Read in the prediction model") 
-load("ob/e1//design.model")
+load("e1//design.model")
 
 print ("Section4: Creating the data frame") 
 df = data.frame(fBidP0OfCurrentRow=feature1$V2,fLTPOfCurrentRow=feature2$V2)
@@ -26,11 +26,13 @@ print ("Section5: Running logistic regression prediction")
 df$Prob <- predict (logistic.fit, newdata = df, type = "response")
 
 
-print ("Section6: Putting the timestamps in the data frame as a sanity check mechanism") 
-df <- cbind(df,feature1$V1) 
-df <- cbind(df,feature2$V1) 
+print ("Section6: Creating the time stamps to write in the file") 
+dfForFile <- data.frame(df$Prob)
+print ("Section7: Putting the timestamps in the data frame as a sanity check mechanism") 
+dfForFile <- cbind(dfForFile,feature1) 
+dfForFile <- cbind(dfForFile,feature2) 
 
-print ("Section7: Saving the predictions in file e1.predictions") 
+print ("Section8: Saving the predictions in file e1.predictions") 
 fileName = paste(args[2],"e1.predictions",sep="") 
 print (fileName) 
-write.table(df, file = fileName)
+write.table(dfForFile, file = fileName)

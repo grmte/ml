@@ -60,17 +60,20 @@ f.write('print ("Section5: Running logistic regression prediction") \n')
 f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
 f.write("\n\n")
 
-f.write('\nprint ("Section6: Putting the timestamps in the data frame as a sanity check mechanism") \n')
-for feature in features:
-    f.write('df <- cbind(df,'+feature+'$V1) \n')
+f.write('\nprint ("Section6: Creating the time stamps to write in the file") \n')
+f.write('dfForFile <- data.frame(df$Prob)')
 
-f.write('\nprint ("Section7: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
+f.write('\nprint ("Section7: Putting the timestamps in the data frame as a sanity check mechanism") \n')
+for feature in features:
+    f.write('dfForFile <- cbind(dfForFile,'+feature+') \n')
+
+f.write('\nprint ("Section8: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
 f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) +'.predictions",sep="") \n')
 
 
 
 f.write('print (fileName) \n')
-f.write('write.table(df, file = fileName)')
+f.write('write.table(dfForFile, file = fileName)')
 
 f.close()
 

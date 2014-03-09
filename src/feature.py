@@ -9,8 +9,12 @@ def writeToFile(pProgName):
    featureName = pProgName
    featureFile=open(fGenArgs.args.d+"/"+featureName+".feature","w")
    for featureRow in vector:
+      featureCount = 1
       for feature in featureRow:
-         featureFile.write("%s," % (feature))
+         featureFile.write("%s" % (feature))
+         if(featureCount < len(featureRow)):
+            featureFile.write(",")
+         featureCount = featureCount + 1   
       featureFile.write('\n')
 
 def initVector():
