@@ -10,17 +10,17 @@ BidP2 = 16
 BidP3 = 18
 BidP4 = 20
 
-AskQty0 = 1
-AskQty1 = 3
-AskQty2 = 5
-AskQty3 = 7
-AskQty4 = 9
+AskQ0 = 1
+AskQ1 = 3
+AskQ2 = 5
+AskQ3 = 7
+AskQ4 = 9
 
-BidQty0 = 11
-BidQty1 = 13
-BidQty2 = 15
-BidQty3 = 17
-BidQty4 = 19
+BidQ0 = 11
+BidQ1 = 13
+BidQ2 = 15
+BidQ3 = 17
+BidQ4 = 19
 
 LTP = 22
 TimeStamp = 32
