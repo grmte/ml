@@ -1,5 +1,14 @@
 AskP0 = 2
+AskP1 = 4
+AskP2 = 6
+AskP3 = 8
+AskP4 = 10
+
 BidP0 = 12
+BidP1 = 14
+BidP2 = 16
+BidP3 = 18
+BidP4 = 20
 
 AskQty0 = 1
 AskQty1 = 3
