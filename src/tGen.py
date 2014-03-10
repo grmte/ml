@@ -20,6 +20,7 @@ userModule = importlib.import_module(moduleName)
 
 
 def main():
+   target.checkIfTargetFileExists(os.path.basename(moduleName))
    dataFile.getDataIntoMatrix(tGenArgs.args.d)
    target.initVector()
    userModule.extractTargetFromDataMatrix()

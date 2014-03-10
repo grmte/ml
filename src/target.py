@@ -4,6 +4,14 @@ import tGenArgs
 
 vector = []
 
+def checkIfTargetFileExists(pProgName):
+   targetName = pProgName
+   targetFile=tGenArgs.args.d+"/"+targetName+".target"
+   print "Checking if target file exists " + targetFile + " \n"
+   if (os.path.isfile(targetFile)):
+      print "The target has already been generated. If you want to re-generate it then first delete the target file"
+      os._exit(-1)
+
 def writeToFile(pProgName):
    targetName = pProgName
    targetFile=open(tGenArgs.args.d+"/"+targetName+".target","w")

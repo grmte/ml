@@ -3,3 +3,7 @@
 .DS_Store
 \#*\#
 .RHistory
+*.target
+*.feature
+*.model
+*.predictions
