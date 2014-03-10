@@ -39,3 +39,16 @@ When in the file:
 actual=0       | actual = 0   |actual=1       | actual = 1   |
 predicted=0    | predicted = 1|predicted=0    | predicted = 1|
 --------------------------------------------------------------
+
+10. What is kept in the git repo?
+
+design.ini for each experiment.
+cmatrix in the data folders
+zipped data file in the data folder
+gneerated r scripts predict.r and train.r
+
+The following files not kept:
+.feature 
+.target 
+.model 
+.predictions 
