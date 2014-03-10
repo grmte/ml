@@ -9,9 +9,9 @@ args = parser.parse_args()
 import subprocess
 
 print "Running mGen.py"
-subprocess.call(["mGen.py","-e",args.e)
+subprocess.call(["mGen.py","-e",args.e])
 
 print "Generating pGen.py"
-subprocess.call(["pGen.py","-e",args.e)
+subprocess.call(["pGen.py","-e",args.e])
 
     
