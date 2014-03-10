@@ -4,7 +4,7 @@ export PATH="$HOME/ml/src:$PATH"
 2. To generate features see:
 fGen.py -h
 
-To general all features see:
+To generate all features see:
 fGenAll.py
 
 3. To generate targets see:
@@ -16,7 +16,8 @@ mGen.py -h
 5. To generate predict.r see:
 pGen.py -h
 
-You can also use the command: rGenAll.py -e e1
+To generate mGen.py and pGen.py with one command you can use:
+rGenAll.py -e e1
 
 6. To do training
 ./en/train.r -d -d [dirname]
