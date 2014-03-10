@@ -17,7 +17,25 @@ mGen.py -h
 pGen.py -h
 
 6. To do training
-train.r -d -d [dirname]
+./en/train.r -d -d [dirname]
 
 7. To do predictions
-predict.r -d [dirname]
+./en/predict.r -d [dirname]
+
+8. To generate the confusion matrix
+cMatrixGen.py -e en -d [dirname]
+
+9. What is the format of the confusion matrix ?
+When printed on the screen:
+-------------------------------
+actual=0       | actual = 0   |
+predicted=0    | predicted = 1|
+-------------------------------
+actual=1       | actual = 1   |
+predicted=0    | predicted = 1|
+-------------------------------
+When in the file:
+--------------------------------------------------------------
+actual=0       | actual = 0   |actual=1       | actual = 1   |
+predicted=0    | predicted = 1|predicted=0    | predicted = 1|
+--------------------------------------------------------------
