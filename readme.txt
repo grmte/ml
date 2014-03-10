@@ -16,6 +16,8 @@ mGen.py -h
 5. To generate predict.r see:
 pGen.py -h
 
+You can also use the command: rGenAll.py -e e1
+
 6. To do training
 ./en/train.r -d -d [dirname]
 
