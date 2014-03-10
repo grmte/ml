@@ -21,5 +21,6 @@ def extractTargetFromDataMatrix():
          futureRowCount = futureRowCount + 1
 
       currentRowCount = currentRowCount + 1
-      print "Processed row number " + str(currentRowCount) 
+      if(currentRowCount % 1000 == 0):
+         print "Processed row number " + str(currentRowCount) 
 
