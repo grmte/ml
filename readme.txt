@@ -45,9 +45,9 @@ predicted=0    | predicted = 1|predicted=0    | predicted = 1|
 design.ini for each experiment.
 cmatrix in the data folders
 zipped data file in the data folder
-gneerated r scripts predict.r and train.r
+generated r scripts predict.r and train.r
 
-The following files not kept:
+The following files are not kept:
 .feature 
 .target 
 .model 
