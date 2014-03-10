@@ -91,15 +91,15 @@ f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
 f.write("\n\n")
 
 f.write('\nprint ("Section9: Creating the data frame to write in the file") \n')
-f.write('dfForFile <- data.frame(df$Prob)')
+f.write('dfForFile <- data.frame('+features.keys()[0]+'$V1) \n')
 
-f.write('\nprint ("Section10: Putting the timestamps in the data frame as a sanity check mechanism") \n')
-f.write('dfForFile <- cbind(dfForFile,'+features.keys()[0]+'$V1) \n')
+f.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
+f.write('dfForFile <- cbind(dfForFile,df$Prob) \n')
 
 f.write('\nprint ("Section11: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
 f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) +'.predictions",sep="") \n')
 f.write('print (fileName) \n')
-f.write('write.table(dfForFile, file = fileName)')
+f.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')
 
 f.close()
 

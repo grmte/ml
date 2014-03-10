@@ -44,16 +44,40 @@ f.write('targetVector=read.csv(paste(args[2],"'+config["target"]+'.target",sep="
 f.write('\nprint ("Section3: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
+    f.write('print ("Reading in '+ features[feature] +'.feature' + '") \n')
     f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
+f.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
+features = config["features"]
+currentFeatureNumber = 0
+while currentFeatureNumber  <  (len(features) - 1) :
+  f.write('if (length(' + features.keys()[currentFeatureNumber] + '$V1) != length(' + features.keys()[currentFeatureNumber+1] + '$V1)) { \n')
+  f.write('print ("The feature lengths do not match for ' + features.keys()[currentFeatureNumber] + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ features.values()[currentFeatureNumber+1]+'") \n')
+  f.write('quit() \n')
+  f.write('}else{ \n')
+  f.write('print ("Length of ' + features.keys()[currentFeatureNumber] + ' is same as length of '+features.keys()[currentFeatureNumber+1] +'")\n')
+  f.write('}\n')
+  currentFeatureNumber = currentFeatureNumber + 1
 
-f.write('\nprint ("Section4: Creating the data frame") \n')
+f.write('\nprint ("Section5: Making sure all feature vectors have same time stamp over each row") \n')
+features = config["features"]
+currentFeatureNumber = 0
+while currentFeatureNumber  <  (len(features) - 1) :
+  f.write('if (all(' + features.keys()[currentFeatureNumber] + '$V1 == ' + features.keys()[currentFeatureNumber+1] + '$V1) != TRUE) { \n')
+  f.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber] + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ features.values()[currentFeatureNumber+1]+'") \n')
+  f.write('quit() \n')
+  f.write('}else{ \n')
+  f.write('print ("Timestamps of ' + features.keys()[currentFeatureNumber] + ' is same as timestamp of '+features.keys()[currentFeatureNumber+1] +'")\n')
+  f.write('}\n')
+  currentFeatureNumber = currentFeatureNumber + 1
+
+f.write('\nprint ("Section6: Creating the data frame") \n')
 f.write('df = data.frame('+config["target"]+'=targetVector$V2')
 for feature in features:
     f.write(','+features[feature]+'='+feature+'$V2')
 f.write(")\n\n")
 
-f.write('print ("Section5: Running logistic regression") \n')
+f.write('print ("Section7: Running logistic regression") \n')
 f.write('logistic.fit <- glm ('+config["target"]+' ~ ')
 currentFeatureNumber=0
 for feature in features:
@@ -63,7 +87,7 @@ for feature in features:
         f.write('+')
 f.write(' , data = df,family = binomial(link="logit") ) \n')
 
-f.write('\nprint (paste("Section6: Saving the model in file '+args.e +'design.model")) \n')
+f.write('\nprint (paste("Section8: Saving the model in file '+args.e +'design.model")) \n')
 f.write('save(logistic.fit, file = "'+ args.e+'design.model' +'")')
 
 f.close()
