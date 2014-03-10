@@ -13,4 +13,5 @@ def extractFeatureFromDataMatrix():
 
       feature.vector[currentRowCount][1] = askP0OfCurrentRow
       currentRowCount = currentRowCount + 1
-      print "Processed row number " + str(currentRowCount)
+      if(currentRowCount % 1000 == 0):
+         print "Processed row number " + str(currentRowCount)

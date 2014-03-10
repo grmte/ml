@@ -20,7 +20,7 @@ To generate mGen.py and pGen.py with one command you can use:
 rGenAll.py -e e1
 
 6. To do training
-./en/train.r -d -d [dirname]
+./en/train.r -d [dirname]
 
 7. To do predictions
 ./en/predict.r -d [dirname]
