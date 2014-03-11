@@ -1,5 +1,7 @@
 #!/usr/bin/python
+from __future__ import division
 import os
+
 
 import argparse
 parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is cMatrixGen.py -d ob/data/20140207/ -e e1')
@@ -34,7 +36,7 @@ import numpy
 state = numpy.zeros((10,2,2),dtype=numpy.int)
 
 def matrixUpdate(pPredictedProb,pActualValue):
-    print pPredictedProb,pActualValue
+    #print pPredictedProb,pActualValue
 
     if(pActualValue == 1):
         actualState = 1
@@ -62,8 +64,9 @@ def matrixUpdate(pPredictedProb,pActualValue):
 
 
 
-predictedValueNotFoundInActualValue = 1
+predictedValueNotFoundInActualValue = 0
 IsItHeader = 1
+currentRowNumber = 0
 for line in predictedValuesFile:
     if (IsItHeader == 1):
         IsItHeader = 0
@@ -81,10 +84,47 @@ for line in predictedValuesFile:
     if(fillUpMatrix):
         matrixUpdate(predictedProb,actualValue)
 
+    currentRowNumber = currentRowNumber + 1
+    if( currentRowNumber % 1000 == 0):
+        print "Processing row number " + str(currentRowNumber)
 
  
 print "predicted value not found in actual value = " + str(predictedValueNotFoundInActualValue)
-fileName = args.d+"/"+experimentName+".cmatrix"
-print "Writing the confusion matrix to " + fileName
+
+print "The confusion matrix is"
 print state
-numpy.savetxt(fileName,state,fmt="%s")
+
+fileName = args.d+"/"+experimentName+".cmatrix"
+outputFile = open(fileName,"w")
+print "Starting to write the output file"
+
+formatString = "%3s,%10s,%10s,%10s,%10s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s \n"
+outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","MCC","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))
+
+import cmath
+for i in xrange (1,10,1):
+    FN = state[i][1][0]
+    TN = state[i][0][0]
+    FP = state[i][0][1]
+    TP = state[i][1][1] 
+    N = TN + TP +FN + FP
+    S = ( TP + FN ) / N
+    P =  TP + FN 
+    PForMCC = (TP + FP )/ N
+    numerator = (TP / N ) - (S * PForMCC)
+    denominatorSquared = PForMCC * S * (1-S) * (1-PForMCC)
+    denominator = cmath.sqrt(denominatorSquared)
+    MCC = numerator / denominator
+    MCC = round(MCC,3)
+    TPR = round(TP / P , 3)
+    TNR = round (TN / N , 3)
+    PPV = round (TP / (TP + FP) , 3)
+    NPV = round (TN / (TN+FN), 3)
+    FPR = round (FP / N , 3) 
+    FDR = round (1 - PPV, 3)
+    FNR = round (FN / (FN+TP),3)
+    ACC = round ((TP + TN) / (P+N),3)
+    F1 = round(2 * TP / (2 * TP + FP + FN) , 3)
+    outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(MCC),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
+
+outputFile.write("Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient")
