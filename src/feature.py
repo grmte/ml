@@ -7,9 +7,9 @@ vector = []
 def checkIfFeatureFileExists(pProgName):
    featureName = pProgName
    featureFile=fGenArgs.args.d+"/"+featureName+".feature"
-   print "Checking if feature file exists " + featureFile + " \n"
+   print "Checking if feature file exists " + featureFile 
    if (os.path.isfile(featureFile)):
-      print "The feature has already been generated. If you want to re-generate it then first delete the feature file"
+      print "The feature has already been generated. If you want to re-generate it then first delete the feature file \n"
       os._exit(-1)
 
 def writeToFile(pProgName):

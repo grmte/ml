@@ -13,6 +13,6 @@ AllFeatureGenerators = glob.glob(args.m+"f*.py")
 import subprocess
 
 for featureGenerator in AllFeatureGenerators:
-    print "Generating for " + featureGenerator
+    print "\nGenerating for " + featureGenerator
     subprocess.call(["fGen.py","-d",args.d,"-m",featureGenerator])
     
