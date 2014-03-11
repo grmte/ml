@@ -1,1 +1,2 @@
-Running train.r if it is going to overwrite an exisiting file. warn the user does he really want to run that generator.
+1. Running train.r if it is going to overwrite an exisiting file. warn the user does he really want to run that generator.
+2. How to put in the value for NA in CurrentLess1Row feature.
