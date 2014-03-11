@@ -1,0 +1,29 @@
+target =tBidEqualToAskInNext100
+
+[features]
+feature1 = fBidP0OfCurrentRow
+feature2 = fBidP1OfCurrentRow
+feature3 = fBidP2OfCurrentRow
+feature4 = fBidP3OfCurrentRow
+feature5 = fBidP4OfCurrentRow
+
+feature6 = fAskP0OfCurrentRow
+feature7 = fAskP1OfCurrentRow
+feature8 = fAskP2OfCurrentRow
+feature9 = fAskP3OfCurrentRow
+feature10 = fAskP4OfCurrentRow
+
+feature11 = fBidQ0OfCurrentRow
+feature12 = fBidQ1OfCurrentRow
+feature13 = fBidQ2OfCurrentRow
+feature14 = fBidQ3OfCurrentRow
+feature15 = fBidQ4OfCurrentRow
+
+feature16 = fAskQ0OfCurrentRow
+feature17 = fAskQ1OfCurrentRow
+feature18 = fAskQ2OfCurrentRow
+feature19 = fAskQ3OfCurrentRow
+feature20 = fAskQ4OfCurrentRow
+
+feature21 = fLTPOfCurrentRow
+feature22 = fRatioOfBidQSumAskQSumOfCurrentRow
