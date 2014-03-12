@@ -100,7 +100,7 @@ if(args.a == 'glmnet'):
     f.write(")\n\n")
 
     f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
-    f.write('df$Prob <- predict (fit, newx = df)')
+    f.write('df$Prob <- predict (fit, newx = df,s = "lambda.min")')
     f.write("\n\n")
 else:
     f.write('\n\nprint ("Section7: Creating the data frame") \n')

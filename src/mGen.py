@@ -100,6 +100,8 @@ if(args.a == 'glmnet'):
             f.write(',')    
     f.write(')\n')
     f.write('fit <- glmnet (x = X, y = targetVector$V2)\n')
+    f.write('cvfit = cv.glmnet(x =X, y = targetVector$V2) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
+    f.write('fit <- cvfit')   # Since fit is written to the file
     outputFileName = args.e+'glmnet.model'
 
 else:
