@@ -4,9 +4,10 @@ import os
 
 
 import argparse
-parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is cMatrixGen.py -d ob/data/20140207/ -e e1')
+parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is cMatrixGen.py -d ob/data/20140207/ -e e1 -a logitr')
 parser.add_argument('-d', required=True,help='Directory of the data file')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
+parser.add_argument('-a', required=True,help='Algorithm name')
 args = parser.parse_args()
 
 from configobj import ConfigObj
@@ -15,7 +16,7 @@ eDesignConfigObj = ConfigObj(args.e+"/design.ini")
 # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
 experimentName = os.path.basename(os.path.abspath(args.e))
 
-predictedValuesFileName = args.d+"/"+experimentName+".predictions"
+predictedValuesFileName = args.d+"/"+experimentName+args.a+".predictions"
 print "Starting to read the predicted values from "+ predictedValuesFileName
 predictedValuesFile = open(predictedValuesFileName)
 
@@ -94,7 +95,7 @@ print "predicted value not found in actual value = " + str(predictedValueNotFoun
 print "The confusion matrix is"
 print state
 
-fileName = args.d+"/"+experimentName+".cmatrix"
+fileName = args.d+"/"+experimentName+args.a+".cmatrix"
 outputFile = open(fileName,"w")
 print "Starting to write the output file"
 
