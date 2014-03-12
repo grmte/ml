@@ -88,19 +88,35 @@ else:
              predictionModel = 'logitr.model'
 f.write('load("'+args.e+'/'+predictionModel+'")')
 
-f.write('\n\nprint ("Section7: Creating the data frame") \n')
-f.write('df = data.frame(')
-currentFeatureNumber=0
-for feature in features:
-    f.write(features[feature]+'='+feature+'$V2')
-    currentFeatureNumber = currentFeatureNumber+1
-    if(len(features) > currentFeatureNumber):
+if(args.a == 'glmnet'):
+    f.write('\n\nprint ("Section7: Creating the data frame") \n')
+    f.write('df = cbind(')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(feature+'$V2')
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
             f.write(',')
-f.write(")\n\n")
+    f.write(")\n\n")
 
-f.write('print ("Section8: Running logistic regression prediction") \n')
-f.write('df$Prob <- predict (logistic.fit, newdata = df, type = "response")')
-f.write("\n\n")
+    f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
+    f.write('df$Prob <- predict (fit, newx = df)')
+    f.write("\n\n")
+else:
+    f.write('\n\nprint ("Section7: Creating the data frame") \n')
+    f.write('df = data.frame(')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(features[feature]+'='+feature+'$V2')
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
+            f.write(',')
+    f.write(")\n\n")
+
+    f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
+    f.write('df$Prob <- predict (fit, newdata = df, type = "response")')
+    f.write("\n\n")
+
 
 f.write('\nprint ("Section9: Creating the data frame to write in the file") \n')
 f.write('dfForFile <- data.frame('+features.keys()[0]+'$V1) \n')

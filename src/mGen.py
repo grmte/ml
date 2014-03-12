@@ -99,12 +99,12 @@ if(args.a == 'glmnet'):
         if(len(features) > currentFeatureNumber):
             f.write(',')    
     f.write(')\n')
-    f.write('logistic.fit <- glmnet (x = X, y = targetVector$V2)\n')
+    f.write('fit <- glmnet (x = X, y = targetVector$V2)\n')
     outputFileName = args.e+'glmnet.model'
 
 else:
     f.write('print ("Section7: Running logistic regression") \n')
-    f.write('logistic.fit <- glm ('+config["target"]+' ~ ')
+    f.write('fit <- glm ('+config["target"]+' ~ ')
     currentFeatureNumber=0
     for feature in features:
         f.write(features[feature])
@@ -115,7 +115,7 @@ else:
     outputFileName = args.e+'logitr.model'
 
 f.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
-f.write('save(logistic.fit, file = "'+ outputFileName+'")')
+f.write('save(fit, file = "'+ outputFileName+'")')
 
 f.close()
 
