@@ -6,6 +6,7 @@ from configobj import ConfigObj
 
 parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGen.py -e ob/e1/')
 parser.add_argument('-e', required=True,help='Directory to find the experiement designs')
+parser.add_argument('-a', required=True,help='Algorithm name')
 args = parser.parse_args()
 
 print "Using the experiment folder " + args.e
@@ -18,9 +19,16 @@ print ""
 
 dirName=os.path.dirname(args.e)
 
-f = open(dirName+'/predict.r','w')
+if(args.a == 'glmnet'):
+    rProgName = "predict-"+args.a+".r"
+else:
+    rProgName = "predict-logitr.r"
+
+f = open(dirName+'/'+rProgName,'w')
 
 f.write('#!/usr/bin/Rscript \n')
+if(args.a == 'glmnet'):
+    f.write('require (glmnet) \n')
 
 f.write('print ("Section1: Setting the environment") \n')
 f.write('rm(list=ls()) \n')
@@ -38,7 +46,7 @@ f.write('   stop ("cannot proceed. Specify the parameters properly. The correct 
 f.write('} \n')
 
 f.write('print ("Section2: checking if the predictions file already exists") \n')
-f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) +'.predictions",sep="") \n')
+f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
 f.write('if(file.exists(fileName)){ \n')
 f.write("    stop ('The predictions already exist. Delete it and then run the program again') \n")
 f.write("} \n")
@@ -74,7 +82,11 @@ while currentFeatureNumber  <  (len(features) - 1) :
   currentFeatureNumber = currentFeatureNumber + 1
 
 f.write('\nprint ("Section6: Read in the prediction model") \n')
-f.write('load("'+args.e+'/design.model")')
+if(args.a == 'glmnet'):
+             predictionModel = 'glmnet.model'
+else:
+             predictionModel = 'logitr.model'
+f.write('load("'+args.e+'/'+predictionModel+'")')
 
 f.write('\n\nprint ("Section7: Creating the data frame") \n')
 f.write('df = data.frame(')
@@ -96,12 +108,12 @@ f.write('dfForFile <- data.frame('+features.keys()[0]+'$V1) \n')
 f.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
 f.write('dfForFile <- cbind(dfForFile,df$Prob) \n')
 
-f.write('\nprint ("Section11: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) +'.predictions") \n')
-f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) +'.predictions",sep="") \n')
+f.write('\nprint ("Section11: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions") \n')
+f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
 f.write('print (fileName) \n')
 f.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')
 
 f.close()
 
 print "Finished generating the R program"
-print 'predict.r' + "\n"
+print rProgName + "\n"

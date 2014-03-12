@@ -6,6 +6,7 @@ from configobj import ConfigObj
 
 parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGen.py -e ob/e1/ ')
 parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
+parser.add_argument('-a', required=True,help='Algorithm name')
 args = parser.parse_args()
 
 print "Using the experiment folder " + args.e
@@ -18,9 +19,18 @@ print ""
 
 dirName=os.path.dirname(args.e)
 
-f = open(dirName+'/train.r','w')
+if(args.a == 'glmnet'):
+    rProgName = "train-"+args.a+".r"
+else:
+    rProgName = "train-logitr.r"
+
+f = open(dirName+'/'+rProgName,'w')
 
 f.write('#!/usr/bin/Rscript \n')
+
+if(args.a == 'glmnet'):
+    f.write('require (glmnet) \n')
+
 f.write('print ("Section1: Clearing the environment and making sure the data directory has been passed") \n')
 f.write('rm(list=ls()) \n')
 
@@ -77,20 +87,37 @@ for feature in features:
     f.write(','+features[feature]+'='+feature+'$V2')
 f.write(")\n\n")
 
-f.write('print ("Section7: Running logistic regression") \n')
-f.write('logistic.fit <- glm ('+config["target"]+' ~ ')
-currentFeatureNumber=0
-for feature in features:
-    f.write(features[feature])
-    currentFeatureNumber = currentFeatureNumber+1
-    if(len(features) > currentFeatureNumber):
-        f.write('+')
-f.write(' , data = df,family = binomial(link="logit") ) \n')
 
-f.write('\nprint (paste("Section8: Saving the model in file '+args.e +'design.model")) \n')
-f.write('save(logistic.fit, file = "'+ args.e+'design.model' +'")')
+
+if(args.a == 'glmnet'):
+    f.write('print ("Section7: Running glmnet") \n')
+    f.write('X <- cbind(')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(features.keys()[currentFeatureNumber]+'$V2')
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
+            f.write(',')    
+    f.write(')\n')
+    f.write('logistic.fit <- glmnet (x = X, y = targetVector$V2)\n')
+    outputFileName = args.e+'glmnet.model'
+
+else:
+    f.write('print ("Section7: Running logistic regression") \n')
+    f.write('logistic.fit <- glm ('+config["target"]+' ~ ')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(features[feature])
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
+            f.write('+')
+    f.write(' , data = df,family = binomial(link="logit") ) \n')
+    outputFileName = args.e+'logitr.model'
+
+f.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
+f.write('save(logistic.fit, file = "'+ outputFileName+'")')
 
 f.close()
 
 print "Finished generating the R program"
-print 'train.r' + "\n"
+print rProgName + "\n"
