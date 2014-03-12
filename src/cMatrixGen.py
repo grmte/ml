@@ -99,8 +99,8 @@ fileName = args.d+"/"+experimentName+args.a+".cmatrix"
 outputFile = open(fileName,"w")
 print "Starting to write the output file"
 
-formatString = "%3s,%10s,%10s,%10s,%10s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s \n"
-outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","MCC","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))
+formatString = "%3s,%10s,%10s,%10s,%10s,%10s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s \n"
+outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","$","MCC","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))
 
 import cmath
 for i in xrange (1,10,1):
@@ -126,6 +126,7 @@ for i in xrange (1,10,1):
     FNR = round (FN / (FN+TP),3)
     ACC = round ((TP + TN) / (P+N),3)
     F1 = round(2 * TP / (2 * TP + FP + FN) , 3)
-    outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(MCC),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
+    dollar = TP * .5 - (FP * 1.5)
+    outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(dollar),str(MCC),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
 
 outputFile.write("Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient")
