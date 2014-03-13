@@ -1,2 +1,3 @@
 1. Running train.r if it is going to overwrite an exisiting file. warn the user does he really want to run that generator.
 2. How to put in the value for NA in CurrentLess1Row feature.
+3. from glmnet predictions call that number x and calculate e^x / (1+e^x)

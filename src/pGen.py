@@ -102,7 +102,7 @@ if(args.a == 'glmnet'):
     f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
     f.write('df$Prob <- predict (fit, newx = df,s = "lambda.min")')
     f.write("\n\n")
-else:
+elif(args.a == 'logitr'):
     f.write('\n\nprint ("Section7: Creating the data frame") \n')
     f.write('df = data.frame(')
     currentFeatureNumber=0
@@ -116,7 +116,9 @@ else:
     f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
     f.write('df$Prob <- predict (fit, newdata = df, type = "response")')
     f.write("\n\n")
-
+else:
+    print "The only valid options are glmnet or logitr"
+    os._exit(-1)
 
 f.write('\nprint ("Section9: Creating the data frame to write in the file") \n')
 f.write('dfForFile <- data.frame('+features.keys()[0]+'$V1) \n')

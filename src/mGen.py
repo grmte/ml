@@ -99,9 +99,7 @@ if(args.a == 'glmnet'):
         if(len(features) > currentFeatureNumber):
             f.write(',')    
     f.write(')\n')
-    f.write('fit <- glmnet (x = X, y = targetVector$V2)\n')
-    f.write('cvfit = cv.glmnet(x =X, y = targetVector$V2) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
-    f.write('fit <- cvfit')   # Since fit is written to the file
+    f.write('fit = cv.glmnet(x =X, y = targetVector$V2) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
     outputFileName = args.e+'glmnet.model'
 
 else:

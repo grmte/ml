@@ -1,0 +1,3 @@
+1. to find the feature important from a glmnet model you can:
+load the model
+coef(fit, s=fit$lambda[2])
