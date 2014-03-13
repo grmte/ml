@@ -4,17 +4,28 @@ import dataFile
 
 vector = []
 
-def checkIfFeatureFileExists(pProgName):
-   featureName = pProgName
-   featureFile=fGenArgs.args.d+"/"+featureName+".feature"
+def getFileNameFromFeatureName(pFeatureName):
+   if "LastN" in pFeatureName:
+      if fGenArgs.args.n == None:
+         N = 5
+      else:
+         N = fGenArgs.args.n
+   
+      pFeatureName = pFeatureName.replace("LastN","Last"+str(N))   
+      pFeatureName = pFeatureName.replace("RowsInColC","RowsInCol"+str(fGenArgs.args.c))   
+
+   featureFile=fGenArgs.args.d+"/"+pFeatureName+".feature"
+   return featureFile
+   
+def checkIfFeatureFileExists(pFeatureName):
+   featureFile = getFileNameFromFeatureName(pFeatureName)
    print "Checking if feature file exists " + featureFile 
    if (os.path.isfile(featureFile)):
       print "The feature has already been generated. If you want to re-generate it then first delete the feature file \n"
       os._exit(-1)
 
-def writeToFile(pProgName):
-   featureName = pProgName
-   featureFile=open(fGenArgs.args.d+"/"+featureName+".feature","w")
+def writeToFile(pFeatureName):
+   featureFile = open(getFileNameFromFeatureName(pFeatureName),"w")
    for featureRow in vector:
       featureCount = 1
       for feature in featureRow:
