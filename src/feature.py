@@ -5,14 +5,20 @@ import dataFile
 vector = []
 
 def getFileNameFromFeatureName(pFeatureName):
-   if "LastN" in pFeatureName:
+   if "LastNRows" in pFeatureName:
       if fGenArgs.args.n == None:
          N = 5
       else:
          N = fGenArgs.args.n
    
-      pFeatureName = pFeatureName.replace("LastN","Last"+str(N))   
-      pFeatureName = pFeatureName.replace("RowsInColC","RowsInCol"+str(fGenArgs.args.c))   
+      pFeatureName = pFeatureName.replace("LastNRows","Last"+str(N)+"Rows")   
+
+   if "ColC" in pFeatureName:
+      if fGenArgs.args.c == None:
+         print "Column name has not been specified"
+         os._exit(1)
+
+      pFeatureName = pFeatureName.replace("ColC","Col"+str(fGenArgs.args.c))   
 
    featureFile=fGenArgs.args.d+"/"+pFeatureName+".feature"
    return featureFile

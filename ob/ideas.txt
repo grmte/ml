@@ -1,3 +1,4 @@
 1. Instead of number of ticks it should be time based.
 2. Distinguish between the different message types.
 3. We are not feeding in the rate of change in any way.
+4. Use gbm and relative.influence to rank the features.
