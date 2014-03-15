@@ -20,7 +20,7 @@ def getFileNameFromFeatureName(pFeatureName):
 
       pFeatureName = pFeatureName.replace("ColC","Col"+str(fGenArgs.args.c))   
 
-   featureFile=fGenArgs.args.d+"/"+pFeatureName+".feature"
+   featureFile=fGenArgs.args.d+"/f/"+pFeatureName+".feature"
    return featureFile
    
 def checkIfFeatureFileExists(pFeatureName):
