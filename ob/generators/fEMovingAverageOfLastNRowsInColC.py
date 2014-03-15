@@ -4,7 +4,6 @@ import feature
 import common
 import fGenArgs
 import math
-from decimal import *
 
 def extractFeatureFromDataMatrix():
    if fGenArgs.args.n == None:
@@ -21,23 +20,24 @@ def extractFeatureFromDataMatrix():
    currentRowCount = 0
 
    
-   codeString = 'float(dataFile.matrix[currentRowCount - i][colNumberOfData.'+ fGenArgs.args.c + ']) + ColSum'
+   codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ fGenArgs.args.c + '])'
 
 
-   #eParam = Decimal(math.pow(Decimal(.5),Decimal(1 / N))) TODO
-   eParam = .99861
+   eParam = math.pow((.5),(1.0 / N))
 
    for dataRow in dataFile.matrix:
 
+      cellValue = eval(codeString)
+
       if currentRowCount == 0:
          feature.vector[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-         feature.vector[currentRowCount][1] = dataFile.matrix[currentRowCount][colNumberOfData.BidP0]
+         feature.vector[currentRowCount][1] = cellValue
          currentRowCount = currentRowCount + 1
          continue
 
       feature.vector[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
       firstPart = float(feature.vector[currentRowCount - 1][1]) * eParam
-      secondPart = (1- eParam) * float(dataFile.matrix[currentRowCount][colNumberOfData.BidP0])
+      secondPart = (1- eParam) * cellValue
       feature.vector[currentRowCount][1] = firstPart + secondPart 
 
       currentRowCount = currentRowCount + 1
