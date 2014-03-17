@@ -48,14 +48,14 @@ f.write('   stop ("cannot proceed. Specify the parameters properly. The correct 
 f.write('} \n')
 
 f.write('print ("Section2: Read in the target files") \n')
-f.write('targetVector=read.csv(paste(args[2],"'+config["target"]+'.target",sep=""), header=FALSE) \n\n')
+f.write('targetVector=read.csv(paste(args[2],"/t/","'+config["target"]+'.target",sep=""), header=FALSE) \n\n')
 
 
 f.write('\nprint ("Section3: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
     f.write('print ("Reading in '+ features[feature] +'.feature' + '") \n')
-    f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
+    f.write(feature+'=read.csv(paste(args[2],"f/","'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 f.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
 features = config["features"]

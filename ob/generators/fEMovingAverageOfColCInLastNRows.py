@@ -20,13 +20,11 @@ def extractFeatureFromDataMatrix():
    currentRowCount = 0
 
    
-   codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ fGenArgs.args.c + '])'
-
-
    eParam = math.pow((.5),(1.0 / N))
 
    for dataRow in dataFile.matrix:
 
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ fGenArgs.args.c + '])'
       cellValue = eval(codeString)
 
       if currentRowCount == 0:

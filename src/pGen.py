@@ -46,7 +46,7 @@ f.write('   stop ("cannot proceed. Specify the parameters properly. The correct 
 f.write('} \n')
 
 f.write('print ("Section2: checking if the predictions file already exists") \n')
-f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
+f.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
 f.write('if(file.exists(fileName)){ \n')
 f.write("    stop ('The predictions already exist. Delete it and then run the program again') \n")
 f.write("} \n")
@@ -55,7 +55,7 @@ f.write('\nprint ("Section3: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
     f.write('print ("Reading in '+ features[feature] +'.feature' + '") \n')
-    f.write(feature+'=read.csv(paste(args[2],"'+features[feature]+'.feature",sep=""), header=FALSE) \n')
+    f.write(feature+'=read.csv(paste(args[2],"f/","'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 f.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
 features = config["features"]
@@ -126,8 +126,8 @@ f.write('dfForFile <- data.frame('+features.keys()[0]+'$V1) \n')
 f.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
 f.write('dfForFile <- cbind(dfForFile,df$Prob) \n')
 
-f.write('\nprint ("Section11: Saving the predictions in file '+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions") \n')
-f.write('fileName = paste(args[2],"' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
+f.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e)) +args.a +'.predictions") \n')
+f.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
 f.write('print (fileName) \n')
 f.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')
 

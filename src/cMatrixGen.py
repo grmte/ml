@@ -16,11 +16,11 @@ eDesignConfigObj = ConfigObj(args.e+"/design.ini")
 # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
 experimentName = os.path.basename(os.path.abspath(args.e))
 
-predictedValuesFileName = args.d+"/"+experimentName+args.a+".predictions"
+predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
 print "Starting to read the predicted values from "+ predictedValuesFileName
 predictedValuesFile = open(predictedValuesFileName)
 
-actualValuesFileName = args.d+"/"+eDesignConfigObj["target"]+".target"
+actualValuesFileName = args.d+"/t/"+eDesignConfigObj["target"]+".target"
 print "Starting to read the actual values from "+ actualValuesFileName
 actualValuesFile = open(actualValuesFileName)
 
@@ -95,7 +95,7 @@ print "predicted value not found in actual value = " + str(predictedValueNotFoun
 print "The confusion matrix is"
 print state
 
-fileName = args.d+"/"+experimentName+args.a+".cmatrix"
+fileName = args.d+"/c/"+experimentName+args.a+".cmatrix"
 outputFile = open(fileName,"w")
 print "Starting to write the output file"
 
