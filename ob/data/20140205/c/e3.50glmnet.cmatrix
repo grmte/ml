@@ -8,4 +8,30 @@
  70,    215525,    442376,     18576,     47966,   -3881.0,  0.236,  0.182,  0.611,  0.721,  0.672,  0.026,  0.279,  0.818,  0.496,  0.291 
  80,    242253,    455799,      5153,     21238,    2889.5,  0.178,  0.081,  0.629,  0.805,  0.653,  0.007,  0.195,  0.919,  0.483,  0.147 
  90,    256220,    459601,      1351,      7271,    1609.0,  0.109,  0.028,  0.634,  0.843,  0.642,  0.002,  0.157,  0.972,  0.473,  0.053 
-Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient
+Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient 
+target =  tAverageOfNFutureLTPIsGreaterThanCurrentLTP
+
+[features]
+feature1 = fColBidP0InCurrentRow
+feature2 = fColBidP1InCurrentRow
+
+feature3 = fColAskP0InCurrentRow
+feature4 = fColAskP1InCurrentRow
+
+feature5 = fColBidQ0InCurrentRow
+feature6 = fColBidQ1InCurrentRow
+feature7 = fColBidQ2InCurrentRow
+feature8 = fColBidQ3InCurrentRow
+feature9 = fColBidQ4InCurrentRow
+
+feature10 = fColAskQ0InCurrentRow
+feature11 = fColAskQ1InCurrentRow
+feature12 = fColAskQ2InCurrentRow
+feature13 = fColAskQ3InCurrentRow
+feature14 = fColAskQ4InCurrentRow
+
+feature15 = fColLTPInCurrentRow
+feature16 = fRatioOfBidQSumAskQSumInCurrentRow
+feature17 = fEMovingAverageOfColBidP0InLast500Rows
+feature18 = fMovingAverageOfColBidP0InLast500Rows
+
