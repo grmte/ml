@@ -4,6 +4,41 @@ import dataFile
 
 vector = []
 
+def readFeatureFileIntoMatrix(pFeatureFile):
+   print "Reading " +pFeatureFile
+   matrix = []
+   fileHasHeader = 0
+   for dataRow in open(pFeatureFile):
+      if(fileHasHeader == 1 and headerSkipped != 1):
+         headerSkipped = 1 
+         continue
+      dataRow=dataRow.rstrip('\n')
+      dataColumns=dataRow.split(',')
+      matrix.append(dataColumns)
+
+   return matrix   
+
+def divideFeatures(pFirstFeatureName,pSecondFeatureName):
+   featureMatrix = [] 
+   firstFileName = getFileNameFromFeatureName(pFirstFeatureName)
+   secondFileName = getFileNameFromFeatureName(pSecondFeatureName)
+   
+   firstMatrix = readFeatureFileIntoMatrix(firstFileName)
+   secondMatrix = readFeatureFileIntoMatrix(secondFileName)
+
+   currentRowCount = 0
+   for dataRow in firstMatrix:
+      if(firstMatrix[currentRowCount][0] != secondMatrix[currentRowCount][0]):
+         print "The time stamps do not match"
+      else:
+         timeStamp = firstMatrix[currentRowCount][0]
+         value = float(firstMatrix[currentRowCount][1]) / float(secondMatrix[currentRowCount][1])
+         featureMatrix.append([timeStamp,value])
+
+      currentRowCount += 1   
+
+   return featureMatrix   
+
 def getFileNameFromFeatureName(pFeatureName):
    if "LastNRows" in pFeatureName:
       if fGenArgs.args.n == None:
