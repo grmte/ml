@@ -8,4 +8,27 @@
  70,    219805,    376454,      7761,     35268,    5992.5,  0.231,  0.138,  0.589,   0.82,  0.631,  0.012,   0.18,  0.862,   0.46,  0.237 
  80,    239608,    382493,      1722,     15465,    5149.5,   0.17,  0.061,  0.598,    0.9,  0.615,  0.003,    0.1,  0.939,  0.445,  0.114 
  90,    252100,    383806,       409,      2973,     873.0,  0.071,  0.012,    0.6,  0.879,  0.604,  0.001,  0.121,  0.988,  0.432,  0.023 
-Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient
+Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient 
+========== Section: Experiment design ================ 
+target =  tAverageOfNFutureLTPIsGreaterThanCurrentLTP
+
+[features]
+feature1 = fColBidQ0InCurrentRow
+feature2 = fColBidQ1InCurrentRow
+feature3 = fColBidQ2InCurrentRow
+feature4 = fColBidQ3InCurrentRow
+feature5 = fColBidQ4InCurrentRow
+
+feature6 = fColAskQ0InCurrentRow
+feature7 = fColAskQ1InCurrentRow
+feature8 = fColAskQ2InCurrentRow
+feature9 = fColAskQ3InCurrentRow
+feature10 = fColAskQ4InCurrentRow
+
+
+feature11 = fRatioOfBidQSumAskQSumInCurrentRow
+feature12 = fColLTPInCurrentRow[DivideBy]fMovingAverageOfColLTPInLast200Rows
+feature13 = fEMovingAverageOfColBidP0InLast500Rows
+feature14 = fMovingAverageOfColBidP0InLast500Rows
+feature15 = fColLTPInCurrentRow
+feature16 = fColBidP0InCurrentRow
