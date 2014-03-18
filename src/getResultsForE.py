@@ -2,9 +2,9 @@
 
 
 import argparse
-parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/ob>getResultsForE.py -e e3.6/ -td data/20140204/ -pd data/20140205/')
+parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/>getResultsForE.py -e ob/e3.71/ -td ob/data/20140204/ -pd ob/data/20140205/ -m ob/generators/ ')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
-parser.add_argument('-a', required=False,help='Algorithm name')
+parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-m', required=True,help='Generators directory')

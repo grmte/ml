@@ -47,19 +47,19 @@ f.write('  stop("Not enough arguments. Please supply 2 arguments.") \n')
 f.write('} \n')
 
 f.write('if((args[1]=="-d") == TRUE ) { \n')
-f.write('   print ("Parameter check passed") \n')
+f.write('   print ("Checking if parameter -d has been given: PASS") \n')
 f.write('}else{ \n')
 f.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train.r -d data/20140207") \n')    
 f.write('} \n')
 
-f.write('print ("Section2: Read in the target files") \n')
+f.write('print ("Section2: Read target files") \n')
 f.write('targetVector=read.csv(paste(args[2],"/t/","'+config["target"]+'.target",sep=""), header=FALSE) \n\n')
 
 
-f.write('\nprint ("Section3: Read in the feature files") \n')
+f.write('\nprint ("Section3: Read feature files") \n')
 features = config["features"]
 for feature in features:
-    f.write('print ("Reading in '+ features[feature] +'.feature' + '") \n')
+    f.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
     f.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 f.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
@@ -70,7 +70,7 @@ while currentFeatureNumber  <  (len(features) - 1) :
   f.write('print ("The feature lengths do not match for ' + features.keys()[currentFeatureNumber] + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ features.values()[currentFeatureNumber+1]+'") \n')
   f.write('quit() \n')
   f.write('}else{ \n')
-  f.write('print ("Length of ' + features.keys()[currentFeatureNumber] + ' is same as length of '+features.keys()[currentFeatureNumber+1] +'")\n')
+  f.write('print ("Length of ' + features.keys()[currentFeatureNumber] + ' == '+features.keys()[currentFeatureNumber+1] +'")\n')
   f.write('}\n')
   currentFeatureNumber = currentFeatureNumber + 1
 
@@ -82,7 +82,7 @@ while currentFeatureNumber  <  (len(features) - 1) :
   f.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber] + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ features.values()[currentFeatureNumber+1]+'") \n')
   f.write('quit() \n')
   f.write('}else{ \n')
-  f.write('print ("Timestamps of ' + features.keys()[currentFeatureNumber] + ' is same as timestamp of '+features.keys()[currentFeatureNumber+1] +'")\n')
+  f.write('print ("Timestamps of ' + features.keys()[currentFeatureNumber] + ' == '+features.keys()[currentFeatureNumber+1] +'")\n')
   f.write('}\n')
   currentFeatureNumber = currentFeatureNumber + 1
 

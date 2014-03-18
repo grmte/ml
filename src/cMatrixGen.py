@@ -18,21 +18,23 @@ eDesignConfigObj = ConfigObj(args.e+"/design.ini")
 experimentName = os.path.basename(os.path.abspath(args.e))
 
 predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
-print "Starting to read the predicted values from "+ predictedValuesFileName
+print "Reading predicted values from: "+ predictedValuesFileName
 predictedValuesFile = open(predictedValuesFileName)
 
 actualValuesFileName = args.d+"/t/"+eDesignConfigObj["target"]+".target"
-print "Starting to read the actual values from "+ actualValuesFileName
+print "Reading actual values from: "+ actualValuesFileName
 actualValuesFile = open(actualValuesFileName)
 
 # reading the actual values into a dictionary on timestamp
 actualValuesDict=dict()
+totalNumberOfRows = 0
 for line in actualValuesFile:
     line=line.rstrip('\n')
     splitLine = line.split(',',2)
     timeStamp = splitLine[0]
     value = int(splitLine[1])
     actualValuesDict[timeStamp] = value
+    totalNumberOfRows += 1
 
 import numpy
 state = numpy.zeros((10,2,2),dtype=numpy.int)
@@ -71,6 +73,7 @@ IsItHeader = 1
 currentRowNumber = 0
 
 print "Entering for loop to process rows: ",
+divisorToPrint10Times = int(totalNumberOfRows / 10) 
 for line in predictedValuesFile:
     if (IsItHeader == 1):
         IsItHeader = 0
@@ -89,18 +92,15 @@ for line in predictedValuesFile:
         matrixUpdate(predictedProb,actualValue)
 
     currentRowNumber = currentRowNumber + 1
-    if( currentRowNumber % 1000 == 0):
+    if( currentRowNumber % divisorToPrint10Times == 0):
         print str(currentRowNumber), 
         sys.stdout.flush()
  
-print "predicted value not found in actual value = " + str(predictedValueNotFoundInActualValue)
-
-print "The confusion matrix is"
-print state
+print "\nPredicted event not found in actual event = " + str(predictedValueNotFoundInActualValue)
 
 fileName = args.d+"/c/"+experimentName+args.a+".cmatrix"
 outputFile = open(fileName,"w")
-print "Starting to write the output file"
+print "Starting to write: "+fileName
 
 formatString = "%3s,%10s,%10s,%10s,%10s,%10s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s \n"
 outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","$","MCC","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))

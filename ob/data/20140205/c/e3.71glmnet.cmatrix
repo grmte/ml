@@ -1,0 +1,36 @@
+%TS,FN A=1 P=0,TN A=0 P=0,FP A=0 P=1,TP A=1 P=1,         $,    MCC,    TPR,    TNR,    PPV,    NPV,    FPR,    FDR,    FNR,    ACC,     F1 
+ 10,      2385,     34041,    426911,    261106, -509813.5,  0.143,  0.991,  0.047,   0.38,  0.935,  0.589,   0.62,  0.009,  0.299,  0.549 
+ 20,      9658,     95225,    365727,    253833, -421674.0,  0.232,  0.963,  0.131,   0.41,  0.908,  0.505,   0.59,  0.037,  0.353,  0.575 
+ 30,     15045,    129276,    331676,    248446, -373291.0,  0.269,  0.943,  0.178,  0.428,  0.896,  0.458,  0.572,  0.057,  0.382,  0.589 
+ 40,     56298,    264404,    196548,    207193, -191225.5,  0.349,  0.786,  0.365,  0.513,  0.824,  0.271,  0.487,  0.214,  0.477,  0.621 
+ 50,     91299,    339683,    121269,    172192,  -95807.5,  0.383,  0.654,  0.469,  0.587,  0.788,  0.167,  0.413,  0.346,  0.518,  0.618 
+ 60,    170351,    416216,     44736,     93140,  -20534.0,  0.314,  0.353,  0.575,  0.676,   0.71,  0.062,  0.324,  0.647,  0.516,  0.464 
+ 70,    232388,    454351,      6601,     31103,    5650.0,  0.225,  0.118,  0.627,  0.825,  0.662,  0.009,  0.175,  0.882,  0.491,  0.207 
+ 80,    251965,    459475,      1477,     11526,    3547.5,  0.147,  0.044,  0.634,  0.886,  0.646,  0.002,  0.114,  0.956,  0.477,  0.083 
+ 90,    260587,    460840,       112,      2904,    1284.0,  0.081,  0.011,  0.636,  0.963,  0.639,    0.0,  0.037,  0.989,  0.469,  0.022 
+Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient 
+========== Section: Experiment design ================ 
+target =  tAverageOfNFutureLTPIsGreaterThanCurrentLTP
+
+[features]
+feature1 = fColBidQ0InCurrentRow
+feature2 = fColBidQ1InCurrentRow
+feature3 = fColBidQ2InCurrentRow
+feature4 = fColBidQ3InCurrentRow
+feature5 = fColBidQ4InCurrentRow
+
+feature6 = fColAskQ0InCurrentRow
+feature7 = fColAskQ1InCurrentRow
+feature8 = fColAskQ2InCurrentRow
+feature9 = fColAskQ3InCurrentRow
+feature10 = fColAskQ4InCurrentRow
+
+
+feature11 = fRatioOfBidQSumAskQSumInCurrentRow
+feature12 = fEMovingAverageOfColBidP0InLast500Rows
+feature13 = fMovingAverageOfColBidP0InLast500Rows
+feature14 = fColLTPInCurrentRow
+
+feature15 = fColBidP0InCurrentRow
+
+feature16 = fMovingAverageOfColLTPInLast500Rows
