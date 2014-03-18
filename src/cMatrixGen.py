@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from __future__ import division
 import os
+import sys
 
 
 import argparse
@@ -68,6 +69,8 @@ def matrixUpdate(pPredictedProb,pActualValue):
 predictedValueNotFoundInActualValue = 0
 IsItHeader = 1
 currentRowNumber = 0
+
+print "Entering for loop to process rows: ",
 for line in predictedValuesFile:
     if (IsItHeader == 1):
         IsItHeader = 0
@@ -87,8 +90,8 @@ for line in predictedValuesFile:
 
     currentRowNumber = currentRowNumber + 1
     if( currentRowNumber % 1000 == 0):
-        print "Processing row number " + str(currentRowNumber)
-
+        print str(currentRowNumber), 
+        sys.stdout.flush()
  
 print "predicted value not found in actual value = " + str(predictedValueNotFoundInActualValue)
 
@@ -130,4 +133,5 @@ for i in xrange (1,10,1):
     outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(dollar),str(MCC),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
 
 outputFile.write("Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient \n")
+outputFile.write("========== Section: Experiment design ================ \n")
 outputFile.write(open(args.e+"/design.ini").read())

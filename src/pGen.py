@@ -19,13 +19,12 @@ print ""
 
 dirName=os.path.dirname(args.e)
 
-if(args.a == 'glmnet'):
-    rProgName = "predict-"+args.a+".r"
-elif(args.a == 'logitr'):
-    rProgName = "predict-logitr.r"
-elif(args.a == 'randomForest'):
-    rProgName = "predict-randomForest.r"
+if args.a is None:
+    algo ='glmnet'
+else:
+    algo =args.a
 
+rProgName = "predict-"+algo+".r"
 f = open(dirName+'/'+rProgName,'w')
 
 f.write('#!/usr/bin/Rscript \n')
@@ -86,12 +85,7 @@ while currentFeatureNumber  <  (len(features) - 1) :
   currentFeatureNumber = currentFeatureNumber + 1
 
 f.write('\nprint ("Section6: Read in the prediction model") \n')
-if(args.a == 'glmnet'):
-             predictionModel = 'glmnet.model'
-elif(args.a == 'logitr'):
-             predictionModel = 'logitr.model'
-elif(args.a == 'randomForest'):
-             predictionModel = 'randomForest.model'
+predictionModel = algo+'.model'
 
 f.write('load("'+args.e+'/'+predictionModel+'")')
 
@@ -137,8 +131,22 @@ elif(args.a == 'randomForest'):
     f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
     f.write('Prob<- predict (fit, df)')
     f.write("\n\n")
+elif(args.a == 'mda'):
+    f.write('\n\nprint ("Section7: Creating the data frame") \n')
+    f.write('df = data.frame(')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(features[feature]+'='+feature+'$V2')
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
+            f.write(',')
+    f.write(")\n\n")
+
+    f.write('print ("Section8: Running ' + algo + ' prediction") \n')
+    f.write('Prob<- predict (fit, df)')
+    f.write("\n\n")
 else:
-    print "The only valid options are glmnet, logitr or randomForest"
+    print "The only valid options are glmnet, logitr, randomForest or mda"
     os._exit(-1)
 
 f.write('\nprint ("Section9: Creating the data frame to write in the file") \n')

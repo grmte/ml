@@ -17,10 +17,10 @@ if args.a is not None:
 else:
     algo = 'glmnet'
 
-print "Running train-algo.r to generate the model"
 scriptName=args.e+"/train-"+algo+".r"
+print "Running "+ scriptName +" to generate the model"
 subprocess.call([scriptName,"-d",args.td])
     
 scriptName=args.e+"/predict-"+algo+".r"
-print "Running predict-algo.r to generate the predictions"
+print "Running "+ scriptName +" to generate the predictions"
 subprocess.call([scriptName,"-d",args.pd])

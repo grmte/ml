@@ -19,21 +19,22 @@ print ""
 
 dirName=os.path.dirname(args.e)
 
-if(args.a == 'glmnet'):
-    rProgName = "train-"+args.a+".r"
-elif(args.a == 'logitr'):
-    rProgName = "train-logitr.r"
-elif(args.a == 'randomForest'):
-    rProgName = "train-randomForest.r"
+if args.a is None:
+    algo = 'glmnet'
+else:
+    algo = args.a
 
+rProgName = "train-"+algo+".r"
 f = open(dirName+'/'+rProgName,'w')
 
 f.write('#!/usr/bin/Rscript \n')
 
-if(args.a == 'glmnet'):
+if(algo == 'glmnet'):
     f.write('require (glmnet) \n')
-elif(args.a == 'randomForest'):
+elif(algo == 'randomForest'):
     f.write('require (randomForest) \n')
+elif(algo == 'mda'):
+    f.write('require (mda) \n')
 
 f.write('print ("Section1: Clearing the environment and making sure the data directory has been passed") \n')
 f.write('rm(list=ls()) \n')
@@ -107,7 +108,6 @@ if(args.a == 'glmnet'):
             f.write(',')    
     f.write(')\n')
     f.write('fit = cv.glmnet(x =X, y = targetVector$V2) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
-    outputFileName = args.e+'glmnet.model'
 elif(args.a == 'logitr'):
     f.write('print ("Section7: Running logistic regression") \n')
     f.write('fit <- glm ('+config["target"]+' ~ ')
@@ -118,8 +118,7 @@ elif(args.a == 'logitr'):
         if(len(features) > currentFeatureNumber):
             f.write('+')
     f.write(' , data = df,family = binomial(link="logit") ) \n')
-    outputFileName = args.e+'logitr.model'
-if(args.a == 'randomForest'):
+elif(args.a == 'randomForest'):
     f.write('print ("Section7: Running random forest training") \n')
     f.write('X <- cbind(')
     currentFeatureNumber=0
@@ -130,7 +129,19 @@ if(args.a == 'randomForest'):
             f.write(',')    
     f.write(')\n')
     f.write('fit = randomForest(x =X, y = targetVector$V2,importance = TRUE) \n') 
-    outputFileName = args.e+'randomForest.model'
+elif(args.a == 'mda'):
+    f.write('print ("Section7: Running mda training") \n')
+    f.write('X <- cbind(')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(features.keys()[currentFeatureNumber]+'$V2')
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
+            f.write(',')    
+    f.write(')\n')
+    f.write('fit = mda(x =X, y = targetVector$V2) \n') 
+    
+outputFileName = args.e+'/'+algo+'.model'
 
 f.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
 f.write('save(fit, file = "'+ outputFileName+'")')

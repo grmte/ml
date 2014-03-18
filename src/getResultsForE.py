@@ -14,7 +14,7 @@ args = parser.parse_args()
 import subprocess
 
 if args.a is not None:
-    algo = [args.a]
+    algo = args.a
 else:
     algo = 'glmnet'
 
