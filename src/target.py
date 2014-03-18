@@ -26,4 +26,4 @@ def writeToFile(pProgName):
 
 def initVector():
    global vector
-   vector =  [[0 for x in xrange(2)] for x in xrange(len(dataFile.matrix))]
+   vector =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]

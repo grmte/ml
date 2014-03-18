@@ -88,7 +88,10 @@ while currentFeatureNumber  <  (len(features) - 1) :
 f.write('\nprint ("Section6: Creating the data frame") \n')
 f.write('df = data.frame('+config["target"]+'=targetVector$V2')
 for feature in features:
-    f.write(','+features[feature]+'='+feature+'$V2')
+    userFriendlyName = features[feature] 
+    userFriendlyName = userFriendlyName.replace('[','')
+    userFriendlyName = userFriendlyName.replace(']','')
+    f.write(','+userFriendlyName+'='+feature+'$V2')
 f.write(")\n\n")
 
 
