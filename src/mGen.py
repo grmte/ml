@@ -25,7 +25,8 @@ else:
     algo = args.a
 
 rProgName = "train-"+algo+".r"
-f = open(dirName+'/'+rProgName,'w')
+rProgLocation = dirName+'/'+rProgName
+f = open(rProgLocation,'w')
 
 f.write('#!/usr/bin/Rscript \n')
 
@@ -148,5 +149,5 @@ f.write('save(fit, file = "'+ outputFileName+'")')
 
 f.close()
 
-print "Finished generating the R program"
-print rProgName + "\n"
+print "Finished generating R training program: " + rProgLocation + "\n"
+os.system("chmod +x "+rProgLocation)

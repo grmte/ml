@@ -25,7 +25,8 @@ else:
     algo =args.a
 
 rProgName = "predict-"+algo+".r"
-f = open(dirName+'/'+rProgName,'w')
+rProgLocation = dirName+'/'+rProgName
+f = open(rProgLocation,'w')
 
 f.write('#!/usr/bin/Rscript \n')
 if(args.a == 'glmnet'):
@@ -162,5 +163,5 @@ f.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=
 
 f.close()
 
-print "Finished generating the R program"
-print rProgName + "\n"
+print "Finished generating R prediction program: " + rProgLocation + "\n"
+os.system("chmod +x "+rProgLocation)
