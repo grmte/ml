@@ -21,14 +21,18 @@ dirName=os.path.dirname(args.e)
 
 if(args.a == 'glmnet'):
     rProgName = "predict-"+args.a+".r"
-else:
+elif(args.a == 'logitr'):
     rProgName = "predict-logitr.r"
+elif(args.a == 'randomForest'):
+    rProgName = "predict-randomForest.r"
 
 f = open(dirName+'/'+rProgName,'w')
 
 f.write('#!/usr/bin/Rscript \n')
 if(args.a == 'glmnet'):
     f.write('require (glmnet) \n')
+elif(args.a == 'randomForest'):
+    f.write('require (randomForest) \n')
 
 f.write('print ("Section1: Setting the environment") \n')
 f.write('rm(list=ls()) \n')
@@ -84,8 +88,11 @@ while currentFeatureNumber  <  (len(features) - 1) :
 f.write('\nprint ("Section6: Read in the prediction model") \n')
 if(args.a == 'glmnet'):
              predictionModel = 'glmnet.model'
-else:
+elif(args.a == 'logitr'):
              predictionModel = 'logitr.model'
+elif(args.a == 'randomForest'):
+             predictionModel = 'randomForest.model'
+
 f.write('load("'+args.e+'/'+predictionModel+'")')
 
 if(args.a == 'glmnet'):
@@ -100,7 +107,7 @@ if(args.a == 'glmnet'):
     f.write(")\n\n")
 
     f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
-    f.write('df$Prob <- predict (fit, newx = df,s = "lambda.min")')
+    f.write('Prob <- predict (fit, newx = df,s = "lambda.min")')
     f.write("\n\n")
 elif(args.a == 'logitr'):
     f.write('\n\nprint ("Section7: Creating the data frame") \n')
@@ -114,17 +121,31 @@ elif(args.a == 'logitr'):
     f.write(")\n\n")
 
     f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
-    f.write('df$Prob <- predict (fit, newdata = df, type = "response")')
+    f.write('Prob<- predict (fit, newdata = df, type = "response")')
+    f.write("\n\n")
+elif(args.a == 'randomForest'):
+    f.write('\n\nprint ("Section7: Creating the data frame") \n')
+    f.write('df = data.frame(')
+    currentFeatureNumber=0
+    for feature in features:
+        f.write(features[feature]+'='+feature+'$V2')
+        currentFeatureNumber = currentFeatureNumber+1
+        if(len(features) > currentFeatureNumber):
+            f.write(',')
+    f.write(")\n\n")
+
+    f.write('print ("Section8: Running ' + args.a + ' prediction") \n')
+    f.write('Prob<- predict (fit, df)')
     f.write("\n\n")
 else:
-    print "The only valid options are glmnet or logitr"
+    print "The only valid options are glmnet, logitr or randomForest"
     os._exit(-1)
 
 f.write('\nprint ("Section9: Creating the data frame to write in the file") \n')
 f.write('dfForFile <- data.frame('+features.keys()[0]+'$V1) \n')
 
 f.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
-f.write('dfForFile <- cbind(dfForFile,df$Prob) \n')
+f.write('dfForFile <- cbind(dfForFile,Prob) \n')
 
 f.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e)) +args.a +'.predictions") \n')
 f.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
