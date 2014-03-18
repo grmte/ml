@@ -28,7 +28,7 @@ actualValuesFile = open(actualValuesFileName)
 actualValuesDict=dict()
 for line in actualValuesFile:
     line=line.rstrip('\n')
-    splitLine = line.split(',',1)
+    splitLine = line.split(',',2)
     timeStamp = splitLine[0]
     value = int(splitLine[1])
     actualValuesDict[timeStamp] = value
@@ -129,4 +129,5 @@ for i in xrange (1,10,1):
     dollar = TP * .5 - (FP * 1.5)
     outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(dollar),str(MCC),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
 
-outputFile.write("Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient")
+outputFile.write("Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient \n")
+outputFile.write(open(args.e+"/design.ini").read())

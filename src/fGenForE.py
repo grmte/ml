@@ -3,6 +3,7 @@ from configobj import ConfigObj
 import subprocess
 import feature
 import argparse
+import os
 
 parser = argparse.ArgumentParser(description='This program will run fGen.py for all features required for an experiement. An e.g. command line is fGenAll.py -d ob/data/20140207/ -e e7.1')
 parser.add_argument('-d', required=True,help='Directory of data file')
@@ -50,8 +51,12 @@ for f in features:
         secondFeatureName = featureName[endPos:]
         runCommandLine(firstFeatureName)
         runCommandLine(secondFeatureName)
-        feature.vector = feature.divideFeatures(firstFeatureName,secondFeatureName)
-        feature.writeToFile(featureName)
+        featureFile = feature.getFileNameFromFeatureName(featureName)
+        if (os.path.isfile(featureFile)):
+            print "The feature file already exists"
+        else:    
+            feature.vector = feature.divideFeatures(firstFeatureName,secondFeatureName)
+            feature.writeToFile(featureName)
         continue
 
     runCommandLine(featureName)

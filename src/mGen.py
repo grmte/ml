@@ -59,7 +59,7 @@ f.write('\nprint ("Section3: Read in the feature files") \n')
 features = config["features"]
 for feature in features:
     f.write('print ("Reading in '+ features[feature] +'.feature' + '") \n')
-    f.write(feature+'=read.csv(paste(args[2],"f/","'+features[feature]+'.feature",sep=""), header=FALSE) \n')
+    f.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=FALSE) \n')
 
 f.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
 features = config["features"]

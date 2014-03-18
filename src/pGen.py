@@ -52,7 +52,7 @@ f.write('} \n')
 f.write('print ("Section2: checking if the predictions file already exists") \n')
 f.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
 f.write('if(file.exists(fileName)){ \n')
-f.write("    stop ('The predictions already exist. Delete it and then run the program again') \n")
+f.write("    print ('Warning: The predictions already exist. Is this what you expected?') \n")
 f.write("} \n")
 
 f.write('\nprint ("Section3: Read in the feature files") \n')
