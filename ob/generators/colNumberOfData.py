@@ -22,5 +22,6 @@ BidQ2 = 15
 BidQ3 = 17
 BidQ4 = 19
 
+TTQ = 21
 LTP = 22
 TimeStamp = 32
