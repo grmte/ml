@@ -44,7 +44,7 @@ for f in features:
     featureName = features[f]
     print "\nGenerating for " + featureName
 
-    if "DivideBy" in featureName:
+    if "DivideBy" in featureName or "Add" in featureName:
         startPos = featureName.find("[")
         endPos = featureName.find("]") + 1
         firstFeatureName = featureName[0:startPos]
@@ -55,7 +55,10 @@ for f in features:
         if (os.path.isfile(featureFile)):
             print "The feature file already exists"
         else:    
-            feature.vector = feature.divideFeatures(firstFeatureName,secondFeatureName)
+            if "DivideBy" in featureName:
+                feature.vector = feature.operateOnFeatures(firstFeatureName,secondFeatureName,"DivideBy")
+            elif "Add" in featureName:
+                feature.vector = feature.operateOnFeatures(firstFeatureName,secondFeatureName,"Add")
             feature.writeToFile(featureName)
         continue
 

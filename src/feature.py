@@ -18,7 +18,7 @@ def readFeatureFileIntoMatrix(pFeatureFile):
 
    return matrix   
 
-def divideFeatures(pFirstFeatureName,pSecondFeatureName):
+def operateOnFeatures(pFirstFeatureName,pSecondFeatureName,pOperand):
    featureMatrix = [] 
    firstFileName = getFileNameFromFeatureName(pFirstFeatureName)
    secondFileName = getFileNameFromFeatureName(pSecondFeatureName)
@@ -32,7 +32,10 @@ def divideFeatures(pFirstFeatureName,pSecondFeatureName):
          print "The time stamps do not match"
       else:
          timeStamp = firstMatrix[currentRowCount][0]
-         value = float(firstMatrix[currentRowCount][1]) / float(secondMatrix[currentRowCount][1])
+         if(pOperand == "DivideBy"):
+            value = float(firstMatrix[currentRowCount][1]) / float(secondMatrix[currentRowCount][1])
+         elif(pOperand == "Add"):
+            value = float(firstMatrix[currentRowCount][1]) + float(secondMatrix[currentRowCount][1])
          featureMatrix.append([timeStamp,value])
 
       currentRowCount += 1   
