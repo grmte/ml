@@ -44,7 +44,7 @@ for f in features:
     featureName = features[f]
     print "\nGenerating for " + featureName
 
-    if "DivideBy" in featureName or "Add" in featureName:
+    if "DivideBy" in featureName or "Add" in featureName or "Subtract" in featureName:
         startPos = featureName.find("[")
         endPos = featureName.find("]") + 1
         firstFeatureName = featureName[0:startPos]
@@ -59,6 +59,8 @@ for f in features:
                 feature.vector = feature.operateOnFeatures(firstFeatureName,secondFeatureName,"DivideBy")
             elif "Add" in featureName:
                 feature.vector = feature.operateOnFeatures(firstFeatureName,secondFeatureName,"Add")
+            elif "Subtract" in featureName:
+                feature.vector = feature.operateOnFeatures(firstFeatureName,secondFeatureName,"Subtract")
             feature.writeToFile(featureName)
         continue
 
