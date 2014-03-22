@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 matrix = []
 confDataFileName = ""
@@ -25,7 +25,8 @@ def getNameFromCommandLineParam(pDirName):
       print "Did not find the data file"
       os._exit(-1)
    else:   
-      print "Found the data file "+confDataFileName   
+      print "Data file : "+confDataFileName + " : Found"   
+      sys.stdout.flush()
 
 def getDataIntoMatrix(pDirName):
    getNameFromCommandLineParam(pDirName)

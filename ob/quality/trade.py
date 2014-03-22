@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import division
-import os, sys, argparse, decimal
+import os, sys, argparse
 from configobj import ConfigObj
 
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment. An e.g. command line is tarde.py -d ob/data/20140207/ -e ob/e/1 -a logitr')
@@ -19,35 +19,49 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     experimentName = os.path.basename(os.path.abspath(args.e))
     predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
-    print "Reading predicted values from: "+ predictedValuesFileName
+    print "Predicted values file : "+ predictedValuesFileName
+    sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
     fileHasHeader = True
-    timeStampAlreadyExistsInDict = 0
+    numberOfLinesInPredictedValuesFile = 0
     for line in predictedValuesFile:
         if fileHasHeader == True:
             fileHasHeader = False
             continue
         line=line.rstrip('\n')
         splitLine = line.split(',',2)
-        timeStamp = decimal.Decimal(splitLine[1])
+        timeStamp = float(splitLine[1])
         predictedProb = float(splitLine[2])
-        if timeStamp in pPredictedValuesDict:
-            timeStampAlreadyExistsInDict +=1
-            print "This timestamp already exists :" + str(timeStamp)
-        else:    
-            pPredictedValuesDict[timeStamp] = predictedProb     
+        pPredictedValuesDict[timeStamp] = predictedProb
+        numberOfLinesInPredictedValuesFile += 1
     print "Finished reading the predicted values file"    
-    print "Number of duplicate timestamps rejected = " + str(timeStampAlreadyExistsInDict)
+    print "The number of elements in the predicted values dictionary is : " + str(len(pPredictedValuesDict))
+    if (numberOfLinesInPredictedValuesFile != len(pPredictedValuesDict)):
+        print "Number of duplicate timestamps rejected = " + str(numberOfLinesInPredictedValuesFile - len(pPredictedValuesDict))
+        os._exit(-1)
+    sys.stdout.flush()
 
-def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDateRow,pAskP0AtTimeOfPreviousDataRow, pBidP0AtTimeOfPreviousDataRow, pEnterTrade, pTotalSalePrice, pTotalBuyPrice,pCurrentPosition):
+def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDateRow,pAskP0AtTimeOfPreviousDataRow, pBidP0AtTimeOfPreviousDataRow, pEnterTrade, pTradeStats,pCurrentPosition,pReasonForBuyTrade):
     if(pEnterTrade == 0):
         return
     elif(pEnterTrade == -1 and pCurrentPosition > 0): # Need to sell
-        if(pCurrentDataRow[colNumberOfData.LTP] == pAskP0AtTimeOfPreviousDataRow and pCurrentDataRow[colNumberOfData.TTQ] > pTTQAtTimeOfPreviousDateRow):
-            pTotalSellPrice = 1 * pAskP0AtTimeOfPreviousDataRow
+        currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
+        currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
+        if(currentLTP == pAskP0AtTimeOfPreviousDataRow and currentTTQ > pTTQAtTimeOfPreviousDateRow): # if false hence i was able to sell
+            pTradeStats['totalSellPrice'] += 1 * pAskP0AtTimeOfPreviousDataRow
+            pCurrentPosition -= 1
     elif(pEnterTrade == 1 and pCurrentPosition == 0): # Need to buy
-        if(pCurrentDataRow[colNumberOfData.LTP] == pBidP0AtTimeOfPreviousDataRow and pCurrentDataRow[colNumberOfData.TTQ] > pTTQAtTimeOfPreviousDateRow):
-            pTotalBuyPrice = 1 * pBidP0AtTimeOfPreviousDataRow
+        currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
+        currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])             
+        # Let me find out if i was able to buy
+        if(currentTTQ <= pTTQAtTimeOfPreviousDateRow):
+            pReasonForBuyTrade['VolumeDidNotIncrease'] += 1
+        elif(currentLTP != pBidP0AtTimeOfPreviousDataRow): 
+            pReasonForBuyTrade['LTPDoesNotEqualBidP0'] += 1
+        else:    
+            pReasonForBuyTrade['AssumingTradeHappened'] += 1
+            pTradeStats['totalBuyPrice'] += 1 * pBidP0AtTimeOfPreviousDataRow
+            pCurrentPosition += 1
 
 def main():
    dataFile.getDataIntoMatrix(args.d)
@@ -58,16 +72,26 @@ def main():
    ttqAtTimeOfPreviousDataRow = 0
    askP0AtTimeOfPreviousDataRow = 0
    bidP0AtTimeOfPreviousDataRow = 0
-   totalSalePrice = 0
-   totalBuyPrice = 0
+   tradeStats = dict()
+   tradeStats['totalSalePrice'] = 0
+   tradeStats['totalBuyPrice'] = 0
    noPredictionForThisRow = 0
    currentPredictedValue = 0
    entryCL = float(args.entryCL)
    exitCL = float(args.exitCL)
+   numberOfTimesAskedToEnterTrade = 0
+   numberOfTimesAskedToExitTrade = 0
+   reasonForBuyTrade = dict()
+   reasonForBuyTrade['LTPDoesNotEqualBidP0'] = 0
+   reasonForBuyTrade['VolumeDidNotIncrease'] = 0
+   reasonForBuyTrade['AssumingTradeHappened'] = 0
+
+
+   print "Processing the data file for trades :"
 
    for currentDataRow in dataFile.matrix:
-       checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTrade,totalSalePrice,totalBuyPrice, currentPosition)
-       currentTimeStamp = common.convertTimeStampFromStringToDecimal(currentDataRow[colNumberOfData.TimeStamp])
+       checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTrade,tradeStats,currentPosition,reasonForBuyTrade)
+       currentTimeStamp = common.convertTimeStampFromStringToFloat(currentDataRow[colNumberOfData.TimeStamp])
 
        try:
            currentPredictedValue = float(predictedValuesDict[currentTimeStamp])
@@ -76,17 +100,24 @@ def main():
 
        if(currentPredictedValue > entryCL):
            enterTrade = 1
+           numberOfTimesAskedToEnterTrade += 1
        elif(currentPredictedValue < exitCL):
+           numberOfTimesAskedToExitTrade += 1
            enterTrade = -1  # Implies to exit the trade
        else:
            enterTrade = 0  # Implies make no change
 
-       ttqAtTimeOfPreviousDataRow = currentDataRow[colNumberOfData.TTQ] 
+       ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ]) 
        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
     
-   print "The net results are: " + str(totalSalePrice - totalBuyPrice)    
+   print "The net results are: " + str(tradeStats['totalSalePrice'] - tradeStats['totalBuyPrice'])    
    print "Number of rows for which there is no prediction: " + str(noPredictionForThisRow)    
+   print "Number of times asked to enter trade: " + str(numberOfTimesAskedToEnterTrade)    
+   print "Number of times asked to exit trade: " + str(numberOfTimesAskedToExitTrade)    
+   print "Assumed trade did not happen since volume did not increase: " + str(reasonForBuyTrade['VolumeDidNotIncrease'])
+   print "Assumed trade did not happen since bidP0 not same as LTP: " + str(reasonForBuyTrade['LTPDoesNotEqualBidP0'])
+   print "Assumed trade happened: " + str(reasonForBuyTrade['AssumingTradeHappened'])
 
 if __name__ == "__main__":
     main()
