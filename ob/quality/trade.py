@@ -41,56 +41,64 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         os._exit(-1)
     sys.stdout.flush()
 
-def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDateRow,pAskP0AtTimeOfPreviousDataRow, pBidP0AtTimeOfPreviousDataRow, pEnterTrade, pTradeStats,pCurrentPosition,pReasonForBuyTrade):
+def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow, pBidP0AtTimeOfPreviousDataRow, pEnterTrade, pTradeStats,pReasonForTrade):
     if(pEnterTrade == 0):
         return
-    elif(pEnterTrade == -1 and pCurrentPosition > 0): # Need to sell
+    elif(pEnterTrade == -1): # Need to sell we come here only if currentPosition is greater than 0 so no need to check again.
         currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
         currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
-        if(currentLTP == pAskP0AtTimeOfPreviousDataRow and currentTTQ > pTTQAtTimeOfPreviousDateRow): # if false hence i was able to sell
-            pTradeStats['totalSellPrice'] += 1 * pAskP0AtTimeOfPreviousDataRow
-            pCurrentPosition -= 1
-    elif(pEnterTrade == 1 and pCurrentPosition == 0): # Need to buy
+        if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
+            pReasonForTrade['VolumeDidNotIncreaseDuringSellAttempt'] += 1
+        elif(currentLTP != pAskP0AtTimeOfPreviousDataRow): 
+            pReasonForTrade['LTPDoesNotEqualAskP0'] += 1
+        else:    
+            pReasonForTrade['AssumingSellTradeHappened'] += 1
+            pTradeStats['totalSellValue'] += 1 * pAskP0AtTimeOfPreviousDataRow
+            pTradeStats['currentPosition'] -= 1
+    elif(pEnterTrade == 1 and pTradeStats['currentPosition'] == 0): # Need to buy
         currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
         currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])             
         # Let me find out if i was able to buy
-        if(currentTTQ <= pTTQAtTimeOfPreviousDateRow):
-            pReasonForBuyTrade['VolumeDidNotIncrease'] += 1
+        if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
+            pReasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt'] += 1
         elif(currentLTP != pBidP0AtTimeOfPreviousDataRow): 
-            pReasonForBuyTrade['LTPDoesNotEqualBidP0'] += 1
+            pReasonForTrade['LTPDoesNotEqualBidP0'] += 1
         else:    
-            pReasonForBuyTrade['AssumingTradeHappened'] += 1
-            pTradeStats['totalBuyPrice'] += 1 * pBidP0AtTimeOfPreviousDataRow
-            pCurrentPosition += 1
+            pReasonForTrade['AssumingBuyTradeHappened'] += 1
+            pTradeStats['totalBuyValue'] += 1 * pBidP0AtTimeOfPreviousDataRow
+            pTradeStats['currentPosition'] += 1
 
 def main():
    dataFile.getDataIntoMatrix(args.d)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
    enterTrade = 0
-   currentPosition = 0
    ttqAtTimeOfPreviousDataRow = 0
    askP0AtTimeOfPreviousDataRow = 0
    bidP0AtTimeOfPreviousDataRow = 0
    tradeStats = dict()
-   tradeStats['totalSalePrice'] = 0
-   tradeStats['totalBuyPrice'] = 0
+   tradeStats['totalSellValue'] = 0
+   tradeStats['totalBuyValue'] = 0
+   tradeStats['currentPosition'] = 0
    noPredictionForThisRow = 0
    currentPredictedValue = 0
    entryCL = float(args.entryCL)
    exitCL = float(args.exitCL)
    numberOfTimesAskedToEnterTrade = 0
    numberOfTimesAskedToExitTrade = 0
-   reasonForBuyTrade = dict()
-   reasonForBuyTrade['LTPDoesNotEqualBidP0'] = 0
-   reasonForBuyTrade['VolumeDidNotIncrease'] = 0
-   reasonForBuyTrade['AssumingTradeHappened'] = 0
+   reasonForTrade = dict()
+   reasonForTrade['LTPDoesNotEqualBidP0'] = 0
+   reasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt'] = 0
+   reasonForTrade['AssumingBuyTradeHappened'] = 0
+   reasonForTrade['LTPDoesNotEqualAskP0'] = 0
+   reasonForTrade['VolumeDidNotIncreaseDuringSellAttempt'] = 0
+   reasonForTrade['AssumingSellTradeHappened'] = 0
 
 
    print "Processing the data file for trades :"
 
    for currentDataRow in dataFile.matrix:
-       checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTrade,tradeStats,currentPosition,reasonForBuyTrade)
+       checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTrade,tradeStats,reasonForTrade)
        currentTimeStamp = common.convertTimeStampFromStringToFloat(currentDataRow[colNumberOfData.TimeStamp])
 
        try:
@@ -101,7 +109,7 @@ def main():
        if(currentPredictedValue > entryCL):
            enterTrade = 1
            numberOfTimesAskedToEnterTrade += 1
-       elif(currentPredictedValue < exitCL):
+       elif(currentPredictedValue < exitCL and tradeStats['currentPosition'] > 0):
            numberOfTimesAskedToExitTrade += 1
            enterTrade = -1  # Implies to exit the trade
        else:
@@ -111,13 +119,21 @@ def main():
        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
     
-   print "The net results are: " + str(tradeStats['totalSalePrice'] - tradeStats['totalBuyPrice'])    
+   print "The net results are: " + str(tradeStats['totalSellValue'] - tradeStats['totalBuyValue'])    
    print "Number of rows for which there is no prediction: " + str(noPredictionForThisRow)    
    print "Number of times asked to enter trade: " + str(numberOfTimesAskedToEnterTrade)    
    print "Number of times asked to exit trade: " + str(numberOfTimesAskedToExitTrade)    
-   print "Assumed trade did not happen since volume did not increase: " + str(reasonForBuyTrade['VolumeDidNotIncrease'])
-   print "Assumed trade did not happen since bidP0 not same as LTP: " + str(reasonForBuyTrade['LTPDoesNotEqualBidP0'])
-   print "Assumed trade happened: " + str(reasonForBuyTrade['AssumingTradeHappened'])
+   print "Assumed buy trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt'])
+   print "Assumed buy trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualBidP0'])
+   print "Assumed buy trade happened: " + str(reasonForTrade['AssumingBuyTradeHappened'])
+   print "Assumed sell trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringSellAttempt'])
+   print "Assumed sell trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualAskP0'])
+   print "Assumed sell trade happened: " + str(reasonForTrade['AssumingSellTradeHappened'])
+   print "The total sell value is: " + str(tradeStats['totalSellValue'])
+   print "The total buy value is: " + str(tradeStats['totalBuyValue'])
+   print "Average sell price per unit is: " + str(tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened'])
+   print "Average buy price per unit is: " + str(tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened'])
+   print "The current position: " + str(tradeStats['currentPosition'])
 
 if __name__ == "__main__":
     main()
