@@ -4,26 +4,29 @@ import sys
 import importlib
 
 import dataFile
-import fGenArgs
-import feature
+import aGenArgs
+import attribute
 
-sys.path.append(os.path.dirname(fGenArgs.args.m))
+sys.path.append(os.path.dirname(aGenArgs.args.m))
 try:
    import colNumberOfData
+   moduleName = os.path.basename(aGenArgs.args.m)
+   moduleName = os.path.splitext(moduleName)[0]
+   userModule = importlib.import_module(moduleName)
 except:
-   print "There is some problem with the path. I cannot import colNumberOfData"
-   os._exit(-1)
+   print "There is some problem with the path. I cannot import required files"
+   sys.exit(-1)
 
-moduleName = os.path.basename(fGenArgs.args.m)
-moduleName = os.path.splitext(moduleName)[0]
-userModule = importlib.import_module(moduleName)
 
 def main():
-   feature.checkIfFeatureFileExists(os.path.basename(moduleName))
-   dataFile.getDataIntoMatrix(fGenArgs.args.d)
-   feature.initVector()
-   userModule.extractFeatureFromDataMatrix()
-   feature.writeToFile(os.path.basename(moduleName))
+   try:
+      attribute.checkIfAttributeFileExists(os.path.basename(moduleName))
+      dataFile.getDataIntoMatrix(aGenArgs.args.d)
+      attribute.initList()
+      userModule.extractAttributeFromDataMatrix()
+      attribute.writeToFile(os.path.basename(moduleName))
+   except:
+      os._exit(-1)
 
 if __name__ == "__main__":
-    main()
+   main()

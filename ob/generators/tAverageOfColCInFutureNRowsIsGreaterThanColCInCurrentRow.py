@@ -1,15 +1,18 @@
 import os
 import colNumberOfData
 import dataFile
-import tGenArgs
-import target
+import aGenArgs
+import attribute
 import common
 from collections import deque
 
-def extractTargetFromDataMatrix():
+def extractAttributeFromDataMatrix():
    queueOfCellValueInFutureNRows = deque()
    totalOfFutureNRows = 0.0
-   numberOfFutureRows = int(tGenArgs.args.n)
+   if aGenArgs.args.n is None:
+      print "N has not been specified"
+      os._exit(-1)
+   numberOfFutureRows = int(aGenArgs.args.n)
    """ lets get the total of futureNrows"""
    futureRowCount = 0   
    while(futureRowCount < numberOfFutureRows):
@@ -24,7 +27,7 @@ def extractTargetFromDataMatrix():
 
    for dataRow in dataFile.matrix:
 
-      target.vector[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
       futureCellValue = 0
 
       if(currentRowCount + numberOfFutureRows < len(dataFile.matrix)):
@@ -40,12 +43,12 @@ def extractTargetFromDataMatrix():
       averageOfFutureRows = totalOfFutureNRows / float(divisor)
 
       if( averageOfFutureRows > float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])):   
-         target.vector[currentRowCount][1] = 1
+         attribute.list[currentRowCount][1] = 1
       else:
-         target.vector[currentRowCount][1] = 0
+         attribute.list[currentRowCount][1] = 0
 
-      target.vector[currentRowCount][2] = totalOfFutureNRows
-      target.vector[currentRowCount][3] = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
+      attribute.list[currentRowCount][2] = totalOfFutureNRows
+      attribute.list[currentRowCount][3] = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
 
       currentRowCount = currentRowCount + 1
       if(currentRowCount % 1000 == 0):

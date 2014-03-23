@@ -1,8 +1,8 @@
 import os
-import fGenArgs
+import aGenArgs
 import dataFile
 
-vector = []
+list = []
 
 def readFeatureFileIntoMatrix(pFeatureFile):
    print "Reading " +pFeatureFile
@@ -18,10 +18,10 @@ def readFeatureFileIntoMatrix(pFeatureFile):
 
    return matrix   
 
-def operateOnFeatures(pFirstFeatureName,pSecondFeatureName,pOperand):
+def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand):
    featureMatrix = [] 
-   firstFileName = getFileNameFromFeatureName(pFirstFeatureName)
-   secondFileName = getFileNameFromFeatureName(pSecondFeatureName)
+   firstFileName = getFileNameFromAttributeName(pFirstAttributeName)
+   secondFileName = getFileNameFromAttributeName(pSecondAttributeName)
    
    firstMatrix = readFeatureFileIntoMatrix(firstFileName)
    secondMatrix = readFeatureFileIntoMatrix(secondFileName)
@@ -44,43 +44,54 @@ def operateOnFeatures(pFirstFeatureName,pSecondFeatureName,pOperand):
 
    return featureMatrix   
 
-def getFileNameFromFeatureName(pFeatureName):
-   if "LastNRows" in pFeatureName:
-      if fGenArgs.args.n == None:
+def getAttributeTypeFromAttributeName(pAttributeName):
+   if(pAttributeName[0]=='f'):
+      return "feature"
+   else:
+      return "target"
+   
+
+def getFileNameFromAttributeName(pAttributesName):
+   if "NRows" in pAttributesName:
+      if aGenArgs.args.n == None:
          N = 5
       else:
-         N = fGenArgs.args.n
+         N = aGenArgs.args.n
    
-      pFeatureName = pFeatureName.replace("LastNRows","Last"+str(N)+"Rows")   
+      pAttributesName = pAttributesName.replace("NRows",str(N)+"Rows")   
 
-   if "ColC" in pFeatureName:
-      if fGenArgs.args.c == None:
+   if "ColC" in pAttributesName:
+      if aGenArgs.args.c == None:
          print "Column name has not been specified"
          os._exit(1)
 
-      pFeatureName = pFeatureName.replace("ColC","Col"+str(fGenArgs.args.c))   
+      pAttributesName = pAttributesName.replace("ColC","Col"+str(aGenArgs.args.c))   
 
-   featureFile=fGenArgs.args.d+"/f/"+pFeatureName+".feature"
-   return featureFile
+   if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
+      attributeFile=aGenArgs.args.d+"/f/"+pAttributesName+".feature"
+   else:   
+      attributeFile=aGenArgs.args.d+"/t/"+pAttributesName+".target"
+      
+   return attributeFile
    
-def checkIfFeatureFileExists(pFeatureName):
-   featureFile = getFileNameFromFeatureName(pFeatureName)
-   print "Checking if feature file exists " + featureFile 
-   if (os.path.isfile(featureFile)):
-      print "The feature has already been generated. If you want to re-generate it then first delete the feature file \n"
-      os._exit(-1)
+def checkIfAttributeFileExists(pAttributesName):
+   attributeFile = getFileNameFromAttributeName(pAttributesName)
+   print "Checking if attribute file exists " + attributeFile 
+   if (os.path.isfile(attributeFile)):
+      print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file \n"
+      os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
-def writeToFile(pFeatureName):
-   featureFile = open(getFileNameFromFeatureName(pFeatureName),"w")
-   for featureRow in vector:
+def writeToFile(pAttributesName):
+   attributeFile = open(getFileNameFromAttributeName(pAttributesName),"w")
+   for featureRow in list:
       featureCount = 1
       for feature in featureRow:
-         featureFile.write("%s" % (feature))
+         attributeFile.write("%s" % (feature))
          if(featureCount < len(featureRow)):
-            featureFile.write(",")
+            attributeFile.write(",")
          featureCount = featureCount + 1   
-      featureFile.write('\n')
+      attributeFile.write('\n')
 
-def initVector():
-   global vector
-   vector =  [[0 for x in xrange(2)] for x in xrange(len(dataFile.matrix))]
+def initList():
+   global list
+   list =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]

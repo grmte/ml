@@ -1,18 +1,18 @@
 import dataFile
 import colNumberOfData
-import feature
+import attribute
 import common
-import fGenArgs
+import aGenArgs
 import math
 
-def extractFeatureFromDataMatrix():
-   if fGenArgs.args.n == None:
+def extractAttributeFromDataMatrix():
+   if aGenArgs.args.n == None:
       N = 5
    else:
-      N = int(fGenArgs.args.n) 
+      N = int(aGenArgs.args.n) 
    
    try:
-      fGenArgs.args.c
+      aGenArgs.args.c
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit()
@@ -24,19 +24,19 @@ def extractFeatureFromDataMatrix():
 
    for dataRow in dataFile.matrix:
 
-      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ fGenArgs.args.c + '])'
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ aGenArgs.args.c + '])'
       cellValue = eval(codeString)
 
       if currentRowCount == 0:
-         feature.vector[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-         feature.vector[currentRowCount][1] = cellValue
+         attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+         attribute.list[currentRowCount][1] = cellValue
          currentRowCount = currentRowCount + 1
          continue
 
-      feature.vector[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-      firstPart = float(feature.vector[currentRowCount - 1][1]) * eParam
+      attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      firstPart = float(attribute.list[currentRowCount - 1][1]) * eParam
       secondPart = (1- eParam) * cellValue
-      feature.vector[currentRowCount][1] = firstPart + secondPart 
+      attribute.list[currentRowCount][1] = firstPart + secondPart 
 
       currentRowCount = currentRowCount + 1
 
