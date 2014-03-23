@@ -12,23 +12,27 @@ try:
    moduleName = os.path.splitext(moduleName)[0]
    userModule = importlib.import_module(moduleName)
 except:
+   traceback.print_exc()
    e = sys.exc_info()[0]
    print e
-   sys.exit(-1)
+   os._exit(-1)
+   
+   
+   
 
 
 def main():
-#   try:
+   try:
       attribute.checkIfAttributeFileExists(os.path.basename(moduleName))
       dataFile.getDataIntoMatrix(aGenArgs.args.d)
       attribute.initList()
       userModule.extractAttributeFromDataMatrix()
       attribute.writeToFile(os.path.basename(moduleName))
-#   except:
-#      traceback.print_exc()
-#      e = sys.exc_info()[0]
-#      print e
-#      os._exit(-1)
+   except:
+      traceback.print_exc()
+      e = sys.exc_info()[0]
+      print e
+      os._exit(-1)
 
 if __name__ == "__main__":
    main()

@@ -16,9 +16,13 @@ config = ConfigObj(args.e+"/design.ini")
 attributes = config["features"]
 attributes["target"] = config["target"]
 
+
 def runCommandLine(pAttributesName):
     paramList = []
     paramList = ["aGen.py","-d",args.d]
+
+
+    # Getting the moduleName from the attributeName
     if "Col" in pAttributesName:
         startPos = pAttributesName.find("Col") + 3
         endPos = pAttributesName.find("In")
@@ -30,6 +34,8 @@ def runCommandLine(pAttributesName):
     if "Last" in pAttributesName:
         startPos = pAttributesName.find("Last") + 4
         endPos = pAttributesName.find("Rows")
+        if endPos == -1:
+            endPos = pAttributesName.find("Secs")
         N = pAttributesName[startPos:endPos]
         pAttributesName = pAttributesName.replace(N,"N")
         paramList.append("-n")
