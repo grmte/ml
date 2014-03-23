@@ -19,8 +19,16 @@ else:
 
 scriptName=args.e+"/train-"+algo+".r"
 print "Running "+ scriptName +" to generate the model"
-subprocess.call([scriptName,"-d",args.td])
+returnState = subprocess.check_call([scriptName,"-d",args.td])
+if(returnState < 0):
+    print "Unrecoverable error code: " + str(returnState)
+    os._exit(-1)
     
 scriptName=args.e+"/predict-"+algo+".r"
 print "Running "+ scriptName +" to generate the predictions"
-subprocess.call([scriptName,"-d",args.pd])
+returnState = subprocess.check_call([scriptName,"-d",args.pd])
+if(returnState < 0):
+    print "Unrecoverable error code: " + str(returnState)
+    os._exit(-1)
+
+

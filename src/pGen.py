@@ -66,8 +66,8 @@ features = config["features"]
 currentFeatureNumber = 0
 while currentFeatureNumber  <  (len(features) - 1) :
   f.write('if (length(' + features.keys()[currentFeatureNumber] + '$V1) != length(' + features.keys()[currentFeatureNumber+1] + '$V1)) { \n')
-  f.write('print ("The feature lengths do not match for ' + features.keys()[currentFeatureNumber] + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ features.values()[currentFeatureNumber+1]+'") \n')
-  f.write('quit() \n')
+  f.write('print ("The feature lengths do not match for ' + features.keys()[currentFeatureNumber] + '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1] + '=' + features.values()[currentFeatureNumber+1]+'") \n')
+  f.write("quit('no',-1) \n")
   f.write('}else{ \n')
   f.write('print ("Length of ' + features.keys()[currentFeatureNumber] + ' == '+features.keys()[currentFeatureNumber+1] +'")\n')
   f.write('}\n')
@@ -78,8 +78,8 @@ features = config["features"]
 currentFeatureNumber = 0
 while currentFeatureNumber  <  (len(features) - 1) :
   f.write('if (all(' + features.keys()[currentFeatureNumber] + '$V1 == ' + features.keys()[currentFeatureNumber+1] + '$V1) != TRUE) { \n')
-  f.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber] + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ features.values()[currentFeatureNumber+1]+'") \n')
-  f.write('quit() \n')
+  f.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber] + '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+ '=' + features.values()[currentFeatureNumber+1]+'") \n')
+  f.write("quit('no',-1) \n")
   f.write('}else{ \n')
   f.write('print ("Timestamps of ' + features.keys()[currentFeatureNumber] + ' == '+features.keys()[currentFeatureNumber+1] +'")\n')
   f.write('}\n')

@@ -25,7 +25,7 @@ def extractAttributeFromDataMatrix():
          codeString = 'float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.'+ aGenArgs.args.c + '])'
          cellValue = eval(codeString)
          totalOfRowsInLastNSecs += cellValue
-         attribute.list[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])
+         attribute.list[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])
          attribute.list[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs/(numberOfRowsInLastNSecs+1) # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
          attribute.list[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs) + "," + str(numberOfRowsInLastNSecs) + "," + str(timeElapsed)
          queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
