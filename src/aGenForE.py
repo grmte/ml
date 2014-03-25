@@ -36,6 +36,8 @@ def runCommandLine(pAttributesName):
         endPos = pAttributesName.find("Rows")
         if endPos == -1:
             endPos = pAttributesName.find("Secs")
+            if endPos == -1:
+                endPos = pAttributesName.find("Qty")
         N = pAttributesName[startPos:endPos]
         pAttributesName = pAttributesName.replace(N,"N")
         paramList.append("-n")

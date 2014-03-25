@@ -66,6 +66,13 @@ def getFileNameFromAttributeName(pAttributesName):
          N = aGenArgs.args.n
       pAttributesName = pAttributesName.replace("NSecs",str(N)+"Secs")   
 
+   if "NQty" in pAttributesName:
+      if aGenArgs.args.n == None:
+         N = 5
+      else:
+         N = aGenArgs.args.n
+      pAttributesName = pAttributesName.replace("NQty",str(N)+"Qty")   
+
    if "ColC" in pAttributesName:
       if aGenArgs.args.c == None:
          print "Column name has not been specified"

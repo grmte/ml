@@ -17,8 +17,8 @@ def extractAttributeFromDataMatrix():
    totalOfRowsInLastNSecs = 0.0
    timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfData.TimeStamp])
    currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
-
-   while (currentRowNumberForWhichFeatureValueIsBeingCalculated < len(dataFile.matrix)):
+   lengthOfDataMatrix = len(dataFile.matrix)
+   while (currentRowNumberForWhichFeatureValueIsBeingCalculated < lengthOfDataMatrix):
       timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])
       timeElapsed = timeOfCurrentRow - timeOfOldestRow
       if (timeElapsed < N):
