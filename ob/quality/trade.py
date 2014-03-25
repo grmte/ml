@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from __future__ import division
+from __future__ import print_function
 import os, sys, argparse
 from configobj import ConfigObj
 
@@ -15,11 +16,12 @@ sys.path.append("/Users/vikaskedia/ml/src/")
 sys.path.append("/Users/vikaskedia/ml/ob/generators/")
 import dataFile, colNumberOfData, common
 
+experimentName = os.path.basename(os.path.abspath(args.e))
+
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
-    experimentName = os.path.basename(os.path.abspath(args.e))
     predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
-    print "Predicted values file : "+ predictedValuesFileName
+    print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
     fileHasHeader = True
@@ -34,10 +36,10 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         predictedProb = float(splitLine[2])
         pPredictedValuesDict[timeStamp] = predictedProb
         numberOfLinesInPredictedValuesFile += 1
-    print "Finished reading the predicted values file"    
-    print "The number of elements in the predicted values dictionary is : " + str(len(pPredictedValuesDict))
+    print("Finished reading the predicted values file")    
+    print("The number of elements in the predicted values dictionary is : " + str(len(pPredictedValuesDict)))
     if (numberOfLinesInPredictedValuesFile != len(pPredictedValuesDict)):
-        print "Number of duplicate timestamps rejected = " + str(numberOfLinesInPredictedValuesFile - len(pPredictedValuesDict))
+        print("Number of duplicate timestamps rejected = " + str(numberOfLinesInPredictedValuesFile - len(pPredictedValuesDict)))
         os._exit(-1)
     sys.stdout.flush()
 
@@ -95,7 +97,7 @@ def main():
    reasonForTrade['AssumingSellTradeHappened'] = 0
 
 
-   print "Processing the data file for trades :"
+   print("Processing the data file for trades :")
 
    for currentDataRow in dataFile.matrix:
        checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTrade,tradeStats,reasonForTrade)
@@ -119,21 +121,24 @@ def main():
        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
     
-   print "The net results are: " + str(tradeStats['totalSellValue'] - tradeStats['totalBuyValue'])    
-   print "Number of rows for which there is no prediction: " + str(noPredictionForThisRow)    
-   print "Number of times asked to enter trade: " + str(numberOfTimesAskedToEnterTrade)    
-   print "Number of times asked to exit trade: " + str(numberOfTimesAskedToExitTrade)    
-   print "Assumed buy trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt'])
-   print "Assumed buy trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualBidP0'])
-   print "Assumed buy trade happened: " + str(reasonForTrade['AssumingBuyTradeHappened'])
-   print "Assumed sell trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringSellAttempt'])
-   print "Assumed sell trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualAskP0'])
-   print "Assumed sell trade happened: " + str(reasonForTrade['AssumingSellTradeHappened'])
-   print "The total sell value is: " + str(tradeStats['totalSellValue'])
-   print "The total buy value is: " + str(tradeStats['totalBuyValue'])
-   print "Average sell price per unit is: " + str(tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened'])
-   print "Average buy price per unit is: " + str(tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened'])
-   print "The current position: " + str(tradeStats['currentPosition'])
+   fileName = args.d+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade"
+   outputFile = open(fileName,"w")
+   print("Starting to write: "+fileName)
+   print("The net results are: " + str(tradeStats['totalSellValue'] - tradeStats['totalBuyValue']), file = outputFile)    
+   print("Number of rows for which there is no prediction: " + str(noPredictionForThisRow), file = outputFile)    
+   print("Number of times asked to enter trade: " + str(numberOfTimesAskedToEnterTrade), file = outputFile)    
+   print("Number of times asked to exit trade: " + str(numberOfTimesAskedToExitTrade), file = outputFile)    
+   print("Assumed buy trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt']), file = outputFile)
+   print("Assumed buy trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualBidP0']), file = outputFile)
+   print("Assumed buy trade happened: " + str(reasonForTrade['AssumingBuyTradeHappened']), file = outputFile)
+   print("Assumed sell trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringSellAttempt']), file = outputFile)
+   print("Assumed sell trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualAskP0']), file = outputFile)
+   print("Assumed sell trade happened: " + str(reasonForTrade['AssumingSellTradeHappened']), file = outputFile)
+   print("The total sell value is: " + str(tradeStats['totalSellValue']), file = outputFile)
+   print("The total buy value is: " + str(tradeStats['totalBuyValue']), file = outputFile)
+   print("Average sell price per unit is: " + str(tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened']), file = outputFile)
+   print("Average buy price per unit is: " + str(tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened']), file = outputFile)
+   print("The current position: " + str(tradeStats['currentPosition']), file = outputFile)
 
 if __name__ == "__main__":
     main()
