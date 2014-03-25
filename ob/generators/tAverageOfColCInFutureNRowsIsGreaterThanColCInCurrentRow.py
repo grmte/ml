@@ -10,13 +10,21 @@ def extractAttributeFromDataMatrix():
    queueOfCellValueInFutureNRows = deque()
    totalOfFutureNRows = 0.0
    if aGenArgs.args.n is None:
-      print "N has not been specified"
+      print "-n has not been specified"
       os._exit(-1)
    numberOfFutureRows = int(aGenArgs.args.n)
+
+   try:
+      aGenArgs.args.c 
+   except:   
+      print "-c has not been specified"
+      os._exit(-1)
+   
    """ lets get the total of futureNrows"""
    futureRowCount = 0   
    while(futureRowCount < numberOfFutureRows):
-      cellValue = float(dataFile.matrix[futureRowCount][colNumberOfData.LTP])
+      codeString = 'float(dataFile.matrix[futureRowCount][colNumberOfData.'+aGenArgs.args.c+'])' 
+      cellValue = eval(codeString)
       queueOfCellValueInFutureNRows.append(cellValue)
       totalOfFutureNRows += cellValue
       futureRowCount = futureRowCount + 1
@@ -31,7 +39,8 @@ def extractAttributeFromDataMatrix():
       futureCellValue = 0
 
       if(currentRowCount + numberOfFutureRows < len(dataFile.matrix)):
-         futureCellValue = float(dataFile.matrix[currentRowCount+numberOfFutureRows][colNumberOfData.LTP])
+         codeString = 'float(dataFile.matrix[currentRowCount+numberOfFutureRows][colNumberOfData.'+aGenArgs.args.c+'])'
+         futureCellValue = eval(codeString)
          queueOfCellValueInFutureNRows.append(futureCellValue)
          divisor = numberOfFutureRows
       else:
@@ -42,13 +51,16 @@ def extractAttributeFromDataMatrix():
   
       averageOfFutureRows = totalOfFutureNRows / float(divisor)
 
-      if( averageOfFutureRows > float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])):   
+
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'])'
+      valueInCurrentRow = eval(codeString)
+      if( averageOfFutureRows > valueInCurrentRow):   
          attribute.list[currentRowCount][1] = 1
       else:
          attribute.list[currentRowCount][1] = 0
 
       attribute.list[currentRowCount][2] = totalOfFutureNRows
-      attribute.list[currentRowCount][3] = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
+      attribute.list[currentRowCount][3] = valueInCurrentRow
 
       currentRowCount = currentRowCount + 1
       if(currentRowCount % 1000 == 0):
