@@ -28,9 +28,15 @@ def runProgram(pProgDefinationList):
     else:
         print "Time taken to run the program is " + str(tEnd - tStart)
 
-runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-m",args.m])        
-runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-m",args.m])
-runProgram(["rGenForE.py","-e",args.e,"-a",algo])
-runProgram(["rRunForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
-runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
-runProgram(["./ob/quality/trade.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])
+# only run the set of programs if the trading results file does not exist
+
+fName = args.pd + "r/" + os.path.basename(os.path.abspath(args.e)) + algo +".55-.45.trade"
+if os.path.isfile(fName):
+    print "The results file already exists delete it if you want to run the experiment again"
+else:
+    runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-m",args.m])        
+    runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-m",args.m])
+    runProgram(["rGenForE.py","-e",args.e,"-a",algo])
+    runProgram(["rRunForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
+    runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
+    runProgram(["./ob/quality/trade.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])

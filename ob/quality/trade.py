@@ -136,8 +136,12 @@ def main():
    print("Assumed sell trade happened: " + str(reasonForTrade['AssumingSellTradeHappened']), file = outputFile)
    print("The total sell value is: " + str(tradeStats['totalSellValue']), file = outputFile)
    print("The total buy value is: " + str(tradeStats['totalBuyValue']), file = outputFile)
-   averageSellPrice = tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened']
-   averageBuyPrice = tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened']
+   try:
+       averageSellPrice = tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened']
+       averageBuyPrice = tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened']
+   except:
+       averageSellPrice = 0 
+       averageBuyPrice = 0
    print("Average sell price per unit is: " + str(averageSellPrice), file = outputFile)
    print("Average buy price per unit is: " + str(averageBuyPrice), file = outputFile)
    print("The current position: " + str(tradeStats['currentPosition']), file = outputFile)
