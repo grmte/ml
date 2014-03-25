@@ -17,7 +17,7 @@ eDesignConfigObj = ConfigObj(args.e+"/design.ini")
 # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
 experimentName = os.path.basename(os.path.abspath(args.e))
 
-print "Starting to generate the confusion matrix"
+print "\nStarting to generate the confusion matrix"
 
 predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
 print "Reading predicted values from: "+ predictedValuesFileName

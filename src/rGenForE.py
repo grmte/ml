@@ -18,8 +18,5 @@ else:
 
 
 for algo in allAlgos:
-    print "Running mGen.py to generate the training script"
     subprocess.call(["mGen.py","-e",args.e,"-a",algo])
-    
-    print "Running pGen.py to generate the predict script"
     subprocess.call(["pGen.py","-e",args.e,"-a",algo])

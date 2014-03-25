@@ -136,10 +136,17 @@ def main():
    print("Assumed sell trade happened: " + str(reasonForTrade['AssumingSellTradeHappened']), file = outputFile)
    print("The total sell value is: " + str(tradeStats['totalSellValue']), file = outputFile)
    print("The total buy value is: " + str(tradeStats['totalBuyValue']), file = outputFile)
-   print("Average sell price per unit is: " + str(tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened']), file = outputFile)
-   print("Average buy price per unit is: " + str(tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened']), file = outputFile)
+   averageSellPrice = tradeStats['totalSellValue']/reasonForTrade['AssumingSellTradeHappened']
+   averageBuyPrice = tradeStats['totalBuyValue']/reasonForTrade['AssumingBuyTradeHappened']
+   print("Average sell price per unit is: " + str(averageSellPrice), file = outputFile)
+   print("Average buy price per unit is: " + str(averageBuyPrice), file = outputFile)
    print("The current position: " + str(tradeStats['currentPosition']), file = outputFile)
+   print("Profit or loss per Qty traded is: " + str(averageSellPrice - averageBuyPrice), file = outputFile)
+   pLPerLot=(averageSellPrice - averageBuyPrice)* 1000
+   print("1 lot has 1000 qty's so P/L per lot is: " + str(pLPerLot), file = outputFile)
+   print("P/L for trading 10 lots is: " + str(pLPerLot * 10), file = outputFile)
 
 if __name__ == "__main__":
+    print ("\nRunning the simulated trading program")
     main()
 

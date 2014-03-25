@@ -18,14 +18,14 @@ else:
     algo = 'glmnet'
 
 scriptName=args.e+"/train-"+algo+".r"
-print "Running "+ scriptName +" to generate the model"
+print "\nRunning "+ scriptName +" to generate the model"
 returnState = subprocess.check_call([scriptName,"-d",args.td])
 if(returnState < 0):
     print "Unrecoverable error code: " + str(returnState)
     os._exit(-1)
     
 scriptName=args.e+"/predict-"+algo+".r"
-print "Running "+ scriptName +" to generate the predictions"
+print "\nRunning "+ scriptName +" to generate the predictions"
 returnState = subprocess.check_call([scriptName,"-d",args.pd])
 if(returnState < 0):
     print "Unrecoverable error code: " + str(returnState)

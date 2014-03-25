@@ -13,9 +13,8 @@ print "Using the experiment folder " + args.e
 
 config = ConfigObj(args.e+"/design.ini")
 
-print "\nThe config parameters that I am working with are"
+print "The config parameters that I am working with are"
 print config 
-print ""
 
 dirName=os.path.dirname(args.e)
 
@@ -149,5 +148,5 @@ f.write('save(fit, file = "'+ outputFileName+'")')
 
 f.close()
 
-print "Finished generating R training program: " + rProgLocation + "\n"
+print "Finished generating R training program: " + rProgLocation
 os.system("chmod +x "+rProgLocation)
