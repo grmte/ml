@@ -45,7 +45,7 @@ while i <= len(features):
             os.stat(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))
         except:
             os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
-        experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)
+        experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)+'/'
         runProgram(["./src/getResultsForE.py","-e",experimentName,"-td",args.td,"-m",args.m,"-pd",args.pd,"-a",args.a])
 
 
