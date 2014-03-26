@@ -33,7 +33,10 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         line=line.rstrip('\n')
         splitLine = line.split(',',2)
         timeStamp = float(splitLine[1])
-        predictedProb = float(splitLine[2])
+        try:#TODO: remove this and then run the code to identify errors.
+            predictedProb = float(splitLine[2])
+        except:
+            predictedProb = 0
         pPredictedValuesDict[timeStamp] = predictedProb
         numberOfLinesInPredictedValuesFile += 1
     print("Finished reading the predicted values file")    

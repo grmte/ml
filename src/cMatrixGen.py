@@ -83,7 +83,10 @@ for line in predictedValuesFile:
     line=line.rstrip('\n')
     splitLine = line.split(',',2)
     timeStamp = splitLine [1]
-    predictedProb = float(splitLine[2])
+    try:   #TODO: remove this and then run the code to identify errors.
+        predictedProb = float(splitLine[2]) # This is to avoid this error    predictedProb = float(splitLine[2])   ValueError: could not convert string to float: 
+    except:
+        predictedProb = 0
     try:
         actualValue = actualValuesDict[timeStamp]
         fillUpMatrix = True
