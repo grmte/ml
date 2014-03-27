@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import glob, linecache
 
 interestedCols = list()
@@ -7,8 +8,9 @@ for file in glob.glob("*.trade"):
     retrievedNumOfTrades = linecache.getline(file, 7).strip().replace('Assumed buy trade happened:','')
 
     if(len(retrievedPL)>1):
-        retrievedPL = round(float(retrievedPL))
- 
+        retrievedPL = float(retrievedPL)
+        retrievedPL = retrievedPL / 1000
+        retrievedPL = round(retrievedPL)
     interestedCols.append([file,retrievedPL,retrievedNumOfTrades])
 
 for row in interestedCols:

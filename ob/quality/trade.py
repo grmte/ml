@@ -12,8 +12,8 @@ parser.add_argument('-entryCL', required=True,help='Percentage of the confidence
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
 args = parser.parse_args()
 
-sys.path.append("/Users/vikaskedia/ml/src/")
-sys.path.append("/Users/vikaskedia/ml/ob/generators/")
+sys.path.append("/Volumes/SsdData/ml/src/")
+sys.path.append("/Volumes/SsdData/ml/ob/generators/")
 import dataFile, colNumberOfData, common
 
 experimentName = os.path.basename(os.path.abspath(args.e))

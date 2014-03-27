@@ -12,37 +12,33 @@ def extractAttributeFromDataMatrix():
    if aGenArgs.args.n is None:
       print "N has not been specified"
       os._exit(-1)
+   try:
+      aGenArgs.args.c
+   except:
+      print "C has not been specified"
+      os._exit(-1)
    numberOfSecondsInFuture = int(aGenArgs.args.n)
-   """ lets get the total of futureNrows"""
-   futureRowCount = 0   
-   currentRowCount = 0   
-   while(common.getTimeStamp(dataFile.matrix[futureRowCount]) - common.getTimeStamp(dataFile.matrix[currentRowCount])< numberOfSecondsInFuture):
-      cellValue = float(dataFile.matrix[futureRowCount][colNumberOfData.LTP])
-      queueOfValueInFutureNSecs.append(cellValue)
-      totalOfRowsInFutureNSeconds += cellValue
-      futureRowCount = futureRowCount + 1
-
-
    currentRowCount = 0
-
-
    for dataRow in dataFile.matrix:
-
-      attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-      futureCellValue = 0
-
-      if(currentRowCount + numberOfSecondsInFuture < len(dataFile.matrix)):
-         futureCellValue = float(dataFile.matrix[currentRowCount+numberOfSecondsInFuture][colNumberOfData.LTP])
-         queueOfValueInFutureNSecs.append(futureCellValue)
-         divisor = numberOfSecondsInFuture
-      else:
-         divisor = len(dataFile.matrix) - currentRowCount
-
-      totalOfRowsInFutureNSeconds += futureCellValue
-      totalOfRowsInFutureNSeconds -= queueOfValueInFutureNSecs.popleft()
-  
-      averageOfFutureRows = totalOfRowsInFutureNSeconds / float(divisor)
-
+      timeOfCurrentRow = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.list[currentRowCount][0] = timeOfCurrentRow
+      futureRowCount = 1  
+      totalOfRowsInFutureNSeconds = 0
+      while True:
+         if(currentRowCount + futureRowCount >= len(dataFile.matrix)):
+            timeOfFutureRow = common.getTimeStamp(dataFile.matrix[currentRowCount + futureRowCount])
+            if(timeOfFutureRow - timeOfCurrentRow < numberOfSecondsInFuture):
+               codeString = 'float(dataFile.matrix[currentRowCount + futureRowCount][colNumberOfData.'+aGenArgs.args.c+'])'
+               cellValue = eval(codeString)
+               cellTimeStamp = common.getTimeStamp(dataFile.matrix[currentRowCount + futureRowCount])
+               queueOfValueInFutureNSecs.append([cellValue,cellTimeStamp])
+               totalOfRowsInFutureNSeconds += cellValue
+               futureRowCount = futureRowCount + 1
+            else:
+               break
+         else:
+            break
+      averageOfFutureRows = totalOfRowsInFutureNSeconds / futureRowCount
       if( averageOfFutureRows > float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])):   
          attribute.list[currentRowCount][1] = 1
       else:
@@ -52,6 +48,7 @@ def extractAttributeFromDataMatrix():
       attribute.list[currentRowCount][3] = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
 
       currentRowCount = currentRowCount + 1
+
       if(currentRowCount % 1000 == 0):
          print "Processed row number " + str(currentRowCount) 
 
