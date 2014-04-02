@@ -52,40 +52,45 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pVars
     elif(pEnterTradeRecommendation == -1): # Need to sell we come here only if currentPosition is greater than 0 so no need to check again.
         currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
         currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
-        if(varsAtTimeOfTradeDecision['qtyTradedAtAskP0'] <= (.8 * varsAtTimeOfTradeDecision['askQ0']) ):
+        if(pVarsAtTimeOfTradeDecision['qtyTradedAtAskP0'] <= (.8 * pVarsAtTimeOfTradeDecision['askQ0']) ):
             pReasonForTrade['VolumeDidNotIncreaseSufficientlyDuringSellAttempt'] += 1
-        elif(currentLTP != varsAtTimeOfTradeDecision['askP0']): 
+        elif(currentLTP != pVarsAtTimeOfTradeDecision['askP0']): 
             pReasonForTrade['LTPDoesNotEqualAskP0'] += 1
-        else:    
+        else:    # When we reach here we are assuming that a fill happened.
             pReasonForTrade['AssumingSellTradeHappened'] += 1
-            pTradeStats['totalSellValue'] += 1 * pAskP0AtTimeOfPreviousDataRow
+            pTradeStats['totalSellValue'] += 1 * pVarsAtTimeOfTradeDecision['askP0']
             pTradeStats['currentPosition'] -= 1
     elif(pEnterTradeRecommendation == 1 and pTradeStats['currentPosition'] == 0): # Need to buy   # 1st and 2nd condition
         currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
         currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])             
         # Let me find out if i was able to buy
-        if(varsAtTimeOfTradeDecision['qtyTradedAtBidP0'] <= (.8 * varsAtTimeOfTradeDecision['bidQ0']) ):     # 3rd condition 
+        if(pVarsAtTimeOfTradeDecision['qtyTradedAtBidP0'] <= (.8 * pVarsAtTimeOfTradeDecision['bidQ0']) ):     # 3rd condition 
             pReasonForTrade['VolumeDidNotIncreaseSufficientlyDuringBuyAttempt'] += 1
-        elif(currentLTP != varsAtTimeOfTradeDecision['bidP0']): # 4th condition
+        elif(currentLTP != pVarsAtTimeOfTradeDecision['bidP0']): # 4th condition
             pReasonForTrade['LTPDoesNotEqualBidP0'] += 1
-        else:    
+        else:    # When we reach here we are assuming that a fill happened.
             pReasonForTrade['AssumingBuyTradeHappened'] += 1
-            pTradeStats['totalBuyValue'] += 1 * pBidP0AtTimeOfPreviousDataRow
+            pTradeStats['totalBuyValue'] += 1 * pVarsAtTimeOfTradeDecision['bidP0']
             pTradeStats['currentPosition'] += 1
 
 
 def updateVarsAtTimeOfTradeDecision(currentDataRow,enterTrade):
-    varsAtTimeOfTradeDecision['ttq'] = float(currentDataRow[colNumberOfData.TTQ]) 
-    varsAtTimeOfTradeDecision['askP0'] = float(currentDataRow[colNumberOfData.AskP0])
-    varsAtTimeOfTradeDecision['bidP0'] = float(currentDataRow[colNumberOfData.BidP0])
-    varsAtTimeOfTradeDecision['askQ0'] = float(currentDataRow[colNumberOfData.AskQ0])
-    varsAtTimeOfTradeDecision['bidQ0'] = float(currentDataRow[colNumberOfData.BidQ0])
-    varsAtTimeOfTradeDecision['decision'] = enterTrade
-    varsAtTimeOfTradeDecision['qtyTradedAtBidP0'] = 0
-    varsAtTimeOfTradeDecision['qtyTradedAtAskP0'] = 0
-    return varsAtTimeOfTradeDecision
+    localVarsAtTimeOfTradeDecision = dict()
+    localVarsAtTimeOfTradeDecision['ttq'] = float(currentDataRow[colNumberOfData.TTQ]) 
+    localVarsAtTimeOfTradeDecision['askP0'] = float(currentDataRow[colNumberOfData.AskP0])
+    localVarsAtTimeOfTradeDecision['bidP0'] = float(currentDataRow[colNumberOfData.BidP0])
+    localVarsAtTimeOfTradeDecision['askQ0'] = float(currentDataRow[colNumberOfData.AskQ0])
+    localVarsAtTimeOfTradeDecision['bidQ0'] = float(currentDataRow[colNumberOfData.BidQ0])
+    localVarsAtTimeOfTradeDecision['decision'] = enterTrade
+    localVarsAtTimeOfTradeDecision['qtyTradedAtBidP0'] = 0
+    localVarsAtTimeOfTradeDecision['qtyTradedAtAskP0'] = 0
+    return localVarsAtTimeOfTradeDecision
 
 def main():
+   outputFileName = args.d+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".etrade"
+   #if os.path.isfile(outputFileName):
+   #    print("The results file already exisits. Delete it to run the program again" + outputFileName)
+   #    return 1
    dataFile.getDataIntoMatrix(args.d)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
@@ -105,24 +110,30 @@ def main():
    numberOfTimesAskedToExitTrade = 0
    reasonForTrade = dict()
    reasonForTrade['LTPDoesNotEqualBidP0'] = 0
-   reasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt'] = 0
+   reasonForTrade['VolumeDidNotIncreaseSufficientlyDuringBuyAttempt'] = 0
    reasonForTrade['AssumingBuyTradeHappened'] = 0
    reasonForTrade['LTPDoesNotEqualAskP0'] = 0
-   reasonForTrade['VolumeDidNotIncreaseDuringSellAttempt'] = 0
+   reasonForTrade['VolumeDidNotIncreaseSufficientlyDuringSellAttempt'] = 0
    reasonForTrade['AssumingSellTradeHappened'] = 0
-
+   varsAtTimeOfTradeDecision = dict()
+   varsAtTimeOfTradeDecision['decision'] = 0
+   varsAtTimeOfTradeDecision['bidP0'] = 0
+   varsAtTimeOfTradeDecision['qtyTradedAtBidP0'] = 0
+   varsAtTimeOfTradeDecision['ttq'] = 0
+   varsAtTimeOfTradeDecision['askP0'] = 0
+   varsAtTimeOfTradeDecision['qtyTradedAtAskP0'] = 0
 
    print("Processing the data file for trades :")
 
    for currentDataRow in dataFile.matrix: #currentDataRow has the new tick
-       if(enterTrade == varsAtTimeOfTradeDecision['decision'] and enterTrade == 1 and varsAtTimeOfTradeDecision['bidP0'] == currentDataRow[colNumberOfData.BidP0]):
-           print "Position not lost in the queue"
-           if(varsAtTimeOfTradeDecision['bidP0'] == currentDataRow[colNumberOfData.LTP] and currentDataRow[colNumberOfData.TTQ] > varsAtTimeOfTradeDecision['ttq']):
-               varsAtTimeOfTradeDecision['qtyTradedAtBidP0'] += currentDataRow[colNumberOfData.TTQ] - varsAtTimeOfTradeDecision['ttq']
-       elif(enterTrade == varsAtTimeOfTradeDecision['decision'] and enterTrade == -1 and varsAtTimeOfTradeDecision['askP0'] == currentDataRow[colNumberOfData.AskP0]):
-           print "Position not lost in the queue"
-           if(varsAtTimeOfTradeDecision['askP0'] == currentDataRow[colNumberOfData.LTP] and currentDataRow[colNumberOfData.TTQ] > varsAtTimeOfTradeDecision['ttq']):
-               varsAtTimeOfTradeDecision['qtyTradedAtAskP0'] += currentDataRow[colNumberOfData.TTQ] - varsAtTimeOfTradeDecision['ttq']
+       if(enterTrade == varsAtTimeOfTradeDecision['decision'] and enterTrade == 1 and varsAtTimeOfTradeDecision['bidP0'] >= float(currentDataRow[colNumberOfData.BidP0])):
+           print("Position not lost in the queue")
+           if(varsAtTimeOfTradeDecision['bidP0'] == float(currentDataRow[colNumberOfData.LTP]) and float(currentDataRow[colNumberOfData.TTQ]) > varsAtTimeOfTradeDecision['ttq']):
+               varsAtTimeOfTradeDecision['qtyTradedAtBidP0'] += float(currentDataRow[colNumberOfData.TTQ]) - varsAtTimeOfTradeDecision['ttq']
+       elif(enterTrade == varsAtTimeOfTradeDecision['decision'] and enterTrade == -1 and varsAtTimeOfTradeDecision['askP0'] <= float(currentDataRow[colNumberOfData.AskP0])):
+           print("Position not lost in the queue")
+           if(varsAtTimeOfTradeDecision['askP0'] == float(currentDataRow[colNumberOfData.LTP]) and float(currentDataRow[colNumberOfData.TTQ]) > varsAtTimeOfTradeDecision['ttq']):
+               varsAtTimeOfTradeDecision['qtyTradedAtAskP0'] += float(currentDataRow[colNumberOfData.TTQ]) - varsAtTimeOfTradeDecision['ttq']
        else:
            positionLostInQueue = True
 
@@ -148,17 +159,16 @@ def main():
            varsAtTimeOfTradeDecision = updateVarsAtTimeOfTradeDecision(currentDataRow,enterTrade)   # This implies that the position in the queue is lost.
 
     
-   fileName = args.d+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade"
-   outputFile = open(fileName,"w")
-   print("Starting to write: "+fileName)
+   outputFile = open(outputFileName,"w")
+   print("Starting to write: "+outputFileName)
    print("The net results are: " + str(tradeStats['totalSellValue'] - tradeStats['totalBuyValue']), file = outputFile)    
    print("Number of rows for which there is no prediction: " + str(noPredictionForThisRow), file = outputFile)    
    print("Number of times asked to enter trade: " + str(numberOfTimesAskedToEnterTrade), file = outputFile)    
    print("Number of times asked to exit trade: " + str(numberOfTimesAskedToExitTrade), file = outputFile)    
-   print("Assumed buy trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringBuyAttempt']), file = outputFile)
+   print("Assumed buy trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseSufficientlyDuringBuyAttempt']), file = outputFile)
    print("Assumed buy trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualBidP0']), file = outputFile)
    print("Assumed buy trade happened: " + str(reasonForTrade['AssumingBuyTradeHappened']), file = outputFile)
-   print("Assumed sell trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringSellAttempt']), file = outputFile)
+   print("Assumed sell trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseSufficientlyDuringSellAttempt']), file = outputFile)
    print("Assumed sell trade did not happen since bidP0 not same as LTP: " + str(reasonForTrade['LTPDoesNotEqualAskP0']), file = outputFile)
    print("Assumed sell trade happened: " + str(reasonForTrade['AssumingSellTradeHappened']), file = outputFile)
    print("The total sell value is: " + str(tradeStats['totalSellValue']), file = outputFile)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/pypy
 import os, sys, importlib, traceback
 
 import dataFile
