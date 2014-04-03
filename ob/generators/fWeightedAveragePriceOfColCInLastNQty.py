@@ -1,3 +1,8 @@
+"""
+This can generate features like:
+1. fWeightedAveragePriceOfColAskInLast100Qty
+2. fWeightedAveragePriceOfColBidInLast10000Qty
+"""
 import dataFile, os, colNumberOfData, attribute, common, aGenArgs
 
 def extractAttributeFromDataMatrix():
