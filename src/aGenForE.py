@@ -8,7 +8,7 @@ import os
 parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenAll.py -d ob/data/20140207/ -e e7.1')
 parser.add_argument('-d', required=True,help='Directory of data file')
 parser.add_argument('-e', required=True,help='Directory of experiement')
-parser.add_argument('-m', required=True,help='Directory of geneartors')
+parser.add_argument('-g', required=True,help='Directory of geneartors')
 args = parser.parse_args()
 
 
@@ -51,8 +51,8 @@ def runCommandLine(pAttributesName):
         paramList.append("-n")
         paramList.append(N)
 
-    paramList.append("-m")
-    paramList.append(args.m+pAttributesName)
+    paramList.append("-g")
+    paramList.append(args.g+pAttributesName)
 
     print paramList
     return subprocess.check_call(paramList)

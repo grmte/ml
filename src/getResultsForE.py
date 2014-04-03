@@ -7,7 +7,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
-parser.add_argument('-m', required=True,help='Generators directory')
+parser.add_argument('-g', required=True,help='Generators directory')
 args = parser.parse_args()
 
 
@@ -34,8 +34,8 @@ fName = args.pd + "r/" + os.path.basename(os.path.abspath(args.e)) + algo +".55-
 if os.path.isfile(fName):
     print "The results file already exists delete it if you want to run the experiment again"
 else:
-    runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-m",args.m])        
-    runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-m",args.m])
+    runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])        
+    runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])
     runProgram(["rGenForE.py","-e",args.e,"-a",algo])
     runProgram(["rRunForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
     runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])

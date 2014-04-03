@@ -9,7 +9,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
-parser.add_argument('-m', required=True,help='Generators directory')
+parser.add_argument('-g', required=True,help='Generators directory')
 parser.add_argument('-run', required=True,help='Dry or Real')
 args = parser.parse_args()
 
@@ -46,6 +46,6 @@ while i <= len(features):
         except:
             os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
         experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)+'/'
-        runProgram(["./src/getResultsForE.py","-e",experimentName,"-td",args.td,"-m",args.m,"-pd",args.pd,"-a",args.a])
+        runProgram(["./src/getResultsForE.py","-e",experimentName,"-td",args.td,"-g",args.g,"-pd",args.pd,"-a",args.a])
 
 

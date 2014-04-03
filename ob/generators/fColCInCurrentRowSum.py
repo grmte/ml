@@ -1,3 +1,9 @@
+"""
+Some e.g features that can be generated with this are:
+1. fColBidQInCurrentRowSum
+2. fColAskQInCurrentRowSum
+"""
+
 import dataFile
 import colNumberOfData
 import attribute
