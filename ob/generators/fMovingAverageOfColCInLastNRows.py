@@ -1,3 +1,8 @@
+"""
+This will generate features like:
+1. fMovingAverageOfColAskP0InLast100Rows
+
+"""
 import dataFile
 import colNumberOfData
 import attribute
