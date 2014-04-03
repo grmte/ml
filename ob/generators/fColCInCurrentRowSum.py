@@ -2,6 +2,8 @@
 Some e.g features that can be generated with this are:
 1. fColBidQInCurrentRowSum
 2. fColAskQInCurrentRowSum
+3. fColAskPInCurrentRowSum
+4. fColBidPInCurrentRowSum
 """
 
 import dataFile
