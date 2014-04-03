@@ -42,6 +42,7 @@ if os.path.isfile(fName):
     print "The results file already exists delete it if you want to run the experiment again"
 else:
     runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])        
+    runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])        
     runProgram(["rGenForE.py","-e",args.e,"-a",algo])
     runProgram(["rRunForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
     runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
