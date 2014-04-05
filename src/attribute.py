@@ -38,6 +38,8 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand):
             value = float(firstMatrix[currentRowCount][1]) + float(secondMatrix[currentRowCount][1])
          elif(pOperand == "Subtract"):
             value = float(firstMatrix[currentRowCount][1]) - float(secondMatrix[currentRowCount][1])
+         elif(pOperand == "MultiplyBy"):
+            value = float(firstMatrix[currentRowCount][1]) * float(secondMatrix[currentRowCount][1])
          featureMatrix.append([timeStamp,value])
 
       currentRowCount += 1   

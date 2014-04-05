@@ -26,6 +26,7 @@ else:
     algo = 'glmnet'
 
 def runProgram(pProgDefinationList):
+    print "Executing the command: " + " ".join(pProgDefinationList)
     tStart = datetime.now()
     returnState = subprocess.check_call(pProgDefinationList)
     tEnd = datetime.now()
