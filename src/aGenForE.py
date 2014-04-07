@@ -90,7 +90,12 @@ def runCommandLine(pAttributesName):
     print "\nExecuting the command: " + " ".join(paramList)
     return subprocess.check_call(paramList)
 
-for f in attributes:
-    attributeName = attributes[f]
-    print "\nGenerating for " + attributeName
-    genForAttribute(attributeName)
+
+def main():
+    for f in attributes:
+        attributeName = attributes[f]
+        print "\nGenerating for " + attributeName
+        genForAttribute(attributeName)
+
+if __name__ == "__main__":
+    main()
