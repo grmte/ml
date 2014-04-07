@@ -47,4 +47,4 @@ else:
     runProgram(["rGenForE.py","-e",args.e,"-a",algo])
     runProgram(["rRunForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
     runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
-    runProgram(["./ob/quality/trade.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])
+    runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])
