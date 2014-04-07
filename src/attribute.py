@@ -19,6 +19,7 @@ def readFeatureFileIntoMatrix(pFeatureFile):
    return matrix   
 
 def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand):
+   print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
    firstFileName = getFileNameFromAttributeName(pFirstAttributeName)
    secondFileName = getFileNameFromAttributeName(pSecondAttributeName)
@@ -40,7 +41,7 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand):
             value = float(firstMatrix[currentRowCount][1]) - float(secondMatrix[currentRowCount][1])
          elif(pOperand == "MultiplyBy"):
             value = float(firstMatrix[currentRowCount][1]) * float(secondMatrix[currentRowCount][1])
-         featureMatrix.append([timeStamp,value])
+         featureMatrix.append([timeStamp,value,firstMatrix[currentRowCount][1],pOperand,secondMatrix[currentRowCount][1]])
 
       currentRowCount += 1   
 
@@ -92,10 +93,11 @@ def checkIfAttributeFileExists(pAttributesName):
    attributeFile = getFileNameFromAttributeName(pAttributesName)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
-      print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file \n"
+      print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
       os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
 def writeToFile(pAttributesName):
+   print "Writing to file the attribute: "+pAttributesName
    attributeFile = open(getFileNameFromAttributeName(pAttributesName),"w")
    for featureRow in list:
       featureCount = 1

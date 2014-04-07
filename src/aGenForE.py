@@ -19,24 +19,25 @@ attributes["target"] = config["target"]
 
 
 def genForAttribute(attributeName):
-    if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "Multiply" in attributeName:
+    if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
         startPos = attributeName.find("[")
         endPos = attributeName.find("]") + 1
         firstFeatureName = attributeName[0:startPos]
         secondFeatureName = attributeName[endPos:]
-        runCommandLine(firstFeatureName)
-        runCommandLine(secondFeatureName)
+        genForAttribute(firstFeatureName)
+        genForAttribute(secondFeatureName)
+        operatorName = attributeName[startPos:endPos]
         attributeFile = attribute.getFileNameFromAttributeName(attributeName)
         if (os.path.isfile(attributeFile)):
             print "The feature file already exists: "+attributeFile
         else:    
-            if "DivideBy" in attributeName:
+            if "DivideBy" in operatorName:
                 attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"DivideBy")
-            elif "Add" in attributeName:
+            elif "Add" in operatorName:
                 attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"Add")
-            elif "Subtract" in attributeName:
+            elif "Subtract" in operatorName:
                 attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"Subtract")
-            elif "MultiplyBy" in attributeName:
+            elif "MultiplyBy" in operatorName:
                 attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"MultiplyBy")
             attribute.writeToFile(attributeName)
         return   
@@ -86,7 +87,7 @@ def runCommandLine(pAttributesName):
     paramList.append("-g")
     paramList.append(args.g+pAttributesName)
 
-    print "Executing the command: " + " ".join(paramList)
+    print "\nExecuting the command: " + " ".join(paramList)
     return subprocess.check_call(paramList)
 
 for f in attributes:
