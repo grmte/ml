@@ -32,9 +32,9 @@ fName = args.pd + "r/" + os.path.basename(os.path.abspath(args.e)) + algo +".55-
 if os.path.isfile(fName):
     print "The results file already exists delete it if you want to run the experiment again"
 else:
-    utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])        
-    utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])        
-    utility.runProgram(["genAllRScriptsForE.py","-e",args.e,"-a",algo])
-    utility.runProgram(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
-    utility.runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
-    utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])
+    utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g],args)        
+    utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g],args)        
+    utility.runProgram(["genAllRScriptsForE.py","-e",args.e,"-a",algo],args)
+    utility.runProgram(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo],args)
+    utility.runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args)
+    utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"],args)

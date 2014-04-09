@@ -21,10 +21,10 @@ i = 1
 
 algo = rCodeGen.getAlgoName(args)
 
-utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])
-utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])
-utility.runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo])
-utility.runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
+utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g],args)
+utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g],args)
+utility.runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo],args)
+utility.runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo],args)
 
 dirName=os.path.dirname(args.e)
             
@@ -32,6 +32,6 @@ designFiles = utility.list_files(dirName+"/s/")
 
 for designFile in designFiles:
     experimentName = os.path.dirname(designFile)
-    utility.runProgram(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo])
-    utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"])
+    utility.runProgram(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args)
+    utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args)
 

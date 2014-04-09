@@ -1,4 +1,5 @@
-import os
+import os, subprocess
+from datetime import datetime
 
 def list_files(dir):                                                                                                  
     r = []                                                                                                            
@@ -11,7 +12,7 @@ def list_files(dir):
                     r.append(subdir + "/" + file)                                                                         
     return r       
 
-def runProgram(pProgDefinationList):
+def runProgram(pProgDefinationList,args):
     message = "\nGoing to run "+' '.join(pProgDefinationList)
     print message
     if(args.run == "Dry"):

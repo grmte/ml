@@ -31,6 +31,6 @@ while i <= len(features):
         except:
             os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
         experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)+'/'
-        utility.runProgram(["./ob/quality/tradeE2.py","-e",experimentName,"-d",args.d,"-a",args.a,"-entryCL",".55","-exitCL",".45"])
+        utility.runProgram(["./ob/quality/tradeE2.py","-e",experimentName,"-d",args.d,"-a",args.a,"-entryCL",".55","-exitCL",".45"],args)
 
 
