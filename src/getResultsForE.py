@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import argparse,os
 from datetime import datetime
+import utility
 
 parser = argparse.ArgumentParser(description='This program will do the 5 steps necessary to get the results for an experiment. \n \
 The 5 steps are: \n \
@@ -25,26 +26,15 @@ if args.a is not None:
 else:
     algo = 'glmnet'
 
-def runProgram(pProgDefinationList):
-    print "Executing the command: " + " ".join(pProgDefinationList)
-    tStart = datetime.now()
-    returnState = subprocess.check_call(pProgDefinationList)
-    tEnd = datetime.now()
-    if(returnState < 0):
-        print "Unrecoverable error code: " + str(returnState)
-        os._exit(-1)
-    else:
-        print "Time taken to run the program is " + str(tEnd - tStart)
-
 # only run the set of programs if the trading results file does not exist
 
 fName = args.pd + "r/" + os.path.basename(os.path.abspath(args.e)) + algo +".55-.45.trade"
 if os.path.isfile(fName):
     print "The results file already exists delete it if you want to run the experiment again"
 else:
-    runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])        
-    runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])        
-    runProgram(["genAllRScriptsForE.py","-e",args.e,"-a",algo])
-    runProgram(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
-    runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
-    runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])
+    utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])        
+    utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])        
+    utility.runProgram(["genAllRScriptsForE.py","-e",args.e,"-a",algo])
+    utility.runProgram(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
+    utility.runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
+    utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])
