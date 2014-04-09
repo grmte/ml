@@ -4,7 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGen.py -e ob/e1/')
+parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGenForE.py -e ob/e1/')
 parser.add_argument('-e', required=True,help='Directory to find the experiement designs')
 parser.add_argument('-a', required=True,help='Algorithm name')
 args = parser.parse_args()

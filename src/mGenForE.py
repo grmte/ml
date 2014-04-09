@@ -4,7 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGen.py -e ob/e1/ ')
+parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
 parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
 parser.add_argument('-a', required=True,help='Algorithm name')
 args = parser.parse_args()
