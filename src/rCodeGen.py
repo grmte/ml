@@ -136,13 +136,13 @@ def saveTrainingModel(rScript,args,path):
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")')
 
-def ForPredictions(rScript,config,args):
+def ForPredictions(rScript,config,args,pathToDesignFile):
     features = config["features"]
     rScript.write('\nprint ("Section6: Read in prediction model") \n')
     algo = getAlgoName(args)
     predictionModel = algo+'.model'
 
-    rScript.write('load("'+args.e+'/'+predictionModel+'")')
+    rScript.write('load("'+pathToDesignFile+'/'+predictionModel+'")')
 
     if(args.a == 'glmnet'):
         rScript.write('\n\nprint ("Section7: Creating data frame") \n')
@@ -210,7 +210,7 @@ def ForPredictions(rScript,config,args):
     rScript.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
-    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e)) +args.a +'.predictions") \n')
-    rScript.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
+    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(pathToDesignFile)) +args.a +'.predictions") \n')
+    rScript.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')

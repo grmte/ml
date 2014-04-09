@@ -4,18 +4,9 @@ import os
 import argparse
 from configobj import ConfigObj
 import rCodeGen
+import utility
 
 
-def list_files(dir):                                                                                                  
-    r = []                                                                                                            
-    subdirs = [x[0] for x in os.walk(dir)]                                                                            
-    for subdir in subdirs:                                                                                            
-        files = os.walk(subdir).next()[2]                                                                             
-        if (len(files) > 0):                                                                                          
-            for file in files:                                                                                        
-                if "design.ini" in file:
-                    r.append(subdir + "/" + file)                                                                         
-    return r       
 
 def main():
     parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
@@ -34,7 +25,7 @@ def main():
 
     algo = rCodeGen.getAlgoName(args)
 
-    rProgName = "train-"+algo+".r"
+    rProgName = "train-"+algo+"ForAllSubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -52,11 +43,11 @@ def main():
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
     
-    designFiles = list_files(dirName+"/s/")
-    print designFiles
+    designFiles = utility.list_files(dirName+"/s/")
 
     for designFile in designFiles:
-        rScript.write('\n\nprint "Generating r code for"' + designFile + '"')
+        print "Generating r code for " + designFile
+        rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
         config = ConfigObj(designFile)
         rCodeGen.ToCreateDataFrameForTraining(rScript,config)
         rCodeGen.ForTraining(rScript,args,config)

@@ -4,6 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 import rCodeGen
+import utility
 
 def main():
     parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGenForE.py -e ob/e1/')
@@ -26,7 +27,7 @@ def main():
     else:
         algo =args.a
 
-    rProgName = "predict-"+algo+".r"
+    rProgName = "predict-"+algo+"ForAllSubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -40,7 +41,16 @@ def main():
     rCodeGen.CheckIfPredictionsFileAlreadyExists(rScript,args)
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
-    rCodeGen.ForPredictions(rScript,config,args)
+
+    designFiles = utility.list_files(dirName+"/s/")
+
+    for designFile in designFiles:
+        print "Generating r code for " + designFile
+        rScript.write('\n\nprint ("Running r code for' + designFile + '")')
+        config = ConfigObj(designFile)
+        rCodeGen.ForPredictions(rScript,config,args,os.path.dirname(designFile))
+
+
     rScript.close()
     print "Finished generating R prediction program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)

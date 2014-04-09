@@ -3,6 +3,7 @@
 import itertools, os,argparse, subprocess
 from configobj import ConfigObj
 from datetime import datetime
+import rCodeGen
 
 parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
@@ -17,6 +18,8 @@ config = ConfigObj(args.e+"/design.ini")
 features = config["features"]
 i = 1
 
+algo = rCodeGen.getAlgoName(args)
+
 def runProgram(pProgDefinationList):
     message = "\n Going to run "+' '.join(pProgDefinationList)
     print message
@@ -30,6 +33,13 @@ def runProgram(pProgDefinationList):
         os._exit(-1)
     else:
         print "Time taken to run the program is " + str(tEnd - tStart)
+
+
+runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])
+runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])
+runProgram(["genAllRScriptsForSubE.py","-e",args.e,"-a",algo])
+runProgram(["runAllRScriptsForSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
+
 
 while i <= len(features):
     i += 1
@@ -46,6 +56,6 @@ while i <= len(features):
         except:
             os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
         experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)+'/'
-        runProgram(["./src/getResultsForE.py","-e",experimentName,"-td",args.td,"-g",args.g,"-pd",args.pd,"-a",args.a])
-
+        runProgram(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo])
+        runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"])
 
