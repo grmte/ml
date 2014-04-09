@@ -4,6 +4,7 @@ import itertools, os,argparse, subprocess
 from configobj import ConfigObj
 from datetime import datetime
 import rCodeGen
+import utility
 
 parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
@@ -21,7 +22,7 @@ i = 1
 algo = rCodeGen.getAlgoName(args)
 
 def runProgram(pProgDefinationList):
-    message = "\n Going to run "+' '.join(pProgDefinationList)
+    message = "\nGoing to run "+' '.join(pProgDefinationList)
     print message
     if(args.run == "Dry"):
         return
@@ -40,22 +41,12 @@ runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])
 runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo])
 runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
 
+dirName=os.path.dirname(args.e)
+            
+designFiles = utility.list_files(dirName+"/s/")    
 
-while i <= len(features):
-    i += 1
-    # lets make a directory if it does not already exist
-    try:
-        os.stat(args.e+"/s/"+str(i)+"c")
-    except:
-        os.mkdir(args.e+"/s/"+str(i)+"c")       
-
-    featureSets = list(itertools.combinations(features, i))
-    for featureSet in featureSets:
-        try:
-            os.stat(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))
-        except:
-            os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
-        experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)+'/'
-        runProgram(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo])
-        runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"])
+for designFile in designFiles:
+    experimentName = os.path.dirname(designFile)
+    runProgram(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo])
+    runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"])
 
