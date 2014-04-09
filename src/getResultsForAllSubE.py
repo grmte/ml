@@ -37,8 +37,8 @@ def runProgram(pProgDefinationList):
 
 runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])
 runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])
-runProgram(["genAllRScriptsForSubE.py","-e",args.e,"-a",algo])
-runProgram(["runAllRScriptsForSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
+runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo])
+runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
 
 
 while i <= len(features):

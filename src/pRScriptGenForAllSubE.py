@@ -48,7 +48,7 @@ def main():
         print "Generating r code for " + designFile
         rScript.write('\n\nprint ("Running r code for' + designFile + '")')
         config = ConfigObj(designFile)
-        rCodeGen.ForPredictions(rScript,config,args,os.path.dirname(designFile))
+        rCodeGen.ForPredictions(rScript,config,args,designFile)
 
 
     rScript.close()
