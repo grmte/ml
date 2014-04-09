@@ -44,7 +44,7 @@ if os.path.isfile(fName):
 else:
     runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g])        
     runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g])        
-    runProgram(["rGenForE.py","-e",args.e,"-a",algo])
-    runProgram(["rRunForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
+    runProgram(["genAllRScriptsForE.py","-e",args.e,"-a",algo])
+    runProgram(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo])
     runProgram(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo])
     runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"])

@@ -18,5 +18,5 @@ else:
 
 
 for algo in allAlgos:
-    subprocess.call(["mGenForE.py","-e",args.e,"-a",algo])
-    subprocess.call(["pGenforE.py","-e",args.e,"-a",algo])
+    subprocess.call(["mRScriptGenForE.py","-e",args.e,"-a",algo])
+    subprocess.call(["pRScriptGenForE.py","-e",args.e,"-a",algo])
