@@ -5,6 +5,18 @@ import argparse
 from configobj import ConfigObj
 import rCodeGen
 
+
+def list_files(dir):                                                                                                  
+    r = []                                                                                                            
+    subdirs = [x[0] for x in os.walk(dir)]                                                                            
+    for subdir in subdirs:                                                                                            
+        files = os.walk(subdir).next()[2]                                                                             
+        if (len(files) > 0):                                                                                          
+            for file in files:                                                                                        
+                if "design.ini" in file:
+                    r.append(subdir + "/" + file)                                                                         
+    return r       
+
 def main():
     parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
     parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
@@ -39,8 +51,16 @@ def main():
     rCodeGen.ToReadTargetFile(rScript,config)
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
-    rCodeGen.ToCreateDataFrameForTraining(rScript,config)
-    rCodeGen.ForTraining(rScript,args,config)
+    
+    designFiles = list_files(dirName+"/s/")
+    print designFiles
+
+    for designFile in designFiles:
+        rScript.write('\n\nprint "Generating r code for"' + designFile + '"')
+        config = ConfigObj(designFile)
+        rCodeGen.ToCreateDataFrameForTraining(rScript,config)
+        rCodeGen.ForTraining(rScript,args,config)
+        rCodeGen.saveTrainingModel(rScript,args,os.path.dirname(designFile))
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation

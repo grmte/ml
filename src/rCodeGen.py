@@ -128,10 +128,11 @@ def ForTraining(rScript,args,config):
         rScript.write(')\n')
         rScript.write('fit = mda(x =X, y = targetVector$V2) \n') 
     
+
+
+def saveTrainingModel(rScript,args,path):
     algo = getAlgoName(args)    
-
-    outputFileName = args.e+'/'+algo+'.model'
-
+    outputFileName = path+'/'+algo+'.model'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")')
 

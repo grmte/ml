@@ -41,6 +41,7 @@ def main():
     rCodeGen.ForSanityChecks(rScript,config)
     rCodeGen.ToCreateDataFrameForTraining(rScript,config)
     rCodeGen.ForTraining(rScript,args,config)
+    rCodeGen.saveTrainingModel(rScript,args,dirName)
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
