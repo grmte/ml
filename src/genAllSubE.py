@@ -3,7 +3,7 @@
 import itertools, os,argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/')
+parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/. So if an experiment has 12 features it will generate approximately 4000 sub experiments.')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 args = parser.parse_args()
 
