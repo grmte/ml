@@ -40,7 +40,7 @@ def main():
     rCodeGen.CheckIfPredictionsFileAlreadyExists(rScript,args)
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
-    rCodeGen.ForPredictions(rScript,config,args)
+    rCodeGen.ForPredictions(rScript,config,args,args.e)
     rScript.close()
     print "Finished generating R prediction program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)
