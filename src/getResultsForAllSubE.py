@@ -8,7 +8,7 @@ import utility
 
 parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
-parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
+parser.add_argument('-a', required=True,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-g', required=True,help='Generators directory')

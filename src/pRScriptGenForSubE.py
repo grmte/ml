@@ -10,6 +10,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGenForE.py -e ob/e1/')
     parser.add_argument('-e', required=True,help='Directory to find the experiement designs')
     parser.add_argument('-a', required=True,help='Algorithm name')
+    parser.add_argument('-s', required=True,help='Location of the subfolder that contains the sub experiments')
     args = parser.parse_args()
 
     print "\nRunning pGen.py to generate the predict script"
@@ -27,7 +28,9 @@ def main():
     else:
         algo =args.a
 
-    rProgName = "predict-"+algo+"ForAllSubE.r"
+    args.s = args.s+"/"    
+
+    rProgName = "predict-"+algo+"For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -42,7 +45,7 @@ def main():
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
 
-    designFiles = utility.list_files(dirName+"/s/")
+    designFiles = utility.list_files(args.s)
 
     for designFile in designFiles:
         print "Generating r code for " + designFile

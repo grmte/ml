@@ -1,34 +1,40 @@
 #!/usr/bin/python
+import argparse, glob
+import utility
+import multiprocessing  # read https://medium.com/building-things-on-the-internet/40e9b2b36148
+from functools import partial
 
 
-import argparse
 parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/ob>rRunForE.py -e e3.6/ -td data/20140204/ -pd data/20140205/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
-parser.add_argument('-a', required=False,help='Algorithm name')
+parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
+parser.add_argument('-run', required=True,help='Real or Dry')
+parser.add_argument('-runType', required=True,help='parallel or Serial')
 args = parser.parse_args()
 
 
-import subprocess
+# lets make a map of all the scripts that need to be run
+trainScriptNames = glob.glob(args.e+"/train-"+args.a+"For*.r")
+predictScriptNames = glob.glob(args.e+"/predict-"+args.a+"For*.r")
 
-if args.a is not None:
-    algo = args.a
+
+def trainWrapper(trainScriptName):
+   utility.runProgram([trainScriptName,"-d",args.td],args)
+
+def predictWrapper(predictScriptName):
+   utility.runProgram([predictScriptName,"-d",args.pd],args)
+
+if args.runType == 'parallel':
+
+   pool = multiprocessing.Pool() 
+   results = pool.map(trainWrapper,trainScriptNames)
+   results = pool.map(predictWrapper,predictScriptNames)
 else:
-    algo = 'glmnet'
-
-scriptName=args.e+"/train-"+algo+"ForAllSubE.r"
-print "\nRunning "+ scriptName +" to generate the model"
-returnState = subprocess.check_call([scriptName,"-d",args.td])
-if(returnState < 0):
-    print "Unrecoverable error code: " + str(returnState)
-    os._exit(-1)
-    
-scriptName=args.e+"/predict-"+algo+"ForAllSubE.r"
-print "\nRunning "+ scriptName +" to generate the predictions"
-returnState = subprocess.check_call([scriptName,"-d",args.pd])
-if(returnState < 0):
-    print "Unrecoverable error code: " + str(returnState)
-    os._exit(-1)
-
-
+   # To run it in serial mode
+   for trainScriptName in trainScriptNames:
+      utility.runProgram([trainScriptName,"-d",args.td],args)
+      
+   for predictScriptName in predictScriptNames:
+      utility.runProgram([predictScriptName,"-d",args.pd],args)
