@@ -12,7 +12,8 @@ parser.add_argument('-a', required=True,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-g', required=True,help='Generators directory')
-parser.add_argument('-run', required=True,help='Dry or Real')
+parser.add_argument('-run', required=True,help='dry or real')
+parser.add_argument('-runType', required=True,help='parallel or serial')
 args = parser.parse_args()
 
 config = ConfigObj(args.e+"/design.ini")
@@ -24,7 +25,7 @@ algo = rCodeGen.getAlgoName(args)
 utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g],args)
 utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g],args)
 utility.runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo],args)
-utility.runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo],args)
+utility.runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-runType",args.runType,"-run",args.run],args)
 
 dirName=os.path.dirname(args.e)
             

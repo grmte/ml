@@ -15,7 +15,7 @@ def list_files(dir):
 def runProgram(pProgDefinationList,args):
     message = "\nGoing to run "+' '.join(pProgDefinationList)
     print message
-    if(args.run == "Dry"):
+    if(args.run == "dry"):
         return
     tStart = datetime.now()
     returnState = subprocess.check_call(pProgDefinationList)
