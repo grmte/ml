@@ -6,7 +6,10 @@ from datetime import datetime
 import rCodeGen
 import utility
 
-parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/')
+parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
+An e.g. command line is \n\
+getResultsForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/20140204 -pd ob/data/20140205 -g ob/generators/ -run real -runType serial',formatter_class=argparse.RawTextHelpFormatter)
+
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
