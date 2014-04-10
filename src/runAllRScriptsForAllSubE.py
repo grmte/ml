@@ -28,9 +28,9 @@ def predictWrapper(predictScriptName):
 
 if args.runType == 'parallel':
 
-   pool = multiprocessing.Pool() 
-   results = pool.map(trainWrapper,trainScriptNames)
-   results = pool.map(predictWrapper,predictScriptNames)
+   pool = multiprocessing.Pool() # this will return the number of CPU's
+   results = pool.map(trainWrapper,trainScriptNames) # Calls trainWrapper function with each element of list trainScriptNames
+   results = pool.map(predictWrapper,predictScriptNames) # Calls predictWrapper function with each element of list predictScriptNames
 else:
    # To run it in serial mode
    for trainScriptName in trainScriptNames:
