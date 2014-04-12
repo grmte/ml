@@ -15,7 +15,13 @@ i = 1
 numberOfFeatureSet = 1
 numberOfFeatureSets = 0
 
-while i <= len(features):
+# lets make a directory if it does not already exist
+try:
+    os.stat(args.e+"/s/")
+except:
+    os.mkdir(args.e+"/s/")
+    
+while i < len(features):
     i += 1
     # lets make a directory if it does not already exist
     try:

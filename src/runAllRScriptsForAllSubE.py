@@ -11,7 +11,7 @@ parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-run', required=True,help='Real or Dry')
-parser.add_argument('-runType', required=True,help='parallel or Serial')
+parser.add_argument('-runType', required=True,help='lp (local parallel) / dp (distributed parallel) / Serial')
 args = parser.parse_args()
 
 
@@ -20,11 +20,13 @@ trainScriptNames = glob.glob(args.e+"/train-"+args.a+"For*.r")
 predictScriptNames = glob.glob(args.e+"/predict-"+args.a+"For*.r")
 
 
-def trainWrapper(trainScriptName):
-   utility.runProgram([trainScriptName,"-d",args.td],args)
+def trainWrapper(trainScriptName): # we need this wrapper since pool.map has problems taking multiple arguments.
+   dirName = args.td.replace('/ro/','/wf/')
+   utility.runProgram([trainScriptName,"-d",dirName],args)
 
 def predictWrapper(predictScriptName):
-   utility.runProgram([predictScriptName,"-d",args.pd],args)
+   dirName = args.pd.replace('/ro/','/wf/')      
+   utility.runProgram([predictScriptName,"-d",dirName],args)
 
 if args.runType == 'lp':
    # to run it in local parallel mode
@@ -33,8 +35,10 @@ if args.runType == 'lp':
    results = pool.map(predictWrapper,predictScriptNames) # Calls predictWrapper function with each element of list predictScriptNames
 else:
    # To run it in serial mode
+   dirName = args.td.replace('/ro/','/wf/')
    for trainScriptName in trainScriptNames:
-      utility.runProgram([trainScriptName,"-d",args.td],args)
-      
+      utility.runProgram([trainScriptName,"-d",dirName],args)
+
+   dirName = args.pd.replace('/ro/','/wf/')      
    for predictScriptName in predictScriptNames:
-      utility.runProgram([predictScriptName,"-d",args.pd],args)
+      utility.runProgram([predictScriptName,"-d",dirName],args)

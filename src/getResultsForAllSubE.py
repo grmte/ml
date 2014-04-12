@@ -25,9 +25,9 @@ i = 1
 
 algo = rCodeGen.getAlgoName(args)
 
-utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g],args)
-utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g],args)
-utility.runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo],args)
+utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run],args)
+utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run],args)
+utility.runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run],args)
 utility.runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-runType",args.runType,"-run",args.run],args)
 
 dirName=os.path.dirname(args.e)
