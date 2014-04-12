@@ -15,7 +15,7 @@ parser.add_argument('-runType', required=True,help='lp (local parallel) / dp (di
 args = parser.parse_args()
 
 
-# lets make a map of all the scripts that need to be run
+# lets make a list of all the scripts that need to be run
 trainScriptNames = glob.glob(args.e+"/train-"+args.a+"For*.r")
 predictScriptNames = glob.glob(args.e+"/predict-"+args.a+"For*.r")
 
@@ -34,11 +34,5 @@ if args.runType == 'lp':
    results = pool.map(trainWrapper,trainScriptNames) # Calls trainWrapper function with each element of list trainScriptNames
    results = pool.map(predictWrapper,predictScriptNames) # Calls predictWrapper function with each element of list predictScriptNames
 else:
-   # To run it in serial mode
-   dirName = args.td.replace('/ro/','/wf/')
-   for trainScriptName in trainScriptNames:
-      utility.runProgram([trainScriptName,"-d",dirName],args)
-
-   dirName = args.pd.replace('/ro/','/wf/')      
-   for predictScriptName in predictScriptNames:
-      utility.runProgram([predictScriptName,"-d",dirName],args)
+   results = map(trainWrapper,trainScriptNames)
+   results = map(predictWrapper,predictScriptNames)
