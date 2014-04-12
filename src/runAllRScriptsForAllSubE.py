@@ -26,8 +26,8 @@ def trainWrapper(trainScriptName):
 def predictWrapper(predictScriptName):
    utility.runProgram([predictScriptName,"-d",args.pd],args)
 
-if args.runType == 'parallel':
-
+if args.runType == 'lp':
+   # to run it in local parallel mode
    pool = multiprocessing.Pool() # this will return the number of CPU's
    results = pool.map(trainWrapper,trainScriptNames) # Calls trainWrapper function with each element of list trainScriptNames
    results = pool.map(predictWrapper,predictScriptNames) # Calls predictWrapper function with each element of list predictScriptNames
