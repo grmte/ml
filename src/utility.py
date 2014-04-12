@@ -1,5 +1,6 @@
 import os, subprocess
 from datetime import datetime
+from termcolor import colored
 
 def list_files(dir):                                                                                                  
     r = []                                                                                                            
@@ -13,8 +14,8 @@ def list_files(dir):
     return r       
 
 def runProgram(pProgDefinationList,args):
-    message = "\nGoing to run "+' '.join(pProgDefinationList)
-    print message
+    message = "\nExecuting>"+' '.join(pProgDefinationList)
+    print colored(message,'red')
     if(args.run == "dry"):
         return
     tStart = datetime.now()

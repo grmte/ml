@@ -19,11 +19,12 @@ experimentName = os.path.basename(os.path.abspath(args.e))
 
 print "\nStarting to generate the confusion matrix"
 
-predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
+dirName = args.d.replace('/ro/','/wf/')
+predictedValuesFileName = dirName+"/p/"+experimentName+args.a+".predictions"
 print "Reading predicted values from: "+ predictedValuesFileName
 predictedValuesFile = open(predictedValuesFileName)
 
-actualValuesFileName = args.d+"/t/"+eDesignConfigObj["target"]+".target"
+actualValuesFileName = dirName+"/t/"+eDesignConfigObj["target"]+".target"
 print "Reading actual values from: "+ actualValuesFileName
 actualValuesFile = open(actualValuesFileName)
 
@@ -103,7 +104,8 @@ for line in predictedValuesFile:
  
 print "\nPredicted event not found in actual event = " + str(predictedValueNotFoundInActualValue)
 
-fileName = args.d+"/c/"+experimentName+args.a+".cmatrix"
+dirName = args.d.replace('/ro/','/rs/')
+fileName = dirName+"/c/"+experimentName+args.a+".cmatrix"
 outputFile = open(fileName,"w")
 print "Starting to write: "+fileName
 

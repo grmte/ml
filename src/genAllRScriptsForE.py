@@ -1,10 +1,11 @@
 #!/usr/bin/python
-
-
 import argparse
+import utility
+
 parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is rGenAll.py -e e1/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name')
+parser.add_argument('-run', required=False,help='dry or real')
 args = parser.parse_args()
 
 
@@ -18,5 +19,5 @@ else:
 
 
 for algo in allAlgos:
-    subprocess.call(["mRScriptGenForE.py","-e",args.e,"-a",algo])
-    subprocess.call(["pRScriptGenForE.py","-e",args.e,"-a",algo])
+    utility.runProgram(["mRScriptGenForE.py","-e",args.e,"-a",algo],args)
+    utility.runProgram(["pRScriptGenForE.py","-e",args.e,"-a",algo],args)

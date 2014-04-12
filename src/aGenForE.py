@@ -1,15 +1,13 @@
 #!/usr/bin/python
 from configobj import ConfigObj
-import subprocess
-import attribute
-import argparse
-import os
+import subprocess, attribute, argparse, os, utility
 
 print "\nStarting to run Attribute generator for experiment"
 parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenAll.py -d ob/data/20140207/ -e e7.1')
 parser.add_argument('-d', required=True,help='Directory of data file')
 parser.add_argument('-e', required=True,help='Directory of experiement')
 parser.add_argument('-g', required=True,help='Directory of geneartors')
+parser.add_argument('-run', required=True,help='dry or real')
 args = parser.parse_args()
 
 
@@ -43,11 +41,6 @@ def genForAttribute(attributeName):
         return   
 
     returnCode = runCommandLine(attributeName)
-    if(returnCode < 0):
-        print "There has been an unrecoverable error with error code: " + str(returnCode)
-        os._exit(-1)
-    else:
-        print "Return code is: " + str(returnCode)
 
 
 def runCommandLine(pAttributesName):
@@ -87,8 +80,7 @@ def runCommandLine(pAttributesName):
     paramList.append("-g")
     paramList.append(args.g+pAttributesName)
 
-    print "\nExecuting the command: " + " ".join(paramList)
-    return subprocess.check_call(paramList)
+    return utility.runProgram(paramList,args)
 
 
 def main():

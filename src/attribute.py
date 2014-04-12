@@ -82,10 +82,12 @@ def getFileNameFromAttributeName(pAttributesName):
          os._exit(1)
       pAttributesName = pAttributesName.replace("ColC","Col"+str(aGenArgs.args.c))   
 
+   # we need to replace /ro with /wf   
+   dirName = aGenArgs.args.d.replace('/ro/','/wf/')   
    if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
-      attributeFile=aGenArgs.args.d+"/f/"+pAttributesName+".feature"
+      attributeFile=dirName+"/f/"+pAttributesName+".feature"
    else:   
-      attributeFile=aGenArgs.args.d+"/t/"+pAttributesName+".target"
+      attributeFile=dirName+"/t/"+pAttributesName+".target"
       
    return attributeFile
    

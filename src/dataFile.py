@@ -17,7 +17,7 @@ def getNameFromCommandLineParam(pDirName):
    foundFile=False
    list_of_files = os.listdir(pDirName) #list of files in the directory                                                                                                                                          
    for each_file in list_of_files:
-      if each_file.startswith('data'):  #since its all type str you can simply use startswith
+      if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
          foundFile = True
          confDataFileName = pDirName+"/"+each_file
          break
