@@ -18,7 +18,7 @@ def runProgram(pProgDefinationList,args):
     print colored(message,'red')
     if(args.run == "dry"):
         return
-    elif(args.runType == "pd"):
+    elif(args.runType == "dp"):
         import dp
         dp.runProgram.delay(pProgDefinationList)
         return
