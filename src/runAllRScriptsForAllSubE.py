@@ -33,6 +33,14 @@ if args.runType == 'lp':
    pool = multiprocessing.Pool() # this will return the number of CPU's
    results = pool.map(trainWrapper,trainScriptNames) # Calls trainWrapper function with each element of list trainScriptNames
    results = pool.map(predictWrapper,predictScriptNames) # Calls predictWrapper function with each element of list predictScriptNames
+elif args.runType == 'dp':
+   import dp
+   for trainScriptName in trainScriptNames:
+      dirName = args.td.replace('/ro/','/wf/')
+      dp.runProgram.delay([trainScriptName,"-d",dirName],args.run)
+   for predictScriptName in predictScriptNames:
+      dirName = args.pd.replace('/ro/','/wf/')      
+      dp.runProgram.delay([predictScriptName,"-d",dirName],args.run)
 else:
    results = map(trainWrapper,trainScriptNames)
    results = map(predictWrapper,predictScriptNames)

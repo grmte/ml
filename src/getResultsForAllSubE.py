@@ -43,9 +43,14 @@ def scriptWrapper(experimentName):
     utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args)
 
 if args.runType == 'lp':
-   # to run it in local parallel mode
-   pool = multiprocessing.Pool() # this will return the number of CPU's
-   results = pool.map(scriptWrapper,experimentNames)
+    # to run it in local parallel mode
+    pool = multiprocessing.Pool() # this will return the number of CPU's
+    results = pool.map(scriptWrapper,experimentNames)
+elif args.runType == 'dp':
+    import dp
+    for experimentName in experimentNames:
+        dp.runProgram.delay(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run)
+        dp.runProgram.delay(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run)
 else:
     results = map(scriptWrapper,experimentNames)
 
