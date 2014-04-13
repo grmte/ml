@@ -14,14 +14,18 @@ def list_files(dir):
     return r       
 
 def runProgram(pProgDefinationList,args):
-    message = "\nExecuting>"+' '.join(pProgDefinationList)
-    print colored(message,'red')
     if(args.run == "dry"):
+        message = "\ndryrun>"+' '.join(pProgDefinationList)
+        print colored(message,'red')
         return
     elif(args.runType == "dp"):
+        message = "\nsubmitting>"+' '.join(pProgDefinationList)
+        print colored(message,'red')
         import dp
         dp.runProgram.delay(pProgDefinationList)
         return
+    message = "\nexecuting>"+' '.join(pProgDefinationList)
+    print colored(message,'red')
     tStart = datetime.now()
     returnState = subprocess.check_call(pProgDefinationList)
     tEnd = datetime.now()
