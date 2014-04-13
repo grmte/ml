@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser(description='This program will run mGen.py and 
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-run', required=False,help='real or dummy run')
+parser.add_argument('-runType', required=False,help='ld / pd / serial')
 args = parser.parse_args()
 
 

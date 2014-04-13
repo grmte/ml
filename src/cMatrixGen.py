@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='This program will generate a confu
 parser.add_argument('-d', required=True,help='Directory of the data file')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
+parser.add_argument('-runType', required=True,help='ld / pd / serial')
 args = parser.parse_args()
 
 from configobj import ConfigObj

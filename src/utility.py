@@ -18,6 +18,10 @@ def runProgram(pProgDefinationList,args):
     print colored(message,'red')
     if(args.run == "dry"):
         return
+    elif(args.runType == "pd"):
+        import dp
+        dp.runProgram.delay(pProgDefinationList)
+        return
     tStart = datetime.now()
     returnState = subprocess.check_call(pProgDefinationList)
     tEnd = datetime.now()

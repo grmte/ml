@@ -8,6 +8,7 @@ parser.add_argument('-d', required=True,help='Directory of data file')
 parser.add_argument('-e', required=True,help='Directory of experiement')
 parser.add_argument('-g', required=True,help='Directory of geneartors')
 parser.add_argument('-run', required=True,help='dry or real')
+parser.add_argument('-runType', required=True,help='ld (local distributed) or pd(parallel distributed)')
 args = parser.parse_args()
 
 
@@ -79,6 +80,8 @@ def runCommandLine(pAttributesName):
 
     paramList.append("-g")
     paramList.append(args.g+pAttributesName)
+    paramList.append("-runType")
+    paramList.append(args.runType)
 
     return utility.runProgram(paramList,args)
 
