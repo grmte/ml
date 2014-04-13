@@ -55,3 +55,7 @@ The following files are not kept:
 .target 
 .model 
 .predictions 
+
+11. For dp
+The queues are available at:
+http://127.0.0.1:15672/
