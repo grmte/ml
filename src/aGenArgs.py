@@ -7,5 +7,5 @@ parser.add_argument('-n', required=False,help='This is a parameter for the attri
 parser.add_argument('-c', required=False,help='This is a parameter for the attribute generator. Specifies column to be used')
 parser.add_argument('-e', required=False,help='Experiment name')
 parser.add_argument('-run', required=False,help='real or dry')
-parser.add_argument('-runType', required=True,help='ld (local distributed) or pd(parallel distributed)')
+parser.add_argument('-runType', required=True,help='lp (local parallel) / dp(distributed parallel) / Serial')
 args = parser.parse_args()
