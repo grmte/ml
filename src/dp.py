@@ -4,7 +4,7 @@ from termcolor import colored
 
 from celery import Celery
 
-app = Celery('dp', broker='amqp://guest@localhost//')
+app = Celery('dp', broker='amqp://guest@localhost//',backend='amqp://guest@localhost//')
 
 @app.task
 def add(x, y):
