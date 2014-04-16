@@ -7,20 +7,20 @@ import dataFile
 import colNumberOfData
 import attribute
 import common
-import aGenArgs
+
 from collections import deque
 
-def extractAttributeFromDataMatrix():
+def extractAttributeFromDataMatrix(args):
    queueOfCellValueInLastNRows = deque()
    totalOfLastNRows = 0.0
    
-   if aGenArgs.args.n == None:
+   if args.n == None:
       N = 5
    else:
-      N = int(aGenArgs.args.n) 
+      N = int(args.n) 
    
    try:
-      aGenArgs.args.c
+      args.c
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit()
@@ -29,7 +29,7 @@ def extractAttributeFromDataMatrix():
 
    for dataRow in dataFile.matrix:
 
-      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ aGenArgs.args.c + '])'
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ args.c + '])'
       cellValue = eval(codeString)
       queueOfCellValueInLastNRows.append(cellValue)
       totalOfLastNRows += cellValue

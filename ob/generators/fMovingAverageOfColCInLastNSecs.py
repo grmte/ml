@@ -1,13 +1,13 @@
-import sys, dataFile, colNumberOfData, attribute, common, aGenArgs
+import sys, dataFile, colNumberOfData, attribute, common
 from collections import deque
 
-def extractAttributeFromDataMatrix():
-   if aGenArgs.args.n == None:
+def extractAttributeFromDataMatrix(args):
+   if args.n == None:
       N = 5
    else:
-      N = int(aGenArgs.args.n) 
+      N = int(args.n) 
    try:
-      aGenArgs.args.c
+      args.c
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit()
@@ -22,7 +22,7 @@ def extractAttributeFromDataMatrix():
       timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])
       timeElapsed = timeOfCurrentRow - timeOfOldestRow
       if (timeElapsed < N):
-         codeString = 'float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.'+ aGenArgs.args.c + '])'
+         codeString = 'float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.'+ args.c + '])'
          cellValue = eval(codeString)
          totalOfRowsInLastNSecs += cellValue
          attribute.list[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])

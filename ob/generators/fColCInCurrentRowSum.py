@@ -10,12 +10,12 @@ import dataFile
 import colNumberOfData
 import attribute
 import common
-import aGenArgs
 
-def extractAttributeFromDataMatrix():
+
+def extractAttributeFromDataMatrix(args):
    currentRowCount = 0
    for dataRow in dataFile.matrix:
-      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'0])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'1])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'2])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'3])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'4])'
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'0])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'1])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'2])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'3])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'4])'
       qSum = eval(codeString)
       attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
       attribute.list[currentRowCount][1] = qSum

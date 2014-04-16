@@ -1,5 +1,4 @@
 import os
-import aGenArgs
 import dataFile
 
 list = []
@@ -18,11 +17,11 @@ def readFeatureFileIntoMatrix(pFeatureFile):
 
    return matrix   
 
-def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand):
+def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,number,columnName,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
-   firstFileName = getFileNameFromAttributeName(pFirstAttributeName)
-   secondFileName = getFileNameFromAttributeName(pSecondAttributeName)
+   firstFileName = getFileNameFromAttributeName(pFirstAttributeName,number,columnName,dataFolder)
+   secondFileName = getFileNameFromAttributeName(pSecondAttributeName,number,columnName,dataFolder)
    
    firstMatrix = readFeatureFileIntoMatrix(firstFileName)
    secondMatrix = readFeatureFileIntoMatrix(secondFileName)
@@ -54,36 +53,24 @@ def getAttributeTypeFromAttributeName(pAttributeName):
       return "target"
    
 
-def getFileNameFromAttributeName(pAttributesName):
+def getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder):
    if "NRows" in pAttributesName:
-      if aGenArgs.args.n == None:
-         N = 5
-      else:
-         N = aGenArgs.args.n
+      N = number
       pAttributesName = pAttributesName.replace("NRows",str(N)+"Rows")   
 
    if "NSecs" in pAttributesName:
-      if aGenArgs.args.n == None:
-         N = 5
-      else:
-         N = aGenArgs.args.n
+      N = number
       pAttributesName = pAttributesName.replace("NSecs",str(N)+"Secs")   
 
    if "NQty" in pAttributesName:
-      if aGenArgs.args.n == None:
-         N = 5
-      else:
-         N = aGenArgs.args.n
+      N = number
       pAttributesName = pAttributesName.replace("NQty",str(N)+"Qty")   
 
    if "ColC" in pAttributesName:
-      if aGenArgs.args.c == None:
-         print "Column name has not been specified"
-         os._exit(1)
-      pAttributesName = pAttributesName.replace("ColC","Col"+str(aGenArgs.args.c))   
+      pAttributesName = pAttributesName.replace("ColC","Col"+columnName)   
 
    # we need to replace /ro with /wf   
-   dirName = aGenArgs.args.d.replace('/ro/','/wf/')   
+   dirName = dataFolder.replace('/ro/','/wf/')   
    if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
       attributeFile=dirName+"/f/"+pAttributesName+".feature"
    else:   
@@ -91,16 +78,16 @@ def getFileNameFromAttributeName(pAttributesName):
       
    return attributeFile
    
-def checkIfAttributeFileExists(pAttributesName):
-   attributeFile = getFileNameFromAttributeName(pAttributesName)
+def checkIfAttributeFileExists(pAttributesName,number,columnName,dataFolder):
+   attributeFile = getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
       os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
-def writeToFile(pAttributesName):
+def writeToFile(pAttributesName,number,columnName,dataFolder):
    print "Writing to file the attribute: "+pAttributesName
-   attributeFile = open(getFileNameFromAttributeName(pAttributesName),"w")
+   attributeFile = open(getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder),"w")
    for featureRow in list:
       featureCount = 1
       for feature in featureRow:

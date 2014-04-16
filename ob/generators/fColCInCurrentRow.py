@@ -3,20 +3,11 @@ import dataFile
 import colNumberOfData
 import attribute
 import common
-import aGenArgs
 
-def extractAttributeFromDataMatrix():
-
-   try:
-      aGenArgs.args.c
-   except:
-      print "Since -c has not been specified I cannot proceed"
-      os._exit()
-
-
+def extractAttributeFromDataMatrix(args):
    currentRowCount = 0
    for dataRow in dataFile.matrix:
-      codeString = "float(dataFile.matrix[currentRowCount][colNumberOfData."+aGenArgs.args.c+"])"
+      codeString = "float(dataFile.matrix[currentRowCount][colNumberOfData."+args.c+"])"
 
       attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
 

@@ -1,21 +1,21 @@
 import os
 import colNumberOfData
 import dataFile
-import aGenArgs
+
 import attribute
 import common
 from collections import deque
 
-def extractAttributeFromDataMatrix():
+def extractAttributeFromDataMatrix(args):
    queueOfCellValueInFutureNRows = deque()
    totalOfFutureNRows = 0.0
-   if aGenArgs.args.n is None:
+   if args.n is None:
       print "-n has not been specified"
       os._exit(-1)
-   numberOfFutureRows = int(aGenArgs.args.n)
+   numberOfFutureRows = int(args.n)
 
    try:
-      aGenArgs.args.c 
+      args.c 
    except:   
       print "-c has not been specified"
       os._exit(-1)
@@ -23,7 +23,7 @@ def extractAttributeFromDataMatrix():
    """ lets get the total of futureNrows"""
    futureRowCount = 0   
    while(futureRowCount < numberOfFutureRows):
-      codeString = 'float(dataFile.matrix[futureRowCount][colNumberOfData.'+aGenArgs.args.c+'])' 
+      codeString = 'float(dataFile.matrix[futureRowCount][colNumberOfData.'+args.c+'])' 
       cellValue = eval(codeString)
       queueOfCellValueInFutureNRows.append(cellValue)
       totalOfFutureNRows += cellValue
@@ -39,7 +39,7 @@ def extractAttributeFromDataMatrix():
       futureCellValue = 0
 
       if(currentRowCount + numberOfFutureRows < len(dataFile.matrix)):
-         codeString = 'float(dataFile.matrix[currentRowCount+numberOfFutureRows][colNumberOfData.'+aGenArgs.args.c+'])'
+         codeString = 'float(dataFile.matrix[currentRowCount+numberOfFutureRows][colNumberOfData.'+args.c+'])'
          futureCellValue = eval(codeString)
          queueOfCellValueInFutureNRows.append(futureCellValue)
          divisor = numberOfFutureRows
@@ -52,7 +52,7 @@ def extractAttributeFromDataMatrix():
       averageOfFutureRows = totalOfFutureNRows / float(divisor)
 
 
-      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+aGenArgs.args.c+'])'
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'])'
       valueInCurrentRow = eval(codeString)
       if( averageOfFutureRows > valueInCurrentRow):   
          attribute.list[currentRowCount][1] = 1

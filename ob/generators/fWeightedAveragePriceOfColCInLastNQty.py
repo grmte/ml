@@ -3,23 +3,23 @@ This can generate features like:
 1. fWeightedAveragePriceOfColAskInLast100Qty
 2. fWeightedAveragePriceOfColBidInLast10000Qty
 """
-import dataFile, os, colNumberOfData, attribute, common, aGenArgs
+import dataFile, os, colNumberOfData, attribute, common
 
-def extractAttributeFromDataMatrix():
+def extractAttributeFromDataMatrix(args):
    try:
-      aGenArgs.args.n
+      args.n
    except:   
       print "Since -n has not been specified I cannot proceed"
       os._exit(-1)
 
    try:
-      aGenArgs.args.c
+      args.c
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit(-1)
 
    currentRowCount = 0
-   qtyForCalculatingWeightedAverage = float(aGenArgs.args.n)
+   qtyForCalculatingWeightedAverage = float(args.n)
    levelOfDataAvailable = 4
    for dataRow in dataFile.matrix:
       qSum = 0
@@ -27,8 +27,8 @@ def extractAttributeFromDataMatrix():
       totalPriceAtThisLevel = 0
       i = 0
       while(i <= levelOfDataAvailable and qSum < qtyForCalculatingWeightedAverage):
-         codeStringForQ = 'float(dataFile.matrix['+str(currentRowCount)+'][colNumberOfData.'+aGenArgs.args.c+'Q'+str(i)+'])'
-         codeStringForP = 'float(dataFile.matrix['+str(currentRowCount)+'][colNumberOfData.'+aGenArgs.args.c+'P'+str(i)+'])'
+         codeStringForQ = 'float(dataFile.matrix['+str(currentRowCount)+'][colNumberOfData.'+args.c+'Q'+str(i)+'])'
+         codeStringForP = 'float(dataFile.matrix['+str(currentRowCount)+'][colNumberOfData.'+args.c+'P'+str(i)+'])'
          priceAtThisLevel = eval(codeStringForP)
          qtyAtThisLevel = eval(codeStringForQ)
          qSum += qtyAtThisLevel

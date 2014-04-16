@@ -1,23 +1,28 @@
 #!/usr/bin/python
 from configobj import ConfigObj
-import subprocess, attribute, argparse, os, utility
+import subprocess, argparse, os
+import attribute, utility
 
 print "\nStarting to run Attribute generator for experiment"
-parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenAll.py -d ob/data/20140207/ -e e7.1')
-parser.add_argument('-d', required=True,help='Directory of data file')
-parser.add_argument('-e', required=True,help='Directory of experiement')
-parser.add_argument('-g', required=True,help='Directory of geneartors')
-parser.add_argument('-run', required=True,help='dry or real')
-parser.add_argument('-runType', required=True,help='ld (local distributed) or pd(parallel distributed)')
-args = parser.parse_args()
 
 
-config = ConfigObj(args.e+"/design.ini")
-attributes = config["features"]
-attributes["target"] = config["target"]
+def parseCommandLine():
+    parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenAll.py -d ob/data/20140207/ -e e7.1')
+    parser.add_argument('-d', required=True,help='Directory of data file')
+    parser.add_argument('-e', required=True,help='Directory of experiement')
+    parser.add_argument('-g', required=True,help='Directory of geneartors')
+    parser.add_argument('-run', required=True,help='dry or real')
+    parser.add_argument('-sequence', required=True,help='ld (local distributed) or pd(parallel distributed)')
+    args = parser.parse_args()
+    return args
 
+def getAttributes(experimentFolder):
+    config = ConfigObj(experimentFolder+"/design.ini")
+    attributes = config["features"]
+    attributes["target"] = config["target"]
+    return attributes
 
-def genForAttribute(attributeName):
+def genForAttribute(attributeName,dataFolder,generatorsFolder):
     if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
         startPos = attributeName.find("[")
         endPos = attributeName.find("]") + 1
@@ -41,12 +46,12 @@ def genForAttribute(attributeName):
             attribute.writeToFile(attributeName)
         return   
 
-    returnCode = runCommandLine(attributeName)
+    commandLine = getCommandLine(attributeName,dataFolder,generatorsFolder)
+    return commandLine
 
-
-def runCommandLine(pAttributesName):
+def getCommandLine(pAttributesName,dataFolder,generatorsFolder):
     paramList = []
-    paramList = ["aGen.py","-d",args.d]
+    paramList = ["aGen.py","-d",dataFolder]
 
 
     # Getting the moduleName from the attributeName
@@ -79,18 +84,28 @@ def runCommandLine(pAttributesName):
         paramList.append(N)
 
     paramList.append("-g")
-    paramList.append(args.g+pAttributesName)
-    paramList.append("-runType")
-    paramList.append(args.runType)
-
-    return utility.runCommand(paramList,args)
+    paramList.append(generatorsFolder+pAttributesName)
+    return paramList
 
 
-def main():
+def getCommandList(experimentFolder,dataFolder,generatorsFolder):
+    commandList = list()
+    attributes = getAttributes(experimentFolder)
     for f in attributes:
         attributeName = attributes[f]
         print "\nGenerating for " + attributeName
-        genForAttribute(attributeName)
+        command = genForAttribute(attributeName,dataFolder,generatorsFolder)
+        commandList.append(command)
+    return commandList    
+
+def main():
+    args = parseCommandLine()
+    experimentFolder = args.e
+    dataFolder = args.d
+    generatorsFolder = args.g
+    commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder)
+    return utility.runCommandList(commandList,args)
+
 
 if __name__ == "__main__":
     main()

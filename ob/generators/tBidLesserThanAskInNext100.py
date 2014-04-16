@@ -1,11 +1,11 @@
 import os
 import colNumberOfData
 import dataFile
-import aGenArgs
+
 import attribute
 import common
 
-def extractAttributeFromDataMatrix():
+def extractAttributeFromDataMatrix(args):
    """
    In the next 100 order book entries is there a case where the bidP0 is > current askP0
    """

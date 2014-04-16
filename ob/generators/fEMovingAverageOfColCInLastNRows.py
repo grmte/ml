@@ -2,17 +2,17 @@ import dataFile
 import colNumberOfData
 import attribute
 import common
-import aGenArgs
+
 import math
 
-def extractAttributeFromDataMatrix():
-   if aGenArgs.args.n == None:
+def extractAttributeFromDataMatrix(args):
+   if args.n == None:
       N = 5
    else:
-      N = int(aGenArgs.args.n) 
+      N = int(args.n) 
    
    try:
-      aGenArgs.args.c
+      args.c
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit()
@@ -24,7 +24,7 @@ def extractAttributeFromDataMatrix():
 
    for dataRow in dataFile.matrix:
 
-      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ aGenArgs.args.c + '])'
+      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+ args.c + '])'
       cellValue = eval(codeString)
 
       if currentRowCount == 0:

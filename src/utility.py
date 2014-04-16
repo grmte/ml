@@ -13,16 +13,16 @@ def list_files(dir):
                     r.append(subdir + "/" + file)                                                                         
     return r       
 
-def runCommand(pProgDefinationList,args):
-    if(args.run == "dry"):
+def runCommand(pProgDefinationList,pRun,pRunType):
+    if(pRun == "dry"):
         message = "\ndryrun>"+' '.join(pProgDefinationList)
         print colored(message,'red')
         return
-    elif(args.runType == "dp"):
+    elif(pRunType == "dp"):
         message = "\nsubmitting>"+' '.join(pProgDefinationList)
         print colored(message,'red')
         import dp
-        dp.runCommand.delay(pProgDefinationList)
+        dp.commandStatus[' '.join(pProgDefinationList)] = dp.runCommand.delay(pProgDefinationList)
         return
     message = "\nexecuting>"+' '.join(pProgDefinationList)
     print colored(message,'red')
@@ -36,3 +36,12 @@ def runCommand(pProgDefinationList,args):
         print "Time taken to run the program is " + str(tEnd - tStart)
 
 
+def runCommandList(pCommandList,pArgs):
+    run = pArgs.run
+    sequence = pArgs.sequence
+    for command in pCommandList:
+        command.append("-run")
+        command.append(run)
+        command.append("-sequence")
+        command.append(sequence)
+        runCommand(command,run,sequence)

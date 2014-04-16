@@ -1,17 +1,17 @@
-import os, colNumberOfData, dataFile, aGenArgs, attribute, common
+import os, colNumberOfData, dataFile, attribute, common
 from collections import deque
 
-def extractAttributeFromDataMatrix():
-   if aGenArgs.args.n is None:
+def extractAttributeFromDataMatrix(args):
+   if args.n is None:
       print "N has not been specified"
       os._exit(-1)
    try:
-      aGenArgs.args.c
-      colNumberWeAreWorkingWith = eval('colNumberOfData.'+aGenArgs.args.c)
+      args.c
+      colNumberWeAreWorkingWith = eval('colNumberOfData.'+args.c)
    except:
       print "C has not been specified"
       os._exit(-1)
-   numberOfSecondsInFuture = int(aGenArgs.args.n)
+   numberOfSecondsInFuture = int(args.n)
    currentRowCount = 0
    totalNumberOfDataRows = len(dataFile.matrix)
    futureRowCount = 1  # Since we have a queue we do not need to initialize everytime inside the for loop
