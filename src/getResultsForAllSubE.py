@@ -47,9 +47,14 @@ if(args.sequence == "dp"):
 
 if(args.sequence == "dp"):
     import runAllRScriptsForAllSubE
-    commandList = runAllRScriptsForAllSubE.getCommandList(args.e,args.a,args.td,args.pd)
+    commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td)
     utility.runCommandList(commandList,args)
     print dp.printGroupStatus()
+
+    commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd)
+    utility.runCommandList(commandList,args)
+    print dp.printGroupStatus()
+
 else:
     utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-sequence",args.sequence,"-run",args.run],args.run,args.sequence)
 

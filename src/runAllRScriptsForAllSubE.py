@@ -16,20 +16,22 @@ def parseCommandLine():
    return args
 
 
-def getCommandList(experimentFolder,algoName,trainFolder,predictFolder):
+def getTrainCommandList(experimentFolder,algoName,trainFolder):
    commandList = list()
    # lets make a list of all the scripts that need to be run
    trainScriptNames = glob.glob(experimentFolder+"/train-"+algoName+"For*.r")
-   predictScriptNames = glob.glob(experimentFolder+"/predict-"+algoName+"For*.r")
-   
    dirName = trainFolder.replace('/ro/','/wf/')
    for trainScriptName in trainScriptNames:
       commandList.append([trainScriptName,"-d",dirName])
+   return commandList
 
+def getPredictCommandList(experimentFolder,algoName,predictFolder):
+   commandList = list()
+   # lets make a list of all the scripts that need to be run
+   predictScriptNames = glob.glob(experimentFolder+"/predict-"+algoName+"For*.r")
    dirName = predictFolder.replace('/ro/','/wf/')      
    for predictScriptName in predictScriptNames:
       commandList.append([predictScriptName,"-d",dirName])
-
    return commandList
    
 def wrapper(pCommandName): # we need this wrapper since pool.map has problems taking multiple arguments.
@@ -41,7 +43,15 @@ def main():
    experimentFolder = args.e
    trainDataFolder = args.td
    predictDataFolder = args.pd
-   commandList = getCommandList(experimentFolder,args.a,trainDataFolder,predictDataFolder)
+   commandList = getTrainCommandList(experimentFolder,args.a,trainDataFolder)
+   if args.sequence == 'lp':
+      # to run it in local parallel mode
+      pool = multiprocessing.Pool() # this will return the number of CPU's
+      results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
+   else:
+      results = map(wrapper,commandList)
+
+   commandList = getPredictCommandList(experimentFolder,args.a,predictDataFolder)
    if args.sequence == 'lp':
       # to run it in local parallel mode
       pool = multiprocessing.Pool() # this will return the number of CPU's
