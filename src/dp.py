@@ -30,7 +30,7 @@ def printGroupStatus():
     numberOfCommandsNotCompleted = 0
     while(True):
         os.system('clear') # on linux / os x
-        print "%10s->%s \n" % ("Command","Status")
+        print "%10s->%s \n" % ("Status","Command")
         for k, v in commandStatus.iteritems():
             status = str(v.ready())
             print "%10s->%s \n" % (status,k)
