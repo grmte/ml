@@ -3,6 +3,7 @@ from datetime import datetime
 from termcolor import colored
 
 from celery import Celery
+from celery.task.control import inspect
 
 commandStatus = dict()
 
@@ -36,6 +37,16 @@ def printGroupStatus():
             print "%10s->%s \n" % (status,k)
             if(v.ready()==False):
                 numberOfCommandsNotCompleted += 1
+        """        
+        i = inspect()        
+        print "Scheduled tasks"
+        print i.scheduled()
+        print "Active tasks"
+        task = i.active()
+        print task.keys()
+        for t in task.values():
+            print t[0]['args'] + " on " + t[0]['hostname']
+        """
         if(numberOfCommandsNotCompleted > 0):
             time.sleep(1)
             numberOfCommandsNotCompleted = 0
