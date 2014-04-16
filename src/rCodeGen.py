@@ -94,7 +94,7 @@ def ForTraining(rScript,args,config):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = cv.glmnet(x =X, y = targetVector$V2) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
+        rScript.write('fit = cv.glmnet(x =X, y = as.factor(targetVector$V2),family=\'binomial\',alpha=1) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
     elif(args.a == 'logitr'):
         rScript.write('print ("Section7: Running logistic regression") \n')
         rScript.write('fit <- glm ('+config["target"]+' ~ ')
@@ -155,7 +155,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile):
         rScript.write(")\n\n")
 
         rScript.write('print ("Section8: Running ' + args.a + ' prediction") \n')
-        rScript.write('Prob <- predict (fit, newx = df,s = "lambda.min")')
+        rScript.write('Prob <- predict (fit, newx = df,s = "lambda.min",type = "response")')
         rScript.write("\n\n")
     elif(args.a == 'logitr'):
         rScript.write('\n\nprint ("Section7: Creating the data frame") \n')
