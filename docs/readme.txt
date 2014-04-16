@@ -60,7 +60,7 @@ The following files are not kept:
 sudo brew install rabbitmq
 ln -sfv /usr/local/opt/rabbitmq/*.plist ~/Library/LaunchAgents
 launchctl load ~/Library/LaunchAgents/homebrew.mxcl.rabbitmq.plist
-/usr/local/sbin/rabbitmq-server 
+sudo /usr/local/sbin/rabbitmq-server 
 
 The web interface is available at:
 http://127.0.0.1:15672/
@@ -81,4 +81,5 @@ du -h /Users/vikaskedia/.vagrant.d/
     easy_install flower
     sudo easy_install termcolor
 
-
+15. to start the celery worker
+ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
