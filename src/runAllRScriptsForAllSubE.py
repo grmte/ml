@@ -22,11 +22,11 @@ predictScriptNames = glob.glob(args.e+"/predict-"+args.a+"For*.r")
 
 def trainWrapper(trainScriptName): # we need this wrapper since pool.map has problems taking multiple arguments.
    dirName = args.td.replace('/ro/','/wf/')
-   utility.runProgram([trainScriptName,"-d",dirName],args)
+   utility.runCommand([trainScriptName,"-d",dirName],args)
 
 def predictWrapper(predictScriptName):
    dirName = args.pd.replace('/ro/','/wf/')      
-   utility.runProgram([predictScriptName,"-d",dirName],args)
+   utility.runCommand([predictScriptName,"-d",dirName],args)
 
 if args.runType == 'lp':
    # to run it in local parallel mode

@@ -13,7 +13,7 @@ def list_files(dir):
                     r.append(subdir + "/" + file)                                                                         
     return r       
 
-def runProgram(pProgDefinationList,args):
+def runCommand(pProgDefinationList,args):
     if(args.run == "dry"):
         message = "\ndryrun>"+' '.join(pProgDefinationList)
         print colored(message,'red')
@@ -22,7 +22,7 @@ def runProgram(pProgDefinationList,args):
         message = "\nsubmitting>"+' '.join(pProgDefinationList)
         print colored(message,'red')
         import dp
-        dp.runProgram.delay(pProgDefinationList)
+        dp.runCommand.delay(pProgDefinationList)
         return
     message = "\nexecuting>"+' '.join(pProgDefinationList)
     print colored(message,'red')

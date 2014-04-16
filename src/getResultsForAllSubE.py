@@ -20,14 +20,13 @@ args = parser.parse_args()
 
 config = ConfigObj(args.e+"/design.ini")
 features = config["features"]
-i = 1
 
 algo = rCodeGen.getAlgoName(args)
 
-utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-runType",args.runType],args)
-utility.runProgram(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-runType",args.runType],args)
-utility.runProgram(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-runType",args.runType],args)
-utility.runProgram(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-runType",args.runType,"-run",args.run],args)
+utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-runType",args.runType],args)
+utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-runType",args.runType],args)
+utility.runCommand(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-runType",args.runType],args)
+utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-runType",args.runType,"-run",args.run],args)
 
 dirName=os.path.dirname(args.e)
             
@@ -39,8 +38,8 @@ for designFile in designFiles:
     experimentNames.append(experimentName)
 
 def scriptWrapper(experimentName):
-    utility.runProgram(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo,"-runType",args.runType],args)
-    utility.runProgram(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45","-runType",args.runType],args)
+    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo,"-runType",args.runType],args)
+    utility.runCommand(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45","-runType",args.runType],args)
 
 if args.runType == 'lp':
     # to run it in local parallel mode

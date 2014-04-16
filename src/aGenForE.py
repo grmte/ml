@@ -83,7 +83,7 @@ def runCommandLine(pAttributesName):
     paramList.append("-runType")
     paramList.append(args.runType)
 
-    return utility.runProgram(paramList,args)
+    return utility.runCommand(paramList,args)
 
 
 def main():

@@ -21,11 +21,11 @@ else:
 
 dirName = args.td.replace('/ro/','/wf/')
 scriptName=args.e+"/train-"+algo+".r"
-utility.runProgram([scriptName,"-d",dirName],args)
+utility.runCommand([scriptName,"-d",dirName],args)
 
 dirName = args.pd.replace('/ro/','/wf/')    
 scriptName=args.e+"/predict-"+algo+".r"
-utility.runProgram([scriptName,"-d",dirName],args)
+utility.runCommand([scriptName,"-d",dirName],args)
 
 
 

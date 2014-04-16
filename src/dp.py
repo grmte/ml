@@ -11,7 +11,7 @@ def add(x, y):
     return x + y
 
 @app.task
-def runProgram(pProgDefinationList):
+def runCommand(pProgDefinationList):
     message = "\nExecuting>"+' '.join(pProgDefinationList)
     print colored(message,'red')
     tStart = datetime.now()
