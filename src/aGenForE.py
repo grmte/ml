@@ -7,7 +7,7 @@ print "\nStarting to run Attribute generator for experiment"
 
 
 def parseCommandLine():
-    parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenAll.py -d ob/data/20140207/ -e e7.1')
+    parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenForE.py -d ob/data/20140207/ -e e7.1')
     parser.add_argument('-d', required=True,help='Directory of data file')
     parser.add_argument('-e', required=True,help='Directory of experiement')
     parser.add_argument('-g', required=True,help='Directory of geneartors')
