@@ -22,27 +22,27 @@ def getAttributes(experimentFolder):
     attributes["target"] = config["target"]
     return attributes
 
-def genForAttribute(attributeName,dataFolder,generatorsFolder):
+def genAttribute(attributeName,dataFolder,generatorsFolder):
     if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
         startPos = attributeName.find("[")
         endPos = attributeName.find("]") + 1
-        firstFeatureName = attributeName[0:startPos]
-        secondFeatureName = attributeName[endPos:]
-        genForAttribute(firstFeatureName)
-        genForAttribute(secondFeatureName)
+        firstAttributeName = attributeName[0:startPos]
+        secondAttributeName = attributeName[endPos:]
+        genAttribute(firstAttributeName,dataFolder,generatorsFolder)
+        genAttribute(secondAttributeName,dataFolder,generatorsFolder)
         operatorName = attributeName[startPos:endPos]
         attributeFile = attribute.getFileNameFromAttributeName(attributeName)
         if (os.path.isfile(attributeFile)):
             print "The feature file already exists: "+attributeFile
         else:    
             if "DivideBy" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"DivideBy")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy")
             elif "Add" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"Add")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Add")
             elif "Subtract" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"Subtract")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Subtract")
             elif "MultiplyBy" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstFeatureName,secondFeatureName,"MultiplyBy")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy")
             attribute.writeToFile(attributeName)
         return   
 
@@ -94,7 +94,7 @@ def getCommandList(experimentFolder,dataFolder,generatorsFolder):
     for f in attributes:
         attributeName = attributes[f]
         print "\nGenerating for " + attributeName
-        command = genForAttribute(attributeName,dataFolder,generatorsFolder)
+        command = genAttribute(attributeName,dataFolder,generatorsFolder)
         commandList.append(command)
     return commandList    
 
