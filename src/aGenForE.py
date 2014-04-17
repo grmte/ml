@@ -16,7 +16,7 @@ def parseCommandLine():
     args = parser.parse_args()
     return args
 
-def getAttributes(experimentFolder):
+def getAttributesOfExprement(experimentFolder):
     config = ConfigObj(experimentFolder+"/design.ini")
     attributes = config["features"]
     attributes["target"] = config["target"]
@@ -28,69 +28,72 @@ def genAttribute(attributeName,dataFolder,generatorsFolder):
         endPos = attributeName.find("]") + 1
         firstAttributeName = attributeName[0:startPos]
         secondAttributeName = attributeName[endPos:]
-        genAttribute(firstAttributeName,dataFolder,generatorsFolder)
-        genAttribute(secondAttributeName,dataFolder,generatorsFolder)
+        genAttribute(firstAttributeName,dataFolder,generatorsFolder) # recursive call
+        genAttribute(secondAttributeName,dataFolder,generatorsFolder)# recursive call
         operatorName = attributeName[startPos:endPos]
-        attributeFile = attribute.getFileNameFromAttributeName(attributeName)
+        attributeFile = attribute.getOutputFileNameFromAttributeName(attributeName,dataFolder)
         if (os.path.isfile(attributeFile)):
-            print "The feature file already exists: "+attributeFile
+            print "The attribute file already exists: "+attributeFile
         else:    
             if "DivideBy" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder)
             elif "Add" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Add")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder)
             elif "Subtract" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Subtract")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder)
             elif "MultiplyBy" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy")
+                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder)
             attribute.writeToFile(attributeName)
         return   
 
-    commandLine = getCommandLine(attributeName,dataFolder,generatorsFolder)
+    commandLine = getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder)
     return commandLine
 
-def getCommandLine(pAttributesName,dataFolder,generatorsFolder):
+def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder):
+    """
+    Support the user friendly attribute name is fColBidP0InCurrentRow this will return fColCInCurrentRow -c BidP0 
+    """
     paramList = []
     paramList = ["aGen.py","-d",dataFolder]
 
 
     # Getting the moduleName from the attributeName
-    if "Col" in pAttributesName:
-        startPos = pAttributesName.find("Col") + 3
-        endPos = pAttributesName.find("In")
-        colName = pAttributesName[startPos:endPos]
-        pAttributesName = pAttributesName.replace(colName,"C")
+    if "Col" in pUserFriendlyAttributeName:
+        startPos = pUserFriendlyAttributeName.find("Col") + 3
+        endPos = pUserFriendlyAttributeName.find("In")
+        colName = pUserFriendlyAttributeName[startPos:endPos]
+        pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"C")
         paramList.append("-c")
         paramList.append(colName)
 
-    if "Last" in pAttributesName:
-        startPos = pAttributesName.find("Last") + 4
-        endPos = pAttributesName.find("Rows")
+    if "Last" in pUserFriendlyAttributeName:
+        startPos = pUserFriendlyAttributeName.find("Last") + 4
+        endPos = pUserFriendlyAttributeName.find("Rows")
         if endPos == -1:
-            endPos = pAttributesName.find("Secs")
+            endPos = pUserFriendlyAttributeName.find("Secs")
             if endPos == -1:
-                endPos = pAttributesName.find("Qty")
-        N = pAttributesName[startPos:endPos]
-        pAttributesName = pAttributesName.replace(N,"N")
+                endPos = pUserFriendlyAttributeName.find("Qty")
+        N = pUserFriendlyAttributeName[startPos:endPos]
+        pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
         paramList.append("-n")
         paramList.append(N)
 
-    if "Future" in pAttributesName:
-        startPos = pAttributesName.find("Future") + 6
-        endPos = pAttributesName.find("Rows")
-        N = pAttributesName[startPos:endPos]
-        pAttributesName = pAttributesName.replace(N,"N")
+    if "Future" in pUserFriendlyAttributeName:
+        startPos = pUserFriendlyAttributeName.find("Future") + 6
+        endPos = pUserFriendlyAttributeName.find("Rows")
+        N = pUserFriendlyAttributeName[startPos:endPos]
+        pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
         paramList.append("-n")
         paramList.append(N)
 
     paramList.append("-g")
-    paramList.append(generatorsFolder+pAttributesName)
+    paramList.append(generatorsFolder+pUserFriendlyAttributeName)
     return paramList
 
 
 def getCommandList(experimentFolder,dataFolder,generatorsFolder):
     commandList = list()
-    attributes = getAttributes(experimentFolder)
+    attributes = getAttributesOfExprement(experimentFolder)
     for f in attributes:
         attributeName = attributes[f]
         print "\nGenerating for " + attributeName

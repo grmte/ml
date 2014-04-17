@@ -3,7 +3,7 @@ import dataFile
 
 list = []
 
-def readFeatureFileIntoMatrix(pFeatureFile):
+def readAttributeFileIntoMatrix(pFeatureFile):
    print "Reading " +pFeatureFile
    matrix = []
    fileHasHeader = 0
@@ -17,14 +17,14 @@ def readFeatureFileIntoMatrix(pFeatureFile):
 
    return matrix   
 
-def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,number,columnName,dataFolder):
+def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
-   firstFileName = getFileNameFromAttributeName(pFirstAttributeName,number,columnName,dataFolder)
-   secondFileName = getFileNameFromAttributeName(pSecondAttributeName,number,columnName,dataFolder)
+   firstFileName = getOutputFileNameFromAttributeName(pFirstAttributeName,dataFolder)
+   secondFileName = getOutputFileNameFromAttributeName(pSecondAttributeName,dataFolder)
    
-   firstMatrix = readFeatureFileIntoMatrix(firstFileName)
-   secondMatrix = readFeatureFileIntoMatrix(secondFileName)
+   firstMatrix = readAttributeFileIntoMatrix(firstFileName)
+   secondMatrix = readAttributeFileIntoMatrix(secondFileName)
 
    currentRowCount = 0
    for dataRow in firstMatrix:
@@ -53,7 +53,18 @@ def getAttributeTypeFromAttributeName(pAttributeName):
       return "target"
    
 
-def getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder):
+def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
+   # we need to replace /ro with /wf   
+   dirName = dataFolder.replace('/ro/','/wf/')   
+   if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
+      attributeFile=dirName+"/f/"+pAttributesName+".feature"
+   else:   
+      attributeFile=dirName+"/t/"+pAttributesName+".target"
+      
+   return attributeFile
+   
+
+def getOutputFileNameFromGeneratorName(pAttributesName,number,columnName,dataFolder):
    if "NRows" in pAttributesName:
       N = number
       pAttributesName = pAttributesName.replace("NRows",str(N)+"Rows")   
@@ -78,8 +89,10 @@ def getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder):
       
    return attributeFile
    
-def checkIfAttributeFileExists(pAttributesName,number,columnName,dataFolder):
-   attributeFile = getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder)
+
+
+def checkIfAttributeOutputFileExists(pAttributesName,number,columnName,dataFolder):
+   attributeFile = getOutputFileNameFromAttributeName(pAttributesName,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
@@ -87,7 +100,7 @@ def checkIfAttributeFileExists(pAttributesName,number,columnName,dataFolder):
 
 def writeToFile(pAttributesName,number,columnName,dataFolder):
    print "Writing to file the attribute: "+pAttributesName
-   attributeFile = open(getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder),"w")
+   attributeFile = open(getOutputFileNameFromAttributeName(pAttributesName,dataFolder),"w")
    for featureRow in list:
       featureCount = 1
       for feature in featureRow:

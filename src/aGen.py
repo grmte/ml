@@ -42,7 +42,7 @@ except:
 
 def main():
    try:
-      attribute.checkIfAttributeFileExists(os.path.basename(moduleName),args.n,args.c,args.d)
+      attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.d)
       dataFile.getDataIntoMatrix(args.d)
       attribute.initList()
       userModule.extractAttributeFromDataMatrix(args)
