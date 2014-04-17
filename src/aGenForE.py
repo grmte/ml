@@ -23,30 +23,31 @@ def getAttributesOfExprement(experimentFolder):
     return attributes
 
 def genAttribute(attributeName,dataFolder,generatorsFolder):
+    commandLine = []
     if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
         startPos = attributeName.find("[")
         endPos = attributeName.find("]") + 1
         firstAttributeName = attributeName[0:startPos]
         secondAttributeName = attributeName[endPos:]
-        genAttribute(firstAttributeName,dataFolder,generatorsFolder) # recursive call
-        genAttribute(secondAttributeName,dataFolder,generatorsFolder)# recursive call
+        commandLine.append(genAttribute(firstAttributeName,dataFolder,generatorsFolder)) # recursive call
+        commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder)) # recursive call
         operatorName = attributeName[startPos:endPos]
         attributeFile = attribute.getOutputFileNameFromAttributeName(attributeName,dataFolder)
         if (os.path.isfile(attributeFile)):
             print "The attribute file already exists: "+attributeFile
         else:    
             if "DivideBy" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder)
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder))
             elif "Add" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder)
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder))
             elif "Subtract" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder)
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder))
             elif "MultiplyBy" in operatorName:
-                attribute.list = attribute.operateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder)
-            attribute.writeToFile(attributeName)
-        return   
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder))
+            
+            return commandLine   
 
-    commandLine = getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder)
+    commandLine.append(getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder))
     return commandLine
 
 def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder):
@@ -98,7 +99,7 @@ def getCommandList(experimentFolder,dataFolder,generatorsFolder):
         attributeName = attributes[f]
         print "\nGenerating for " + attributeName
         command = genAttribute(attributeName,dataFolder,generatorsFolder)
-        commandList.append(command)
+        commandList.extend(command)
     return commandList    
 
 def main():

@@ -17,6 +17,17 @@ def readAttributeFileIntoMatrix(pFeatureFile):
 
    return matrix   
 
+def getCommandLineToOperateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
+   paramList = []                        
+   paramList = ["operateOnAttribute.py","-d",dataFolder]  
+   paramList.append("-a1")
+   paramList.append(pFirstAttributeName)  
+   paramList.append("-a2")
+   paramList.append(pSecondAttributeName)  
+   paramList.append("-operand")
+   paramList.append(pOperand)  
+   return paramList
+
 def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
