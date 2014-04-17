@@ -34,7 +34,7 @@ def printGroupStatus():
         print "%10s->%s \n" % ("Status","Command")
         for k, v in commandStatus.iteritems():
             status = str(v.ready())
-            print "%10s->%s \n" % (status,k)
+            print "%10s->%s" % (status,k)
             if(v.ready()==False):
                 numberOfCommandsNotCompleted += 1
         """        
