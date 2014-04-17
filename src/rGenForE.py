@@ -21,4 +21,4 @@ else:
 
 for algo in allAlgos:
     utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo],args.run,args.sequence)
-    utility.runCommand(["pRScriptGenForE.py","-e",args.e,"-a",algo],args.run,args.sequence)
+    utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo],args.run,args.sequence)
