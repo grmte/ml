@@ -47,8 +47,7 @@ def genAttribute(attributeName,dataFolder,generatorsFolder):
             
             return commandLine   
 
-    commandLine.append(getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder))
-    return commandLine
+    return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder)
 
 def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder):
     """
@@ -89,7 +88,10 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
 
     paramList.append("-g")
     paramList.append(generatorsFolder+pUserFriendlyAttributeName)
-    return paramList
+
+    commandLine =[]
+    commandLine.append(paramList)
+    return commandLine
 
 
 def getCommandList(experimentFolder,dataFolder,generatorsFolder):
