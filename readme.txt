@@ -2,33 +2,30 @@
 export PATH="$HOME/ml/src:$PATH"
 
 2. To generate features see:
-fGen.py -h
+aGen.py -h
 
 To generate all features see:
-fGenAll.py
+aGenForE.py
 
-3. To generate targets see:
-tGen.py -h
-
-4. To generate train.r see:
+3. To generate train.r see:
 mGen.py -h
 
-5. To generate predict.r see:
+4. To generate predict.r see:
 pGen.py -h
 
 To generate mGen.py and pGen.py with one command you can use:
 rGenAll.py -e e1
 
-6. To do training
+5. To do training
 ./en/train.r -d [dirname]
 
-7. To do predictions
+6. To do predictions
 ./en/predict.r -d [dirname]
 
-8. To generate the confusion matrix
+7. To generate the confusion matrix
 cMatrixGen.py -e en -d [dirname]
 
-9. What is the format of the confusion matrix ?
+8. What is the format of the confusion matrix ?
 When printed on the screen:
 -------------------------------
 actual=0       | actual = 0   |
@@ -43,7 +40,7 @@ actual=0       | actual = 0   |actual=1       | actual = 1   |
 predicted=0    | predicted = 1|predicted=0    | predicted = 1|
 --------------------------------------------------------------
 
-10. What is kept in the git repo?
+9. What is kept in the git repo?
 
 design.ini for each experiment.
 cmatrix in the data folders
@@ -56,7 +53,7 @@ The following files are not kept:
 .model 
 .predictions 
 
-11. For dp
+10. For dp
 sudo brew install rabbitmq
 ln -sfv /usr/local/opt/rabbitmq/*.plist ~/Library/LaunchAgents
 launchctl load ~/Library/LaunchAgents/homebrew.mxcl.rabbitmq.plist
@@ -65,21 +62,21 @@ sudo /usr/local/sbin/rabbitmq-server
 The web interface is available at:
 http://127.0.0.1:15672/
 
-12. to get a centos VM running
+11. to get a centos VM running
   655  vagrant box add centos65-x86_64-20131205 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box
   656  vagrant init centos65-x86_64-20131205
   659  vagrant up
 ssh vagrant@127.0.0.1 -p 2222
 login: vagrant / vagrant
 
-13. Where is the vagrant box stored:
+12. Where is the vagrant box stored:
 du -h /Users/vikaskedia/.vagrant.d/
 
-14. Softwares that are needed 
+13. Softwares that are needed 
     brew install multitail
     easy_install cellery
     easy_install flower
     sudo easy_install termcolor, argparse
 
-15. to start the celery worker
+14. to start the celery worker
 ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
