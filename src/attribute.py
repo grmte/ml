@@ -111,7 +111,7 @@ def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder
 
 def writeToFile(pAttributesName,number,columnName,dataFolder):
    print "Writing to file the attribute: "+pAttributesName
-   attributeFile = open(getOutputFileNameFromAttributeName(pAttributesName,dataFolder),"w")
+   attributeFile = open(getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder),"w")
    for featureRow in list:
       featureCount = 1
       for feature in featureRow:
