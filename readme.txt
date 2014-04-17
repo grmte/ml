@@ -79,7 +79,7 @@ du -h /Users/vikaskedia/.vagrant.d/
     brew install multitail
     easy_install cellery
     easy_install flower
-    sudo easy_install termcolor
+    sudo easy_install termcolor, argparse
 
 15. to start the celery worker
 ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
