@@ -39,8 +39,8 @@ if(args.sequence == "dp"):
 
     aGenList = []
     attribute.getGenerationCommands(commandList,aGenList)
-    #utility.runCommandList(aGenList,args)
-    #dp.printGroupStatus()
+    utility.runCommandList(aGenList,args)
+    dp.printGroupStatus()
 
     operateOnAttributeList = []
     attribute.getOperationCommands(commandList,operateOnAttributeList)

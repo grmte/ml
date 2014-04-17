@@ -18,8 +18,10 @@ def parseCommandLine():
     parser.add_argument('-a1', required=True,help='Attribute 1')
     parser.add_argument('-a2', required=False,help='Attribute 2')
     parser.add_argument('-operand', required=False,help='Operand')
-    parser.add_argument('-run', required=True,help='dry or real')
-    parser.add_argument('-sequence', required=True,help='dp / lp / serial')
+    """ 
+    this does not need a command sequence since this does not generate sub commands
+    this does not need a dry or real since this is the final execution command
+    """
     args = parser.parse_args()
     return args
 
