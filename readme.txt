@@ -61,6 +61,8 @@ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.rabbitmq.plist
 sudo /usr/local/sbin/rabbitmq-server 
 linux:
 https://www.rabbitmq.com/install-rpm.html
+service rabbitmq-server start
+service rabbitmq-server status
 
 The web interface is available at:
 http://127.0.0.1:15672/
