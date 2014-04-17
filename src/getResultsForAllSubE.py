@@ -41,7 +41,7 @@ else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 
 
-utility.runCommand(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
