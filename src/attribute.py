@@ -1,7 +1,27 @@
 import os
 import dataFile
 
-list = []
+aList = []
+
+
+def getOperationCommandsInPriority(operateOnAttributeList):
+   return sorted(operateOnAttributeList, key = lambda x: len(x[6]))
+
+def getGenerationCommands(pCombinedList,pGenList):
+   for i in pCombinedList:
+      if(isinstance(i[0],list)):
+         getGenerationCommands(i,pGenList)
+      else:
+         if "aGen.py" in i:
+            pGenList.append(i)
+
+def getOperationCommands(pCombinedList,pOperationList):
+   for i in pCombinedList:
+      if(isinstance(i[0],list)):
+         getOperationCommands(i,pOperationList)
+      else:
+         if "operateOnAttributes.py" in i:
+            pOperationList.append(i)
 
 def readAttributeFileIntoMatrix(pFeatureFile):
    print "Reading " +pFeatureFile
@@ -117,7 +137,7 @@ def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder
 def writeToFile(outputFileName):
    print "Writing to file the attribute: "+ outputFileName
    attributeFile = open(outputFileName,"w")
-   for featureRow in list:
+   for featureRow in aList:
       featureCount = 1
       for feature in featureRow:
          attributeFile.write("%s" % (feature))
@@ -127,5 +147,5 @@ def writeToFile(outputFileName):
       attributeFile.write('\n')
 
 def initList():
-   global list
-   list =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
+   global aList
+   aList =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]

@@ -34,8 +34,20 @@ if(args.sequence == "dp"):
     generatorsFolder = args.g
     commandList = aGenForE.getCommandList(experimentFolder,dataFolder,generatorsFolder)
     commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder))
-    utility.runCommandList(commandList,args)
+    # Seperate into 2 different list one for aGen and another for operateOnAttribute
+    import attribute
+
+    aGenList = []
+    attribute.getGenerationCommands(commandList,aGenList)
+    #utility.runCommandList(aGenList,args)
+    #dp.printGroupStatus()
+
+    operateOnAttributeList = []
+    attribute.getOperationCommands(commandList,operateOnAttributeList)
+    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
+    utility.runCommandList(operateOnAttributeListAsPerPriority,args)
     dp.printGroupStatus()
+
 else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)

@@ -27,6 +27,9 @@ def runCommand(pProgDefinationList):
         print "Time taken to run the program is " + str(tEnd - tStart)
 
 def printGroupStatus():
+    """
+    this acts as a stop gate for a group of commands to be executed. So that a sequence can be maintained.
+    """
     global commandStatus
     numberOfCommandsNotCompleted = 0
     while(True):
