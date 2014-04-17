@@ -14,7 +14,7 @@ mGen.py -h
 pGen.py -h
 
 To generate mGen.py and pGen.py with one command you can use:
-rGenAll.py -e e1
+rGenForE.py -e e1
 
 5. To do training
 ./en/train.r -d [dirname]
