@@ -74,7 +74,7 @@ du -h /Users/vikaskedia/.vagrant.d/
 
 13. Softwares that are needed 
     brew install multitail
-    easy_install cellery
+    easy_install celery
     easy_install flower
     sudo easy_install termcolor, argparse
 
