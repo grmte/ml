@@ -46,7 +46,8 @@ def main():
       dataFile.getDataIntoMatrix(args.d)
       attribute.initList()
       userModule.extractAttributeFromDataMatrix(args)
-      attribute.writeToFile(os.path.basename(moduleName),args.n,args.c,args.d)
+      fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.d)
+      attribute.writeToFile(fileName)
    except:
       traceback.print_exc()
       e = sys.exc_info()[0]

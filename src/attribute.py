@@ -28,6 +28,11 @@ def getCommandLineToOperateOnAttributes(pFirstAttributeName,pSecondAttributeName
    paramList.append(pOperand)  
    return paramList
 
+def getFileNameFromOperationCommand(a1,a2,operand,d):
+   # assuming that all operations happen on f to operate on t this function needs to change.
+   d = d.replace('/ro/','/wf/')   
+   return d+"/f/"+a1+"["+operand+"]"+a2+".feature"
+
 def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
@@ -109,9 +114,9 @@ def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
       os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
-def writeToFile(pAttributesName,number,columnName,dataFolder):
-   print "Writing to file the attribute: "+pAttributesName
-   attributeFile = open(getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder),"w")
+def writeToFile(outputFileName):
+   print "Writing to file the attribute: "+ outputFileName
+   attributeFile = open(outputFileName,"w")
    for featureRow in list:
       featureCount = 1
       for feature in featureRow:

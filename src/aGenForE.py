@@ -33,19 +33,16 @@ def genAttribute(attributeName,dataFolder,generatorsFolder):
         commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder)) # recursive call
         operatorName = attributeName[startPos:endPos]
         attributeFile = attribute.getOutputFileNameFromAttributeName(attributeName,dataFolder)
-        if (os.path.isfile(attributeFile)):
-            print "The attribute file already exists: "+attributeFile
-        else:    
-            if "DivideBy" in operatorName:
-                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder))
-            elif "Add" in operatorName:
-                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder))
-            elif "Subtract" in operatorName:
-                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder))
-            elif "MultiplyBy" in operatorName:
-                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder))
+        if "DivideBy" in operatorName:
+            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder))
+        elif "Add" in operatorName:
+            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder))
+        elif "Subtract" in operatorName:
+            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder))
+        elif "MultiplyBy" in operatorName:
+            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder))
             
-            return commandLine   
+        return commandLine   
 
     return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder)
 

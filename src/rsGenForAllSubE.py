@@ -8,7 +8,7 @@ import rCodeGen, utility
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
-getResultsForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial',formatter_class=argparse.RawTextHelpFormatter)
+rsGenForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial',formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name.')

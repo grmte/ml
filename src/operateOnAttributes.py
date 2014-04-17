@@ -27,7 +27,12 @@ args = parseCommandLine()
 
 def main():
    try:
-      attribute.operateOnAttributes(args.a1,args.a2,args.operand,args.d)
+      outputFileName = attribute.getFileNameFromOperationCommand(args.a1,args.a2,args.operand,args.d)
+      if (os.path.isfile(outputFileName)):
+          print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
+          os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
+      attribute.list = attribute.operateOnAttributes(args.a1,args.a2,args.operand,args.d)
+      attribute.writeToFile(outputFileName)
    except:
       traceback.print_exc()
       e = sys.exc_info()[0]
