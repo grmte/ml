@@ -75,35 +75,35 @@ def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
    return attributeFile
    
 
-def getOutputFileNameFromGeneratorName(pAttributesName,number,columnName,dataFolder):
-   if "NRows" in pAttributesName:
+def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder):
+   if "NRows" in pGeneratorName:
       N = number
-      pAttributesName = pAttributesName.replace("NRows",str(N)+"Rows")   
+      pGeneratorName = pGeneratorName.replace("NRows",str(N)+"Rows")   
 
-   if "NSecs" in pAttributesName:
+   if "NSecs" in pGeneratorName:
       N = number
-      pAttributesName = pAttributesName.replace("NSecs",str(N)+"Secs")   
+      pGeneratorName = pGeneratorName.replace("NSecs",str(N)+"Secs")   
 
-   if "NQty" in pAttributesName:
+   if "NQty" in pGeneratorName:
       N = number
-      pAttributesName = pAttributesName.replace("NQty",str(N)+"Qty")   
+      pGeneratorName = pGeneratorName.replace("NQty",str(N)+"Qty")   
 
-   if "ColC" in pAttributesName:
-      pAttributesName = pAttributesName.replace("ColC","Col"+columnName)   
+   if "ColC" in pGeneratorName:
+      pGeneratorName = pGeneratorName.replace("ColC","Col"+columnName)   
 
    # we need to replace /ro with /wf   
    dirName = dataFolder.replace('/ro/','/wf/')   
-   if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
-      attributeFile=dirName+"/f/"+pAttributesName+".feature"
+   if (getAttributeTypeFromAttributeName(pGeneratorName) == "feature"):   
+      attributeFile=dirName+"/f/"+pGeneratorName+".feature"
    else:   
-      attributeFile=dirName+"/t/"+pAttributesName+".target"
+      attributeFile=dirName+"/t/"+pGeneratorName+".target"
       
    return attributeFile
    
 
 
-def checkIfAttributeOutputFileExists(pAttributesName,number,columnName,dataFolder):
-   attributeFile = getOutputFileNameFromAttributeName(pAttributesName,dataFolder)
+def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder):
+   attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
