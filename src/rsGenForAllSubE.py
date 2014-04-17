@@ -45,8 +45,10 @@ if(args.sequence == "dp"):
     operateOnAttributeList = []
     attribute.getOperationCommands(commandList,operateOnAttributeList)
     operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-    utility.runCommandList(operateOnAttributeListAsPerPriority,args)
-    dp.printGroupStatus()
+    for i in operateOnAttributeListAsPerPriority:
+        utility.runCommand(i,args.run,args.sequence)
+        dp.printGroupStatus() 
+
 
 else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
