@@ -85,3 +85,7 @@ du -h /Users/vikaskedia/.vagrant.d/
 
 14. to start the celery worker
 ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
+
+15. Flower
+to start >flower --port=81
+in the browser enter http://10.105.1.194:81/
