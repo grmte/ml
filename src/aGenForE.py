@@ -57,21 +57,34 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     # Getting the moduleName from the attributeName
     if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
-        endPos = pUserFriendlyAttributeName.find("In")
-        colName = pUserFriendlyAttributeName[startPos:endPos]
-        pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"C")
-        paramList.append("-c")
-        paramList.append(colName)
+        if "(" == pUserFriendlyAttributeName[startPos]:
+            endPos = pUserFriendlyAttributeName.find(")",startPos)
+            colNameWithBracketsToBeReplaced = pUserFriendlyAttributeName[startPos:endPos+1]
+            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colNameWithBracketsToBeReplaced,"C",1)
+            colNameWithoutBracketsToBePassedAsParam = colNameWithBracketsToBeReplaced[1:-1]
+            paramList.append("-c")
+            paramList.append(colNameWithBracketsToBeReplaced)
+            paramList.append("-cType")
+            paramList.append("synthetic") 
+        else:
+            endPos = pUserFriendlyAttributeName.find("In")
+            colName = pUserFriendlyAttributeName[startPos:endPos]
+            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"C")
+            paramList.append("-c")
+            paramList.append(colName)
+            paramList.append("-cType")
+            paramList.append("primary") 
 
     if "Last" in pUserFriendlyAttributeName:
-        startPos = pUserFriendlyAttributeName.find("Last") + 4
-        endPos = pUserFriendlyAttributeName.find("Rows")
+        startPos = pUserFriendlyAttributeName.rfind("Last") + 4
+        endPos = pUserFriendlyAttributeName.rfind("Rows")
         if endPos == -1:
-            endPos = pUserFriendlyAttributeName.find("Secs")
+            endPos = pUserFriendlyAttributeName.rfind("Secs")
             if endPos == -1:
-                endPos = pUserFriendlyAttributeName.find("Qty")
+                endPos = pUserFriendlyAttributeName.rfind("Qty")
         N = pUserFriendlyAttributeName[startPos:endPos]
-        pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
+        reversedAttributeName = pUserFriendlyAttributeName[::-1]
+        pUserFriendlyAttributeName = reversedAttributeName.replace(N[::-1],"N",1)[::-1]
         paramList.append("-n")
         paramList.append(N)
 

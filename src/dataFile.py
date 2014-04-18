@@ -15,8 +15,14 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
    foundFile=False
    fileName =""
    if(pSyntheticColName):
-      fileName = pDirName.replace("ro","wf") + "/f/"+pSyntheticColName+".feature"
-      foundFile = True
+      pSyntheticColName = pSyntheticColName[1:-1] 
+      pDirName = pDirName.replace("ro","wf") + "/f/" 
+      list_of_files = os.listdir(pDirName) #list of files in the directory                                                                                                                                          
+      for each_file in list_of_files:
+          if pSyntheticColName+".feature" == each_file:
+              fileName = pDirName.replace("ro","wf") +pSyntheticColName+".feature"
+              foundFile = True
+              break
    else:   
       list_of_files = os.listdir(pDirName) #list of files in the directory                                                                                                                                          
       for each_file in list_of_files:
