@@ -40,7 +40,7 @@ def extractAttributeFromDataMatrix(args):
       totalOfLastNRows += cellValue
 
       if (currentRowCount < N):
-         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp)
+         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp,args.cType)
          attribute.aList[currentRowCount][1] = totalOfLastNRows/(currentRowCount+1) # in 1st iteration currentRowCount = 0
          currentRowCount = currentRowCount + 1
          continue     # Since we are going back 1 row from current we cannot get data from current row
@@ -49,7 +49,7 @@ def extractAttributeFromDataMatrix(args):
       totalOfLastNRows -= queueOfCellValueInLastNRows.popleft()
      
       # In the next 2 rows we do not do -1 since this feature if for the current row.
-      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp)
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp,args.cType)
       attribute.aList[currentRowCount][1] = totalOfLastNRows / N
 
       currentRowCount = currentRowCount + 1
