@@ -18,8 +18,9 @@ def parseCommandLine():
     parser.add_argument('-g', required=True,help='Directory of geneartors')
     parser.add_argument('-c', required=False,help='Column name')
     parser.add_argument('-n', required=False,help='Number of rows / cols / seconds / Qty')
-    parser.add_argument('-run', required=True,help='dry or real')
-    parser.add_argument('-sequence', required=True,help='dp / lp / serial')
+    # This is a command and it does not have sub commands. Hence it does not need 
+    # 1. A "sequence of commands" as a parameter.
+    # 2. Whether the command is to be run in dry more or real mode.
     args = parser.parse_args()
     return args
 
