@@ -53,12 +53,11 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     paramList = []
     paramList = ["aGen.py","-d",dataFolder]
 
-
     # Getting the moduleName from the attributeName
     if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
-        if "(" == pUserFriendlyAttributeName[startPos]:
-            endPos = pUserFriendlyAttributeName.find(")",startPos)
+        if "_" == pUserFriendlyAttributeName[startPos]:
+            endPos = pUserFriendlyAttributeName.find("_",startPos+1)
             colNameWithBracketsToBeReplaced = pUserFriendlyAttributeName[startPos:endPos+1]
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colNameWithBracketsToBeReplaced,"C",1)
             colNameWithoutBracketsToBePassedAsParam = colNameWithBracketsToBeReplaced[1:-1]
