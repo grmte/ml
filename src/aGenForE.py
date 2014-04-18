@@ -56,6 +56,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     # Getting the moduleName from the attributeName
     if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
+        # There are 2 types of columns. real or synthetic. The following if block finds what type of column do we have.
         if "_" == pUserFriendlyAttributeName[startPos]:
             endPos = pUserFriendlyAttributeName.find("_",startPos+1)
             colNameWithBracketsToBeReplaced = pUserFriendlyAttributeName[startPos:endPos+1]
