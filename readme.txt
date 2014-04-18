@@ -58,7 +58,7 @@ The following files are not kept:
 .model 
 .predictions 
 
-10. For dp
+10. For Distributed Parallel (dp)
 osx:
 sudo brew install rabbitmq
 ln -sfv /usr/local/opt/rabbitmq/*.plist ~/Library/LaunchAgents
