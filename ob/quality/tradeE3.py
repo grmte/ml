@@ -12,15 +12,16 @@ parser.add_argument('-entryCL', required=True,help='Percentage of the confidence
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
 args = parser.parse_args()
 
-sys.path.append("/Volumes/SsdData/ml/src/")
-sys.path.append("/Volumes/SsdData/ml/ob/generators/")
+sys.path.append("./src/")
+sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 
 experimentName = os.path.basename(os.path.abspath(args.e))
 gTickSize = 25000
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
-    predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
+    dirName = args.d.replace('/ro/','/wf/')
+    predictedValuesFileName = dirName+"/p/"+experimentName+args.a+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
@@ -124,8 +125,8 @@ def main():
        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ]) 
        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
-    
-   fileName = args.d+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade"
+   dirName = args.d.replace('/ro/','/rs/')
+   fileName = dirName+"/t/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
    outputFile = open(fileName,"w")
    print("Starting to write: "+fileName)
    print("The net results are: " + str(tradeStats['totalSellValue'] - tradeStats['totalBuyValue']), file = outputFile)    
