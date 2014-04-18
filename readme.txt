@@ -97,3 +97,6 @@ To see the web interface: In the browser enter http://10.105.1.194:81/
 
 16. Other good to have software:
 multitail
+
+17. What are synthetic columns ?
+Features are treated as synthetic columns.

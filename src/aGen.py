@@ -13,10 +13,11 @@ import attribute
 
 
 def parseCommandLine():
-    parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenAll.py -d ob/data/20140207/ -e e7.1')
+    parser = argparse.ArgumentParser(description='This program will run aGen.py given a generator. An e.g. command line is aGen.py -d ob/data/ro/20140204/ -g ob/generators/fColCInCurrentRow -c BidP0')
     parser.add_argument('-d', required=True,help='Directory of data file')
     parser.add_argument('-g', required=True,help='Directory of geneartors')
     parser.add_argument('-c', required=False,help='Column name')
+    parser.add_argument('-cType', required=False,help='primary / synthetic')
     parser.add_argument('-n', required=False,help='Number of rows / cols / seconds / Qty')
     # This is a command and it does not have sub commands. Hence it does not need 
     # 1. A "sequence of commands" as a parameter.
@@ -44,7 +45,11 @@ except:
 def main():
    try:
       attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.d)
-      dataFile.getDataIntoMatrix(args.d)
+      if(args.cType == "synthetic"):
+          dataFile.getDataIntoMatrix(args.d,args.c)
+      else:
+          dataFile.getDataIntoMatrix(args.d)
+      
       attribute.initList()
       userModule.extractAttributeFromDataMatrix(args)
       fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.d)

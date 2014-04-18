@@ -11,5 +11,5 @@ def convertTimeStampFromStringToFloat(pStringOfTimeStamp):
     timeStamp = timeStamp.replace("s",".")
     return float(timeStamp)
 
-def getTimeStamp(pRow):
-    return convertTimeStampFromStringToDecimal(pRow[colNumberOfData.TimeStamp])
+def getTimeStamp(pRow,pColNumberOfTS):
+    return convertTimeStampFromStringToDecimal(pRow[pColNumberOfTS])

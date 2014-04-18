@@ -37,14 +37,14 @@ def CheckIfPredictionsFileAlreadyExists(rScript,args):
 
 def ToReadTargetFile(rScript,config):
     rScript.write('print ("Section2: Read target files") \n')
-    rScript.write('targetVector=read.csv(paste(args[2],"/t/","'+config["target"]+'.target",sep=""), header=FALSE) \n\n')
+    rScript.write('targetVector=read.csv(paste(args[2],"/t/","'+config["target"]+'.target",sep=""), header=TRUE) \n\n')
 
 def ToReadFeatureFiles(rScript,config):
     features = config["features"]
     rScript.write('\nprint ("Section3: Read feature files") \n')
     for feature in features:
         rScript.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
-        rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=FALSE) \n')
+        rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE) \n')
 
 def ForSanityChecks(rScript,config):
     features = config["features"]

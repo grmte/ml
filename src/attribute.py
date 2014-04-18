@@ -26,13 +26,13 @@ def getOperationCommands(pCombinedList,pOperationList):
 def readAttributeFileIntoMatrix(pFeatureFile):
    print "Reading " +pFeatureFile
    matrix = []
-   fileHasHeader = 0
+   fileHasHeader = 1
    for dataRow in open(pFeatureFile):
       if(fileHasHeader == 1 and headerSkipped != 1):
          headerSkipped = 1 
          continue
       dataRow=dataRow.rstrip('\n')
-      dataColumns=dataRow.split(',')
+      dataColumns=dataRow.split(';')
       matrix.append(dataColumns)
 
    return matrix   
@@ -137,12 +137,13 @@ def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder
 def writeToFile(outputFileName):
    print "Writing to file the attribute: "+ outputFileName
    attributeFile = open(outputFileName,"w")
+   attributeFile.write("TimeStamp;FeatureValue;DebugData\n")
    for featureRow in aList:
       featureCount = 1
       for feature in featureRow:
          attributeFile.write("%s" % (feature))
          if(featureCount < len(featureRow)):
-            attributeFile.write(",")
+            attributeFile.write(";")
          featureCount = featureCount + 1   
       attributeFile.write('\n')
 
