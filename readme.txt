@@ -57,6 +57,8 @@ The following files are not kept:
 .target 
 .model 
 .predictions 
+.trade
+.r
 
 10. For Distributed Parallel (dp)
 osx:
