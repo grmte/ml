@@ -25,7 +25,7 @@ def extractAttributeFromDataMatrix(args):
          while(oldestElementinQueue[0] < timeOfCurrentRow):
             oldestElementinQueue = queue.popleft()
             totalOfRowsInFutureNSeconds -= oldestElementinQueue[1]
-      attribute.list[currentRowCount][0] = timeOfCurrentRow
+      attribute.aList[currentRowCount][0] = timeOfCurrentRow
       while True:
          if(currentRowCount + futureRowCount < totalNumberOfDataRows):   # If the totalNumberOfDataRows is 5 we can access index values 0 to 4.
             timeOfFutureRow = common.getTimeStamp(dataFile.matrix[currentRowCount + futureRowCount])
@@ -42,12 +42,12 @@ def extractAttributeFromDataMatrix(args):
       averageOfFutureRows = totalOfRowsInFutureNSeconds / futureRowCount
       currentCellValue = float(dataFile.matrix[currentRowCount][colNumberWeAreWorkingWith])
       if( averageOfFutureRows > currentCellValue):   
-         attribute.list[currentRowCount][1] = 1
+         attribute.aList[currentRowCount][1] = 1
       else:
-         attribute.list[currentRowCount][1] = 0
+         attribute.aList[currentRowCount][1] = 0
 
-      attribute.list[currentRowCount][2] = totalOfRowsInFutureNSeconds
-      attribute.list[currentRowCount][3] = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
+      attribute.aList[currentRowCount][2] = totalOfRowsInFutureNSeconds
+      attribute.aList[currentRowCount][3] = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
 
       currentRowCount = currentRowCount + 1
 

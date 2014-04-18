@@ -46,8 +46,8 @@ def extractAttributeFromDataMatrix(args):
          totalPriceAtThisLevel = qtyToUseAtThisLevel * priceAtThisLevel
          totalPrice += totalPriceAtThisLevel
 
-      attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-      attribute.list[currentRowCount][1] = float(totalPrice)/qtyForCalculatingWeightedAverage
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.aList[currentRowCount][1] = float(totalPrice)/qtyForCalculatingWeightedAverage
 
       currentRowCount += 1
       if (currentRowCount%10000==0):

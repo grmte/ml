@@ -35,7 +35,7 @@ def extractAttributeFromDataMatrix(args):
 
    for dataRow in dataFile.matrix:
 
-      attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
       futureCellValue = 0
 
       if(currentRowCount + numberOfFutureRows < len(dataFile.matrix)):
@@ -55,12 +55,12 @@ def extractAttributeFromDataMatrix(args):
       codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'])'
       valueInCurrentRow = eval(codeString)
       if( averageOfFutureRows > valueInCurrentRow):   
-         attribute.list[currentRowCount][1] = 1
+         attribute.aList[currentRowCount][1] = 1
       else:
-         attribute.list[currentRowCount][1] = 0
+         attribute.aList[currentRowCount][1] = 0
 
-      attribute.list[currentRowCount][2] = totalOfFutureNRows
-      attribute.list[currentRowCount][3] = valueInCurrentRow
+      attribute.aList[currentRowCount][2] = totalOfFutureNRows
+      attribute.aList[currentRowCount][3] = valueInCurrentRow
 
       currentRowCount = currentRowCount + 1
       if(currentRowCount % 1000 == 0):

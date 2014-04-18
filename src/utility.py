@@ -40,8 +40,7 @@ def runCommandList(pCommandList,pArgs):
     run = pArgs.run
     sequence = pArgs.sequence
     for command in pCommandList:
-        command.append("-run")
-        command.append(run)
-        command.append("-sequence")
-        command.append(sequence)
+        if(isinstance(command[0],list)):
+            runCommandList(command,pArgs)
+            continue
         runCommand(command,run,sequence)

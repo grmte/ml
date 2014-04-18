@@ -8,7 +8,7 @@ import rCodeGen, utility
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
-getResultsForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial',formatter_class=argparse.RawTextHelpFormatter)
+rsGenForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial',formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name.')
@@ -34,22 +34,41 @@ if(args.sequence == "dp"):
     generatorsFolder = args.g
     commandList = aGenForE.getCommandList(experimentFolder,dataFolder,generatorsFolder)
     commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder))
-    utility.runCommandList(commandList,args)
+    # Seperate into 2 different list one for aGen and another for operateOnAttribute
+    import attribute
+
+    aGenList = []
+    attribute.getGenerationCommands(commandList,aGenList)
+    utility.runCommandList(aGenList,args)
     dp.printGroupStatus()
+
+    operateOnAttributeList = []
+    attribute.getOperationCommands(commandList,operateOnAttributeList)
+    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
+    for i in operateOnAttributeListAsPerPriority:
+        utility.runCommand(i,args.run,args.sequence)
+        dp.printGroupStatus() 
+
+
 else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 
 
-utility.runCommand(["genAllRScriptsForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
 if(args.sequence == "dp"):
     import runAllRScriptsForAllSubE
-    commandList = runAllRScriptsForAllSubE.getCommandList(args.e,args.a,args.td,args.pd)
+    commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td)
     utility.runCommandList(commandList,args)
     print dp.printGroupStatus()
+
+    commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd)
+    utility.runCommandList(commandList,args)
+    print dp.printGroupStatus()
+
 else:
     utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-sequence",args.sequence,"-run",args.run],args.run,args.sequence)
 
@@ -65,7 +84,7 @@ for designFile in designFiles:
 
 def scriptWrapper(experimentName):
     utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo,"-sequence",args.sequence],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45","-sequence",args.sequence],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
 
 if args.sequence == 'lp':
     # to run it in local parallel mode

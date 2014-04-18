@@ -7,7 +7,7 @@ from celery.task.control import inspect
 
 commandStatus = dict()
 
-app = Celery('dp', broker='amqp://guest@localhost//',backend='amqp://guest@localhost//')
+app = Celery('dp', broker='amqp://guest@10.105.1.194//',backend='amqp://guest@10.105.1.194//')
 
 @app.task
 def add(x, y):
@@ -27,6 +27,9 @@ def runCommand(pProgDefinationList):
         print "Time taken to run the program is " + str(tEnd - tStart)
 
 def printGroupStatus():
+    """
+    this acts as a stop gate for a group of commands to be executed. So that a sequence can be maintained.
+    """
     global commandStatus
     numberOfCommandsNotCompleted = 0
     while(True):
@@ -34,7 +37,7 @@ def printGroupStatus():
         print "%10s->%s \n" % ("Status","Command")
         for k, v in commandStatus.iteritems():
             status = str(v.ready())
-            print "%10s->%s \n" % (status,k)
+            print "%10s->%s" % (status,k)
             if(v.ready()==False):
                 numberOfCommandsNotCompleted += 1
         """        

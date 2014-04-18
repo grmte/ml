@@ -10,7 +10,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
-parser.add_argument('-sequence', required=True,help='ld / pd / serial')
+# "sequence of commands" is not required since this does not generate sub commands.
 args = parser.parse_args()
 
 sys.path.append("./src/")

@@ -8,6 +8,7 @@ parser.add_argument('-a', required=False,help='Algorithm name')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-run', required=True,help='dry or real')
+parser.add_argument('-sequence', required=True,help='lp / dp / serial')
 args = parser.parse_args()
 
 
@@ -21,11 +22,11 @@ else:
 
 dirName = args.td.replace('/ro/','/wf/')
 scriptName=args.e+"/train-"+algo+".r"
-utility.runCommand([scriptName,"-d",dirName],args)
+utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
 
 dirName = args.pd.replace('/ro/','/wf/')    
 scriptName=args.e+"/predict-"+algo+".r"
-utility.runCommand([scriptName,"-d",dirName],args)
+utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
 
 
 

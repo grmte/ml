@@ -25,6 +25,6 @@ totalNumberOfFeatures = len(features)
 i = 2
 for algo in allAlgos:
     while i <= totalNumberOfFeatures:
-        utility.runCommand(["mRScriptGenForSubE.py","-e",args.e,"-a",algo,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
-        utility.runCommand(["pRScriptGenForSubE.py","-e",args.e,"-a",algo,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+        utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+        utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
         i +=1

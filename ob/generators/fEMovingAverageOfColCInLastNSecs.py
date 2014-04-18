@@ -30,15 +30,15 @@ def extractAttributeFromDataMatrix(args):
       cellValue = eval(codeString)
 
       if currentRowCount == 0:
-         attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-         attribute.list[currentRowCount][1] = cellValue
+         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+         attribute.aList[currentRowCount][1] = cellValue
          currentRowCount = currentRowCount + 1
          continue
 
-      attribute.list[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
-      firstPart = float(attribute.list[currentRowCount - 1][1]) * eParam
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      firstPart = float(attribute.aList[currentRowCount - 1][1]) * eParam
       secondPart = (1- eParam) * cellValue
-      attribute.list[currentRowCount][1] = firstPart + secondPart 
+      attribute.aList[currentRowCount][1] = firstPart + secondPart 
 
       currentRowCount = currentRowCount + 1
 

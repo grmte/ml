@@ -1,9 +1,29 @@
 import os
 import dataFile
 
-list = []
+aList = []
 
-def readFeatureFileIntoMatrix(pFeatureFile):
+
+def getOperationCommandsInPriority(operateOnAttributeList):
+   return sorted(operateOnAttributeList, key = lambda x: len(x[6]))
+
+def getGenerationCommands(pCombinedList,pGenList):
+   for i in pCombinedList:
+      if(isinstance(i[0],list)):
+         getGenerationCommands(i,pGenList)
+      else:
+         if "aGen.py" in i:
+            pGenList.append(i)
+
+def getOperationCommands(pCombinedList,pOperationList):
+   for i in pCombinedList:
+      if(isinstance(i[0],list)):
+         getOperationCommands(i,pOperationList)
+      else:
+         if "operateOnAttributes.py" in i:
+            pOperationList.append(i)
+
+def readAttributeFileIntoMatrix(pFeatureFile):
    print "Reading " +pFeatureFile
    matrix = []
    fileHasHeader = 0
@@ -17,14 +37,30 @@ def readFeatureFileIntoMatrix(pFeatureFile):
 
    return matrix   
 
-def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,number,columnName,dataFolder):
+def getCommandLineToOperateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
+   paramList = []                        
+   paramList = ["operateOnAttributes.py","-d",dataFolder]  
+   paramList.append("-a1")
+   paramList.append(pFirstAttributeName)  
+   paramList.append("-a2")
+   paramList.append(pSecondAttributeName)  
+   paramList.append("-operand")
+   paramList.append(pOperand)  
+   return paramList
+
+def getFileNameFromOperationCommand(a1,a2,operand,d):
+   # assuming that all operations happen on f to operate on t this function needs to change.
+   d = d.replace('/ro/','/wf/')   
+   return d+"/f/"+a1+"["+operand+"]"+a2+".feature"
+
+def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
-   firstFileName = getFileNameFromAttributeName(pFirstAttributeName,number,columnName,dataFolder)
-   secondFileName = getFileNameFromAttributeName(pSecondAttributeName,number,columnName,dataFolder)
+   firstFileName = getOutputFileNameFromAttributeName(pFirstAttributeName,dataFolder)
+   secondFileName = getOutputFileNameFromAttributeName(pSecondAttributeName,dataFolder)
    
-   firstMatrix = readFeatureFileIntoMatrix(firstFileName)
-   secondMatrix = readFeatureFileIntoMatrix(secondFileName)
+   firstMatrix = readAttributeFileIntoMatrix(firstFileName)
+   secondMatrix = readAttributeFileIntoMatrix(secondFileName)
 
    currentRowCount = 0
    for dataRow in firstMatrix:
@@ -53,22 +89,7 @@ def getAttributeTypeFromAttributeName(pAttributeName):
       return "target"
    
 
-def getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder):
-   if "NRows" in pAttributesName:
-      N = number
-      pAttributesName = pAttributesName.replace("NRows",str(N)+"Rows")   
-
-   if "NSecs" in pAttributesName:
-      N = number
-      pAttributesName = pAttributesName.replace("NSecs",str(N)+"Secs")   
-
-   if "NQty" in pAttributesName:
-      N = number
-      pAttributesName = pAttributesName.replace("NQty",str(N)+"Qty")   
-
-   if "ColC" in pAttributesName:
-      pAttributesName = pAttributesName.replace("ColC","Col"+columnName)   
-
+def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
    # we need to replace /ro with /wf   
    dirName = dataFolder.replace('/ro/','/wf/')   
    if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
@@ -78,17 +99,45 @@ def getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder):
       
    return attributeFile
    
-def checkIfAttributeFileExists(pAttributesName,number,columnName,dataFolder):
-   attributeFile = getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder)
+
+def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder):
+   if "NRows" in pGeneratorName:
+      N = number
+      pGeneratorName = pGeneratorName.replace("NRows",str(N)+"Rows")   
+
+   if "NSecs" in pGeneratorName:
+      N = number
+      pGeneratorName = pGeneratorName.replace("NSecs",str(N)+"Secs")   
+
+   if "NQty" in pGeneratorName:
+      N = number
+      pGeneratorName = pGeneratorName.replace("NQty",str(N)+"Qty")   
+
+   if "ColC" in pGeneratorName:
+      pGeneratorName = pGeneratorName.replace("ColC","Col"+columnName)   
+
+   # we need to replace /ro with /wf   
+   dirName = dataFolder.replace('/ro/','/wf/')   
+   if (getAttributeTypeFromAttributeName(pGeneratorName) == "feature"):   
+      attributeFile=dirName+"/f/"+pGeneratorName+".feature"
+   else:   
+      attributeFile=dirName+"/t/"+pGeneratorName+".target"
+      
+   return attributeFile
+   
+
+
+def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder):
+   attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
       os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
-def writeToFile(pAttributesName,number,columnName,dataFolder):
-   print "Writing to file the attribute: "+pAttributesName
-   attributeFile = open(getFileNameFromAttributeName(pAttributesName,number,columnName,dataFolder),"w")
-   for featureRow in list:
+def writeToFile(outputFileName):
+   print "Writing to file the attribute: "+ outputFileName
+   attributeFile = open(outputFileName,"w")
+   for featureRow in aList:
       featureCount = 1
       for feature in featureRow:
          attributeFile.write("%s" % (feature))
@@ -98,5 +147,5 @@ def writeToFile(pAttributesName,number,columnName,dataFolder):
       attributeFile.write('\n')
 
 def initList():
-   global list
-   list =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
+   global aList
+   aList =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
