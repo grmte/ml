@@ -84,7 +84,7 @@ for designFile in designFiles:
 
 def scriptWrapper(experimentName):
     utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo,"-sequence",args.sequence],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE1.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
 
 if args.sequence == 'lp':
     # to run it in local parallel mode
