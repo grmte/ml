@@ -1,6 +1,8 @@
 1. Add src folder to the path variable.
 export PATH="$HOME/ml/src:$PATH"
 replace $HOME with the path of where the file is
+for e.g.
+export PATH="/home/jkm/ml/src:$PATH"
 
 2. To generate features see:
 aGen.py -h
@@ -9,19 +11,21 @@ To generate all features see:
 aGenForE.py
 
 3. To generate train.r see:
-mGen.py -h
+mRGenForE.py -h
+mRGenForAllSubE.py -h
 
 4. To generate predict.r see:
-pGen.py -h
+pRGenForE.py -h
+pRGenForAllSubE.py -h
 
 To generate mGen.py and pGen.py with one command you can use:
 rGenForE.py -e e1
 
 5. To do training
-./en/train.r -d [dirname]
+./e/n/train-algo.r -d [dirname]
 
 6. To do predictions
-./en/predict.r -d [dirname]
+./e/n/predict-algo.r -d [dirname]
 
 7. To generate the confusion matrix
 cMatrixGen.py -e en -d [dirname]
@@ -65,7 +69,7 @@ https://www.rabbitmq.com/install-rpm.html
 service rabbitmq-server start
 service rabbitmq-server status
 
-The web interface is available at:
+The web interface to the rabbitmq is available at:
 http://127.0.0.1:15672/
 
 11. to get a centos VM running
@@ -84,10 +88,10 @@ du -h /Users/vikaskedia/.vagrant.d/
 14. to start the celery worker
 ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
 
-15. Flower
+15. Flower (This is the web interface to the task computers)
 to start 
 >flower --port=81
-in the browser enter http://10.105.1.194:81/
+To see the web interface: In the browser enter http://10.105.1.194:81/
 
 16. Other good to have software:
 multitail
