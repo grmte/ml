@@ -11,3 +11,5 @@
 *.r
 *.cmatrix
 *.trade
+*.project
+*.pydevproject
