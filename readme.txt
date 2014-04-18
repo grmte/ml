@@ -1,5 +1,6 @@
 1. Add src folder to the path variable.
 export PATH="$HOME/ml/src:$PATH"
+replace $HOME with the path of where the file is
 
 2. To generate features see:
 aGen.py -h

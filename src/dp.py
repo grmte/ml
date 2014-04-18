@@ -7,7 +7,7 @@ from celery.task.control import inspect
 
 commandStatus = dict()
 
-app = Celery('dp', broker='amqp://guest@localhost//',backend='amqp://guest@localhost//')
+app = Celery('dp', broker='amqp://guest@10.105.1.194//',backend='amqp://guest@10.105.1.194//')
 
 @app.task
 def add(x, y):
