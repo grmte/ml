@@ -35,7 +35,7 @@ def extractAttributeFromDataMatrix(args):
 
    for dataRow in dataFile.matrix:
 
-      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
       futureCellValue = 0
 
       if(currentRowCount + numberOfFutureRows < len(dataFile.matrix)):

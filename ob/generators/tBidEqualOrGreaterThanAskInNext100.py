@@ -14,7 +14,7 @@ def extractAttributeFromDataMatrix(args):
    while currentRowCount < len(dataFile.matrix)-101:
       futureRowCount = 1
 
-      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
       while(futureRowCount < 100):
          if( float(dataFile.matrix[currentRowCount+futureRowCount][colNumberOfData.BidP0]) >= float(dataFile.matrix[currentRowCount][colNumberOfData.AskP0]) ):
             attribute.aList[currentRowCount][1] = 1

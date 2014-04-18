@@ -18,7 +18,7 @@ def extractAttributeFromDataMatrix(args):
    totalOfRowsInFutureNSeconds = 0.0
    queue = deque()
    for dataRow in dataFile.matrix:
-      timeOfCurrentRow = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      timeOfCurrentRow = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
       # lets remove all values from queue which have time <= timeOfCurrentRow
       if(len(queue) > 0): # When currentRowCount is 0 then there is nothing in the queue
          oldestElementinQueue = queue.popleft()

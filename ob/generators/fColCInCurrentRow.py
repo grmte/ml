@@ -9,7 +9,7 @@ def extractAttributeFromDataMatrix(args):
    for dataRow in dataFile.matrix:
       codeString = "float(dataFile.matrix[currentRowCount][colNumberOfData."+args.c+"])"
 
-      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount])
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
 
       attribute.aList[currentRowCount][1] = eval(codeString)
       currentRowCount = currentRowCount + 1
