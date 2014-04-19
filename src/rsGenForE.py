@@ -39,4 +39,4 @@ else:
     utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence],args.run,args.sequence)
     utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
     utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE1.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)

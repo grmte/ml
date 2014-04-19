@@ -3,7 +3,6 @@ from __future__ import division
 import os
 import sys
 
-
 import argparse
 parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is cMatrixGen.py -d ob/data/20140207/ -e e1 -a logitr')
 parser.add_argument('-d', required=True,help='Directory of the data file')
@@ -28,13 +27,16 @@ predictedValuesFile = open(predictedValuesFileName)
 actualValuesFileName = dirName+"/t/"+eDesignConfigObj["target"]+".target"
 print "Reading actual values from: "+ actualValuesFileName
 actualValuesFile = open(actualValuesFileName)
-
 # reading the actual values into a dictionary on timestamp
 actualValuesDict=dict()
 totalNumberOfRows = 0
+ItHasHeader = 1
 for line in actualValuesFile:
+    if (ItHasHeader == 1):
+        ItHasHeader = 0
+        continue
     line=line.rstrip('\n')
-    splitLine = line.split(',',2)
+    splitLine = line.split(';',2)
     timeStamp = splitLine[0]
     value = int(splitLine[1])
     actualValuesDict[timeStamp] = value
@@ -69,8 +71,6 @@ def matrixUpdate(pPredictedProb,pActualValue):
             predictedState = 0
 
         state[i][actualState][predictedState] = state[i][actualState][predictedState] + 1            
-
-
 
 predictedValueNotFoundInActualValue = 0
 IsItHeader = 1
