@@ -61,7 +61,6 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             endPos = pUserFriendlyAttributeName.find("_",startPos+1)
             colNameWithBracketsToBeReplaced = pUserFriendlyAttributeName[startPos:endPos+1]
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colNameWithBracketsToBeReplaced,"C",1)
-            colNameWithoutBracketsToBePassedAsParam = colNameWithBracketsToBeReplaced[1:-1]
             paramList.append("-c")
             paramList.append(colNameWithBracketsToBeReplaced)
             paramList.append("-cType")

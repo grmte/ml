@@ -28,8 +28,8 @@ def readAttributeFileIntoMatrix(pFeatureFile):
    matrix = []
    fileHasHeader = 1
    for dataRow in open(pFeatureFile):
-      if(fileHasHeader == 1 and headerSkipped != 1):
-         headerSkipped = 1 
+      if(fileHasHeader == 1):
+         fileHasHeader = 1 
          continue
       dataRow=dataRow.rstrip('\n')
       dataColumns=dataRow.split(';')
