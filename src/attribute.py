@@ -138,7 +138,13 @@ def writeToFile(outputFileName):
    global aList
    print "Writing to file the attribute: "+ outputFileName
    attributeFile = open(outputFileName,"w")
-   attributeFile.write("TimeStamp;FeatureValue;DebugData\n")
+   if ".feature" in outputFileName:
+       if ( "DivideBy" in  outputFileName ) or ("MultiplyBy" in outputFileName) or ("Add" in outputFileName) or ("Subtract" in  outputFileName):
+           attributeFile.write("TimeStamp;FeatureValue;Operand1;Operator;Operand2\n")
+       else:
+           attributeFile.write("TimeStamp;FeatureValue;Zero1;Zero2\n")
+   else: 
+       attributeFile.write("TimeStamp;FeatureValue;DebugData\n")
    for featureRow in aList:
       featureCount = 1
       for feature in featureRow:
