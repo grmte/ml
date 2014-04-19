@@ -29,7 +29,7 @@ def readAttributeFileIntoMatrix(pFeatureFile):
    fileHasHeader = 1
    for dataRow in open(pFeatureFile):
       if(fileHasHeader == 1):
-         fileHasHeader = 1 
+         fileHasHeader = 0 
          continue
       dataRow=dataRow.rstrip('\n')
       dataColumns=dataRow.split(';')
@@ -135,6 +135,7 @@ def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder
       os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
 def writeToFile(outputFileName):
+   global aList
    print "Writing to file the attribute: "+ outputFileName
    attributeFile = open(outputFileName,"w")
    attributeFile.write("TimeStamp;FeatureValue;DebugData\n")
