@@ -1,7 +1,7 @@
 """
 This can generate features like:
-1. fWeightedAveragePriceOfColAskInLast100Qty
-2. fWeightedAveragePriceOfColBidInLast10000Qty
+1. fWAPriceOfColAskInLast100Qty
+2. fWAPriceOfColBidInLast10000Qty
 """
 import dataFile, os, colNumberOfData, attribute, common
 
