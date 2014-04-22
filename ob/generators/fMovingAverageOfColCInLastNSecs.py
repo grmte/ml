@@ -11,21 +11,26 @@ def extractAttributeFromDataMatrix(args):
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit()
+   if(args.cType == "synthetic"):
+      colNumberOfAttribute = 1
+      colNumberOfTimeStamp = 0
+   else:
+      colNumberOfAttribute = eval("colNumberOfData."+ args.c )
+      colNumberOfTimeStamp = colNumberOfData.TimeStamp
 
    numberOfRowsInLastNSecs = 0
    queueOfValuesInLastNSecs = deque()
    totalOfRowsInLastNSecs = 0.0
-   timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfData.TimeStamp])
+   timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfTimeStamp],args.cType)
    currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
    lengthOfDataMatrix = len(dataFile.matrix)
    while (currentRowNumberForWhichFeatureValueIsBeingCalculated < lengthOfDataMatrix):
-      timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])
+      timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp],args.cType)
       timeElapsed = timeOfCurrentRow - timeOfOldestRow
       if (timeElapsed < N):
-         codeString = 'float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.'+ args.c + '])'
-         cellValue = eval(codeString)
+         cellValue = float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfAttribute])
          totalOfRowsInLastNSecs += cellValue
-         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfData.TimeStamp])
+         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp],args.cType)
          attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs/(numberOfRowsInLastNSecs+1) # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
          attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs) + "," + str(numberOfRowsInLastNSecs) + "," + str(timeElapsed)
          queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
