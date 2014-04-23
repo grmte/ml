@@ -15,3 +15,6 @@ def extractAttributeFromDataMatrix(args):
       currentRowCount = currentRowCount + 1
       if(currentRowCount % 1000 == 0):
          print "Processed row number " + str(currentRowCount)
+   
+   lNameOfFeaturePrinted = "fCol" + args.c + "InCurrentRow"
+   return ["TimeStamp",lNameOfFeaturePrinted,"Zero1","Zero2"]

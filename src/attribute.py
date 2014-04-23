@@ -79,8 +79,8 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
          featureMatrix.append([timeStamp,value,firstMatrix[currentRowCount][1],pOperand,secondMatrix[currentRowCount][1]])
 
       currentRowCount += 1   
-
-   return featureMatrix   
+   lListOfHeaderNames = ["TimeStamp","Value","Operand1","Operator","Operand2"]
+   return featureMatrix , lListOfHeaderColNames   
 
 def getAttributeTypeFromAttributeName(pAttributeName):
    if(pAttributeName[0]=='f'):
@@ -134,17 +134,12 @@ def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
       os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
 
-def writeToFile(outputFileName):
+def writeToFile(outputFileName,pListOfHeaderColNames):
    global aList
    print "Writing to file the attribute: "+ outputFileName
    attributeFile = open(outputFileName,"w")
-   if ".feature" in outputFileName:
-       if ( "DivideBy" in  outputFileName ) or ("MultiplyBy" in outputFileName) or ("Add" in outputFileName) or ("Subtract" in  outputFileName):
-           attributeFile.write("TimeStamp;FeatureValue;Operand1;Operator;Operand2\n")
-       else:
-           attributeFile.write("TimeStamp;FeatureValue;Zero1;Zero2\n")
-   else: 
-       attributeFile.write("TimeStamp;FeatureValue;DebugData\n")
+   lHeaderString = ";".join(pListOfHeaderColNames) + "\n"
+   attributeFile.write(lHeaderString)
    for featureRow in aList:
       featureCount = 1
       for feature in featureRow:
