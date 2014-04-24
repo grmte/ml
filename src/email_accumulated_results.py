@@ -41,17 +41,16 @@ def send_mail(p_send_from, p_send_to, p_send_cc, p_subject, p_text, p_files = []
         
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def start_mail(p_files,pExperimentNo):
+def start_mail(p_files,pExperimentNo,message):
     l_cur_date_time = datetime.datetime.now()
     l_msgbody_postfix = "Email sent on : " + str(l_cur_date_time)
     
-    l_msg_body = "Dear All, " + "\n\n" + "Kindly find the attachment of ml experiment run \n\nThanking you.\n\n" + l_msgbody_postfix
+    l_msg_body = "Dear All, " + "\n\n" + "Kindly find the attachment of ml experiment run . "+ message + " \n\nThanking you.\n\n" + l_msgbody_postfix
     
     l_subject = "Machine Learning Accumulated results of experiment" + pExperimentNo 
     l_send_to = ['ajay@spalgo.com', 'vikas@spalgo.com', 'mike@mbowles.com']
-#     l_send_to = ["dipika@spalgo.com"]
-    l_send_cc = ['saptarshi@spalgo.com','dipika@spalgo.com', 'rahul@spalgo.com']
-#     l_send_cc = []
+    l_send_to = ["dipika@spalgo.com"]
+    l_send_cc = ['saptarshi@spalgo.com','tulasi@spalgo.com', 'rahul@spalgo.com']
     l_send_from = "MLDailyExperimentResult"
     send_mail(l_send_from, l_send_to, l_send_cc, l_subject, l_msg_body, p_files)
     

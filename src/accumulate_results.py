@@ -7,11 +7,12 @@ import email_accumulated_results
 
 parser = argparse.ArgumentParser(description='This program reads trade results directory\'s all file and accumulates them to single file.\n\
 An e.g. command line is \n\
-python src/accumulate_results.py -d ob/data/rs/20140205/t/ -e ob/e/9/ -a glmnet -t 0.000015',formatter_class=argparse.RawTextHelpFormatter)
+python src/accumulate_results.py -d ob/data/rs/20140205/t/ -e ob/e/9/ -a glmnet -t 0.000015 -m \"Taking tarde engine 4 \"',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-d', required=True,help='Directory from where trade results is to be taken')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-t', required=True,help='Transaction Cost of data used')
+parser.add_argument('-m', required=True,help='Meassge regarding experiment it has run')
 args = parser.parse_args()
 
 desired_statistic_line_numbers = [6,9,12,13,15]    # Line numbers for desired statistics 6: - Total Sell qty , 9 : Total Buy Qty , 15 :- Total Gross Profit
@@ -68,4 +69,4 @@ print "\nAll the files are summarized according to the statistic parameters give
 
 l_files_to_be_mailed = [ summary_file_name , args.e + "design.ini" ]
 print "Files being mailed are = " , l_files_to_be_mailed
-email_accumulated_results.start_mail(l_files_to_be_mailed,os.path.basename(os.path.abspath(args.e)))
+email_accumulated_results.start_mail(l_files_to_be_mailed,os.path.basename(os.path.abspath(args.e)),args.m)
