@@ -24,5 +24,5 @@ def extractAttributeFromDataMatrix(args):
       if(currentRowCount % 1000 == 0):
          print "Processed row number " + str(currentRowCount) 
 
-   lNameOfTarget = "tBidGreaterThanAskNext" + args.n
+   lNameOfTarget = "tBidGreaterThanAskNext" + str(args.n)
    return ["TimeStamp",lNameOfTarget,"Zero1","Zero2"]

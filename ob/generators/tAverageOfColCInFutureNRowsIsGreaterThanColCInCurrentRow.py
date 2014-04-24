@@ -66,5 +66,5 @@ def extractAttributeFromDataMatrix(args):
       if(currentRowCount % 1000 == 0):
          print "Processed row number " + str(currentRowCount) 
          
-   lNameOfTarget = "tAverageOfCol" + args.c + "InFuture" + args.n + "RowsIsGreaterThanCol" + args.c + "InCurrentRow"
+   lNameOfTarget = "tAverageOfCol" + args.c + "InFuture" + str(args.n) + "RowsIsGreaterThanCol" + args.c + "InCurrentRow"
    return ["TimeStamp",lNameOfTarget,"TotalOfFutureRows","CurrentRowValue"]

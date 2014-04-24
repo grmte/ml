@@ -53,6 +53,6 @@ def extractAttributeFromDataMatrix(args):
       if (currentRowCount%10000==0):
          print "Processed row number " + str(currentRowCount)
    
-   lNameOfFeaturePrinted = "fWAPriceOfCol" + args.c + "InLast" + args.n + "Qty"
+   lNameOfFeaturePrinted = "fWAPriceOfCol" + args.c + "InLast" + str(args.n) + "Qty"
    return ["TimeStamp",lNameOfFeaturePrinted,"Zero1","Zero2"]
 

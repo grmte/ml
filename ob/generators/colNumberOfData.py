@@ -25,3 +25,5 @@ BidQ4 = 19
 TTQ = 21
 LTP = 22
 TimeStamp = 32
+
+MsgCode = 34

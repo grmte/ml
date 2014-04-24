@@ -45,5 +45,5 @@ def extractAttributeFromDataMatrix(args):
       if (currentRowCount%10000==0):
          print "Processed row number " + str(currentRowCount)
    
-   lNameOfFeaturePrinted = "fEMovingAverageOfCol" + args.c + "InLast" + args.n + "Secs"
+   lNameOfFeaturePrinted = "fEMovingAverageOfCol" + args.c + "InLast" + str(args.n) + "Secs"
    return ["TimeStamp",lNameOfFeaturePrinted,"Zero1","Zero2"]
