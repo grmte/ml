@@ -65,7 +65,6 @@ def extractAttributeFromDataMatrix(args):
               if (LTP - (currentBidP0 + lPipSize)) > lMargin2:
                   lClassOfTargetVariable.append(2)
                   lClassifiedInOneClass = 1
-                  break
               else:
                   lClassOfTargetVariable.append(1)
                   lClassifiedInOneClass = 1
@@ -75,13 +74,13 @@ def extractAttributeFromDataMatrix(args):
               elif ((currentAskP0 - lPipSize) - LTP ) > lMargin2 :
                   lClassOfTargetVariable.append(-2)
                   lClassifiedInOneClass = 1
-                  break
               else:
                   lClassOfTargetVariable.append(-1)
                   lClassifiedInOneClass = 1
           if lClassifiedInOneClass == 0:
               lClassOfTargetVariable.append(0)
-
+          if lClassOfTargetVariable[-1]==2 or lClassOfTargetVariable[-1]==-2 :
+              break
       if len(queueOfCellValueInFutureNRows) == 0 :
           attribute.aList[currentRowCount][1] = 0
           attribute.aList[currentRowCount][2] = currentBidP0

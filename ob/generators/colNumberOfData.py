@@ -27,3 +27,9 @@ LTP = 22
 TimeStamp = 32
 
 MsgCode = 34
+OrderType = 35
+NewQ = 36
+NewP = 37
+OldQ = 38
+OldP = 39
+
