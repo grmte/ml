@@ -94,7 +94,7 @@ def ForTraining(rScript,args,config):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = cv.glmnet(x =X, y = as.factor(targetVector[,2]),family=\'binomial\',alpha=1) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
+        rScript.write('fit = cv.glmnet(x =X, y = as.factor(targetVector[,2]),family=\'multinomial\',alpha=1) \n') # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
     elif(args.a == 'logitr'):
         rScript.write('print ("Section7: Running logistic regression") \n')
         rScript.write('fit <- glm ('+config["target"]+' ~ ')
