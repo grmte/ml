@@ -104,7 +104,9 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFold
    if "NRows" in pGeneratorName:
       N = number
       pGeneratorName = pGeneratorName.replace("NRows",str(N)+"Rows")   
-
+   if "NTrades" in pGeneratorName:
+      N = number
+      pGeneratorName = pGeneratorName.replace("NTrades",str(N)+"Trades") 
    if "NSecs" in pGeneratorName:
       N = number
       pGeneratorName = pGeneratorName.replace("NSecs",str(N)+"Secs")   

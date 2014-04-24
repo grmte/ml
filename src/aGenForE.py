@@ -90,6 +90,8 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     if "Future" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Future") + 6
         endPos = pUserFriendlyAttributeName.find("Rows")
+        if endPos == -1:
+            endPos = pUserFriendlyAttributeName.rfind("Trades")
         N = pUserFriendlyAttributeName[startPos:endPos]
         pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
         paramList.append("-n")
