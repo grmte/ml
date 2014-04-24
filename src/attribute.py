@@ -79,7 +79,7 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
          featureMatrix.append([timeStamp,value,firstMatrix[currentRowCount][1],pOperand,secondMatrix[currentRowCount][1]])
 
       currentRowCount += 1   
-   lListOfHeaderNames = ["TimeStamp","Value","Operand1","Operator","Operand2"]
+   lListOfHeaderColNames = ["TimeStamp","Value","Operand1","Operator","Operand2"]
    return featureMatrix , lListOfHeaderColNames   
 
 def getAttributeTypeFromAttributeName(pAttributeName):
