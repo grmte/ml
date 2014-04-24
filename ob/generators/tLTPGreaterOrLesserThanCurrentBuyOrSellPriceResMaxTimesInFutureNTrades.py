@@ -49,8 +49,8 @@ def extractAttributeFromDataMatrix(args):
                     lLastTradeIndex = startIndexToFindNextTrade
                     break
                  startIndexToFindNextTrade = startIndexToFindNextTrade + 1
-      if startIndexToFindNextTrade == len(dataFile.matrix) :
-         lNoMoreTradesFound = 1
+              if startIndexToFindNextTrade == len(dataFile.matrix) :
+                 lNoMoreTradesFound = 1
 
       currentBidP0 = float(dataFile.matrix[currentRowCount][colNumberOfData.BidP0])
       currentAskP0 = float(dataFile.matrix[currentRowCount][colNumberOfData.AskP0])
