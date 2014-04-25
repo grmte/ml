@@ -72,8 +72,8 @@ def extractAttributeFromDataMatrix(args):
                 cellValue = -1 * lNewQty
          totalOfRowsInLastNSecs = totalOfRowsInLastNSecs + cellValue
          attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(lCurrentDataRow[colNumberOfTimeStamp])
-         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = exp(totalOfRowsInLastNSecs/(numberOfRowsInLastNSecs+1)) # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
-         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs/(numberOfRowsInLastNSecs+1))+ ";"+ str(totalOfRowsInLastNSecs) + ";" + str(numberOfRowsInLastNSecs) + ";" + str(timeElapsed)
+         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
+         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(cellValue) + ";" + str(timeElapsed)
          queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
          numberOfRowsInLastNSecs += 1   # Every append gets a +1 
          currentRowNumberForWhichFeatureValueIsBeingCalculated += 1
@@ -105,6 +105,6 @@ def extractAttributeFromDataMatrix(args):
  
       print "Processed row number " + str(currentRowNumberForWhichFeatureValueIsBeingCalculated)
    
-   lNameOfFeaturePrinted = "fEMovAvgOfMsgQtyOverCol" + args.c + "InLast" + str(args.n) + "Secs"
-   return [ "TimeStamp", lNameOfFeaturePrinted , "AvgOverLastNSec","TotalOfRowsInLastNSecs" , "NumberOfRowsInLastNSecs" , "TimeElapsed"]
+   lNameOfFeaturePrinted = "fMovSumMsgQtyOverCol" + args.c + "InLast" + str(args.n) + "Secs"
+   return [ "TimeStamp", lNameOfFeaturePrinted , "QtyAddedOrSubtracted","TimeElapsed"]
 
