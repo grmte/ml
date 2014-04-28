@@ -27,21 +27,24 @@ def main():
     rScript = open(rProgLocation,'w')
 
     rScript.write('#!/usr/bin/Rscript \n')
+    lModelGeneratedAfterTraining = dirName + '/' + algo  + '.model'
+    if os.path.isfile(lModelGeneratedAfterTraining):
+        print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to regenerate model then first delete this file and restart it"
+    else:
+        if(algo == 'glmnet'):
+            rScript.write('require (glmnet) \n')
+        elif(algo == 'randomForest'):
+            rScript.write('require (randomForest) \n')
+        elif(algo == 'mda'):
+            rScript.write('require (mda) \n')
 
-    if(algo == 'glmnet'):
-        rScript.write('require (glmnet) \n')
-    elif(algo == 'randomForest'):
-        rScript.write('require (randomForest) \n')
-    elif(algo == 'mda'):
-        rScript.write('require (mda) \n')
-
-    rCodeGen.ForSetUpChecks(rScript)
-    rCodeGen.ToReadTargetFile(rScript,config)
-    rCodeGen.ToReadFeatureFiles(rScript,config)
-    rCodeGen.ForSanityChecks(rScript,config)
-    rCodeGen.ToCreateDataFrameForTraining(rScript,config)
-    rCodeGen.ForTraining(rScript,args,config)
-    rCodeGen.saveTrainingModel(rScript,args,dirName)
+        rCodeGen.ForSetUpChecks(rScript)
+        rCodeGen.ToReadTargetFile(rScript,config)
+        rCodeGen.ToReadFeatureFiles(rScript,config)
+        rCodeGen.ForSanityChecks(rScript,config)
+        rCodeGen.ToCreateDataFrameForTraining(rScript,config)
+        rCodeGen.ForTraining(rScript,args,config)
+        rCodeGen.saveTrainingModel(rScript,args,dirName)
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
