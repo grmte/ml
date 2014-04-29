@@ -86,15 +86,15 @@ for designFile in designFiles:
     experimentNames.append(experimentName)
 
 def scriptWrapper(experimentName):
-    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
     if args.targetClass == "binomial" :
+        utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".90","-exitCL",".50"],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
     else:
         utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".15","-exitCL",".00"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".15","-exitCL",".00"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".10","-exitCL",".00"],args.run,args.sequence)
         
 if args.sequence == 'lp':
     # to run it in local parallel mode
