@@ -117,7 +117,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
         else:
             pReasonForTrade['AssumingSellTradeHappenedLong'] += 1
             pTradeStats['totalSellValueLong'] += 1 * (pBidP0AtTimeOfPreviousDataRow)
-            pTradeStats['currentPositionShort'] -= 1
+            pTradeStats['currentPositionLong'] -= 1
     #open buy
     elif(pEnterTradeLong == 1 and pTradeStats['currentPositionLong'] == 0): # Need to buy
         #standing
@@ -256,15 +256,17 @@ def main():
 
    try:
        averageOpenSellPrice = tradeStats['totalSellValueShort']/reasonForTrade['AssumingSellTradeHappenedShort']
-       averageCloseSellPrice = tradeStats['totalSellValueLong']/reasonForTrade['AssumingSellTradeHappenedLong']
-       averageOpenBuyPrice = tradeStats['totalBuyValueLong']/reasonForTrade['AssumingBuyTradeHappenedLong']
        averageCloseBuyPrice = tradeStats['totalBuyValueShort']/reasonForTrade['AssumingBuyTradeHappenedShort']
    except:
        averageOpenSellPrice = 0 
        averageCloseBuyPrice = 0
-       averageCloseSellPrice = 0 
-       averageOpenBuyPrice = 0
-       
+   try:
+       averageCloseSellPrice = tradeStats['totalSellValueLong']/reasonForTrade['AssumingSellTradeHappenedLong']
+       averageOpenBuyPrice = tradeStats['totalBuyValueLong']/reasonForTrade['AssumingBuyTradeHappenedLong']
+   except:
+       averageCloseSellPrice = 0
+       averageOpenBuyPrice = 0 
+
    print("Average open sell price per unit is: " + str(averageOpenSellPrice), file = outputFile)
    print("Average close sell price per unit is: " + str(averageCloseSellPrice), file = outputFile)
    print("Average open buy price per unit is: " + str(averageOpenBuyPrice), file = outputFile)
