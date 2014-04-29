@@ -7,6 +7,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name')
 parser.add_argument('-run', required=False,help='dry or real')
 parser.add_argument('-sequence', required=False,help='lp / dp / serial')
+parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 args = parser.parse_args()
 
 
@@ -20,5 +21,5 @@ else:
 
 
 for algo in allAlgos:
-    utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo],args.run,args.sequence)
+    utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass],args.run,args.sequence)
     utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo],args.run,args.sequence)

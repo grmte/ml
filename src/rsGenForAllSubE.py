@@ -8,7 +8,7 @@ import rCodeGen, utility
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
-rsGenForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial',formatter_class=argparse.RawTextHelpFormatter)
+rsGenForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial -targetClass multinomial',formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name.')
@@ -17,6 +17,7 @@ parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-g', required=True,help='Generators directory')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
+parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 args = parser.parse_args()
 
 if(args.sequence == "dp"):
@@ -54,8 +55,10 @@ else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 
-
-utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+if args.targetClass == None:
+    args.targetClass = "binomial"
+    print "Since no class of target variable is specified so taking binomial class of target variable"
+utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
@@ -85,7 +88,10 @@ for designFile in designFiles:
 def scriptWrapper(experimentName):
     utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
-
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".90","-exitCL",".50"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
+    
 if args.sequence == 'lp':
     # to run it in local parallel mode
     pool = multiprocessing.Pool() # this will return the number of CPU's

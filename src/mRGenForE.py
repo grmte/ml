@@ -9,6 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
     parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
     parser.add_argument('-a', required=True,help='Algorithm name')
+    parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     args = parser.parse_args()
 
     print "Using the experiment folder " + args.e
