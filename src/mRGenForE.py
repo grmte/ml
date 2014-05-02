@@ -10,6 +10,7 @@ def main():
     parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
     parser.add_argument('-a', required=True,help='Algorithm name')
     parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
+    parser.add_argumnet('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
     args = parser.parse_args()
 
     print "Using the experiment folder " + args.e
@@ -29,7 +30,7 @@ def main():
 
     rScript.write('#!/usr/bin/Rscript \n')
     lModelGeneratedAfterTraining = dirName + '/' + algo  + '.model'
-    if os.path.isfile(lModelGeneratedAfterTraining):
+    if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM == "yes" ):
         print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to regenerate model then first delete this file and restart it"
     else:
         if(algo == 'glmnet'):
