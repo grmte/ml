@@ -11,6 +11,8 @@ parser.add_argument('-targetClass',required=True,help="binomial(target takes onl
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
 args = parser.parse_args()
 
+if args.skipM == None:
+    args.skipM = "yes"
 
 import subprocess
 

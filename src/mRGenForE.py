@@ -13,6 +13,9 @@ def main():
     parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
     args = parser.parse_args()
 
+    if args.skipM == None:
+        args.skipM = "yes"
+    
     print "Using the experiment folder " + args.e
     
     config = ConfigObj(args.e+"/design.ini")
@@ -30,8 +33,8 @@ def main():
 
     rScript.write('#!/usr/bin/Rscript \n')
     lModelGeneratedAfterTraining = dirName + '/' + algo  + '.model'
-    if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM == "yes" ):
-        print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to regenerate model then first delete this file and restart it"
+    if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
+        print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
     else:
         if(algo == 'glmnet'):
             rScript.write('require (glmnet) \n')
