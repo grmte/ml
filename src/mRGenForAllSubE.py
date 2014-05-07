@@ -14,7 +14,7 @@ def main():
     parser.add_argument('-a', required=True,help='Algorithm name')
     parser.add_argument('-s', required=True,help='Location of the folder containing all the sub experiments')
     parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
-    parser.add_argumnet('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
+    parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
     args = parser.parse_args()
 
     print "Using the experiment folder " + args.e

@@ -18,7 +18,7 @@ parser.add_argument('-g', required=True,help='Generators directory')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
-parser.add_argumnet('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
+parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
 args = parser.parse_args()
 
 if(args.sequence == "dp"):
