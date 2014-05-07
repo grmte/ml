@@ -30,7 +30,7 @@ def ForSetUpChecks(rScript):
 
 def CheckIfPredictionsFileAlreadyExists(rScript,args):
     rScript.write('print ("Section2: Checking if predictions file already exists") \n')
-    rScript.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
+    rScript.write('fileName = paste(args[2],"/p/","'+args.e+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
     rScript.write('if(file.exists(fileName)){ \n')
     rScript.write("    print ('Warning: The predictions already exist. Is this what you expected?') \n")
     rScript.write("} \n")
@@ -211,6 +211,6 @@ def ForPredictions(rScript,config,args,pathToDesignFile):
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
     rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions") \n')
-    rScript.write('fileName = paste(args[2],"/p/","' + os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+    rScript.write('fileName = paste(args[2],"/p/","' +args.e+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')

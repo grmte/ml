@@ -20,11 +20,14 @@ parser.add_argument('-run', required=True,help='dry or real')
 parser.add_argument('-sequence', required=True,help='dp/lp/serial')
 parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
+parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
 args = parser.parse_args()
 
 if args.skipM == None:
     args.skipM = "yes"
-    
+if args.skipP == None:
+    args.skipP = "yes"
+        
 import subprocess
 
 if args.a is not None:
@@ -43,7 +46,7 @@ if os.path.isfile(fName):
 else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
-    utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM],args.run,args.sequence)
+    utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,"-pd",args.pd,"-skipP",args.skipP],args.run,args.sequence)
     utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
     if args.targetClass == "binomial" :
         utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)

@@ -11,7 +11,12 @@ def main():
     parser.add_argument('-e', required=True,help='Directory to find the experiement designs')
     parser.add_argument('-a', required=True,help='Algorithm name')
     parser.add_argument('-s', required=True,help='Location of the subfolder that contains the sub experiments')
+    parser.add_argument('-d', required=True,help='Prediction directory')
+    parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
     args = parser.parse_args()
+
+    if args.skipP == None:
+        args.skipP = "yes"
 
     print "\nRunning pGen.py to generate the predict script"
     print "Using the experiment folder " + args.e
@@ -30,6 +35,11 @@ def main():
 
     args.s = args.s+"/"    
 
+    dataDirectoryName = args.d.replace('/ro/','/wf/')
+    dataDirectoryName = dataDirectoryName + "/p/" + args.e
+    if not os.path.exists(dataDirectoryName):
+        os.mkdir(dataDirectoryName)
+        
     rProgName = "predict-"+algo+"For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
@@ -51,7 +61,11 @@ def main():
         print "Generating r code for " + designFile
         rScript.write('\n\nprint ("Running r code for' + designFile + '")')
         config = ConfigObj(designFile)
-        rCodeGen.ForPredictions(rScript,config,args,designFile)
+        predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
+        if not os.path.isfile(predictionFileName):
+            rCodeGen.ForPredictions(rScript,config,args,designFile)
+        else:
+            print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
 
     rScript.close()
