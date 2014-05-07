@@ -92,6 +92,8 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         endPos = pUserFriendlyAttributeName.find("Rows")
         if endPos == -1:
             endPos = pUserFriendlyAttributeName.rfind("Trades")
+            if endPos == -1:
+                endPos = pUserFriendlyAttributeName.rfind("Qty")
         N = pUserFriendlyAttributeName[startPos:endPos]
         pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
         paramList.append("-n")
@@ -111,6 +113,8 @@ def getCommandList(experimentFolder,dataFolder,generatorsFolder):
     for f in attributes:
         attributeName = attributes[f]
         print "\nGenerating for " + attributeName
+#        if "obwave" in attributeName or "obaverge" in attributeName:
+#            continue
         command = genAttribute(attributeName,dataFolder,generatorsFolder)
         commandList.extend(command)
     return commandList    
