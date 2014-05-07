@@ -15,6 +15,7 @@ args = parser.parse_args()
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
+import attribute
 
 experimentName = os.path.basename(os.path.abspath(args.e))
 gTickSize = 25000
@@ -55,9 +56,10 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
 def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow, pBidP0AtTimeOfPreviousDataRow, pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade):
     global gTickSize
     spreadAtTimeOfPreviousDataRow = pAskP0AtTimeOfPreviousDataRow - pBidP0AtTimeOfPreviousDataRow
-    
+    lReasonForTradingOrNotTradingShort = ""
+    lReasonForTradingOrNotTradingLong = ""
     if(pEnterTradeShort == 0 and pEnterTradeLong == 0):
-        return
+        return lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong
     
     #close buy
     if(pEnterTradeShort == -1): # Need to buy we come here only if currentPosition is greater than 0 so no need to check again.
@@ -67,17 +69,21 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
             if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
                 pReasonForTrade['VolumeDidNotIncreaseDuringBuyAttemptShort'] += 1
+                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
             elif(currentLTP != pBidP0AtTimeOfPreviousDataRow): 
                 pReasonForTrade['LTPDoesNotEqualBidP0Short'] += 1
+                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(LTP!=Bid)'
             else:    
                 pReasonForTrade['AssumingBuyTradeHappenedShort'] += 1
                 pTradeStats['totalBuyValueShort'] += 1 * (pBidP0AtTimeOfPreviousDataRow + gTickSize)
                 pTradeStats['currentPositionShort'] -= 1
+                lReasonForTradingOrNotTradingShort = 'TradedBuyShort'
         #hitting
         else:
             pReasonForTrade['AssumingBuyTradeHappenedShort'] += 1
             pTradeStats['totalBuyValueShort'] += 1 * (pAskP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionShort'] -= 1
+            lReasonForTradingOrNotTradingShort = 'TradedBuyShort'
     #open sell
     elif(pEnterTradeShort == 1 and pTradeStats['currentPositionShort'] == 0): # Need to sell
         #standing
@@ -86,17 +92,21 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])
             if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
                 pReasonForTrade['VolumeDidNotIncreaseDuringSellAttemptShort'] += 1
+                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
             elif(currentLTP != pAskP0AtTimeOfPreviousDataRow):
                 pReasonForTrade['LTPDoesNotEqualAskP0Short'] += 1
+                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickLTP!=Ask)'
             else:
                 pReasonForTrade['AssumingSellTradeHappenedShort'] += 1
                 pTradeStats['totalSellValueShort'] += 1 * (pAskP0AtTimeOfPreviousDataRow - gTickSize)
                 pTradeStats['currentPositionShort'] += 1
+                lReasonForTradingOrNotTradingShort = 'TradedSellShort'
         #hitting
         else:
             pReasonForTrade['AssumingSellTradeHappenedShort'] += 1
             pTradeStats['totalSellValueShort'] += 1 * (pBidP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionShort'] += 1
+            lReasonForTradingOrNotTradingShort = 'TradedSellShort'
             
         
     #close sell
@@ -107,17 +117,21 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
             if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
                 pReasonForTrade['VolumeDidNotIncreaseDuringSellAttemptLong'] += 1
+                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
             elif(currentLTP != pAskP0AtTimeOfPreviousDataRow): 
                 pReasonForTrade['LTPDoesNotEqualAskP0Long'] += 1
+                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickLTP!=Ask)'
             else:    
                 pReasonForTrade['AssumingSellTradeHappenedLong'] += 1
                 pTradeStats['totalSellValueLong'] += 1 * (pAskP0AtTimeOfPreviousDataRow - gTickSize)
                 pTradeStats['currentPositionLong'] -= 1
+                lReasonForTradingOrNotTradingLong = 'TradedSellLong'
         #hitting
         else:
             pReasonForTrade['AssumingSellTradeHappenedLong'] += 1
             pTradeStats['totalSellValueLong'] += 1 * (pBidP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionLong'] -= 1
+            lReasonForTradingOrNotTradingLong = 'TradedSellLong'
     #open buy
     elif(pEnterTradeLong == 1 and pTradeStats['currentPositionLong'] == 0): # Need to buy
         #standing
@@ -126,19 +140,26 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])
             if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
                 pReasonForTrade['VolumeDidNotIncreaseDuringBuyAttemptLong'] += 1
+                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
             elif(currentLTP != pBidP0AtTimeOfPreviousDataRow):
                 pReasonForTrade['LTPDoesNotEqualBidP0Long'] += 1
+                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickLTP!=Bid)'
             else:
                 pReasonForTrade['AssumingBuyTradeHappenedLong'] += 1
                 pTradeStats['totalBuyValueLong'] += 1 * (pBidP0AtTimeOfPreviousDataRow + gTickSize)
                 pTradeStats['currentPositionLong'] += 1
+                lReasonForTradingOrNotTradingLong = 'TradedBuyLong'
         #hitting
         else:
             pReasonForTrade['AssumingBuyTradeHappenedLong'] += 1
             pTradeStats['totalBuyValueLong'] += 1 * (pAskP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionLong'] += 1
+            lReasonForTradingOrNotTradingLong = 'TradedBuyLong'
+    
+    return lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong
 
 def main():
+   attribute.initList()
    dataFile.getDataIntoMatrix(args.d)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
@@ -179,18 +200,25 @@ def main():
    reasonForTrade['AssumingSellTradeHappenedShort'] = 0
    reasonForTrade['AssumingSellTradeHappenedLong'] = 0
 
-
+   currentIndex = 0
    print("Processing the data file for trades :")
-
+   attribute.initList()
    for currentDataRow in dataFile.matrix:
-       checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTradeShort,enterTradeLong,tradeStats,reasonForTrade)
+       lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTradeShort,enterTradeLong,tradeStats,reasonForTrade)
+       if currentIndex > 0:
+           attribute.aList[currentIndex-1][0] = currentTimeStamp
+           attribute.aList[currentIndex-1][1] = tradeStats['currentPositionLong']
+           attribute.aList[currentIndex-1][2] = tradeStats['currentPositionShort']
+           listOfStringsToPrint = [ str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , \
+                             str(currentPredictedValueShort) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(currentPredictedValueLong) \
+                                 , str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(tradeStats['totalBuyValueShort']) , \
+                                 str(tradeStats['totalSellValueShort']) ,str(tradeStats['totalBuyValueLong']) , str(tradeStats['totalSellValueLong']) ]
+           attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint)
        currentTimeStamp = common.convertTimeStampFromStringToFloat(currentDataRow[colNumberOfData.TimeStamp])
 
        try:
-           currentPredictedValueShort = (float(predictedValuesDict[currentTimeStamp][-2]) + float(predictedValuesDict[currentTimeStamp][-1])) \
-                                        - (float(predictedValuesDict[currentTimeStamp][2]) + float(predictedValuesDict[currentTimeStamp][1]))
-           currentPredictedValueLong = (float(predictedValuesDict[currentTimeStamp][2]) + float(predictedValuesDict[currentTimeStamp][1])) \
-                                        - (float(predictedValuesDict[currentTimeStamp][-2]) + float(predictedValuesDict[currentTimeStamp][-1]))
+           currentPredictedValueShort = (float(predictedValuesDict[currentTimeStamp][-2]) + float(predictedValuesDict[currentTimeStamp][-1])) 
+           currentPredictedValueLong = (float(predictedValuesDict[currentTimeStamp][2]) + float(predictedValuesDict[currentTimeStamp][1])) 
        except:
            noPredictionForThisRow += 1
 
@@ -224,10 +252,26 @@ def main():
        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ]) 
        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
+       currentIndex = currentIndex + 1
+
+   '''
+   attribute.aList[currentIndex-1][0] = currentTimeStamp
+   attribute.aList[currentIndex-1][1] = tradeStats['currentPositionLong']
+   attribute.aList[currentIndex-1][2] = tradeStats['currentPositionShort']
+   listOfStringsToPrint = [ str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , \
+                     str(currentPredictedValueShort) , str(enterTradeShort) , "" , str(currentPredictedValueLong) , str(enterTradeLong) ,\
+                     "" , str(tradeStats['totalBuyValueShort']) , str(tradeStats['totalSellValueShort']) , \
+                     str(tradeStats['totalBuyValueLong']) , str(tradeStats['totalSellValueLong']) ]
+   attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint) 
+   '''
    dirName = args.d.replace('/ro/','/rs/')
    fileName = dirName+"/t/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
+   lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidP0','AskP0','TTQ','CurPredValueShort',\
+                              'EnterTradeShort','ReasonForTradingOrNotTradingShort',\
+                               'CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong']
+   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+   fileName = dirName+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".result" 
    outputFile = open(fileName,"w")
-   
    #changed file write to modify it to Short Long version
    print("Starting to write: "+fileName)
    print("The net results for Short are: " + str(tradeStats['totalSellValueShort'] - tradeStats['totalBuyValueShort']), file = outputFile)
