@@ -13,3 +13,6 @@
 *.trade
 *.project
 *.pydevproject
+*.csv
+*.gz
+*.result
