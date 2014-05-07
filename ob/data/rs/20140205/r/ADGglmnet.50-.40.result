@@ -1,0 +1,35 @@
+The net results for Short are: -113075000.0
+The net results for Long are: 0
+Number of rows for which there is no prediction: 0
+Number of times asked to enter trade Short: 4609
+Number of times asked to enter trade Long: 3
+Number of times asked to exit trade Short: 11631
+Number of times asked to exit trade Long: 0
+Assumed close buy trade did not happen since volume did not increase: 6842
+Assumed open buy trade did not happen since volume did not increase: 2
+Assumed close buy trade did not happen since bidP0 not same as LTP: 124
+Assumed open buy trade did not happen since bidP0 not same as LTP: 1
+Assumed close buy trade happened: 13891.0
+Assumed open buy trade happened: 0
+Assumed open sell trade did not happen since volume did not increase: 2022
+Assumed close sell trade did not happen since volume did not increase: 0
+Assumed open sell trade did not happen since bidP0 not same as LTP: 154
+Assumed close sell trade did not happen since bidP0 not same as LTP: 0
+Assumed open sell trade happened: 13891.0
+Assumed close sell trade happened: 0
+The total open sell value is: 8.712159925e+12
+The total close sell value is: 0
+The total close buy value is: 8.712273e+12
+The total open buy value is: 0
+Average open sell price per unit is: 627180183.212
+Average close sell price per unit is: 0
+Average open buy price per unit is: 0
+Average close buy price per unit is: 627188323.375
+The current position Short: 0.0
+The current position Long: 0
+Profit or loss per Qty traded Short is: -8140.16269529
+Profit or loss per Qty traded Long is: 0
+1 lot has 1000 qty's so P/L Short per lot is: -8140162.69529
+1 lot has 1000 qty's so P/L Long per lot is: 0
+P/L for Short trading 10 lots is: -81401626.9529
+P/L for Long trading 10 lots is: 0
