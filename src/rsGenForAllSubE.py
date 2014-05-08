@@ -20,13 +20,16 @@ parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (D
 parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
+parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no")
 args = parser.parse_args()
 
 if args.skipM == None:
     args.skipM = "yes"
 if args.skipP == None:
     args.skipP = "yes"
-    
+if args.skipT == None:
+    args.skipT = "yes"
+        
 if(args.sequence == "dp"):
     import dp
 
@@ -96,13 +99,13 @@ for designFile in designFiles:
 def scriptWrapper(experimentName):
     if args.targetClass == "binomial" :
         utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".90","-exitCL",".50"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".15","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".10","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".15","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".10","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
         
 if args.sequence == 'lp':
     # to run it in local parallel mode
