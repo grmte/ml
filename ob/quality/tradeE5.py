@@ -12,12 +12,16 @@ parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
 parser.add_argument('-orderQty',required=True,help='Order Quantity with which we trade')
+parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 args = parser.parse_args()
 
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 import attribute
+
+if args.skipT == None:
+    args.skipT = "no"
 
 absPathOfExperimentName = os.path.abspath(args.e)
 pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
@@ -436,6 +440,13 @@ def main():
 
 
 if __name__ == "__main__":
-    print ("\nRunning the simulated trading program")
-    main()
+   dirName = args.d.replace('/ro/','/rs/')
+   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+args.a+args.entryCL+"-"+args.exitCL+"E5.result"
+   if os.path.isfile(fileName) and args.skipT == "yes":
+       print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
+   else: 
+       print ("\nRunning the simulated trading program")
+       main()
+
+
 
