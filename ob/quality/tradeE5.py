@@ -20,7 +20,7 @@ import dataFile, colNumberOfData, common
 import attribute
 
 absPathOfExperimentName = os.path.abspath(args.e)
-pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3]
+pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
 if "/" in pathAfterE:
     mainExperimentName = pathAfterE[:pathAfterE.index("/")]
 else:

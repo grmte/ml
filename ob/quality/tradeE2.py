@@ -16,11 +16,18 @@ sys.path.append("/Volumes/SsdData/ml/src/")
 sys.path.append("/Volumes/SsdData/ml/ob/generators/")
 import dataFile, colNumberOfData, common
 
-experimentName = os.path.basename(os.path.abspath(args.e))
+absPathOfExperimentName = os.path.abspath(args.e)
+pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
+if "/" in pathAfterE:
+    mainExperimentName = pathAfterE[:pathAfterE.index("/")]
+else:
+    mainExperimentName = pathAfterE
+    
+experimentName = os.path.basename(absPathOfExperimentName)
 
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
-    predictedValuesFileName = args.d+"/p/"+experimentName+args.a+".predictions"
+    predictedValuesFileName = args.d+"/p/"+mainExperimentName+"/"+experimentName+args.a+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
@@ -87,7 +94,16 @@ def updateVarsAtTimeOfTradeDecision(currentDataRow,enterTrade):
     return localVarsAtTimeOfTradeDecision
 
 def main():
-   outputFileName = args.d+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".etrade"
+    
+   dirName = args.d.replace('/ro/','/rs/')  
+   tradeResultMainDirName = dirName+"/r/"
+   if not os.path.exists(tradeResultMainDirName):
+        os.mkdir(tradeResultMainDirName)
+   tradeResultSubDirectoryName =  tradeResultMainDirName + mainExperimentName+"/"
+   if not os.path.exists(tradeResultSubDirectoryName):
+        os.mkdir(tradeResultSubDirectoryName)
+   outputFileName = tradeResultSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+"E2.result" 
+   
    #if os.path.isfile(outputFileName):
    #    print("The results file already exisits. Delete it to run the program again" + outputFileName)
    #    return 1

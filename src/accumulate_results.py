@@ -61,7 +61,7 @@ for file_name in filtered_file_list:
     
     feature = file_name[:file_name.index(args.a[0])]
     entryCL = file_name[file_name.index("."):file_name.index("-")]
-    exitCL = file_name[file_name.index("-")+1:file_name.rindex(".")]
+    exitCL = file_name[file_name.index("-")+1:file_name.rindex("E")]
     temp_read_file_object = open(args.d + file_name, "r")
     line_list = temp_read_file_object.readlines()
     l_line_to_be_printed = ""
