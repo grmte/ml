@@ -20,7 +20,12 @@ import dataFile, colNumberOfData, common
 import attribute
 
 absPathOfExperimentName = os.path.abspath(args.e)
-mainExperimentName = absPathOfExperimentName[absPathOfExperimentName.index("e/")+1:absPathOfExperimentName.index("/")]
+pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3]
+if "/" in pathAfterE:
+    mainExperimentName = pathAfterE[:pathAfterE.index("/")]
+else:
+    mainExperimentName = pathAfterE
+    
 experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = 25000
 gMaxQty = int(args.orderQty)
