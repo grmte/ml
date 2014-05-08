@@ -41,7 +41,7 @@ def main():
     if not os.path.exists(dataDirectoryName):
         os.mkdir(dataDirectoryName)
     predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(args.e)) + args.a +".predictions"
-    if not os.path.isfile(predictionFileName):
+    if not os.path.isfile(predictionFileName) and ( args.skipP.lower() == "yes" ):
         if(args.a == 'glmnet'):
             rScript.write('require (glmnet) \n')
         elif(args.a == 'randomForest'):

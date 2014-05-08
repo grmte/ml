@@ -62,7 +62,7 @@ def main():
         rScript.write('\n\nprint ("Running r code for' + designFile + '")')
         config = ConfigObj(designFile)
         predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
-        if not os.path.isfile(predictionFileName):
+        if not os.path.isfile(predictionFileName) and ( args.skipP.lower() == "yes" ):
             rCodeGen.ForPredictions(rScript,config,args,designFile)
         else:
             print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
