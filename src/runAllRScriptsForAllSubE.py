@@ -12,9 +12,19 @@ def parseCommandLine():
    parser.add_argument('-pd', required=True,help='Prediction directory')
    parser.add_argument('-run', required=True,help='Real or Dry')
    parser.add_argument('-sequence', required=True,help='lp (local parallel) / dp (distributed parallel) / Serial')
+   parser.add_argument('-mpMearge',required=True,help="yes or no , If you want to separate model and prediction files then make this no")
    args = parser.parse_args()
    return args
 
+def getTrainPredictCommandList(experimentFolder,algoName,trainFolder,predictFolder):
+   commandList = list()
+   # lets make a list of all the scripts that need to be run
+   trainPredictScriptNames = glob.glob(experimentFolder+"/train-predict-"+algoName+"For*.r")
+   trainDirName = trainFolder.replace('/ro/','/wf/')
+   predictDirName = predictFolder.replace('/ro/','/wf/')
+   for trainPredictScriptName in trainPredictScriptNames:
+      commandList.append([trainPredictScriptName,"-td",trainDirName,"-pd",predictDirName])
+   return commandList    
 
 def getTrainCommandList(experimentFolder,algoName,trainFolder):
    commandList = list()
@@ -43,21 +53,29 @@ def main():
    experimentFolder = args.e
    trainDataFolder = args.td
    predictDataFolder = args.pd
-   commandList = getTrainCommandList(experimentFolder,args.a,trainDataFolder)
-   if args.sequence == 'lp':
-      # to run it in local parallel mode
-      pool = multiprocessing.Pool() # this will return the number of CPU's
-      results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
-   else:
-      results = map(wrapper,commandList)
-
-   commandList = getPredictCommandList(experimentFolder,args.a,predictDataFolder)
-   if args.sequence == 'lp':
-      # to run it in local parallel mode
-      pool = multiprocessing.Pool() # this will return the number of CPU's
-      results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
-   else:
-      results = map(wrapper,commandList)
+   if args.mpMearge.lower() == "yes":
+       commandList = getTrainPredictCommandList(experimentFolder,args.a,trainDataFolder,predictDataFolder)
+       if args.sequence == 'lp':
+          pool = multiprocessing.Pool() # this will return the number of CPU's
+          results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
+       else:
+          results = map(wrapper,commandList)           
+   else: 
+       commandList = getTrainCommandList(experimentFolder,args.a,trainDataFolder)
+       if args.sequence == 'lp':
+          # to run it in local parallel mode
+          pool = multiprocessing.Pool() # this will return the number of CPU's
+          results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
+       else:
+          results = map(wrapper,commandList)
+    
+       commandList = getPredictCommandList(experimentFolder,args.a,predictDataFolder)
+       if args.sequence == 'lp':
+          # to run it in local parallel mode
+          pool = multiprocessing.Pool() # this will return the number of CPU's
+          results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
+       else:
+          results = map(wrapper,commandList)
        
 if __name__ == "__main__":
     main()

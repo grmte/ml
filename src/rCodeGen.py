@@ -28,6 +28,29 @@ def ForSetUpChecks(rScript):
     rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train.r -d data/20140207") \n')    
     rScript.write('} \n')
 
+def ForSetUpChecksForTrainPredictTogather(rScript):
+    rScript.write('print ("Section1: Clearing the environment and making sure the data directory has been passed") \n')
+    rScript.write('rm(list=ls()) \n')
+    
+    rScript.write('args <- commandArgs(trailingOnly = TRUE) \n')
+
+    rScript.write('if(length(args) < 4) \n')
+    rScript.write('{ \n')
+    rScript.write('  stop("Not enough arguments. Please supply 4 arguments.") \n')
+    rScript.write('} \n')
+    
+    rScript.write('if((args[1]=="-td") == TRUE ) { \n')
+    rScript.write('   print ("Checking if parameter -td has been given: PASS") \n')
+    rScript.write('}else{ \n')
+    rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train-predict.r -td data/20140207 -pd data/20140208") \n')    
+    rScript.write('} \n')
+    
+    rScript.write('if((args[3]=="-pd") == TRUE ) { \n')
+    rScript.write('   print ("Checking if parameter -pd has been given: PASS") \n')
+    rScript.write('}else{ \n')
+    rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train-predict.r -td data/20140207 -pd data/20140208) \n')    
+    rScript.write('} \n')
+    
 def CheckIfPredictionsFileAlreadyExists(rScript,args):
     rScript.write('print ("Section2: Checking if predictions file already exists") \n')
     rScript.write('fileName = paste(args[2],"/p/","'+os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
@@ -211,6 +234,12 @@ def ForPredictions(rScript,config,args,pathToDesignFile):
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
     rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions") \n')
-    rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+    try:
+        if args.mpMearge.lower() == "yes":
+            rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+        else:
+            rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+    except:
+        rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')

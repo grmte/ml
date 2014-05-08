@@ -21,6 +21,7 @@ parser.add_argument('-targetClass',required=False,help="binomial(target takes on
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no")
+parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to separate model and prediction files then make this no") 
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -29,7 +30,9 @@ if args.skipP == None:
     args.skipP = "yes"
 if args.skipT == None:
     args.skipT = "yes"
-        
+if args.mpMearge == None:
+    args.mpMearge = "yes"
+            
 if(args.sequence == "dp"):
     import dp
 
@@ -69,22 +72,29 @@ if args.targetClass == None:
     args.targetClass = "binomial"
     print "Since no class of target variable is specified so taking binomial class of target variable"
 
-utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP],args.run,args.sequence)
+utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,\
+                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,args.mpMearge,"yes"],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
 if(args.sequence == "dp"):
     import runAllRScriptsForAllSubE
-    commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td)
-    utility.runCommandList(commandList,args)
-    print dp.printGroupStatus()
 
-    commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd)
-    utility.runCommandList(commandList,args)
-    print dp.printGroupStatus()
+    if args.mpMearge.lower() == "yes":
+        commandList = runAllRScriptsForAllSubE.getTrainPredictCommandList(args.e,args.a,args.td,args.pd)
+        utility.runCommandList(commandList,args)
+        print dp.printGroupStatus()
+    else:                
+        commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td)
+        utility.runCommandList(commandList,args)
+        print dp.printGroupStatus()
+    
+        commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd)
+        utility.runCommandList(commandList,args)
+        print dp.printGroupStatus()
 
 else:
-    utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-sequence",args.sequence,"-run",args.run],args.run,args.sequence)
+    utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-sequence",args.sequence,"-run",args.run,"-mpMearge",args.mpMearge],args.run,args.sequence)
     pass
 
 dirName=os.path.dirname(args.e)

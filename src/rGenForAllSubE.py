@@ -4,7 +4,7 @@ import utility
 from configobj import ConfigObj
  
 parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is\n\
-rGenForAllSubE.py -e ob/e/9.1/ -a glmnet -run dry -sequence serial -targetClass multinomial -pd ob/data/ro/20140205 -skipM Yes -skipP Yes', formatter_class=argparse.RawTextHelpFormatter)
+rGenForAllSubE.py -e ob/e/9.1/ -a glmnet -run dry -sequence serial -targetClass multinomial -pd ob/data/ro/20140205 -skipM yes -skipP yes -mpMearge yes', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-run', required=False,help='real or dummy run')
@@ -13,6 +13,7 @@ parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
+parser.add_argument('-mpMearge',required=True,help="yes or no , If you want to separate model and prediction files then make this no")
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -32,6 +33,10 @@ totalNumberOfFeatures = len(features)
 i = 2
 for algo in allAlgos:
     while i <= totalNumberOfFeatures:
-        utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
-        utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-d",args.pd ,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+        if args.mpMearge == "yes":
+            utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-d",args.pd ,"-skipP",args.skipP ,"-skipM",args.skipM,\
+                                '-mpMearge',args.mpMearge,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+        else:
+            utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+            utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-d",args.pd ,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
         i +=1
