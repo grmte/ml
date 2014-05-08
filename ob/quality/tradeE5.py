@@ -11,7 +11,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment or sub
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
-parser.add_argumnet('-orderQty',required=True,help='Order Quantity with which we trade')
+parser.add_argument('-orderQty',required=True,help='Order Quantity with which we trade')
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -19,8 +19,9 @@ sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 import attribute
 
-mainExperimentName = args.e[args.e.index("e/")+1:args.e.index("/")]
-experimentName = os.path.basename(os.path.abspath(args.e))
+absPathOfExperimentName = os.path.abspath(args.e)
+mainExperimentName = absPathOfExperimentName[absPathOfExperimentName.index("e/")+1:absPathOfExperimentName.index("/")]
+experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = 25000
 gMaxQty = int(args.orderQty)
 
