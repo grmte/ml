@@ -210,7 +210,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile):
     rScript.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
-    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions") \n')
+    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions") \n')
     rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')
