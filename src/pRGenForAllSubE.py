@@ -36,7 +36,7 @@ def main():
     args.s = args.s+"/"    
 
     dataDirectoryName = args.d.replace('/ro/','/wf/')
-    dataDirectoryName = dataDirectoryName + "/p/" + args.e
+    dataDirectoryName = dataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e))
     if not os.path.exists(dataDirectoryName):
         os.mkdir(dataDirectoryName)
         

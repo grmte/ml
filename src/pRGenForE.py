@@ -37,7 +37,7 @@ def main():
 
     rScript.write('#!/usr/bin/Rscript \n')
     dataDirectoryName = args.d.replace('/ro/','/wf/')
-    dataDirectoryName = dataDirectoryName + "/p/" + args.e
+    dataDirectoryName = dataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e))
     if not os.path.exists(dataDirectoryName):
         os.mkdir(dataDirectoryName)
     predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(args.e)) + args.a +".predictions"
