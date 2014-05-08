@@ -3,7 +3,8 @@ import argparse
 import utility
 from configobj import ConfigObj
  
-parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is rGenAll.py -e e1/')
+parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is\n\
+rGenForAllSubE.py -e ob/e/9.1/ -a glmnet -run dry -sequence serial -targetClass multinomial -pd ob/data/ro/20140205 -skipM Yes -skipP Yes', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-run', required=False,help='real or dummy run')

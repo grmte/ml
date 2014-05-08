@@ -8,7 +8,7 @@ import rCodeGen, utility
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
-rsGenForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial -targetClass multinomial',formatter_class=argparse.RawTextHelpFormatter)
+rsGenForAllSubE.py -e ob/e/4/ -a glmnet -td ob/data/ro/20140204 -pd ob/data/ro/20140205 -g ob/generators/ -run real -sequence serial -targetClass multinomial -skipM Yes -skipP Yes',formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name.')
@@ -65,6 +65,7 @@ else:
 if args.targetClass == None:
     args.targetClass = "binomial"
     print "Since no class of target variable is specified so taking binomial class of target variable"
+
 utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
@@ -100,8 +101,8 @@ def scriptWrapper(experimentName):
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".15","-exitCL",".00"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".10","-exitCL",".00"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".15","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-a",algo,"-entryCL",".10","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
         
 if args.sequence == 'lp':
     # to run it in local parallel mode

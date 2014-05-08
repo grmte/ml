@@ -10,7 +10,7 @@ The 5 steps are: \n \
 3. R code running.  \n \
 4. CMatrix generation  \n \
 5. Doing the trading.   \n \
-An e.g. command line >rsGenForE.py -e ob/e/8/ -td ob/data/ro/20140204/ -pd ob/data/ro/20140205/ -g ob/generators/ -run dry -sequence serial', formatter_class=argparse.RawTextHelpFormatter)
+An e.g. command line >rsGenForE.py -e ob/e/8/ -td ob/data/ro/20140204/ -pd ob/data/ro/20140205/ -g ob/generators/ -run dry -sequence serial -targetClass multinomial -skipM Yes -skipP Yes', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
 parser.add_argument('-td', required=True,help='Training directory')
@@ -55,6 +55,6 @@ else:
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".15","-exitCL",".00"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".10","-exitCL",".00"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".15","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".10","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
 

@@ -4,12 +4,14 @@ from __future__ import print_function
 import os, sys, argparse
 from configobj import ConfigObj
 
-parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment. An e.g. command line is tarde.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -entryCLCutoff .75 -exitCLCutoff .55')
+parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
+ An e.g. command line is tarde.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-d', required=True,help='Directory of the data file')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
+parser.add_argumnet('-orderQty',required=True,help='Order Quantity with which we trade')
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -19,10 +21,15 @@ import attribute
 
 experimentName = os.path.basename(os.path.abspath(args.e))
 gTickSize = 25000
+gMaxQty = int(args.orderQty)
+
+g_quantity_adjustment_list_for_sell = {}
+g_quantity_adjustment_list_for_buy = {}
+
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     dirName = args.d.replace('/ro/','/wf/')
-    predictedValuesFileName = dirName+"/p/"+experimentName+args.a+".predictions"
+    predictedValuesFileName = dirName+"/p_11_exp_tradeE6/"+experimentName+args.a+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
@@ -53,110 +60,175 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         os._exit(-1)
     sys.stdout.flush()
 
-def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow, pBidP0AtTimeOfPreviousDataRow, pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade):
-    global gTickSize
+def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow,pBidP0AtTimeOfPreviousDataRow,pAskQ0AtTimeOfPreviousDataRow , pBidQ0AtTimeOfPreviousDataRow , pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade ):
+    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy
     spreadAtTimeOfPreviousDataRow = pAskP0AtTimeOfPreviousDataRow - pBidP0AtTimeOfPreviousDataRow
     lReasonForTradingOrNotTradingShort = ""
     lReasonForTradingOrNotTradingLong = ""
+
     if(pEnterTradeShort == 0 and pEnterTradeLong == 0):
-        return lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong
-    
+        return [ lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong , pBidQ0AtTimeOfPreviousDataRow , pAskQ0AtTimeOfPreviousDataRow , 0 , 0 ]
+
+    if pBidP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_sell:
+        pBidQ0AtTimeOfPreviousDataRow = max( 0 , pBidQ0AtTimeOfPreviousDataRow - g_quantity_adjustment_list_for_sell[pBidP0AtTimeOfPreviousDataRow])
+    else:
+        g_quantity_adjustment_list_for_sell = {}
+
+    if pAskP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_buy:
+        pAskQ0AtTimeOfPreviousDataRow = max( 0 ,pAskQ0AtTimeOfPreviousDataRow - g_quantity_adjustment_list_for_buy[pAskP0AtTimeOfPreviousDataRow])
+    else:
+        g_quantity_adjustment_list_for_buy = {}    
+
+    currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
+    currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
+
+    l_dummy_AskQ0 = pAskQ0AtTimeOfPreviousDataRow
+    l_dummy_TTQChange_For_Buy = currentTTQ - pTTQAtTimeOfPreviousDataRow
     #close buy
     if(pEnterTradeShort == -1): # Need to buy we come here only if currentPosition is greater than 0 so no need to check again.
         #standing
         if spreadAtTimeOfPreviousDataRow > gTickSize:        
-            currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
-            currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
-            if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
+            if(l_dummy_TTQChange_For_Buy<=0):
                 pReasonForTrade['VolumeDidNotIncreaseDuringBuyAttemptShort'] += 1
                 lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
             elif(currentLTP != pBidP0AtTimeOfPreviousDataRow): 
                 pReasonForTrade['LTPDoesNotEqualBidP0Short'] += 1
                 lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(LTP!=Bid)'
             else:    
-                pReasonForTrade['AssumingBuyTradeHappenedShort'] += 1
-                pTradeStats['totalBuyValueShort'] += 1 * (pBidP0AtTimeOfPreviousDataRow + gTickSize)
-                pTradeStats['currentPositionShort'] -= 1
-                lReasonForTradingOrNotTradingShort = 'TradedBuyShort'
+               
+                lQtyTraded = min(  pTradeStats['currentPositionShort'] , l_dummy_TTQChange_For_Buy )
+                l_dummy_TTQChange_For_Buy -= lQtyTraded
+                pTradeStats['totalBuyValueShort'] += lQtyTraded * (pBidP0AtTimeOfPreviousDataRow + gTickSize)
+                pTradeStats['currentPositionShort'] -= lQtyTraded
+                lReasonForTradingOrNotTradingShort = 'CloseBuy(Standing)'
+                pReasonForTrade['AssumingBuyTradeHappenedShort'] += lQtyTraded
         #hitting
         else:
-            pReasonForTrade['AssumingBuyTradeHappenedShort'] += 1
-            pTradeStats['totalBuyValueShort'] += 1 * (pAskP0AtTimeOfPreviousDataRow)
-            pTradeStats['currentPositionShort'] -= 1
-            lReasonForTradingOrNotTradingShort = 'TradedBuyShort'
-    #open sell
-    elif(pEnterTradeShort == 1 and pTradeStats['currentPositionShort'] == 0): # Need to sell
+
+            l_buy_qty = min( pTradeStats['currentPositionShort'], pAskQ0AtTimeOfPreviousDataRow)
+            if pAskP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_buy:
+                    g_quantity_adjustment_list_for_buy[pAskP0AtTimeOfPreviousDataRow] += l_buy_qty
+            else:  
+                    g_quantity_adjustment_list_for_buy = {} 
+                    g_quantity_adjustment_list_for_buy[pAskP0AtTimeOfPreviousDataRow] = l_buy_qty
+            l_dummy_AskQ0 -= l_buy_qty
+            pTradeStats['totalBuyValueShort'] += l_buy_qty * (pAskP0AtTimeOfPreviousDataRow)
+            pTradeStats['currentPositionShort'] -= l_buy_qty
+            pReasonForTrade['AssumingBuyTradeHappenedShort'] += l_buy_qty
+            lReasonForTradingOrNotTradingShort = 'CloseBuy(Hitting)'
+        
+    #open buy
+    if(pEnterTradeLong == 1 and ( gMaxQty - pTradeStats['currentPositionLong'] ) > 0): # Need to buy
         #standing
         if spreadAtTimeOfPreviousDataRow > gTickSize:        
-            currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
-            currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])
-            if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
-                pReasonForTrade['VolumeDidNotIncreaseDuringSellAttemptShort'] += 1
-                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
-            elif(currentLTP != pAskP0AtTimeOfPreviousDataRow):
-                pReasonForTrade['LTPDoesNotEqualAskP0Short'] += 1
-                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickLTP!=Ask)'
+            if(l_dummy_TTQChange_For_Buy <= 0 ):
+                pReasonForTrade['VolumeDidNotIncreaseDuringBuyAttemptLong'] += 1
+                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
+            elif(currentLTP != pBidP0AtTimeOfPreviousDataRow):
+                pReasonForTrade['LTPDoesNotEqualBidP0Long'] += 1
+                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(LTPDoesNotEqualBidP0Long)'
             else:
-                pReasonForTrade['AssumingSellTradeHappenedShort'] += 1
-                pTradeStats['totalSellValueShort'] += 1 * (pAskP0AtTimeOfPreviousDataRow - gTickSize)
-                pTradeStats['currentPositionShort'] += 1
-                lReasonForTradingOrNotTradingShort = 'TradedSellShort'
+
+                lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionLong'] )
+                lQtyForWhichWeTrade = min( lQtyToBeTraded , l_dummy_TTQChange_For_Buy)
+                l_dummy_TTQChange_For_Buy -= lQtyForWhichWeTrade
+                pTradeStats['totalBuyValueLong'] += lQtyForWhichWeTrade * (pBidP0AtTimeOfPreviousDataRow + gTickSize)
+                pTradeStats['currentPositionLong'] += lQtyForWhichWeTrade
+                lReasonForTradingOrNotTradingLong = 'OpenBuy(Standing)'
+                pReasonForTrade['AssumingBuyTradeHappenedLong'] += lQtyForWhichWeTrade
         #hitting
         else:
-            pReasonForTrade['AssumingSellTradeHappenedShort'] += 1
-            pTradeStats['totalSellValueShort'] += 1 * (pBidP0AtTimeOfPreviousDataRow)
-            pTradeStats['currentPositionShort'] += 1
-            lReasonForTradingOrNotTradingShort = 'TradedSellShort'
-            
-        
+            if l_dummy_AskQ0 > 0 :
+
+                lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionLong'] )
+                lQtyForWhichWeTrade = min( lQtyToBeTraded , l_dummy_AskQ0 )
+                if pAskP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_buy:
+                    g_quantity_adjustment_list_for_buy[pAskP0AtTimeOfPreviousDataRow] += lQtyForWhichWeTrade
+                else:
+                    g_quantity_adjustment_list_for_buy = {}
+                    g_quantity_adjustment_list_for_buy[pAskP0AtTimeOfPreviousDataRow] = lQtyForWhichWeTrade
+                pTradeStats['totalBuyValueLong'] += lQtyForWhichWeTrade * (pAskP0AtTimeOfPreviousDataRow)
+                pTradeStats['currentPositionLong'] += lQtyForWhichWeTrade
+                pReasonForTrade['AssumingBuyTradeHappenedLong'] += lQtyForWhichWeTrade
+                l_dummy_AskQ0 -= lQtyForWhichWeTrade
+                lReasonForTradingOrNotTradingLong = 'OpenBuy(Hitting)'
+            else:
+                lReasonForTradingOrNotTradingLong = "DummyAskQ0Exhausted"
+
+    l_dummy_BidQ0 = pBidQ0AtTimeOfPreviousDataRow
+    l_dummy_TTQChange_For_Sell = currentTTQ - pTTQAtTimeOfPreviousDataRow
     #close sell
     if(pEnterTradeLong == -1): # Need to sell we come here only if currentPosition is greater than 0 so no need to check again.
         #standing
         if spreadAtTimeOfPreviousDataRow > gTickSize:        
-            currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
-            currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
-            if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
+            if(l_dummy_TTQChange_For_Sell <= 0 ):
                 pReasonForTrade['VolumeDidNotIncreaseDuringSellAttemptLong'] += 1
                 lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
             elif(currentLTP != pAskP0AtTimeOfPreviousDataRow): 
                 pReasonForTrade['LTPDoesNotEqualAskP0Long'] += 1
                 lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickLTP!=Ask)'
             else:    
-                pReasonForTrade['AssumingSellTradeHappenedLong'] += 1
-                pTradeStats['totalSellValueLong'] += 1 * (pAskP0AtTimeOfPreviousDataRow - gTickSize)
-                pTradeStats['currentPositionLong'] -= 1
-                lReasonForTradingOrNotTradingLong = 'TradedSellLong'
+
+                lQtyTraded = min(  pTradeStats['currentPositionLong'] , l_dummy_TTQChange_For_Sell )
+                pTradeStats['totalSellValueLong'] += lQtyTraded * (pAskP0AtTimeOfPreviousDataRow - gTickSize)
+                pTradeStats['currentPositionLong'] -= lQtyTraded
+                l_dummy_TTQChange_For_Sell -= lQtyTraded
+                lReasonForTradingOrNotTradingLong = 'CloseSell(Standing)'
+                pReasonForTrade['AssumingSellTradeHappenedLong'] += lQtyTraded
         #hitting
         else:
-            pReasonForTrade['AssumingSellTradeHappenedLong'] += 1
-            pTradeStats['totalSellValueLong'] += 1 * (pBidP0AtTimeOfPreviousDataRow)
-            pTradeStats['currentPositionLong'] -= 1
-            lReasonForTradingOrNotTradingLong = 'TradedSellLong'
-    #open buy
-    elif(pEnterTradeLong == 1 and pTradeStats['currentPositionLong'] == 0): # Need to buy
+
+            lQtyTraded = min( pTradeStats['currentPositionLong'] , pBidQ0AtTimeOfPreviousDataRow )
+            if pBidP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_sell:
+                g_quantity_adjustment_list_for_sell[pBidP0AtTimeOfPreviousDataRow] += lQtyTraded
+            else:
+                g_quantity_adjustment_list_for_sell = {}
+                g_quantity_adjustment_list_for_sell[pBidP0AtTimeOfPreviousDataRow] = lQtyTraded
+            pTradeStats['totalSellValueLong'] += lQtyTraded * (pBidP0AtTimeOfPreviousDataRow)
+            pTradeStats['currentPositionLong'] -= lQtyTraded
+            l_dummy_BidQ0 -= lQtyTraded
+            lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)'
+            pReasonForTrade['AssumingSellTradeHappenedLong'] += lQtyTraded
+    
+    #open sell
+    if(pEnterTradeShort == 1 and  ( gMaxQty - pTradeStats['currentPositionShort'] ) > 0 ): # Need to sell
         #standing
         if spreadAtTimeOfPreviousDataRow > gTickSize:        
-            currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
-            currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])
-            if(currentTTQ <= pTTQAtTimeOfPreviousDataRow):
-                pReasonForTrade['VolumeDidNotIncreaseDuringBuyAttemptLong'] += 1
-                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
-            elif(currentLTP != pBidP0AtTimeOfPreviousDataRow):
-                pReasonForTrade['LTPDoesNotEqualBidP0Long'] += 1
-                lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickLTP!=Bid)'
+            if(l_dummy_TTQChange_For_Sell <= 0):
+                pReasonForTrade['VolumeDidNotIncreaseDuringSellAttemptShort'] += 1
+                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
+            elif(currentLTP != pAskP0AtTimeOfPreviousDataRow):
+                pReasonForTrade['LTPDoesNotEqualAskP0Short'] += 1
+                lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickLTP!=Ask)'
             else:
-                pReasonForTrade['AssumingBuyTradeHappenedLong'] += 1
-                pTradeStats['totalBuyValueLong'] += 1 * (pBidP0AtTimeOfPreviousDataRow + gTickSize)
-                pTradeStats['currentPositionLong'] += 1
-                lReasonForTradingOrNotTradingLong = 'TradedBuyLong'
+
+                lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionShort'] )
+                lQtyForWhichWeTrade = min( lQtyToBeTraded , l_dummy_TTQChange_For_Sell)
+                pTradeStats['totalSellValueShort'] += lQtyForWhichWeTrade * (pAskP0AtTimeOfPreviousDataRow - gTickSize)
+                pTradeStats['currentPositionShort'] += lQtyForWhichWeTrade
+                l_dummy_TTQChange_For_Sell -= lQtyForWhichWeTrade
+                lReasonForTradingOrNotTradingShort = 'OpenSell(Standing)'
+                pReasonForTrade['AssumingSellTradeHappenedShort'] += lQtyForWhichWeTrade
         #hitting
         else:
-            pReasonForTrade['AssumingBuyTradeHappenedLong'] += 1
-            pTradeStats['totalBuyValueLong'] += 1 * (pAskP0AtTimeOfPreviousDataRow)
-            pTradeStats['currentPositionLong'] += 1
-            lReasonForTradingOrNotTradingLong = 'TradedBuyLong'
-    
-    return lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong
+            if l_dummy_BidQ0 > 0 :
+
+                lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionShort'] )
+                lQtyForWhichWeTrade = min( lQtyToBeTraded , l_dummy_BidQ0 )
+                if pBidP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_sell:
+                    g_quantity_adjustment_list_for_sell[pBidP0AtTimeOfPreviousDataRow] += lQtyForWhichWeTrade
+                else:
+                    g_quantity_adjustment_list_for_sell = {}
+                    g_quantity_adjustment_list_for_sell[pBidP0AtTimeOfPreviousDataRow] = lQtyForWhichWeTrade
+                pTradeStats['totalSellValueShort'] += lQtyForWhichWeTrade * (pBidP0AtTimeOfPreviousDataRow)
+                pTradeStats['currentPositionShort'] += lQtyForWhichWeTrade
+                lReasonForTradingOrNotTradingShort = 'OpenSell(Hitting)'
+                pReasonForTrade['AssumingSellTradeHappenedShort'] += lQtyForWhichWeTrade
+                l_dummy_BidQ0 -= lQtyForWhichWeTrade
+            else:
+                lReasonForTradingOrNotTradingShort = 'DummyBidQZero'
+
+    return [ lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong , l_dummy_BidQ0 , l_dummy_AskQ0 , l_dummy_TTQChange_For_Buy , l_dummy_TTQChange_For_Sell]
 
 def main():
    attribute.initList()
@@ -168,6 +240,8 @@ def main():
    ttqAtTimeOfPreviousDataRow = 0
    askP0AtTimeOfPreviousDataRow = 0
    bidP0AtTimeOfPreviousDataRow = 0
+   askQ0AtTimeOfPreviousDataRow = 0
+   bidQ0AtTimeOfPreviousDataRow = 0
    tradeStats = dict()
    tradeStats['totalSellValueShort'] = 0
    tradeStats['totalBuyValueShort'] = 0
@@ -199,20 +273,24 @@ def main():
    reasonForTrade['VolumeDidNotIncreaseDuringSellAttemptLong'] = 0
    reasonForTrade['AssumingSellTradeHappenedShort'] = 0
    reasonForTrade['AssumingSellTradeHappenedLong'] = 0
-
    currentIndex = 0
    print("Processing the data file for trades :")
    attribute.initList()
    for currentDataRow in dataFile.matrix:
-       lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,enterTradeShort,enterTradeLong,tradeStats,reasonForTrade)
+       
+       lReturnList = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,askQ0AtTimeOfPreviousDataRow , bidQ0AtTimeOfPreviousDataRow , enterTradeShort,enterTradeLong,tradeStats,reasonForTrade )
+
+       lReasonForTradingOrNotTradingShort = lReturnList[0]
+       lReasonForTradingOrNotTradingLong = lReturnList[1] 
+       lDummyBidQ0 = lReturnList[2]
+       lDummyAskQ0 = lReturnList[3]
+       lDummyTTQForBuy = lReturnList[4]
+       lDummyTTQForSell = lReturnList[5]
        if currentIndex > 0:
            attribute.aList[currentIndex-1][0] = currentTimeStamp
            attribute.aList[currentIndex-1][1] = tradeStats['currentPositionLong']
            attribute.aList[currentIndex-1][2] = tradeStats['currentPositionShort']
-           listOfStringsToPrint = [ str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , \
-                             str(currentPredictedValueShort) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(currentPredictedValueLong) \
-                                 , str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(tradeStats['totalBuyValueShort']) , \
-                                 str(tradeStats['totalSellValueShort']) ,str(tradeStats['totalBuyValueLong']) , str(tradeStats['totalSellValueLong']) ]
+           listOfStringsToPrint = [ str(bidQ0AtTimeOfPreviousDataRow) , str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(askQ0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , str(ltpAtTimeOfPreviousDataRow) , str(currentPredictedValueShort) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(currentPredictedValueLong) , str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['AssumingBuyTradeHappenedShort']),str(reasonForTrade['AssumingBuyTradeHappenedLong']),str(reasonForTrade['AssumingSellTradeHappenedShort']),str(reasonForTrade['AssumingSellTradeHappenedLong']),str(lDummyBidQ0),str(lDummyAskQ0),str(lDummyTTQForBuy),str(lDummyTTQForSell)]
            attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint)
        currentTimeStamp = common.convertTimeStampFromStringToFloat(currentDataRow[colNumberOfData.TimeStamp])
 
@@ -252,24 +330,33 @@ def main():
        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ]) 
        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
+       askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskQ0])
+       bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidQ0])
+       ltpAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.LTP])
        currentIndex = currentIndex + 1
 
-   '''
+# Squaring off if some open position there   
+   if tradeStats['currentPositionLong'] > 0:
+       reasonForTrade['AssumingSellTradeHappenedLong'] += tradeStats['currentPositionLong']
+       tradeStats['totalSellValueLong'] += tradeStats['currentPositionLong'] * (bidP0AtTimeOfPreviousDataRow)
+       tradeStats['currentPositionLong'] = 0
+       lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)'
+   elif tradeStats['currentPositionShort'] > 0:
+       reasonForTrade['AssumingBuyTradeHappenedShort'] += tradeStats['currentPositionShort']
+       tradeStats['totalBuyValueShort'] += tradeStats['currentPositionShort'] * (askP0AtTimeOfPreviousDataRow)
+       tradeStats['currentPositionShort'] = 0
+       lReasonForTradingOrNotTradingLong = 'CloseBuy(Hitting)'
+
    attribute.aList[currentIndex-1][0] = currentTimeStamp
    attribute.aList[currentIndex-1][1] = tradeStats['currentPositionLong']
    attribute.aList[currentIndex-1][2] = tradeStats['currentPositionShort']
-   listOfStringsToPrint = [ str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , \
-                     str(currentPredictedValueShort) , str(enterTradeShort) , "" , str(currentPredictedValueLong) , str(enterTradeLong) ,\
-                     "" , str(tradeStats['totalBuyValueShort']) , str(tradeStats['totalSellValueShort']) , \
-                     str(tradeStats['totalBuyValueLong']) , str(tradeStats['totalSellValueLong']) ]
+   listOfStringsToPrint = [ str(bidQ0AtTimeOfPreviousDataRow) , str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(askQ0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , str(ltpAtTimeOfPreviousDataRow) , str(currentPredictedValueShort) , str(enterTradeShort) , "" , str(currentPredictedValueLong) , str(enterTradeLong) ,"" , str(reasonForTrade['AssumingBuyTradeHappenedShort']),str(reasonForTrade['AssumingBuyTradeHappenedLong']),str(reasonForTrade['AssumingSellTradeHappenedShort']),str(reasonForTrade['AssumingSellTradeHappenedLong']),str(lDummyBidQ0),str(lDummyAskQ0),str(lDummyTTQForBuy),str(lDummyTTQForSell)]
    attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint) 
-   '''
+   
    dirName = args.d.replace('/ro/','/rs/')
    fileName = dirName+"/t/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
-   lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidP0','AskP0','TTQ','CurPredValueShort',\
-                              'EnterTradeShort','ReasonForTradingOrNotTradingShort',\
-                               'CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong']
-   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+   lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
+#   attribute.writeToFile(fileName , lHeaderColumnNamesList)
    fileName = dirName+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".result" 
    outputFile = open(fileName,"w")
    #changed file write to modify it to Short Long version
