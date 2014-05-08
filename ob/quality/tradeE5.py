@@ -5,9 +5,9 @@ import os, sys, argparse
 from configobj import ConfigObj
 
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
- An e.g. command line is tarde.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
+ An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-d', required=True,help='Directory of the data file')
-parser.add_argument('-e', required=True,help='Directory of the experiment')
+parser.add_argument('-e', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
@@ -19,6 +19,7 @@ sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 import attribute
 
+mainExperimentName = args.e[args.e.index("e/")+1:args.e.index("/")]
 experimentName = os.path.basename(os.path.abspath(args.e))
 gTickSize = 25000
 gMaxQty = int(args.orderQty)
@@ -29,7 +30,7 @@ g_quantity_adjustment_list_for_buy = {}
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     dirName = args.d.replace('/ro/','/wf/')
-    predictedValuesFileName = dirName+"/p_11_exp_tradeE6/"+experimentName+args.a+".predictions"
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
@@ -354,11 +355,25 @@ def main():
    attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint) 
    
    dirName = args.d.replace('/ro/','/rs/')
-   fileName = dirName+"/t/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
+   tradeLogMainDirName = dirName+"/t/"
+   if not os.path.exists(tradeLogMainDirName):
+        os.mkdir(tradeLogMainDirName)
+   tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
+   if not os.path.exists(tradeLogSubDirectoryName):
+        os.mkdir(tradeLogSubDirectoryName)
+   fileName = tradeLogSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-#   attribute.writeToFile(fileName , lHeaderColumnNamesList)
-   fileName = dirName+"/r/"+experimentName+args.a+args.entryCL+"-"+args.exitCL+".result" 
+   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+
+   tradeResultMainDirName = dirName+"/r/"
+   if not os.path.exists(tradeResultMainDirName):
+        os.mkdir(tradeResultMainDirName)
+   tradeResultSubDirectoryName =  tradeResultMainDirName + mainExperimentName+"/"
+   if not os.path.exists(tradeResultSubDirectoryName):
+        os.mkdir(tradeResultSubDirectoryName)
+   fileName = tradeResultSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+"E5.result" 
    outputFile = open(fileName,"w")
+ 
    #changed file write to modify it to Short Long version
    print("Starting to write: "+fileName)
    print("The net results for Short are: " + str(tradeStats['totalSellValueShort'] - tradeStats['totalBuyValueShort']), file = outputFile)
