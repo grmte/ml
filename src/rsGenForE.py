@@ -40,21 +40,17 @@ if args.targetClass == None:
     print "Since no class of target variable is specified so taking binomial class of target variable"
 # only run the set of programs if the trading results file does not exist
 
-fName = args.pd + "r/" + os.path.basename(os.path.abspath(args.e)) + algo +".55-.45.trade"
-if os.path.isfile(fName):
-    print "The results file already exists delete it if you want to run the experiment again"
+utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
+utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
+utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,"-pd",args.pd,"-skipP",args.skipP],args.run,args.sequence)
+utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+if args.targetClass == "binomial" :
+    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".90","-exitCL",".50"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
 else:
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
-    utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,"-pd",args.pd,"-skipP",args.skipP],args.run,args.sequence)
-    utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
-    if args.targetClass == "binomial" :
-        utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".90","-exitCL",".50"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".60","-exitCL",".40"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE3.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".50","-exitCL",".25"],args.run,args.sequence)
-    else:
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".15","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".10","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".15","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".10","-exitCL",".00","-orderQty","500"],args.run,args.sequence)
 
