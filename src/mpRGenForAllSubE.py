@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import argparse
 from configobj import ConfigObj
@@ -63,7 +65,7 @@ def main():
         rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
         config = ConfigObj(designFile)
         
-        #--------------Prediction Part--------------------
+        #--------------MODEL--------------------
         lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo  + '.model'
         if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
             print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
@@ -74,10 +76,10 @@ def main():
         
         #--------------Prediction Part--------------------
         predictionFileName = predictionDataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
-        if os.path.isfile(predictionFileName) and ( args.skipP.lower() == "yes" ):
+        if not os.path.isfile(predictionFileName) and ( args.skipP.lower() == "no" ):
             rCodeGen.ForPredictions(rScript,config,args,designFile)
         else:
-            print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
+            print "Prediction File " + predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation

@@ -48,7 +48,7 @@ def ForSetUpChecksForTrainPredictTogather(rScript):
     rScript.write('if((args[3]=="-pd") == TRUE ) { \n')
     rScript.write('   print ("Checking if parameter -pd has been given: PASS") \n')
     rScript.write('}else{ \n')
-    rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train-predict.r -td data/20140207 -pd data/20140208) \n')    
+    rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train-predict.r -td data/20140207 -pd data/20140208") \n')    
     rScript.write('} \n')
     
 def CheckIfPredictionsFileAlreadyExists(rScript,args):

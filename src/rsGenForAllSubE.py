@@ -73,7 +73,7 @@ if args.targetClass == None:
     print "Since no class of target variable is specified so taking binomial class of target variable"
 
 utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,\
-                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,args.mpMearge,"yes"],args.run,args.sequence)
+                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,"-mpMearge",args.mpMearge],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
