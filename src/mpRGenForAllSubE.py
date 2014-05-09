@@ -77,8 +77,8 @@ def main():
         
         #--------------Prediction Part--------------------
         predictionFileName = predictionDataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
-        if not os.path.isfile(predictionFileName) and ( args.skipP.lower() == "no" ):
-            rCodeGen.ForPredictions(rScript,config,args,designFile,4)
+        if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
+            rCodeGen.ForPredictions(rScript,config,args,designFile)
         else:
             print "Prediction File " + predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 

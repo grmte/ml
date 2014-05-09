@@ -35,7 +35,7 @@ for algo in allAlgos:
     while i <= totalNumberOfFeatures:
         if args.mpMearge == "yes":
             utility.runCommand(["mpRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-d",args.pd ,"-skipP",args.skipP ,"-skipM",args.skipM,\
-                                '-mpMearge',args.mpMearge,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+                                "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
         else:
             utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
             utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-d",args.pd ,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)

@@ -51,9 +51,12 @@ def ForSetUpChecksForTrainPredictTogather(rScript):
     rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train-predict.r -td data/20140207 -pd data/20140208") \n')    
     rScript.write('} \n')
     
-def CheckIfPredictionsFileAlreadyExists(rScript,args):
+def CheckIfPredictionsFileAlreadyExists(rScript,args,pUseWhichArgumentForData=2):
     rScript.write('print ("Section2: Checking if predictions file already exists") \n')
-    rScript.write('fileName = paste(args[2],"/p/","'+os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
+    if pUseWhichArgumentForData == 4:
+        rScript.write('fileName = paste(args[4],"/p/","'+os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
+    else:
+        rScript.write('fileName = paste(args[2],"/p/","'+os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
     rScript.write('if(file.exists(fileName)){ \n')
     rScript.write("    print ('Warning: The predictions already exist. Is this what you expected?') \n")
     rScript.write("} \n")
@@ -62,15 +65,32 @@ def ToReadTargetFile(rScript,config):
     rScript.write('print ("Section2: Read target files") \n')
     rScript.write('targetVector=read.csv(paste(args[2],"/t/","'+config["target"]+'.target",sep=""), header=TRUE , sep=";", row.names=NULL ) \n\n')
 
-def ToReadFeatureFiles(rScript,config):
+def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
     features = config["features"]
+    #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
+    if pUseWhichArgumentForData == 4:
+        feature_keys = features.keys()
+        for key in feature_keys:
+            new_key = key + "P"
+            features[new_key] = features[key]
+            del features[key]
     rScript.write('\nprint ("Section3: Read feature files") \n')
     for feature in features:
         rScript.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
-        rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        if pUseWhichArgumentForData == 4:
+            rScript.write(feature+'=read.csv(paste(args[4],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        else:
+            rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
 
-def ForSanityChecks(rScript,config):
+def ForSanityChecks(rScript,config,pUseWhichArgumentForData=2):
     features = config["features"]
+    #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
+    if pUseWhichArgumentForData == 4:
+        feature_keys = features.keys()
+        for key in feature_keys:
+            new_key = key + "P"
+            features[new_key] = features[key]
+            del features[key]
     rScript.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
     currentFeatureNumber = 0
     while currentFeatureNumber  <  (len(features) - 1) :
@@ -160,8 +180,16 @@ def saveTrainingModel(rScript,args,path):
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")')
 
-def ForPredictions(rScript,config,args,pathToDesignFile):
+def ForPredictions(rScript,config,args,pathToDesignFile,pUseWhichArgumentForData=2):
     features = config["features"]
+    #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
+    if pUseWhichArgumentForData == 4:
+        feature_keys = features.keys()
+        for key in feature_keys:
+            new_key = key + "P"
+            features[new_key] = features[key]
+            del features[key]
+            
     algo = getAlgoName(args)
     predictionModel = algo+'.model'
     rScript.write('\nprint ("Section6: Read in prediction model'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'") \n')
@@ -234,12 +262,9 @@ def ForPredictions(rScript,config,args,pathToDesignFile):
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
     rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions") \n')
-    try:
-        if args.mpMearge.lower() == "yes":
-            rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
-        else:
-            rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
-    except:
+    if pUseWhichArgumentForData == 4:
+        rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+    else:
         rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')
