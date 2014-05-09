@@ -85,9 +85,9 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         print("Number of duplicate timestamps rejected in sell predicted values dictionary = " + str(numberOfLinesInSellPredictedValuesFile - len(lPredictedSellValuesDict)))
         os._exit(-1)
     sys.stdout.flush()
-    
+    ##############/////Change here////
     for elements in lPredictedBuyValuesDict.keys():
-        pPredictedValuesDict[lPredictedBuyValuesDict[]]=lPredictedBuyValuesDict
+        pPredictedValuesDict[elements]['buy'] = [lPredictedBuyValuesDict]
 
 
 def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow,pBidP0AtTimeOfPreviousDataRow,pAskQ0AtTimeOfPreviousDataRow , pBidQ0AtTimeOfPreviousDataRow , pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade ):
