@@ -10,6 +10,7 @@ args = parser.parse_args()
 config = ConfigObj(args.e+"/design.ini")
 
 features = config["features"]
+targets = config["target"]
 
 i = 1
 numberOfFeatureSet = 1
@@ -37,7 +38,9 @@ while i < len(features):
         except:
             os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
         newConfig.filename = args.e+"/s/"+str(i)+"c/"+''.join(featureSet) + "/design.ini"
-        newConfig['target'] = config['target']
+        newConfig['target'] = {}
+        for target in targets:
+            newConfig['target'][target] = targets[target]
         newConfig['features'] = {}
         for feature in featureSet:
             newConfig['features'][feature] = features[feature]

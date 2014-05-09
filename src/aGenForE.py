@@ -19,7 +19,7 @@ def parseCommandLine():
 def getAttributesOfExprement(experimentFolder):
     config = ConfigObj(experimentFolder+"/design.ini")
     attributes = config["features"]
-    attributes["target"] = config["target"]
+    attributes.update(config["target"])
     return attributes
 
 def genAttribute(attributeName,dataFolder,generatorsFolder):
