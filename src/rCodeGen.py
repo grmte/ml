@@ -63,28 +63,25 @@ def CheckIfPredictionsFileAlreadyExists(rScript,args,pUseWhichArgumentForData=2)
 
 def ToReadTargetFile(rScript,config):
     rScript.write('print ("Section2: Read target files") \n')
-    rScript.write('targetVector=read.csv(paste(args[2],"/t/","'+config["target"]+'.target",sep=""), header=TRUE , sep=";", row.names=NULL ) \n\n')
+    lTargetSet = config["target"]
+    for target in lTargetSet:
+        rScript.write('print ("Reading '+ lTargetSet[target] +'.target' + '") \n')
+        rScript.write(target+'=read.csv(paste(args[2],"/t/","'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+
 
 def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
     features = config["features"]
-    #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     rScript.write('\nprint ("Section3: Read feature files") \n')
     for feature in features:
         rScript.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
         if pUseWhichArgumentForData == 4:
-            rScript.write(feature+'P=read.csv(paste(args[4],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+            rScript.write(feature+'=read.csv(paste(args[4],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
         else:
             rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
 
-def ForSanityChecks(rScript,config,pUseWhichArgumentForData=2):
+def ForSanityChecks(rScript,config):
     features = config["features"]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
-    if pUseWhichArgumentForData == 4:
-        feature_keys = features.keys()
-        for key in feature_keys:
-            new_key = key + "P"
-            features[new_key] = features[key]
-            del features[key]
     rScript.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
     currentFeatureNumber = 0
     while currentFeatureNumber  <  (len(features) - 1) :
@@ -108,10 +105,10 @@ def ForSanityChecks(rScript,config,pUseWhichArgumentForData=2):
         rScript.write('}\n')
         currentFeatureNumber = currentFeatureNumber + 1
 
-def ToCreateDataFrameForTraining(rScript,config):
+def ToCreateDataFrameForTraining(rScript,config,pTargetVariableKey):
     features = config["features"]
     rScript.write('\nprint ("Section6: Creating the data frame") \n')
-    rScript.write('df = data.frame('+config["target"]+'=targetVector[,2]')
+    rScript.write('df = data.frame('+config["target"][pTargetVariableKey]+'='+pTargetVariableKey+'[,2]')
     for feature in features:
         userFriendlyName = features[feature] 
         userFriendlyName = userFriendlyName.replace('[','')
@@ -119,7 +116,7 @@ def ToCreateDataFrameForTraining(rScript,config):
         rScript.write(','+userFriendlyName+'='+feature+'[,2]')
     rScript.write(")\n\n")
 
-def ForTraining(rScript,args,config):
+def ForTraining(rScript,args,config,pTargetVariableKey):
     features = config["features"]
     if(args.a == 'glmnet'):
         rScript.write('print ("Section7: Running glmnet") \n')
@@ -131,11 +128,11 @@ def ForTraining(rScript,args,config):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(targetVector[,2]),family=\''+args.targetClass+'\',alpha=1) \n'
+        lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(' + pTargetVariableKey + '[,2]),family=\''+args.targetClass+'\',alpha=1) \n'
         rScript.write(lStringToRunGlmnet) # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
     elif(args.a == 'logitr'):
         rScript.write('print ("Section7: Running logistic regression") \n')
-        rScript.write('fit <- glm ('+config["target"]+' ~ ')
+        rScript.write('fit <- glm ('+config["target"][pTargetVariableKey]+' ~ ')
         currentFeatureNumber=0
         for feature in features:
             rScript.write(features[feature])
@@ -153,7 +150,7 @@ def ForTraining(rScript,args,config):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = randomForest(x =X, y = targetVector[,2],importance = TRUE) \n') 
+        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE) \n') 
     elif(args.a == 'mda'):
         rScript.write('print ("Section7: Running mda training") \n')
         rScript.write('X <- cbind(')
@@ -164,28 +161,21 @@ def ForTraining(rScript,args,config):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = mda(x =X, y = targetVector[,2]) \n') 
+        rScript.write('fit = mda(x =X, y = ' + pTargetVariableKey + '[,2]) \n') 
     
 
 
-def saveTrainingModel(rScript,args,path):
+def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     algo = getAlgoName(args)    
-    outputFileName = path+'/'+algo+'.model'
+    outputFileName = path+'/'+algo+'-'+pTargetVariableKey+'.model'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")')
 
-def ForPredictions(rScript,config,args,pathToDesignFile,pUseWhichArgumentForData=2):
+def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2):
     features = config["features"]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
-    if pUseWhichArgumentForData == 4:
-        feature_keys = features.keys()
-        for key in feature_keys:
-            new_key = key + "P"
-            features[new_key] = features[key]
-            del features[key]
-            
     algo = getAlgoName(args)
-    predictionModel = algo+'.model'
+    predictionModel = algo+'-'+ pTargetVariableKey + '.model'
     rScript.write('\nprint ("Section6: Read in prediction model'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'") \n')
     rScript.write('load("'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'")')
 
@@ -255,10 +245,10 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pUseWhichArgumentForData
     rScript.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
-    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions") \n')
+    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'-'+ pTargetVariableKey +'.predictions") \n')
     if pUseWhichArgumentForData == 4:
-        rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+        rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'-'+ pTargetVariableKey +'.predictions",sep="") \n')
     else:
-        rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'.predictions",sep="") \n')
+        rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'-'+ pTargetVariableKey +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')

@@ -24,6 +24,7 @@ def main():
         
     print "Using the experiment folder " + args.e
     
+    print "Training files steps"
     config = ConfigObj(args.e+"/design.ini")
 
     print "The config parameters that I am working with are"
@@ -51,13 +52,24 @@ def main():
         rScript.write('require (randomForest) \n')
     elif(algo == 'mda'):
         rScript.write('require (mda) \n')
-
+    
     rCodeGen.ForSetUpChecksForTrainPredictTogather(rScript)
     rCodeGen.ToReadTargetFile(rScript,config)
     rCodeGen.ToReadFeatureFiles(rScript,config,2)
-    rCodeGen.ForSanityChecks(rScript,config,2)
-    rCodeGen.ToReadFeatureFiles(rScript,config,4)
-    rCodeGen.ForSanityChecks(rScript,config,4)
+    rCodeGen.ForSanityChecks(rScript,config)
+
+    print "For prediction data set"
+    configForPredictions = ConfigObj(args.e+"/design.ini")
+    print "The config parameters that I am working with are"
+    feature_keys = configForPredictions['features'].keys()
+    features = configForPredictions['features']
+    for key in feature_keys:
+        new_key = key + "P"
+        features[new_key] = features[key]
+        del features[key]
+    print configForPredictions 
+    rCodeGen.ToReadFeatureFiles(rScript,configForPredictions,4)
+    rCodeGen.ForSanityChecks(rScript,configForPredictions)
     
     designFiles = utility.list_files(args.s)
 
@@ -65,22 +77,29 @@ def main():
         print "Generating r code for " + designFile
         rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
         config = ConfigObj(designFile)
-        
+        configForPredictions = ConfigObj(designFile)
+        feature_keys = configForPredictions['features'].keys()
+        features = configForPredictions['features']
+        for key in feature_keys:
+            new_key = key + "P"
+            features[new_key] = features[key]
+            del features[key]
         #--------------MODEL--------------------
-        lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo  + '.model'
-        if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
-            print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
-        else:
-            rCodeGen.ToCreateDataFrameForTraining(rScript,config)
-            rCodeGen.ForTraining(rScript,args,config)
-            rCodeGen.saveTrainingModel(rScript,args,os.path.dirname(designFile))
+        for target in config['target']:
+            lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + '-' + target + '.model'
+            if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
+                print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
+            else:
+                rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
+                rCodeGen.ForTraining(rScript,args,config,target)
+                rCodeGen.saveTrainingModel(rScript,args,os.path.dirname(designFile),target)
         
         #--------------Prediction Part--------------------
-        predictionFileName = predictionDataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
-        if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-            rCodeGen.ForPredictions(rScript,config,args,designFile,4)
-        else:
-            print "Prediction File " + predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
+            predictionFileName = predictionDataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a + '-' + target +".predictions"
+            if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
+                rCodeGen.ForPredictions(rScript,configForPredictions,args,designFile,target,4)
+            else:
+                print "Prediction File " + predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
