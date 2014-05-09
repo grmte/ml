@@ -68,17 +68,11 @@ def ToReadTargetFile(rScript,config):
 def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
     features = config["features"]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
-    if pUseWhichArgumentForData == 4:
-        feature_keys = features.keys()
-        for key in feature_keys:
-            new_key = key + "P"
-            features[new_key] = features[key]
-            del features[key]
     rScript.write('\nprint ("Section3: Read feature files") \n')
     for feature in features:
         rScript.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
         if pUseWhichArgumentForData == 4:
-            rScript.write(feature+'=read.csv(paste(args[4],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+            rScript.write(feature+'P=read.csv(paste(args[4],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
         else:
             rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
 
