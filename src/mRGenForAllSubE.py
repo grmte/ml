@@ -56,13 +56,14 @@ def main():
         print "Generating r code for " + designFile
         rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
         config = ConfigObj(designFile)
-        lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo  + '.model'
-        if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
-            print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
-        else:
-            rCodeGen.ToCreateDataFrameForTraining(rScript,config)
-            rCodeGen.ForTraining(rScript,args,config)
-            rCodeGen.saveTrainingModel(rScript,args,os.path.dirname(designFile))
+        for target in config['target']:
+            lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + '-' + target + '.model'
+            if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
+                print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
+            else:
+                rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
+                rCodeGen.ForTraining(rScript,args,config,target)
+                rCodeGen.saveTrainingModel(rScript,args,os.path.dirname(designFile),target)
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
