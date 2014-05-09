@@ -14,7 +14,6 @@ def main():
     parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
-    parser.add_argument('-mpMearge',required=True,help="yes or no , If you want to separate model and prediction files then make this no")    
     parser.add_argument('-d', required=True,help='Prediction directory')
     args = parser.parse_args()
 
@@ -55,8 +54,10 @@ def main():
 
     rCodeGen.ForSetUpChecksForTrainPredictTogather(rScript)
     rCodeGen.ToReadTargetFile(rScript,config)
-    rCodeGen.ToReadFeatureFiles(rScript,config)
-    rCodeGen.ForSanityChecks(rScript,config)
+    rCodeGen.ToReadFeatureFiles(rScript,config,2)
+    rCodeGen.ForSanityChecks(rScript,config,2)
+    rCodeGen.ToReadFeatureFiles(rScript,config,4)
+    rCodeGen.ForSanityChecks(rScript,config,4)
     
     designFiles = utility.list_files(args.s)
 
@@ -77,7 +78,7 @@ def main():
         #--------------Prediction Part--------------------
         predictionFileName = predictionDataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
         if not os.path.isfile(predictionFileName) and ( args.skipP.lower() == "no" ):
-            rCodeGen.ForPredictions(rScript,config,args,designFile)
+            rCodeGen.ForPredictions(rScript,config,args,designFile,4)
         else:
             print "Prediction File " + predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
