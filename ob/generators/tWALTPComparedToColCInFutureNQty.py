@@ -14,10 +14,15 @@ def extractAttributeFromDataMatrix(args):
        os._exit(-1)
    totalOfFutureLTQQty = int(args.n)
 
-   lTransactionCost = 0.000015
+   try:
+      args.c 
+   except:   
+      print "-c has not been specified"
+      os._exit(-1)
+
+   colNumberOfAttribute = eval("colNumberOfData."+ args.c )
+      
    lPipSize = 25000
-   lMargin1 =  ( 1 * lPipSize ) 
-   lMargin2 = lMargin1 + ( 2 * lPipSize )
 
    """ lets get the total of futureNrows"""
    futureLTQSum = 0
@@ -94,36 +99,29 @@ def extractAttributeFromDataMatrix(args):
                      lNoMoreTradesFound = 1
               else:
                   totalLTPQty = totalLTPQty - LTQToBeAddedFromNewTrade 
-      currentBidP0 = float(dataFile.matrix[currentRowCount][colNumberOfData.BidP0])
-      currentAskP0 = float(dataFile.matrix[currentRowCount][colNumberOfData.AskP0])
+
+      if totalLTPQty != 0:
+          WALTPOfFutureNQty = WeightedLTPSum / totalLTPQty
+
+      currentPrice = float(dataFile.matrix[currentRowCount][colNumberOfAttribute])
       currentLTP = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
       currentMsgCode = dataFile.matrix[currentRowCount][colNumberOfData.MsgCode]
       currentLTQ = int(dataFile.matrix[currentRowCount][colNumberOfData.NewQ])
 
-      lClassOfTargetVariable = 0
-      valueInCurrentRow = 0
-      lClassifiedInOneClass = 0
-      if totalLTPQty != 0:
-          WALTPOfFutureNQty = WeightedLTPSum / totalLTPQty
-      if (WALTPOfFutureNQty - (currentBidP0 + lPipSize)) > lMargin1 :
-          if (WALTPOfFutureNQty - (currentBidP0 + lPipSize)) > lMargin2:
-              lClassOfTargetVariable = 2
-              lClassifiedInOneClass = 1
-          else:
+      if args.c == "BidP0":
+          if WALTPOfFutureNQty >= (currentPrice + lPipSize):
               lClassOfTargetVariable = 1
-              lClassifiedInOneClass = 1
-      if ((currentAskP0 - lPipSize) - WALTPOfFutureNQty ) > lMargin1 :
-          if lClassifiedInOneClass == 1 :
-              lClassOfTargetVariable = 0
-          elif ((currentAskP0 - lPipSize) - WALTPOfFutureNQty ) > lMargin2 :
-              lClassOfTargetVariable = -2
-              lClassifiedInOneClass = 1
           else:
-              lClassOfTargetVariable = -1
-              lClassifiedInOneClass = 1
+              lClassOfTargetVariable = 0
+      else:
+          if WALTPOfFutureNQty <= (currentPrice - lPipSize):
+              lClassOfTargetVariable = 1
+          else:
+              lClassOfTargetVariable = 0
+
       attribute.aList[currentRowCount][1] = lClassOfTargetVariable
-      attribute.aList[currentRowCount][2] = currentBidP0
-      attribute.aList[currentRowCount][3] = ";".join([ str(currentAskP0) , str(WALTPOfFutureNQty) , str(currentLTP) , str(currentLTQ) ,\
+      attribute.aList[currentRowCount][2] = currentPrice
+      attribute.aList[currentRowCount][3] = ";".join([ str(WALTPOfFutureNQty) , str(currentLTP) , str(currentLTQ) ,\
                                                        str(currentMsgCode) , str(WeightedLTPSum) , str(totalLTPQty)
                                                         ])
 
@@ -131,6 +129,6 @@ def extractAttributeFromDataMatrix(args):
       if(currentRowCount % 1000 == 0):
          print "Processed row number " + str(currentRowCount) 
          
-   lNameOfTarget = "tClassOfTargetVariableInFuture"+ str(args.n) + "TradeTicks" 
-   return ["TimeStamp",lNameOfTarget,"CurrentBid","CurrentAsk","ValueOfTargetVariableFromCurrentToNextNthTickTaken","CurrentLTP","CurrentLTQ","CurrentMsgCode"\
+   lNameOfTarget = "tWALTPComparedToCol" + str(args.c) + "InFuture" + str(args.n) + "Qty" 
+   return ["TimeStamp",lNameOfTarget,"CurrentBidOrAsk","ValueOfTargetVariableFromCurrentToNextNthTickTaken","CurrentLTP","CurrentLTQ","CurrentMsgCode"\
            "WeightedLTPSum" , "totalLTPQtys"]
