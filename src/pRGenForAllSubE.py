@@ -61,11 +61,12 @@ def main():
         print "Generating r code for " + designFile
         rScript.write('\n\nprint ("Running r code for' + designFile + '")')
         config = ConfigObj(designFile)
-        predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a +".predictions"
-        if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-            rCodeGen.ForPredictions(rScript,config,args,designFile)
-        else:
-            print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
+        for target in config['target']:
+            predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(designFile)) + args.a + '-' + target +".predictions"
+            if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
+                rCodeGen.ForPredictions(rScript,config,args,designFile,target)
+            else:
+                print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
 
     rScript.close()

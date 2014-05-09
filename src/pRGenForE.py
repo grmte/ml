@@ -40,20 +40,21 @@ def main():
     dataDirectoryName = dataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e))
     if not os.path.exists(dataDirectoryName):
         os.mkdir(dataDirectoryName)
-    predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(args.e)) + args.a +".predictions"
-    if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-        if(args.a == 'glmnet'):
-            rScript.write('require (glmnet) \n')
-        elif(args.a == 'randomForest'):
-            rScript.write('require (randomForest) \n')
-    
-        rCodeGen.ForSetUpChecks(rScript)
-        rCodeGen.CheckIfPredictionsFileAlreadyExists(rScript,args)
-        rCodeGen.ToReadFeatureFiles(rScript,config)
-        rCodeGen.ForSanityChecks(rScript,config)
-        rCodeGen.ForPredictions(rScript,config,args,args.e)
-    else:
-        print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
+    if(args.a == 'glmnet'):
+        rScript.write('require (glmnet) \n')
+    elif(args.a == 'randomForest'):
+        rScript.write('require (randomForest) \n')
+
+    rCodeGen.ForSetUpChecks(rScript)
+    rCodeGen.CheckIfPredictionsFileAlreadyExists(rScript,args)
+    rCodeGen.ToReadFeatureFiles(rScript,config)
+    rCodeGen.ForSanityChecks(rScript,config)
+    for target in config['target']:
+        predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(args.e)) + args.a +'-'+ target +".predictions"
+        if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
+            rCodeGen.ForPredictions(rScript,config,args,args.e,target)
+        else:
+            print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
     rScript.close()
     print "Finished generating R prediction program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)
