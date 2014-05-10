@@ -48,16 +48,20 @@ def extractAttributeFromDataMatrix(args):
       LTQValueNotAdded = ( futureLTQSum - totalOfFutureLTQQty )
       WeightedLTPSum = WeightedLTPSum - queueOfCellValueInFutureNLTQs[-1][0] + currentTickPriceToBeAdded
       queueOfCellValueInFutureNLTQs[-1] = [ currentTickPriceToBeAdded , currentLTQValueToBeUsed , currentLTPValue , LTQValueNotAdded ]
+
    currentRowCount = 0
-
    for dataRow in dataFile.matrix:
-
+      sum = 0 
+      currentPrice = float(dataFile.matrix[currentRowCount][colNumberOfAttribute])
+      currentLTP = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
+      currentMsgCode = dataFile.matrix[currentRowCount][colNumberOfData.MsgCode]
+      currentLTQ = int(dataFile.matrix[currentRowCount][colNumberOfData.NewQ])
       attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
       
       if (dataFile.matrix[currentRowCount][colNumberOfData.MsgCode].upper() == "T") :
-          currentWtLTQToBeSubtracted = queueOfCellValueInFutureNLTQs.popleft()
-          WeightedLTPSum = WeightedLTPSum - currentWtLTQToBeSubtracted[0]
-          LTQSubtracted = currentWtLTQToBeSubtracted[1]
+          lZerothElementOfQueue = queueOfCellValueInFutureNLTQs.popleft()
+          WeightedLTPSum = WeightedLTPSum - lZerothElementOfQueue[0]
+          LTQSubtracted = lZerothElementOfQueue[1]
           if len(queueOfCellValueInFutureNLTQs) != 0:
               LTQWhichCanBeAddedWithoutNewTradeMessage = queueOfCellValueInFutureNLTQs[-1][3]
               LTQAddedWithoutNewTradeMessage = min( LTQSubtracted , LTQWhichCanBeAddedWithoutNewTradeMessage)
@@ -69,7 +73,6 @@ def extractAttributeFromDataMatrix(args):
               queueOfCellValueInFutureNLTQs[-1][3] = LTQValueNotAddedInLastElementOfQueue
           else:
               LTQAddedWithoutNewTradeMessage = 0
-              print "Last element in queue = " , currentWtLTQToBeSubtracted
           if LTQSubtracted >  LTQAddedWithoutNewTradeMessage:
               LTQToBeAddedFromNewTrade = LTQSubtracted - LTQAddedWithoutNewTradeMessage
               if (lNoMoreTradesFound == 0):
@@ -99,14 +102,18 @@ def extractAttributeFromDataMatrix(args):
                      lNoMoreTradesFound = 1
               else:
                   totalLTPQty = totalLTPQty - LTQToBeAddedFromNewTrade 
-
+          for ele in queueOfCellValueInFutureNLTQs:
+              sum =  sum + (ele[1]*ele[2]) 
+              if (ele[1]*ele[2] != ele[0]):
+                  print "Error in Code"
+                  os.exit(-1)
+      
+      if sum != 0 and sum != WeightedLTPSum :
+          print "Error in Code"
+          os.exit(-1)
       if totalLTPQty != 0:
           WALTPOfFutureNQty = WeightedLTPSum / totalLTPQty
 
-      currentPrice = float(dataFile.matrix[currentRowCount][colNumberOfAttribute])
-      currentLTP = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
-      currentMsgCode = dataFile.matrix[currentRowCount][colNumberOfData.MsgCode]
-      currentLTQ = int(dataFile.matrix[currentRowCount][colNumberOfData.NewQ])
 
       if args.c == "BidP0":
           if WALTPOfFutureNQty >= (currentPrice + lPipSize):
