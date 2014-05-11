@@ -127,6 +127,7 @@ for file_name in filtered_file_list:
     write_file_object.write(l_line_to_be_printed+"\n")
 
 print "\nAll the files are summarized according to the statistic parameters given"
+write_file_object.close()
 
 l_files_to_be_mailed = [ summary_file_name , args.e + "design.ini" ]
 print "Files being mailed are = " , l_files_to_be_mailed
