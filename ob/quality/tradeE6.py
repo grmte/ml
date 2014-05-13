@@ -57,9 +57,10 @@ def functionToReadPredictionFileToDictionary(pPredictedValuesFile,pPredictedValu
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     dirName = args.d.replace('/ro/','/wf/')
-
+    config = ConfigObj(args.e+"/design.ini")
+    target = config["target"]
     lPredictedBuyValuesDict = dict()
-    predictedBuyValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-buy.predictions"
+    predictedBuyValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+".predictions"
     print("Buy Predicted values file : "+ predictedBuyValuesFileName)
     sys.stdout.flush()
     predictedBuyValuesFile = open(predictedBuyValuesFileName)
@@ -73,7 +74,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     sys.stdout.flush()
 
     lPredictedSellValuesDict = dict()
-    predictedSellValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-sell.predictions"
+    predictedSellValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[1]+".predictions"
     print("Sell Predicted values file : "+ predictedSellValuesFileName)
     sys.stdout.flush()
     predictedSellValuesFile = open(predictedSellValuesFileName)

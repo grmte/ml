@@ -32,8 +32,10 @@ experimentName = os.path.basename(absPathOfExperimentName)
 
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
+    config = ConfigObj(args.e+"/design.ini")
+    target = config["target"]
     dirName = args.d.replace('/ro/','/wf/')
-    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+".predictions"
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
