@@ -1,36 +1,46 @@
 #!/usr/bin/python
 
-import itertools, os,argparse, subprocess
-from configobj import ConfigObj
-from datetime import datetime
-import utility
+import  os,argparse
+import multiprocessing
+import utility , rCodeGen
 
 parser = argparse.ArgumentParser(description='This program will run generate all the subexperiments. An e.g. command line is genAllSubE.py -e e1/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name. This is optional and defaults to glmnet.')
 parser.add_argument('-d', required=True,help='Prediction directory')
+parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no")
 parser.add_argument('-run', required=True,help='Dry or Real')
+parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 args = parser.parse_args()
 
-config = ConfigObj(args.e+"/design.ini")
-features = config["features"]
-i = 1
+if args.skipT == None:
+    args.skipT = "yes"
 
-while i <= len(features):
-    i += 1
-    # lets make a directory if it does not already exist
-    try:
-        os.stat(args.e+"/s/"+str(i)+"c")
-    except:
-        os.mkdir(args.e+"/s/"+str(i)+"c")       
+if(args.sequence == "dp"):
+    import dp
 
-    featureSets = list(itertools.combinations(features, i))
-    for featureSet in featureSets:
-        try:
-            os.stat(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))
-        except:
-            os.mkdir(args.e+"/s/"+str(i)+"c/"+''.join(featureSet))       
-        experimentName = args.e+"/s/"+str(i)+"c/"+''.join(featureSet)+'/'
-        utility.runCommand(["./ob/quality/tradeE2.py","-e",experimentName,"-d",args.d,"-a",args.a,"-entryCL",".55","-exitCL",".45"],args)
+algo = rCodeGen.getAlgoName(args)
+dirName=os.path.dirname(args.e)
+            
+designFiles = utility.list_files(dirName+"/s/")    
+# lets make a list of all the experiments for which we need to run cMatrixGen and trading
+experimentNames = list()
+for designFile in designFiles:
+    experimentName = os.path.dirname(designFile)
+    experimentNames.append(experimentName)
 
+def scriptWrapper(experimentName):
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".75","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+        
+if args.sequence == 'lp':
+    # to run it in local parallel mode
+    pool = multiprocessing.Pool() # this will return the number of CPU's
+    results = pool.map(scriptWrapper,experimentNames)
+else:
+    results = map(scriptWrapper,experimentNames)
 
+if(args.sequence == "dp"):
+    print dp.printGroupStatus()
+    

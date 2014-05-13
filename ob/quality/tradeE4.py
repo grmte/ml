@@ -35,7 +35,9 @@ gTickSize = 25000
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     dirName = args.d.replace('/ro/','/wf/')
-    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+".predictions"
+    config = ConfigObj(args.e+"/design.ini")
+    target = config["target"]
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
