@@ -35,7 +35,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     dirName = args.d.replace('/ro/','/wf/')
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
-    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+"-"+ target.keys()[0]+".predictions"
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
@@ -90,6 +90,8 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             pTradeStats['currentPosition'] += 1
 
 def main():
+   import pdb
+   pdb.set_trace()
    dataFile.getDataIntoMatrix(args.d)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
