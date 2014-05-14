@@ -90,8 +90,6 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             pTradeStats['currentPosition'] += 1
 
 def main():
-   import pdb
-   pdb.set_trace()
    dataFile.getDataIntoMatrix(args.d)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
