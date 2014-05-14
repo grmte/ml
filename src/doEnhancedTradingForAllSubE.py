@@ -11,6 +11,7 @@ parser.add_argument('-d', required=True,help='Prediction directory')
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no")
 parser.add_argument('-run', required=True,help='Dry or Real')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
+parser.add_argumnet('-TE',required=True,help="E1/E2/E3/E4/E5/E6 , specify which trade engine to use")
 args = parser.parse_args()
 
 if args.skipT == None:
@@ -30,10 +31,12 @@ for designFile in designFiles:
     experimentNames.append(experimentName)
 
 def scriptWrapper(experimentName):
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".75","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
-        
+    try:
+        utility.runCommand(["./ob/quality/trade"+args.TE+".py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/trade"+args.TE+".py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".75","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/trade"+args.TE+".py","-d",args.d,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+    except:
+        pass
 if args.sequence == 'lp':
     # to run it in local parallel mode
     pool = multiprocessing.Pool() # this will return the number of CPU's
