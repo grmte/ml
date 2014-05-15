@@ -1,3 +1,21 @@
+15th May 2014:
+1. In the model file name use the relevant parameters that were used to generate that model hence the file name will be like:
+glmentbuy-td.20140204-dt.2-targetClass.binomial.model
+glmentbuy-td.20140204-dt.2-targetClass.multinomial.model
+glmentbuy-td.20140205-dt.1-targetClass.binomial.model
+glmentbuy-td.20140205-dt.1-targetClass.multinomail.model
+
+2. Objective: In the prediction file name use the name of the model that was used to generate that prediction
+glmentbuy-td.20140204-targetClass.binomial-f.AB.prediction
+
+3. Objective: Support training using multiple days of data
+Current command: rsGenForE.py -e ob/e/14/ -td ob/data/ro/20140204/ -pd ob/data/ro/20140205/ -g ob/generators/ -run real -sequence lp -targetClass binomial
+
+new command: rsGenForE.py -e ob/e/14/ -td ob/data/ro/20140204/ -dt 2 -pd ob/data/ro/20140205/ -g ob/generators/ -run real -sequence lp -targetClass binomial
+dt stands for "Number of Days to train"
+if dt is not specified then we take dt to have the default value of 1
+
+Unknwon date:
 1. Running train.r if it is going to overwrite an exisiting file. warn the user does he really want to run that generator.
 2. How to put in the value for NA in CurrentLess1Row feature.
 3. from glmnet predictions call that number x and calculate e^x / (1+e^x)

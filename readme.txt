@@ -100,3 +100,9 @@ multitail
 
 17. What are synthetic columns ?
 Features are treated as synthetic columns.
+
+18. What are the different short forms used?
+wf => working files
+rs => results
+t => target
+f => features
