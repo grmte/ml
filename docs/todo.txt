@@ -11,6 +11,15 @@ glmentbuy-td.20140204-targetClass.binomial-f.AB.prediction
 3. Objective: Support training using multiple days of data
 Current command: rsGenForE.py -e ob/e/14/ -td ob/data/ro/20140204/ -pd ob/data/ro/20140205/ -g ob/generators/ -run real -sequence lp -targetClass binomial
 
+4. Objective: We wan to lookk at the trading results and know which modelwas used to generate those results.
+current file name: 
+ob/data/rs/20140205/r/14/ACDglmnet.60-.50E5.result
+
+New file name:
+ob/data/rs/20140205/r/14/glmentbuy-td.20140204-targetClass.binomial-f.ACD-l.60-.50-tE5.result
+
+
+
 new command: rsGenForE.py -e ob/e/14/ -td ob/data/ro/20140204/ -dt 2 -pd ob/data/ro/20140205/ -g ob/generators/ -run real -sequence lp -targetClass binomial
 dt stands for "Number of Days to train"
 if dt is not specified then we take dt to have the default value of 1

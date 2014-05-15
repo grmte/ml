@@ -2,7 +2,7 @@
 import argparse
 import utility
 
-parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is \n\
+parser = argparse.ArgumentParser(description='This program will run mGenForE.py and pGenForE.py. An e.g. command line is \n\
 rGenForE.py -e ob/e/9.1/ -a glmnet -sequence serial -targetClass multinomial -skipM Yes -pd ob/data/ro/20140205 -skipP Yes', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name')
