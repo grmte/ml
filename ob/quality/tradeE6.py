@@ -89,12 +89,9 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
 #-----------------Getting predicted values into dictionary -------------------------------------
     for elements in lPredictedBuyValuesDict.keys():
         pPredictedValuesDict[elements] = {}
-        try:
-            pPredictedValuesDict[elements]['buy'] = lPredictedBuyValuesDict[elements]
-            pPredictedValuesDict[elements]['sell'] = lPredictedSellValuesDict[elements] 
-        except:
-            import pdb
-            pdb.set_trace()
+        pPredictedValuesDict[elements]['buy'] = lPredictedBuyValuesDict[elements]
+        pPredictedValuesDict[elements]['sell'] = lPredictedSellValuesDict[elements] 
+
 
 def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow,pBidP0AtTimeOfPreviousDataRow,pAskQ0AtTimeOfPreviousDataRow , pBidQ0AtTimeOfPreviousDataRow , pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade ):
     global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy
@@ -406,7 +403,7 @@ def main():
         os.mkdir(tradeLogSubDirectoryName)
    fileName = tradeLogSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+#   attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
@@ -474,7 +471,7 @@ def main():
 
 if __name__ == "__main__":
    dirName = args.d.replace('/ro/','/rs/')
-   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+args.a+args.entryCL+"-"+args.exitCL+"E5.result"
+   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+args.a+args.entryCL+"-"+args.exitCL+"E6.result"
    if os.path.isfile(fileName) and args.skipT == "yes":
        print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
    else: 
