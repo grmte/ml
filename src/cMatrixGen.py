@@ -115,8 +115,8 @@ for target in targetSet.keys():
      
     print "\nPredicted event not found in actual event = " + str(predictedValueNotFoundInActualValue)
     
-    dirName = args.d.replace('/ro/','/rs/')
-    cMatrixDataDirectoryName = dirName+"/c/"
+    cMatrixDirName = args.d.replace('/ro/','/rs/')
+    cMatrixDataDirectoryName = cMatrixDirName+"/c/"
     if not os.path.exists(cMatrixDataDirectoryName):
         os.mkdir(cMatrixDataDirectoryName)
     cMatrixDataDirectoryName = cMatrixDataDirectoryName+mainExperimentName+"/"

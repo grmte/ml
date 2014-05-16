@@ -137,5 +137,5 @@ def extractAttributeFromDataMatrix(args):
          print "Processed row number " + str(currentRowCount) 
          
    lNameOfTarget = "tWALTPComparedToCol" + str(args.c) + "InFuture" + str(args.n) + "Qty" 
-   return ["TimeStamp",lNameOfTarget,"CurrentBidOrAsk","ValueOfTargetVariableFromCurrentToNextNthTickTaken","CurrentLTP","CurrentLTQ","CurrentMsgCode"\
+   return ["TimeStamp",lNameOfTarget,args.c,"WALTPWithWtAsLTQForFuture"+args.n+"LTQQty","CurrentLTP","CurrentLTQ","CurrentMsgCode",\
            "WeightedLTPSum" , "totalLTPQtys"]
