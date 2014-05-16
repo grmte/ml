@@ -5,7 +5,10 @@ import os, sys, argparse
 from configobj import ConfigObj
 
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment. An e.g. command line is tarde.py -d ob/data/20140207/ -e ob/e/1 -a logitr')
-parser.add_argument('-d', required=True,help='Directory of the data file')
+parser.add_argument('-td', required=True,help='Directory of the training data file')
+parser.add_argument('-pd', required=True,help='Directory of the prediction data file')
+parser.add_argument('-dt',required=False,help="Number of days it was trained")  
+parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
@@ -19,7 +22,11 @@ import dataFile, colNumberOfData, common
 
 if args.skipT == None:
     args.skipT = "no"
-    
+if args.dt == None:
+    args.dt = "1"
+if args.targetClass == None:
+    args.targetClass = "binomial"
+        
 absPathOfExperimentName = os.path.abspath(args.e)
 pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
 if "/" in pathAfterE:
@@ -28,12 +35,16 @@ else:
     mainExperimentName = pathAfterE
     
 experimentName = os.path.basename(absPathOfExperimentName)
+initialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \
+               '-l.'+args.entryCL+"-"+args.exitCL + "-te2"    
 
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
-    predictedValuesFileName = args.d+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+".predictions"
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
@@ -101,19 +112,19 @@ def updateVarsAtTimeOfTradeDecision(currentDataRow,enterTrade):
 
 def main():
     
-   dirName = args.d.replace('/ro/','/rs/')  
+   dirName = args.pd.replace('/ro/','/rs/')  
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
         os.mkdir(tradeResultMainDirName)
    tradeResultSubDirectoryName =  tradeResultMainDirName + mainExperimentName+"/"
    if not os.path.exists(tradeResultSubDirectoryName):
         os.mkdir(tradeResultSubDirectoryName)
-   outputFileName = tradeResultSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+"E2.result" 
+   outputFileName = tradeResultSubDirectoryName+experimentName+initialFileName+".result" 
    
    #if os.path.isfile(outputFileName):
    #    print("The results file already exisits. Delete it to run the program again" + outputFileName)
    #    return 1
-   dataFile.getDataIntoMatrix(args.d)
+   dataFile.getDataIntoMatrix(args.pd)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
    enterTrade = 0
@@ -210,8 +221,8 @@ def main():
    print("P/L for trading 10 lots is: " + str(pLPerLot * 10), file = outputFile)
 
 if __name__ == "__main__":
-   dirName = args.d.replace('/ro/','/rs/')
-   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+args.a+args.entryCL+"-"+args.exitCL+"E2.result"
+   dirName = args.pd.replace('/ro/','/rs/')
+   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+initialFileName+".result"
    if os.path.isfile(fileName) and args.skipT == "yes":
        print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
    else: 

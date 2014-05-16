@@ -9,7 +9,10 @@ def main():
     parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGenForE.py -e ob/e1/')
     parser.add_argument('-e', required=True,help='Directory to find the experiement designs')
     parser.add_argument('-a', required=True,help='Algorithm name')
-    parser.add_argument('-d', required=True,help='Prediction directory')
+    parser.add_argument('-pd', required=True,help='Prediction directory')
+    parser.add_argument('-td',required=True,help="Day on which it was trained")
+    parser.add_argument('-dt',required=True,help="Number of days it was trained")    
+    parser.add_argument('-targetClass',required=True,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
     args = parser.parse_args()
 
@@ -36,10 +39,10 @@ def main():
     rScript = open(rProgLocation,'w')
 
     rScript.write('#!/usr/bin/Rscript \n')
-    dataDirectoryName = args.d.replace('/ro/','/wf/')
-    dataDirectoryName = dataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e))
-    if not os.path.exists(dataDirectoryName):
-        os.mkdir(dataDirectoryName)
+    predictDataDirectoryName = args.pd.replace('/ro/','/wf/')
+    predictDataDirectoryName = predictDataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e))
+    if not os.path.exists(predictDataDirectoryName):
+        os.mkdir(predictDataDirectoryName)
     if(args.a == 'glmnet'):
         rScript.write('require (glmnet) \n')
     elif(args.a == 'randomForest'):
@@ -50,7 +53,8 @@ def main():
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
     for target in config['target']:
-        predictionFileName = dataDirectoryName + "/" + os.path.basename(os.path.dirname(args.e)) + args.a +'-'+ target +".predictions"
+        predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
+        + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.e)) + ".predictions"
         if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
             rCodeGen.ForPredictions(rScript,config,args,args.e,target)
         else:

@@ -6,13 +6,16 @@ from configobj import ConfigObj
 
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
  An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-d', required=True,help='Directory of the data file')
 parser.add_argument('-e', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
 parser.add_argument('-orderQty',required=True,help='Order Quantity with which we trade')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
+parser.add_argument('-td', required=True,help='Directory of the training data file')
+parser.add_argument('-pd', required=True,help='Directory of the prediction data file')
+parser.add_argument('-dt',required=False,help="Number of days it was trained")  
+parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -22,7 +25,11 @@ import attribute
 
 if args.skipT == None:
     args.skipT = "no"
-
+if args.dt == None:
+    args.dt = "1"
+if args.targetClass == None:
+    args.targetClass = "binomial"
+    
 absPathOfExperimentName = os.path.abspath(args.e)
 pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
 if "/" in pathAfterE:
@@ -33,7 +40,9 @@ else:
 experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = 25000
 gMaxQty = int(args.orderQty)
-
+initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \
+                   '-l.'+args.entryCL+"-"+args.exitCL + "-te6" 
 g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
 
@@ -56,11 +65,12 @@ def functionToReadPredictionFileToDictionary(pPredictedValuesFile,pPredictedValu
 
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
-    dirName = args.d.replace('/ro/','/wf/')
+    dirName = args.pd.replace('/ro/','/wf/')
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
     lPredictedBuyValuesDict = dict()
-    predictedBuyValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[0]+".predictions"
+    predictedBuyValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
     print("Buy Predicted values file : "+ predictedBuyValuesFileName)
     sys.stdout.flush()
     predictedBuyValuesFile = open(predictedBuyValuesFileName)
@@ -74,7 +84,8 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     sys.stdout.flush()
 
     lPredictedSellValuesDict = dict()
-    predictedSellValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target.keys()[1]+".predictions"
+    predictedSellValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[1] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
     print("Sell Predicted values file : "+ predictedSellValuesFileName)
     sys.stdout.flush()
     predictedSellValuesFile = open(predictedSellValuesFileName)
@@ -265,7 +276,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
 
 def main():
    attribute.initList()
-   dataFile.getDataIntoMatrix(args.d)
+   dataFile.getDataIntoMatrix(args.pd)
    predictedValuesDict = dict()
    getPredictedValuesIntoDict(predictedValuesDict)
    enterTradeShort = 0
@@ -394,14 +405,15 @@ def main():
    listOfStringsToPrint = [ str(bidQ0AtTimeOfPreviousDataRow) , str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , str(askQ0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , str(ltpAtTimeOfPreviousDataRow) , str(currentPredictedValueShort) , str(enterTradeShort) , "" , str(currentPredictedValueLong) , str(enterTradeLong) ,"" , str(reasonForTrade['CloseBuyTradeHappened']),str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),str(lDummyTTQForBuy),str(lDummyTTQForSell)]
    attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint) 
    
-   dirName = args.d.replace('/ro/','/rs/')
+   dirName = args.pd.replace('/ro/','/rs/')
    tradeLogMainDirName = dirName+"/t/"
    if not os.path.exists(tradeLogMainDirName):
         os.mkdir(tradeLogMainDirName)
    tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
    if not os.path.exists(tradeLogSubDirectoryName):
         os.mkdir(tradeLogSubDirectoryName)
-   fileName = tradeLogSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+".trade" 
+
+   fileName = tradeLogSubDirectoryName + initialFileName + ".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
 #   attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
@@ -411,7 +423,7 @@ def main():
    tradeResultSubDirectoryName =  tradeResultMainDirName + mainExperimentName+"/"
    if not os.path.exists(tradeResultSubDirectoryName):
         os.mkdir(tradeResultSubDirectoryName)
-   fileName = tradeResultSubDirectoryName+experimentName+args.a+args.entryCL+"-"+args.exitCL+"E5.result" 
+   fileName = tradeResultSubDirectoryName+initialFileName+".result" 
    outputFile = open(fileName,"w")
  
    #changed file write to modify it to Short Long version
@@ -470,8 +482,8 @@ def main():
 
 
 if __name__ == "__main__":
-   dirName = args.d.replace('/ro/','/rs/')
-   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+args.a+args.entryCL+"-"+args.exitCL+"E6.result"
+   dirName = args.pd.replace('/ro/','/rs/')
+   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+initialFileName+".result"
    if os.path.isfile(fileName) and args.skipT == "yes":
        print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
    else: 

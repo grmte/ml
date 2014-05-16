@@ -15,13 +15,14 @@ parser.add_argument('-a', required=True,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-g', required=True,help='Generators directory')
+parser.add_argument('-dt',required=False,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
-parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
-parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
-parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no")
-parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to separate model and prediction files then make this no") 
+parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No.  Defaults to yes")
+parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No.  Defaults to yes")
+parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
+parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to separate model and prediction files then make this no .  Defaults to yes") 
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -32,7 +33,9 @@ if args.skipT == None:
     args.skipT = "yes"
 if args.mpMearge == None:
     args.mpMearge = "yes"
-            
+if args.dt == None:
+    args.dt = "1"
+                
 if(args.sequence == "dp"):
     import dp
 
@@ -68,8 +71,8 @@ else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 
-utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,\
-                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,"-mpMearge",args.mpMearge],args.run,args.sequence)
+utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-td",args.td , \
+                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,"-mpMearge",args.mpMearge,'-dt',args.dt],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
@@ -105,14 +108,21 @@ for designFile in designFiles:
 def scriptWrapper(experimentName):
     if args.targetClass == "multinomial" :
 #        utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".55","-exitCL",".45","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".40","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".50","-exitCL",".25","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".55","-exitCL",".45","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".40","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".50","-exitCL",".25","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".75","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".50","-orderQty","500"],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".75","-exitCL",".50","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",".60","-exitCL",".50","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
         
 if args.sequence == 'lp':
     # to run it in local parallel mode

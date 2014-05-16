@@ -11,11 +11,13 @@ def main():
     parser.add_argument('-a', required=True,help='Algorithm name')
     parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
+    parser.add_argument('-td',required=True,help="Day on which it was trained")
+    parser.add_argument('-dt',required=True,help="Number of days it was trained")
     args = parser.parse_args()
 
     if args.skipM == None:
         args.skipM = "yes"
-    
+
     print "Using the experiment folder " + args.e
     
     config = ConfigObj(args.e+"/design.ini")
@@ -44,7 +46,7 @@ def main():
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
     for target in config['target']:
-        lModelGeneratedAfterTraining = dirName + '/' + algo +'-'+ target + '.model'
+        lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '.model'
         if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
             print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
         else:

@@ -167,7 +167,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
 
 def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     algo = getAlgoName(args)    
-    outputFileName = path+'/'+algo+'-'+pTargetVariableKey+'.model'
+    outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +'.model'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")')
 
@@ -175,7 +175,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     features = config["features"]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     algo = getAlgoName(args)
-    predictionModel = algo+'-'+ pTargetVariableKey + '.model'
+    predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '.model'
     rScript.write('\nprint ("Section6: Read in prediction model'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'") \n')
     rScript.write('load("'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'")')
 
@@ -245,10 +245,13 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     rScript.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
-    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'-'+ pTargetVariableKey +'.predictions") \n')
+    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/' + args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +'.predictions") \n')
     if pUseWhichArgumentForData == 4:
-        rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'-'+ pTargetVariableKey +'.predictions",sep="") \n')
+        rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ pTargetVariableKey +'.predictions",sep="") \n')
     else:
-        rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(pathToDesignFile)) + args.a +'-'+ pTargetVariableKey +'.predictions",sep="") \n')
+        rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +'.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')

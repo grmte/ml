@@ -15,6 +15,8 @@ def main():
     parser.add_argument('-s', required=True,help='Location of the folder containing all the sub experiments')
     parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
+    parser.add_argument('-td',required=True,help="Day on which it was trained")
+    parser.add_argument('-dt',required=True,help="Number of days it was trained")
     args = parser.parse_args()
 
     if args.skipM == None:
@@ -57,7 +59,7 @@ def main():
         rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
         config = ConfigObj(designFile)
         for target in config['target']:
-            lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + '-' + target + '.model'
+            lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +  '.model'
             if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:
