@@ -249,7 +249,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +'.predictions") \n')
     if pUseWhichArgumentForData == 4:
         rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ pTargetVariableKey +'.predictions",sep="") \n')
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ '.predictions",sep="") \n')
     else:
         rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +'.predictions",sep="") \n')
