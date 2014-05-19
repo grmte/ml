@@ -116,8 +116,8 @@ def main():
    tradeStats['currentPosition'] = 0
    noPredictionForThisRow = 0
    currentPredictedValue = 0
-   entryCL = float(args.entryCL)
-   exitCL = float(args.exitCL)
+   entryCL = float(args.entryCL)/100
+   exitCL = float(args.exitCL)/100
    entryCLCutoff = float(args.entryCLCutoff)
    exitCLCutoff = float(args.exitCLCutoff)
    numberOfTimesAskedToEnterTrade = 0

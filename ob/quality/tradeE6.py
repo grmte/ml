@@ -298,8 +298,8 @@ def main():
    noPredictionForThisRow = 0
    currentPredictedValueShort = 0
    currentPredictedValueLong = 0
-   entryCL = float(args.entryCL)
-   exitCL = float(args.exitCL)
+   entryCL = float(args.entryCL)/100
+   exitCL = float(args.exitCL)/100
  #  entryCLCutoff = float(args.entryCLCutoff)
  #  exitCLCutoff = float(args.exitCLCutoff)
    numberOfTimesAskedToEnterTradeShort = 0

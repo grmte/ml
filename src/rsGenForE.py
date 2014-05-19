@@ -50,18 +50,18 @@ utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequenc
 utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 if args.targetClass == "multinomial" :
 #    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".55","-exitCL",".45","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","55","-exitCL","45","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".60","-exitCL",".40","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","60","-exitCL","40","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".50","-exitCL",".25","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","50","-exitCL","25","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
 else:
-    utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".90","-exitCL",".50","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".75","-exitCL",".50","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","75","-exitCL","50","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL",".60","-exitCL",".50","-orderQty","500",\
+    utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","60","-exitCL","50","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
