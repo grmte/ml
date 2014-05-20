@@ -64,20 +64,39 @@ def CheckIfPredictionsFileAlreadyExists(rScript,args,pUseWhichArgumentForData=2)
 def ToReadTargetFile(rScript,config):
     rScript.write('print ("Section2: Read target files") \n')
     lTargetSet = config["target"]
+    rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
     for target in lTargetSet:
+        rScript.write('for (file in lDirectorySet[[1]]){\n')
+        rScript.write('if (!exists("'+target+'")){\n')
+        rScript.write(target+'<- read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')   
+        rScript.write('}\n')
+        rScript.write('else if (exists("'+target+'")){\n')
+        rScript.write('temp<-read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write(target+'<-rbind('+target+',temp)\n')
+        rScript.write('rm(temp)\n')
+        rScript.write('}\n')
         rScript.write('print ("Reading '+ lTargetSet[target] +'.target' + '") \n')
-        rScript.write(target+'=read.csv(paste(args[2],"/t/","'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
-
+        rScript.write('}\n')
 
 def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
     features = config["features"]
     rScript.write('\nprint ("Section3: Read feature files") \n')
+    if pUseWhichArgumentForData == 4:
+        rScript.write('lDirectorySet<-strsplit(args[4],";",fixed=TRUE,useBytes=FALSE)\n')
+    else:
+        rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
     for feature in features:
+        rScript.write('for (file in lDirectorySet[[1]]){\n')
+        rScript.write('if (!exists("'+feature+'")){\n')
+        rScript.write(feature+'<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('}\n')
+        rScript.write('else if (exists("'+feature+'")){\n')  
+        rScript.write('temp<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')  
+        rScript.write(feature+'<-rbind('+feature+',temp)\n')    
+        rScript.write('rm(temp)\n')
+        rScript.write('}\n')
         rScript.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
-        if pUseWhichArgumentForData == 4:
-            rScript.write(feature+'=read.csv(paste(args[4],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
-        else:
-            rScript.write(feature+'=read.csv(paste(args[2],"/f/","'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('}\n')
 
 def ForSanityChecks(rScript,config):
     features = config["features"]

@@ -3,6 +3,7 @@ import argparse,os
 from datetime import timedelta
 from datetime import datetime
 import utility
+import attribute
 
 parser = argparse.ArgumentParser(description='This program will do the 5 steps necessary to get the results for an experiment. \n \
 The 5 steps are: \n \
@@ -33,8 +34,6 @@ if args.skipP == None:
 if args.dt == None:
     args.dt = "1"
             
-import subprocess
-
 if args.a is not None:
     algo = args.a
 else:
@@ -45,16 +44,9 @@ if args.targetClass == None:
     print "Since no class of target variable is specified so taking binomial class of target variable"
 # only run the set of programs if the trading results file does not exist
 
-num_of_training_days = int(args.dt)
-l_training_day_folder_base_date = os.path.basename(os.path.abspath(args.td))
-l_start_training_date = datetime.strptime(l_training_day_folder_base_date, '%Y%m%d')
-for index in range(num_of_training_days):
-    l_training_date = l_start_training_date + timedelta(days = index)
-    if( l_training_date.weekday() == 5 or l_training_date.weekday() == 6): # Day is monday
-        continue
-    l_training_date_in_string = l_training_date.strftime('%Y%m%d')
-    l_training_date_full_path_name = args.td.replace(l_training_day_folder_base_date,l_training_date_in_string) 
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",l_training_date_full_path_name,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
+lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+for trainingDirectory in lListofTrainingDirectories:
+    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
 
 utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\

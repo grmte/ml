@@ -1,5 +1,7 @@
 import os
 import dataFile
+from datetime import timedelta
+from datetime import datetime
 
 aList = []
 
@@ -127,7 +129,18 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFold
       
    return attributeFile
    
-
+def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory):
+    lTrainingDirectoryList = []
+    l_training_day_folder_base_date = os.path.basename(os.path.abspath(pStartTrainingDirectory))
+    l_start_training_date = datetime.strptime(l_training_day_folder_base_date, '%Y%m%d')
+    for index in range(int(pNumOfTrainingDays)):
+        l_training_date = l_start_training_date + timedelta(days = index)
+        if( l_training_date.weekday() == 5 or l_training_date.weekday() == 6): # Day is monday
+            continue
+        l_training_date_in_string = l_training_date.strftime('%Y%m%d')
+        l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string) 
+        lTrainingDirectoryList.append(l_training_date_full_path_name)
+    return lTrainingDirectoryList
 
 def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder):
    attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder)

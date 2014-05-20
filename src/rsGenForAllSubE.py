@@ -4,7 +4,7 @@ import itertools, os,argparse, subprocess, multiprocessing
 from configobj import ConfigObj
 from datetime import datetime
 import rCodeGen, utility
-
+import attribute
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
@@ -50,10 +50,11 @@ if(args.sequence == "dp"):
     experimentFolder = args.e
     dataFolder = args.td
     generatorsFolder = args.g
-    commandList = aGenForE.getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
+    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+    for trainingDirectory in lListofTrainingDirectories:
+        commandList = aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize)
     commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
     # Seperate into 2 different list one for aGen and another for operateOnAttribute
-    import attribute
 
     aGenList = []
     attribute.getGenerationCommands(commandList,aGenList)
@@ -67,9 +68,10 @@ if(args.sequence == "dp"):
         utility.runCommand(i,args.run,args.sequence)
         dp.printGroupStatus() 
 
-
 else:
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
+    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+    for trainingDirectory in lListofTrainingDirectories:
+        utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
 
 utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-td",args.td , \

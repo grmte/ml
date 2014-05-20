@@ -2,6 +2,7 @@
 import argparse
 import utility
 import os
+import attribute
 
 parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/ob>rRunForE.py -e e3.6/ -td data/20140204/ -pd data/20140205/')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
@@ -14,8 +15,6 @@ parser.add_argument('-dt',required=False,help='No of day from start for which it
 args = parser.parse_args()
 
 
-import subprocess
-
 if args.a is not None:
     algo = args.a
 else:
@@ -26,7 +25,9 @@ if args.dt == None:
 
 dirName = args.td.replace('/ro/','/wf/')
 scriptName=args.e+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + os.path.basename(os.path.abspath(args.dt)) + ".r"
-utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
+trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,dirName)
+trainingDataListString = "\"" + ";".join(trainingDataList) + "\""
+utility.runCommand([scriptName,"-d",trainingDataListString],args.run,args.sequence)
 
 dirName = args.pd.replace('/ro/','/wf/')    
 scriptName=args.e+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd"  + os.path.basename(os.path.abspath(args.pd)) + ".r"

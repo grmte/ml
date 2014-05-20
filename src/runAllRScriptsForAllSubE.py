@@ -4,6 +4,7 @@ import utility
 import multiprocessing  # read https://medium.com/building-things-on-the-internet/40e9b2b36148
 from functools import partial
 import os
+import attribute
 
 def parseCommandLine():
    parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/ob>rRunForE.py -e e3.6/ -td data/20140204/ -pd data/20140205/')
@@ -25,9 +26,11 @@ def getTrainPredictCommandList(experimentFolder,algoName,trainFolder,predictFold
    # lets make a list of all the scripts that need to be run
    trainPredictScriptNames = glob.glob(experimentFolder+"/trainPredict"+algoName+"-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays + "-pd." + os.path.basename(os.path.abspath(predictFolder)) +"-For*.r")
    trainDirName = trainFolder.replace('/ro/','/wf/')
+   trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,trainDirName)
+   trainingDataListString = "\"" + ";".join(trainingDataList) + "\""  
    predictDirName = predictFolder.replace('/ro/','/wf/')
    for trainPredictScriptName in trainPredictScriptNames:
-      commandList.append([trainPredictScriptName,"-td",trainDirName,"-pd",predictDirName])
+      commandList.append([trainPredictScriptName,"-td",trainingDataListString,"-pd",predictDirName])
    return commandList    
 
 def getTrainCommandList(experimentFolder,algoName,trainFolder,pNumberOfDays):
@@ -35,8 +38,10 @@ def getTrainCommandList(experimentFolder,algoName,trainFolder,pNumberOfDays):
    # lets make a list of all the scripts that need to be run
    trainScriptNames = glob.glob(experimentFolder+"/train" + algoName + "-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays +"-For*.r")
    dirName = trainFolder.replace('/ro/','/wf/')
+   trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,dirName)
+   trainingDataListString = "\"" + ";".join(trainingDataList) + "\"" 
    for trainScriptName in trainScriptNames:
-      commandList.append([trainScriptName,"-d",dirName])
+      commandList.append([trainScriptName,"-d",trainingDataListString])
    return commandList
 
 def getPredictCommandList(experimentFolder,algoName,predictFolder,trainFolder,pNumberOfDays):
