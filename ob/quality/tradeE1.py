@@ -14,6 +14,7 @@ parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
+parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 # "sequence of commands" is not required since this does not generate sub commands.
 args = parser.parse_args()
 

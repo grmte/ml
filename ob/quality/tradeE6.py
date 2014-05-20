@@ -16,6 +16,7 @@ parser.add_argument('-td', required=True,help='Directory of the training data fi
 parser.add_argument('-pd', required=True,help='Directory of the prediction data file')
 parser.add_argument('-dt',required=False,help="Number of days it was trained")  
 parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
+parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -38,7 +39,7 @@ else:
     mainExperimentName = pathAfterE
     
 experimentName = os.path.basename(absPathOfExperimentName)
-gTickSize = 25000
+gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
 initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \

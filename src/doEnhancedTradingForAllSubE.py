@@ -33,11 +33,11 @@ for designFile in designFiles:
 def scriptWrapper(experimentName):
     try:
         utility.runCommand(["./ob/quality/trade"+args.TE+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
         utility.runCommand(["./ob/quality/trade"+args.TE+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","75","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
         utility.runCommand(["./ob/quality/trade"+args.TE+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","60","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
     except:
         pass
 if args.sequence == 'lp':

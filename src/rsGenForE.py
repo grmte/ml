@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import argparse,os
+from datetime import timedelta
 from datetime import datetime
 import utility
 
@@ -22,6 +23,7 @@ parser.add_argument('-sequence', required=True,help='dp/lp/serial')
 parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No . Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No. Defaults to yes")
+parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -43,25 +45,35 @@ if args.targetClass == None:
     print "Since no class of target variable is specified so taking binomial class of target variable"
 # only run the set of programs if the trading results file does not exist
 
-utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.td,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
-utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)        
+num_of_training_days = int(args.dt)
+l_training_day_folder_base_date = os.path.basename(os.path.abspath(args.td))
+l_start_training_date = datetime.strptime(l_training_day_folder_base_date, '%Y%m%d')
+for index in range(num_of_training_days):
+    l_training_date = l_start_training_date + timedelta(days = index)
+    if( l_training_date.weekday() == 5 or l_training_date.weekday() == 6): # Day is monday
+        continue
+    l_training_date_in_string = l_training_date.strftime('%Y%m%d')
+    l_training_date_full_path_name = args.td.replace(l_training_day_folder_base_date,l_training_date_in_string) 
+    utility.runCommand(["aGenForE.py","-e",args.e,"-d",l_training_date_full_path_name,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
+
+utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
                     '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 if args.targetClass == "multinomial" :
 #    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","55","-exitCL","45","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","60","-exitCL","40","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","50","-exitCL","25","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
 else:
     utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","75","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE6.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","60","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)

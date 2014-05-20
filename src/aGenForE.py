@@ -13,6 +13,7 @@ def parseCommandLine():
     parser.add_argument('-g', required=True,help='Directory of geneartors')
     parser.add_argument('-run', required=True,help='dry or real')
     parser.add_argument('-sequence', required=True,help='ld (local distributed) or pd(parallel distributed)')
+    parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options give 5')
     args = parser.parse_args()
     return args
 
@@ -22,15 +23,15 @@ def getAttributesOfExprement(experimentFolder):
     attributes.update(config["target"])
     return attributes
 
-def genAttribute(attributeName,dataFolder,generatorsFolder):
+def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize):
     commandLine = []
     if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
         startPos = attributeName.find("[")
         endPos = attributeName.find("]") + 1
         firstAttributeName = attributeName[0:startPos]
         secondAttributeName = attributeName[endPos:]
-        commandLine.append(genAttribute(firstAttributeName,dataFolder,generatorsFolder)) # recursive call
-        commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder)) # recursive call
+        commandLine.append(genAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize)) # recursive call
+        commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize)) # recursive call
         operatorName = attributeName[startPos:endPos]
         attributeFile = attribute.getOutputFileNameFromAttributeName(attributeName,dataFolder)
         if "DivideBy" in operatorName:
@@ -44,14 +45,14 @@ def genAttribute(attributeName,dataFolder,generatorsFolder):
             
         return commandLine   
 
-    return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder)
+    return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder,pTickSize)
 
-def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder):
+def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder,pTickSize):
     """
     Support the user friendly attribute name is fColBidP0InCurrentRow this will return fColCInCurrentRow -c BidP0 
     """
     paramList = []
-    paramList = ["aGen.py","-d",dataFolder]
+    paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
 
     # Getting the moduleName from the attributeName
     if "Col" in pUserFriendlyAttributeName:
@@ -107,7 +108,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     return commandLine
 
 
-def getCommandList(experimentFolder,dataFolder,generatorsFolder):
+def getCommandList(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
     attributes = getAttributesOfExprement(experimentFolder)
     for f in attributes:
@@ -115,7 +116,7 @@ def getCommandList(experimentFolder,dataFolder,generatorsFolder):
         print "\nGenerating for " + attributeName
 #        if "obwave" in attributeName or "obaverge" in attributeName:
 #            continue
-        command = genAttribute(attributeName,dataFolder,generatorsFolder)
+        command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize)
         commandList.extend(command)
     return commandList    
 
@@ -124,7 +125,7 @@ def main():
     experimentFolder = args.e
     dataFolder = args.d
     generatorsFolder = args.g
-    commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder)
+    commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
     return utility.runCommandList(commandList,args)
 
 
