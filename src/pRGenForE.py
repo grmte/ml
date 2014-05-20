@@ -34,7 +34,7 @@ def main():
     else:
         algo =args.a
 
-    rProgName = "predict-"+algo+".r"
+    rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) + ".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 

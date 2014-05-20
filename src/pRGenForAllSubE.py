@@ -43,7 +43,7 @@ def main():
     if not os.path.exists(predictDataDirectoryName):
         os.mkdir(predictDataDirectoryName)
         
-    rProgName = "predict-"+algo+"For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
+    rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) +"-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 

@@ -3,6 +3,7 @@ import argparse, glob
 import utility
 import multiprocessing  # read https://medium.com/building-things-on-the-internet/40e9b2b36148
 from functools import partial
+import os
 
 def parseCommandLine():
    parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/ob>rRunForE.py -e e3.6/ -td data/20140204/ -pd data/20140205/')
@@ -10,35 +11,38 @@ def parseCommandLine():
    parser.add_argument('-a', required=True,help='Algorithm name')
    parser.add_argument('-td', required=True,help='Training directory')
    parser.add_argument('-pd', required=True,help='Prediction directory')
+   parser.add_argument('-dt',required=False,help='No of day from start for which it is to be trained ')
    parser.add_argument('-run', required=True,help='Real or Dry')
    parser.add_argument('-sequence', required=True,help='lp (local parallel) / dp (distributed parallel) / Serial')
    parser.add_argument('-mpMearge',required=True,help="yes or no , If you want to separate model and prediction files then make this no")
    args = parser.parse_args()
+   if args.dt == None:
+       args.dt = "1"
    return args
 
-def getTrainPredictCommandList(experimentFolder,algoName,trainFolder,predictFolder):
+def getTrainPredictCommandList(experimentFolder,algoName,trainFolder,predictFolder,pNumberOfDays):
    commandList = list()
    # lets make a list of all the scripts that need to be run
-   trainPredictScriptNames = glob.glob(experimentFolder+"/train-predict-"+algoName+"For*.r")
+   trainPredictScriptNames = glob.glob(experimentFolder+"/trainPredict"+algoName+"-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays + "-pd." + os.path.basename(os.path.abspath(predictFolder)) +"-For*.r")
    trainDirName = trainFolder.replace('/ro/','/wf/')
    predictDirName = predictFolder.replace('/ro/','/wf/')
    for trainPredictScriptName in trainPredictScriptNames:
       commandList.append([trainPredictScriptName,"-td",trainDirName,"-pd",predictDirName])
    return commandList    
 
-def getTrainCommandList(experimentFolder,algoName,trainFolder):
+def getTrainCommandList(experimentFolder,algoName,trainFolder,pNumberOfDays):
    commandList = list()
    # lets make a list of all the scripts that need to be run
-   trainScriptNames = glob.glob(experimentFolder+"/train-"+algoName+"For*.r")
+   trainScriptNames = glob.glob(experimentFolder+"/train" + algoName + "-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays +"-For*.r")
    dirName = trainFolder.replace('/ro/','/wf/')
    for trainScriptName in trainScriptNames:
       commandList.append([trainScriptName,"-d",dirName])
    return commandList
 
-def getPredictCommandList(experimentFolder,algoName,predictFolder):
+def getPredictCommandList(experimentFolder,algoName,predictFolder,trainFolder,pNumberOfDays):
    commandList = list()
    # lets make a list of all the scripts that need to be run
-   predictScriptNames = glob.glob(experimentFolder+"/predict-"+algoName+"For*.r")
+   predictScriptNames = glob.glob(experimentFolder+"/predict" + algoName + "-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays + "-pd." + os.path.basename(os.path.abspath(predictFolder)) +"-For*.r")
    dirName = predictFolder.replace('/ro/','/wf/')      
    for predictScriptName in predictScriptNames:
       commandList.append([predictScriptName,"-d",dirName])
@@ -54,14 +58,14 @@ def main():
    trainDataFolder = args.td
    predictDataFolder = args.pd
    if args.mpMearge.lower() == "yes":
-       commandList = getTrainPredictCommandList(experimentFolder,args.a,trainDataFolder,predictDataFolder)
+       commandList = getTrainPredictCommandList(experimentFolder,args.a,trainDataFolder,predictDataFolder,args.dt)
        if args.sequence == 'lp':
           pool = multiprocessing.Pool() # this will return the number of CPU's
           results = pool.map(wrapper,commandList) # Calls trainWrapper function with each element of list trainScriptNames
        else:
           results = map(wrapper,commandList)           
    else: 
-       commandList = getTrainCommandList(experimentFolder,args.a,trainDataFolder)
+       commandList = getTrainCommandList(experimentFolder,args.a,trainDataFolder,args.dt)
        if args.sequence == 'lp':
           # to run it in local parallel mode
           pool = multiprocessing.Pool() # this will return the number of CPU's
@@ -69,7 +73,7 @@ def main():
        else:
           results = map(wrapper,commandList)
     
-       commandList = getPredictCommandList(experimentFolder,args.a,predictDataFolder)
+       commandList = getPredictCommandList(experimentFolder,args.a,predictDataFolder,trainDataFolder,args.dt)
        if args.sequence == 'lp':
           # to run it in local parallel mode
           pool = multiprocessing.Pool() # this will return the number of CPU's

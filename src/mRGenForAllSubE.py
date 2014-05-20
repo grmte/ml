@@ -34,7 +34,7 @@ def main():
     algo = rCodeGen.getAlgoName(args)
 
     args.s = args.s + "/"
-    rProgName = "train-"+algo+"For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
+    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
