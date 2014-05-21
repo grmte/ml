@@ -26,7 +26,9 @@ if args.dt == None:
 dirName = args.td.replace('/ro/','/wf/')
 scriptName=args.e+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + os.path.basename(os.path.abspath(args.dt)) + ".r"
 trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,dirName)
-trainingDataListString = "\"" + ";".join(trainingDataList) + "\""
+trainingDataListString = ";".join(trainingDataList)
+if len(trainingDataList) > 1 :
+    trainingDataListString = "\"" + trainingDataListString + "\""
 utility.runCommand([scriptName,"-d",trainingDataListString],args.run,args.sequence)
 
 dirName = args.pd.replace('/ro/','/wf/')    

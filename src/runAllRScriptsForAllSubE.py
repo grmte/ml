@@ -27,7 +27,9 @@ def getTrainPredictCommandList(experimentFolder,algoName,trainFolder,predictFold
    trainPredictScriptNames = glob.glob(experimentFolder+"/trainPredict"+algoName+"-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays + "-pd." + os.path.basename(os.path.abspath(predictFolder)) +"-For*.r")
    trainDirName = trainFolder.replace('/ro/','/wf/')
    trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,trainDirName)
-   trainingDataListString = "\"" + ";".join(trainingDataList) + "\""  
+   trainingDataListString = ";".join(trainingDataList)
+   if len(trainingDataList)>1:
+      trainingDataListString = "\"" + trainingDataListString + "\""      
    predictDirName = predictFolder.replace('/ro/','/wf/')
    for trainPredictScriptName in trainPredictScriptNames:
       commandList.append([trainPredictScriptName,"-td",trainingDataListString,"-pd",predictDirName])
@@ -39,7 +41,9 @@ def getTrainCommandList(experimentFolder,algoName,trainFolder,pNumberOfDays):
    trainScriptNames = glob.glob(experimentFolder+"/train" + algoName + "-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays +"-For*.r")
    dirName = trainFolder.replace('/ro/','/wf/')
    trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,dirName)
-   trainingDataListString = "\"" + ";".join(trainingDataList) + "\"" 
+   trainingDataListString = ";".join(trainingDataList)
+   if len(trainingDataList)>1:
+      trainingDataListString = "\"" + trainingDataListString + "\"" 
    for trainScriptName in trainScriptNames:
       commandList.append([trainScriptName,"-d",trainingDataListString])
    return commandList
