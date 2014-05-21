@@ -22,7 +22,7 @@ def extractAttributeFromDataMatrix(args):
 
    colNumberOfAttribute = eval("colNumberOfData."+ args.c )
       
-   lPipSize = 25000
+   lPipSize = int(args.tickSize)
 
    """ lets get the total of futureNrows"""
    futureLTQSum = 0

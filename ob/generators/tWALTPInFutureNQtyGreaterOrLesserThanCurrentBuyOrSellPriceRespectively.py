@@ -14,8 +14,7 @@ def extractAttributeFromDataMatrix(args):
        os._exit(-1)
    totalOfFutureLTQQty = int(args.n)
 
-   lTransactionCost = 0.000015
-   lPipSize = 25000
+   lPipSize = int(args.tickSize)
    lMargin1 =  ( 1 * lPipSize ) 
    lMargin2 = lMargin1 + ( 2 * lPipSize )
 

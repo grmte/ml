@@ -16,6 +16,7 @@ parser.add_argument('-exitCL', required=True,help='Percentage of the confidence 
 parser.add_argument('-entryCLCutoff', required=True,help='Percentage of the confidence level below which dont enter the trades')
 parser.add_argument('-exitCLCutoff', required=True,help='Percentage of the confidence level above which dont exit the trades')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
+parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -41,7 +42,7 @@ initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) 
                '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \
                '-l.'+args.entryCL+"-"+args.exitCL + "-te4"   
 
-gTickSize = 25000
+gTickSize = int(args.tickSize)
 def getPredictedValuesIntoDict(pPredictedValuesDict):
     # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
     dirName = args.pd.replace('/ro/','/wf/')

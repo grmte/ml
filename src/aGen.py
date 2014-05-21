@@ -19,6 +19,7 @@ def parseCommandLine():
     parser.add_argument('-c', required=False,help='Column name')
     parser.add_argument('-cType', required=False,help='primary / synthetic')
     parser.add_argument('-n', required=False,help='Number of rows / cols / seconds / Qty')
+    parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options data give 5')
     # This is a command and it does not have sub commands. Hence it does not need 
     # 1. A "sequence of commands" as a parameter.
     # 2. Whether the command is to be run in dry more or real mode.
