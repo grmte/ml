@@ -37,7 +37,7 @@ else:
 if args.f == "0":
     desired_statistic_names = ["FeatureCombination","EntryCL","ExitCL","TotalSellQty","TotalBuyQty","AvgSellP","AvgBuyPrice","AvgGrossProfit","AvgNetProfit"]
 else:
-    desired_statistic_names = ["FeatureCombination","EntryCL","ExitCL","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit","AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit","AvgLongNetProfit" ]
+    desired_statistic_names = ["AlgorithmUsed","TrainingDirectory","NoOfDaysForTraining","targetClass","FeatureCombination","EntryCL","ExitCL","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit","AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit","AvgLongNetProfit","AvgNetProfit"]
 #os.chdir("")    # Directory name needed
 summary_file_name = args.d + "Accumulated_Results_for_experiment_" + os.path.basename(os.path.abspath(args.e))+ "_on_date_" +time.strftime("%d_%m_%Y") + ".csv"
 print "\nOpening Trade Result file : ", summary_file_name
@@ -58,10 +58,14 @@ for name in desired_statistic_names:
 write_file_object.write("\n")    # Header done
 
 for file_name in filtered_file_list:
-    
-    feature = file_name[:file_name.index(args.a[0])]
-    entryCL = file_name[file_name.index("."):file_name.index("-")]
-    exitCL = file_name[file_name.index("-")+1:file_name.rindex("E")]
+    algoName = file_name[:file_name.index("-")]
+    trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-dt.")]
+    noOfDaysForTraining = file_name[file_name.index("-dt.") + 4:file_name.index("-targetClass.")]
+    targetClass = file_name[file_name.index("-targetClass.") + 13:file_name.index("-f.")]
+    feature = file_name[file_name.index("-f.") + 3:file_name.index("-l.")]
+    entryCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-te")][:(file_name[file_name.index("-l.") + 3:file_name.index("-te")]).index("-")]   
+    exitCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-te")][(file_name[file_name.index("-l.") + 3:file_name.index("-te")]).index("-")+1:]  
+    tradeEngine = file_name[file_name.index(".result")-1:file_name.index(".result")]        
     temp_read_file_object = open(args.d + file_name, "r")
     line_list = temp_read_file_object.readlines()
     l_line_to_be_printed = ""
@@ -119,9 +123,9 @@ for file_name in filtered_file_list:
             lAvgNetProfitLong = ( (lAvgGrossProfitLong * max( lTotOpenBuyQty , lTotCloseSellQty )) - lTransactionCostLong )  / max( lTotOpenBuyQty , lTotCloseSellQty )
         except:
             lAvgNetProfitLong = 0.0
-            
-        l_list_to_printed = [feature ,entryCL, exitCL ,str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
-                             str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),str(lAvgNetProfitLong)]
+        lSumOfAvgNetProfitLongAndShort = lAvgNetProfitShort + lAvgNetProfitLong   
+        l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , targetClass , feature , entryCL , exitCL , tradeEngine , str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
+                             str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),str(lAvgNetProfitLong),str(lSumOfAvgNetProfitLongAndShort)]
         l_line_to_be_printed = ";".join(l_list_to_printed)
     
     write_file_object.write(l_line_to_be_printed+"\n")
