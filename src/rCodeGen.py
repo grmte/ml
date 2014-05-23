@@ -65,8 +65,8 @@ def ToReadTargetFile(rScript,config):
     rScript.write('print ("Section2: Read target files") \n')
     lTargetSet = config["target"]
     rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
-    rScript.write('lengthOfEachDay = numeric()\n')
     for target in lTargetSet:
+        rScript.write('lengthOfEachDay = numeric()\n')
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
