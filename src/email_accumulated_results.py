@@ -50,8 +50,8 @@ def start_mail(p_files,pExperimentNo,message):
     l_subject = "Machine Learning Accumulated results of experiment" + pExperimentNo 
     l_send_to = ['ajay@spalgo.com', 'vikas@spalgo.com', 'mike@mbowles.com']
     l_send_to = ["dipika@spalgo.com"]
-    l_send_cc = ['saptarshi@spalgo.com','tulasi@spalgo.com', 'rahul@spalgo.com']
-    l_send_cc = ['rahul@spalgo.com']
+    l_send_cc = ['saptarshi@spalgo.com','parth@spalgo.com', 'rahul@spalgo.com']
+#    l_send_cc = ['rahul@spalgo.com']
     l_send_from = "MLDailyExperimentResult"
     send_mail(l_send_from, l_send_to, l_send_cc, l_subject, l_msg_body, p_files)
     
