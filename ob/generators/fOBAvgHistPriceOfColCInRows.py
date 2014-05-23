@@ -319,9 +319,9 @@ def extractAttributeFromDataMatrix(args):
       # In the next 2 rows we do not do -1 since this feature if for the current row.
       attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp,args.cType)
       if args.c == "Ask":
-        attribute.aList[currentRowCount][1] = g_filtered_object_list[currentRowCount].sum_qty_for_avg_cal_Ask
+        attribute.aList[currentRowCount][1] = g_filtered_object_list[currentRowCount].sum_qty_for_avg_cal_Ask/float(g_filtered_object_list[currentRowCount].window_Ask)
       else:
-        attribute.aList[currentRowCount][1] = g_filtered_object_list[currentRowCount].sum_qty_for_avg_cal_Bid    
+        attribute.aList[currentRowCount][1] = g_filtered_object_list[currentRowCount].sum_qty_for_avg_cal_Bid/float(g_filtered_object_list[currentRowCount].window_Bid)
 
       currentRowCount = currentRowCount + 1
 
