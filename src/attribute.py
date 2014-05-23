@@ -71,7 +71,11 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
       else:
          timeStamp = firstMatrix[currentRowCount][0]
          if(pOperand == "DivideBy"):
-            value = float(firstMatrix[currentRowCount][1]) / float(secondMatrix[currentRowCount][1])
+            try:
+               value = float(firstMatrix[currentRowCount][1]) / float(secondMatrix[currentRowCount][1])
+            except:
+               value = float(1)
+               print 'Float Division Error , taking value to be 1 therefore'
          elif(pOperand == "Add"):
             value = float(firstMatrix[currentRowCount][1]) + float(secondMatrix[currentRowCount][1])
          elif(pOperand == "Subtract"):

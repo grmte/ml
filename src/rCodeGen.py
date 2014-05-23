@@ -66,20 +66,46 @@ def ToReadTargetFile(rScript,config):
     lTargetSet = config["target"]
     rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
     for target in lTargetSet:
+        rScript.write('lengthOfEachDay = numeric()\n')
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
-        rScript.write('if (!lFlag){\n')
-        rScript.write(target+'<- read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
-        rScript.write('lFlag=TRUE\n')   
-        rScript.write('}\n')
-        rScript.write('else{\n')
-        rScript.write('temp<-read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
-        rScript.write(target+'<-rbind('+target+',temp)\n')
-        rScript.write('rm(temp)\n')
-        rScript.write('}\n')
-        rScript.write('print ("Reading '+ lTargetSet[target] +'.target' + '") \n')
+        rScript.write('    if (!lFlag){\n')
+        rScript.write('        ' + target+'<- read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(' + target + '))\n')
+        rScript.write('        lFlag=TRUE\n')   
+        rScript.write('    }\n')
+        rScript.write('    else{\n')
+        rScript.write('        temp<-read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(temp))\n')
+        rScript.write('        '+target+'<-rbind('+target+',temp)\n')
+        rScript.write('        rm(temp)\n')
+        rScript.write('    }\n')
+        rScript.write('    print ("Reading '+ lTargetSet[target] +'.target' + '") \n')
         rScript.write('}\n')
 
+def ForWtVectorGeneration(rScript,weightType):
+    rScript.write('lWtType="'+weightType+'"\n')
+    rScript.write('weightVector = numeric()\n')
+    rScript.write('print(lengthOfEachDay)\n')
+    rScript.write('sumOfAllDaysLength = sum(lengthOfEachDay)\n')
+    rScript.write('sumOfDaysExp = 0\n')
+    rScript.write('lDayIndex = 0\n')
+    rScript.write('for (len in lengthOfEachDay){\n')
+    rScript.write('    temp = numeric(len)\n')
+    rScript.write('    if( lWtType=="default"){\n')
+    rScript.write('        temp = temp+1\n')
+    rScript.write('    }else if( lWtType =="exp"){\n')
+    rScript.write('        valueToBeAddedToVector = exp(lDayIndex)\n')
+    rScript.write('        temp = temp + valueToBeAddedToVector \n')
+    rScript.write('        sumOfDaysExp = sumOfDaysExp + ( valueToBeAddedToVector * len)\n')
+    rScript.write('    }\n')
+    rScript.write('    lDayIndex = lDayIndex + 1\n')
+    rScript.write('    weightVector = c(weightVector,temp)\n')
+    rScript.write('}\n')
+    rScript.write('if(lWtType=="exp"){\n')
+    rScript.write('    weightVector = ( sumOfAllDaysLength / sumOfDaysExp ) * weightVector\n')
+    rScript.write('}\n')
+    
 def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
     features = config["features"]
     rScript.write('\nprint ("Section3: Read feature files") \n')
@@ -90,16 +116,16 @@ def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
     for feature in features:
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
-        rScript.write('if (!lFlag){\n')
-        rScript.write(feature+'<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
-        rScript.write('lFlag=TRUE\n')
-        rScript.write('}\n')
-        rScript.write('else {\n')  
-        rScript.write('temp<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')  
-        rScript.write(feature+'<-rbind('+feature+',temp)\n')    
-        rScript.write('rm(temp)\n')
-        rScript.write('}\n')
-        rScript.write('print ("Reading '+ features[feature] +'.feature' + '") \n')
+        rScript.write('    if (!lFlag){\n')
+        rScript.write('        '+feature+'<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        lFlag=TRUE\n')
+        rScript.write('    }\n')
+        rScript.write('    else {\n')  
+        rScript.write('        temp<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')  
+        rScript.write('        '+feature+'<-rbind('+feature+',temp)\n')    
+        rScript.write('        rm(temp)\n')
+        rScript.write('    }\n')
+        rScript.write('    print ("Reading '+ features[feature] +'.feature' + '") \n')
         rScript.write('}\n')
 
 def ForSanityChecks(rScript,config):
@@ -151,7 +177,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(' + pTargetVariableKey + '[,2]),family=\''+args.targetClass+'\',alpha=1) \n'
+        lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(' + pTargetVariableKey + '[,2]),family=\''+args.targetClass+'\',alpha=1,weights=weightVector) \n'
         rScript.write(lStringToRunGlmnet) # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
     elif(args.a == 'logitr'):
         rScript.write('print ("Section7: Running logistic regression") \n')

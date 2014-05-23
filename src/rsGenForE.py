@@ -25,6 +25,7 @@ parser.add_argument('-targetClass',required=True,help="binomial(target takes onl
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No . Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No. Defaults to yes")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -33,7 +34,9 @@ if args.skipP == None:
     args.skipP = "yes"
 if args.dt == None:
     args.dt = "1"
-            
+if args.wt == None:
+    args.wt = "default"
+                
 if args.a is not None:
     algo = args.a
 else:
@@ -50,8 +53,9 @@ for trainingDirectory in lListofTrainingDirectories:
 
 utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
-                    '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP],args.run,args.sequence)
-utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+                    '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
+utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
+                     '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
 if args.targetClass == "multinomial" :
 #    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","55","-exitCL","45","-orderQty","500",\

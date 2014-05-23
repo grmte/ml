@@ -24,6 +24,7 @@ parser.add_argument('-skipP',required=False,help="yes or no , If you want to reg
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
 parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to separate model and prediction files then make this no .  Defaults to yes") 
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -36,7 +37,9 @@ if args.mpMearge == None:
     args.mpMearge = "yes"
 if args.dt == None:
     args.dt = "1"
-                
+if args.wt == None:
+    args.wt = "default"
+                    
 if(args.sequence == "dp"):
     import dp
 
@@ -75,7 +78,7 @@ else:
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
 
 utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-td",args.td , \
-                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,"-mpMearge",args.mpMearge,'-dt',args.dt],args.run,args.sequence)
+                    "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,"-mpMearge",args.mpMearge,'-dt',args.dt, '-wt' , args.wt],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
@@ -83,20 +86,20 @@ if(args.sequence == "dp"):
     import runAllRScriptsForAllSubE
 
     if args.mpMearge.lower() == "yes":
-        commandList = runAllRScriptsForAllSubE.getTrainPredictCommandList(args.e,args.a,args.td,args.pd,args.dt)
+        commandList = runAllRScriptsForAllSubE.getTrainPredictCommandList(args.e,args.a,args.td,args.pd,args.dt,args.wt)
         utility.runCommandList(commandList,args)
         print dp.printGroupStatus()
     else:                
-        commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td,args.dt)
+        commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td,args.dt,args.wt)
         utility.runCommandList(commandList,args)
         print dp.printGroupStatus()
     
-        commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd,args.td,args.dt)
+        commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd,args.td,args.dt,args.wt)
         utility.runCommandList(commandList,args)
         print dp.printGroupStatus()
 
 else:
-    utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,\
+    utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo, '-wt' , args.wt,\
                         "-dt",args.dt ,"-sequence",args.sequence,"-run",args.run,"-mpMearge",args.mpMearge],args.run,args.sequence)
     pass
 

@@ -12,6 +12,7 @@ parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-run', required=True,help='dry or real')
 parser.add_argument('-sequence', required=True,help='lp / dp / serial')
 parser.add_argument('-dt',required=False,help='No of day from start for which it is to be trained ')
+parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 
@@ -24,7 +25,7 @@ if args.dt == None:
     args.dt = "1"
 
 dirName = args.td.replace('/ro/','/wf/')
-scriptName=args.e+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + os.path.basename(os.path.abspath(args.dt)) + ".r"
+scriptName=args.e+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt +".r"
 trainingDataList = attribute.getListOfTrainingDirectoriesNames(args.dt,dirName)
 trainingDataListString = ";".join(trainingDataList)
 if len(trainingDataList) > 1 :
@@ -32,7 +33,8 @@ if len(trainingDataList) > 1 :
 utility.runCommand([scriptName,"-d",trainingDataListString],args.run,args.sequence)
 
 dirName = args.pd.replace('/ro/','/wf/')    
-scriptName=args.e+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd"  + os.path.basename(os.path.abspath(args.pd)) + ".r"
+scriptName=args.e+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +\
+             "-pd"  + os.path.basename(os.path.abspath(args.pd)) + "-wt." + args.wt +".r"
 utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
 
 

@@ -13,6 +13,7 @@ def main():
     parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
     parser.add_argument('-td',required=True,help="Day on which it was trained")
     parser.add_argument('-dt',required=True,help="Number of days it was trained")
+    parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
     args = parser.parse_args()
 
     if args.skipM == None:
@@ -29,7 +30,7 @@ def main():
 
     algo = rCodeGen.getAlgoName(args)
 
-    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + ".r"
+    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt +".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -43,6 +44,7 @@ def main():
     
     rCodeGen.ForSetUpChecks(rScript)
     rCodeGen.ToReadTargetFile(rScript,config)
+    rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
     for target in config['target']:
