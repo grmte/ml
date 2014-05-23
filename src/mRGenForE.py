@@ -48,7 +48,8 @@ def main():
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
     for target in config['target']:
-        lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '.model'
+        lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
         if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
             print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
         else:

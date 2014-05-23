@@ -51,16 +51,6 @@ def ForSetUpChecksForTrainPredictTogather(rScript):
     rScript.write('   stop ("cannot proceed. Specify the parameters properly. The correct way to use this is train-predict.r -td data/20140207 -pd data/20140208") \n')    
     rScript.write('} \n')
     
-def CheckIfPredictionsFileAlreadyExists(rScript,args,pUseWhichArgumentForData=2):
-    rScript.write('print ("Section2: Checking if predictions file already exists") \n')
-    if pUseWhichArgumentForData == 4:
-        rScript.write('fileName = paste(args[4],"/p/","'+os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
-    else:
-        rScript.write('fileName = paste(args[2],"/p/","'+os.path.basename(os.path.dirname(args.e))+'/'+ os.path.basename(os.path.dirname(args.e)) + args.a +'.predictions",sep="") \n')
-    rScript.write('if(file.exists(fileName)){ \n')
-    rScript.write("    print ('Warning: The predictions already exist. Is this what you expected?') \n")
-    rScript.write("} \n")
-
 def ToReadTargetFile(rScript,config):
     rScript.write('print ("Section2: Read target files") \n')
     lTargetSet = config["target"]
@@ -216,7 +206,8 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
 
 def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     algo = getAlgoName(args)    
-    outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +'.model'
+    outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                     args.targetClass + "-wt." + args.wt +'.model'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")')
 
@@ -224,7 +215,8 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     features = config["features"]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     algo = getAlgoName(args)
-    predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '.model'
+    predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
+                        "-wt." + args.wt + '.model'
     rScript.write('\nprint ("Section6: Read in prediction model'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'") \n')
     rScript.write('load("'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'")')
 
@@ -295,12 +287,15 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
     
     rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/' + args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +'.predictions") \n')
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) + \
+                                 "-wt." + args.wt +'.predictions") \n')
     if pUseWhichArgumentForData == 4:
         rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ '.predictions",sep="") \n')
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ \
+                                 "-wt." + args.wt +'.predictions",sep="") \n')
     else:
         rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +'.predictions",sep="") \n')
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +\
+                                 "-wt." + args.wt + '.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')

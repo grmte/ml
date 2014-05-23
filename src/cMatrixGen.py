@@ -8,9 +8,19 @@ parser = argparse.ArgumentParser(description='This program will generate a confu
 parser.add_argument('-d', required=True,help='Directory of the data file')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
+parser.add_argument('-pd', required=True,help='Prediction directory')
+parser.add_argument('-dt',required=False,help="Number of days for which it has to be run")
+parser.add_argument('-targetClass',required=True,help="binomial/multinomial")
+parser.add_argument('-td',required=True,help="training directory")
+parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
 # This is a command and it does not have sub commands. Hence it does not need a "sequence of commands" as a parameter.
 args = parser.parse_args()
 
+if args.dt == None:
+    args.dt = 1
+if args.wt == None:
+    args.wt = "default"
+    
 from configobj import ConfigObj
 eDesignConfigObj = ConfigObj(args.e+"/design.ini")
  
@@ -26,7 +36,7 @@ experimentName = os.path.basename(absPathOfExperimentName)
 
 print "\nStarting to generate the confusion matrix"
 
-dirName = args.d.replace('/ro/','/wf/')
+dirName = args.td.replace('/ro/','/wf/')
 def matrixUpdate(pPredictedProb,pActualValue):
     #print pPredictedProb,pActualValue
 
@@ -56,7 +66,8 @@ def matrixUpdate(pPredictedProb,pActualValue):
 
 targetSet = eDesignConfigObj["target"]
 for target in targetSet.keys():
-    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+experimentName+args.a+"-"+ target+".predictions"
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
     print "Reading predicted values from: "+ predictedValuesFileName
     predictedValuesFile = open(predictedValuesFileName)
     
@@ -115,7 +126,7 @@ for target in targetSet.keys():
      
     print "\nPredicted event not found in actual event = " + str(predictedValueNotFoundInActualValue)
     
-    cMatrixDirName = args.d.replace('/ro/','/rs/')
+    cMatrixDirName = args.td.replace('/ro/','/rs/')
     cMatrixDataDirectoryName = cMatrixDirName+"/c/"
     if not os.path.exists(cMatrixDataDirectoryName):
         os.mkdir(cMatrixDataDirectoryName)

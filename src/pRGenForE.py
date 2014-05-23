@@ -35,7 +35,7 @@ def main():
         algo =args.a
 
     rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
-                + "-wt." + args.wt +".r"
+                + "-wt." + args.wt + "-wt." + args.wt + ".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -50,12 +50,12 @@ def main():
         rScript.write('require (randomForest) \n')
 
     rCodeGen.ForSetUpChecks(rScript)
-    rCodeGen.CheckIfPredictionsFileAlreadyExists(rScript,args)
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
     for target in config['target']:
         predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
-        + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.e)) + ".predictions"
+        + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.e)) + \
+        "-wt." + args.wt +".predictions"
         if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
             rCodeGen.ForPredictions(rScript,config,args,args.e,target)
         else:

@@ -55,7 +55,6 @@ def main():
         rScript.write('require (randomForest) \n')
 
     rCodeGen.ForSetUpChecks(rScript)
-    rCodeGen.CheckIfPredictionsFileAlreadyExists(rScript,args)
     rCodeGen.ToReadFeatureFiles(rScript,config)
     rCodeGen.ForSanityChecks(rScript,config)
 
@@ -67,7 +66,8 @@ def main():
         config = ConfigObj(designFile)
         for target in config['target']:
             predictionFileName = predictDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) +".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) + \
+                                 "-wt." + args.wt +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 rCodeGen.ForPredictions(rScript,config,args,designFile,target)
             else:

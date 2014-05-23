@@ -16,13 +16,16 @@ parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Futur
 parser.add_argument('-dt',required=False,help="Number of days for which it has to be run")
 parser.add_argument('-targetClass',required=True,help="binomial/multinomial")
 parser.add_argument('-td',required=True,help="training directory")
+parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 if args.skipT == None:
     args.skipT = "yes"
 if args.dt == None:
     args.dt = 1
-
+if args.wt == None:
+    args.wt = "default"
+    
 if(args.sequence == "dp"):
     import dp
 
@@ -39,11 +42,11 @@ for designFile in designFiles:
 def scriptWrapper(experimentName):
     try:
         utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
         utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","75","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
         utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","60","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize],args.run,args.sequence)
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
     except:
         pass
 if args.sequence == 'lp':

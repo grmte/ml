@@ -91,7 +91,8 @@ def main():
             del features[key]
         #--------------MODEL--------------------
         for target in config['target']:
-            lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +  '.model'
+            lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+            '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
             if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:
@@ -101,7 +102,8 @@ def main():
         
         #--------------Prediction Part--------------------
             predictionFileName = predictionDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) +".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) +\
+                                 "-wt." + args.wt +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 rCodeGen.ForPredictions(rScript,configForPredictions,args,designFile,target,4)
             else:
