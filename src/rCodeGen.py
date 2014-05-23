@@ -84,15 +84,16 @@ def ToReadTargetFile(rScript,config):
         rScript.write('}\n')
 
 def ForWtVectorGeneration(rScript,weightType):
+    rScript.write('lWtType="'+weightType+'"\n')
     rScript.write('weightVector = numeric()\n')
     rScript.write('sumOfAllDaysLength = sum(lengthOfEachDay)\n')
     rScript.write('sumOfDaysExp = 0\n')
     rScript.write('lDayIndex = 0\n')
     rScript.write('for (len in lengthOfEachDay){\n')
     rScript.write('    temp = numeric(len)\n')
-    rScript.write('    if(' + weightType + '=="default"){\n')
+    rScript.write('    if( lWtType=="default"){\n')
     rScript.write('        temp = temp+1\n')
-    rScript.write('    }else if(' + weightType + '=="exp"){\n')
+    rScript.write('    }else if( lWtType =="exp"){\n')
     rScript.write('        valueToBeAddedToVector = exp(lDayIndex)\n')
     rScript.write('        temp = temp + valueToBeAddedToVector \n')
     rScript.write('        sumOfDaysExp = sumOfDaysExp + ( valueToBeAddedToVector * len)\n')
@@ -100,7 +101,7 @@ def ForWtVectorGeneration(rScript,weightType):
     rScript.write('    lDayIndex = lDayIndex + 1\n')
     rScript.write('    weightVector = c(weightVector,temp)\n')
     rScript.write('}\n')
-    rScript.write('if(' + weightType + '=="exp"){\n')
+    rScript.write('if(lWtType=="exp"){\n')
     rScript.write('    weightVector = ( sumOfAllDaysLength / sumOfDaysExp ) * weightVector\n')
     rScript.write('}\n')
     
