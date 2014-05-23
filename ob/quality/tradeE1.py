@@ -15,6 +15,7 @@ parser.add_argument('-entryCL', required=True,help='Percentage of the confidence
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 # "sequence of commands" is not required since this does not generate sub commands.
 args = parser.parse_args()
 
@@ -24,7 +25,9 @@ if args.dt == None:
     args.dt = "1"
 if args.targetClass == None:
     args.targetClass = "binomial"
-        
+if args.wt == None:
+    args.wt = "default"
+                        
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
@@ -38,7 +41,7 @@ else:
     
 experimentName = os.path.basename(absPathOfExperimentName)
 initialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \
+               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
                '-l.'+args.entryCL+"-"+args.exitCL + "-te1" 
 
 def getPredictedValuesIntoDict(pPredictedValuesDict):
@@ -47,7 +50,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     target = config["target"]
     dirName = args.pd.replace('/ro/','/wf/')
     predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)

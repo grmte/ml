@@ -17,6 +17,7 @@ parser.add_argument('-pd', required=True,help='Directory of the prediction data 
 parser.add_argument('-dt',required=False,help="Number of days it was trained")  
 parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -30,7 +31,9 @@ if args.dt == None:
     args.dt = "1"
 if args.targetClass == None:
     args.targetClass = "binomial"
-    
+if args.wt == None:
+    args.wt = "default"
+                    
 absPathOfExperimentName = os.path.abspath(args.e)
 pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
 if "/" in pathAfterE:
@@ -42,7 +45,7 @@ experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
 initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt +\
                    '-l.'+args.entryCL+"-"+args.exitCL + "-te6" 
 g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
@@ -71,7 +74,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     target = config["target"]
     lPredictedBuyValuesDict = dict()
     predictedBuyValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
     print("Buy Predicted values file : "+ predictedBuyValuesFileName)
     sys.stdout.flush()
     predictedBuyValuesFile = open(predictedBuyValuesFileName)
@@ -86,7 +89,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
 
     lPredictedSellValuesDict = dict()
     predictedSellValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[1] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
     print("Sell Predicted values file : "+ predictedSellValuesFileName)
     sys.stdout.flush()
     predictedSellValuesFile = open(predictedSellValuesFileName)

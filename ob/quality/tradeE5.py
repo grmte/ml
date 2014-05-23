@@ -17,6 +17,7 @@ parser.add_argument('-exitCL', required=True,help='Percentage of the confidence 
 parser.add_argument('-orderQty',required=True,help='Order Quantity with which we trade')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -30,7 +31,9 @@ if args.dt == None:
     args.dt = "1"
 if args.targetClass == None:
     args.targetClass = "binomial"
-    
+if args.wt == None:
+    args.wt = "default"
+                    
 absPathOfExperimentName = os.path.abspath(args.e)
 pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
 if "/" in pathAfterE:
@@ -42,7 +45,7 @@ experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
 initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + \
+                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
                     '-l.'+args.entryCL+"-"+args.exitCL + "-te5"    
 g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
@@ -53,7 +56,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
     predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
