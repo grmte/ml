@@ -54,7 +54,8 @@ for trainingDirectory in lListofTrainingDirectories:
 utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
                     '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
-utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
+                     '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
 if args.targetClass == "multinomial" :
 #    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-d",args.pd,"-e",args.e,"-a",algo,"-entryCL","55","-exitCL","45","-orderQty","500",\

@@ -86,20 +86,20 @@ if(args.sequence == "dp"):
     import runAllRScriptsForAllSubE
 
     if args.mpMearge.lower() == "yes":
-        commandList = runAllRScriptsForAllSubE.getTrainPredictCommandList(args.e,args.a,args.td,args.pd,args.dt)
+        commandList = runAllRScriptsForAllSubE.getTrainPredictCommandList(args.e,args.a,args.td,args.pd,args.dt,args.wt)
         utility.runCommandList(commandList,args)
         print dp.printGroupStatus()
     else:                
-        commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td,args.dt)
+        commandList = runAllRScriptsForAllSubE.getTrainCommandList(args.e,args.a,args.td,args.dt,args.wt)
         utility.runCommandList(commandList,args)
         print dp.printGroupStatus()
     
-        commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd,args.td,args.dt)
+        commandList = runAllRScriptsForAllSubE.getPredictCommandList(args.e,args.a,args.pd,args.td,args.dt,args.wt)
         utility.runCommandList(commandList,args)
         print dp.printGroupStatus()
 
 else:
-    utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo,\
+    utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo, '-wt' , args.wt,\
                         "-dt",args.dt ,"-sequence",args.sequence,"-run",args.run,"-mpMearge",args.mpMearge],args.run,args.sequence)
     pass
 

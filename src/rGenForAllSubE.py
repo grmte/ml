@@ -42,7 +42,7 @@ for algo in allAlgos:
     while i <= totalNumberOfFeatures:
         if args.mpMearge == "yes":
             utility.runCommand(["mpRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-skipP",args.skipP ,"-skipM",args.skipM,\
-                                "-td",args.td, "-dt" , args.dt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+                                "-td",args.td, "-dt" , args.dt ,  '-wt' , args.wt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
         else:
             utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt,"-skipM",args.skipM, '-wt' , args.wt,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
             utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt, '-wt' , args.wt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
