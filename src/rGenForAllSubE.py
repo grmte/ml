@@ -16,6 +16,7 @@ parser.add_argument('-targetClass',required=True,help="binomial(target takes onl
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
 parser.add_argument('-mpMearge',required=True,help="yes or no , If you want to separate model and prediction files then make this no")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -24,7 +25,9 @@ if args.skipP == None:
     args.skipP = "yes"
 if args.dt == None:
     args.dt = "1"
-        
+if args.wt == None:
+    args.wt = "default"
+            
 if args.a is not None:
     allAlgos = [args.a]
 else:
@@ -41,6 +44,6 @@ for algo in allAlgos:
             utility.runCommand(["mpRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-skipP",args.skipP ,"-skipM",args.skipM,\
                                 "-td",args.td, "-dt" , args.dt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
         else:
-            utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt,"-skipM",args.skipM,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
-            utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+            utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt,"-skipM",args.skipM, '-wt' , args.wt,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+            utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt, '-wt' , args.wt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
         i +=1

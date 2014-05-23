@@ -14,6 +14,7 @@ parser.add_argument('-skipP',required=False,help="yes or no , If you want to reg
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-td',required=True,help='Training Directory')
 parser.add_argument('-dt',required=False,help='No of day from start for which it is to be trained ')
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -22,6 +23,8 @@ if args.skipP == None:
     args.skipP = "yes"
 if args.dt == None:
     args.dt = "1"
+if args.wt == None:
+    args.wt = "default"
         
 import subprocess
 
@@ -33,5 +36,5 @@ else:
 
 
 for algo in allAlgos:
-    utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt],args.run,args.sequence)
-    utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , args.pd , "-dt" , args.dt , "-targetClass" , args.targetClass ],args.run,args.sequence)
+    utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt , '-wt' , args.wt],args.run,args.sequence)
+    utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , args.pd , "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , args.wt],args.run,args.sequence)
