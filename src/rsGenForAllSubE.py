@@ -53,9 +53,10 @@ if(args.sequence == "dp"):
     experimentFolder = args.e
     dataFolder = args.td
     generatorsFolder = args.g
+    commandList = []
     lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
     for trainingDirectory in lListofTrainingDirectories:
-        commandList = aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize)
+        commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
     commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
     # Seperate into 2 different list one for aGen and another for operateOnAttribute
 

@@ -1,4 +1,4 @@
-import fObwaveHistValueOfColCInLastNSecs as dd
+import fOBWaveHistQtyOfColCInLastNSecs as dd
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def calculate_current_wt_sum_for_theta_calculation(p_list, p_weight_list):

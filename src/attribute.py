@@ -146,10 +146,12 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             continue
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
         l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string) 
-        lTrainingDirectoryList.append(l_training_date_full_path_name)
-        countOfDaysTaken += 1
+        if (os.path.exists(l_training_date_full_path_name)):
+           lTrainingDirectoryList.append(l_training_date_full_path_name)
+           countOfDaysTaken += 1
         if countOfDaysTaken == int(pNumOfTrainingDays):
            break
+    print lTrainingDirectoryList
     return lTrainingDirectoryList
 
 def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder):
