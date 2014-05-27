@@ -84,15 +84,17 @@ Start rabbitmq using /ml/config/rabbitmq/rabbitmq.config
 root@scp1.ao:/home/vikas/ml> rm -rf /etc/rabbitmq/
 root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitmq
 
-11. to get a centos VM running
+11. If you are using Vagrant: 
+To get a centos VM running
   655  vagrant box add centos65-x86_64-20131205 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box
   656  vagrant init centos65-x86_64-20131205
   659  vagrant up
 ssh vagrant@127.0.0.1 -p 2222
 login: vagrant / vagrant
-
-12. Where is the vagrant box stored:
 du -h /Users/vikaskedia/.vagrant.d/
+
+12. If you are using drbl then install drbl with the steps at:
+http://drbl.org/installation/
 
 13. Python packages that are needed: 
     easy_install celery flower termcolor argparse
@@ -117,5 +119,3 @@ rs => results
 t => target
 f => features
 
-19. How to boot other computers from the processing server?
-yum install drbl
