@@ -60,7 +60,13 @@ The following files are not kept:
 .trade
 .r
 
-10. For Distributed Parallel (dp)
+10. For Distributed Parallel (dp) we need the following:
+A. rabbitmq
+B. celery
+C. flower
+D. drbl
+
+11. How to install rabbitmq?
 osx:
 ===
 sudo brew install rabbitmq
@@ -84,15 +90,6 @@ Start rabbitmq using /ml/config/rabbitmq/rabbitmq.config
 root@scp1.ao:/home/vikas/ml> rm -rf /etc/rabbitmq/
 root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitmq
 
-11. If you are using Vagrant: 
-To get a centos VM running
-  655  vagrant box add centos65-x86_64-20131205 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box
-  656  vagrant init centos65-x86_64-20131205
-  659  vagrant up
-ssh vagrant@127.0.0.1 -p 2222
-login: vagrant / vagrant
-du -h /Users/vikaskedia/.vagrant.d/
-
 12. If you are using drbl then install drbl with the steps at:
 http://drbl.org/installation/
 
@@ -101,11 +98,21 @@ http://drbl.org/installation/
     
 14. to start the celery worker
 ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
+the details for dp are defined in src/dp.py
+The above command starts a worker ready to accept tasks
 
 15. Flower (This is the web interface to the task computers)
 to start 
 >flower --port=81
 To see the web interface: In the browser enter http://10.105.1.194:81/
+
+To test that the worker is able to execute a simple task:
+ml/src/> python
+>>> from dp import add
+>>> from celery import Celery
+>>> app = Celery('dp', broker='amqp://guest@10.1.35.6//',backend='amqp://guest@10.1.35.6//')
+>>> result = add.delay(4, 4)
+>>> print result.get()
 
 16. Other good to have software:
 multitail
