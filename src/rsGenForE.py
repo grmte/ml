@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import argparse,os
+import argparse,os,multiprocessing
 from datetime import timedelta
 from datetime import datetime
 import utility
@@ -36,6 +36,9 @@ if args.dt == None:
     args.dt = "1"
 if args.wt == None:
     args.wt = "default"
+
+def scriptWrapperForFeatureGeneration(trainingDirectory):
+    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
                 
 if args.a is not None:
     algo = args.a
@@ -45,13 +48,18 @@ else:
 if args.targetClass == None:
     args.targetClass = "binomial"
     print "Since no class of target variable is specified so taking binomial class of target variable"
+
 # only run the set of programs if the trading results file does not exist
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+lListOfTrainPredictDirectories = lListOfTrainingDirectories
+lListOfTrainPredictDirectories.append(args.pd)
+if args.sequence == 'lp':
+        # to run it in local parallel mode
+    pool = multiprocessing.Pool() # this will return the number of CPU's
+    results = pool.map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+else:
+    results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
 
-lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-for trainingDirectory in lListofTrainingDirectories:
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
-
-utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)        
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
                     '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\

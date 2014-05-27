@@ -48,6 +48,9 @@ features = config["features"]
 
 algo = rCodeGen.getAlgoName(args)
 
+def scriptWrapperForFeatureGeneration(trainingDirectory):
+    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
+        
 if(args.sequence == "dp"):
     import aGenForE
     experimentFolder = args.e
@@ -73,10 +76,15 @@ if(args.sequence == "dp"):
         dp.printGroupStatus() 
 
 else:
-    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-    for trainingDirectory in lListofTrainingDirectories:
-        utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",args.pd,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
+    lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+    lListOfTrainPredictDirectories = lListOfTrainingDirectories
+    lListOfTrainPredictDirectories.append(args.pd)
+    if args.sequence == 'lp':
+            # to run it in local parallel mode
+        pool = multiprocessing.Pool() # this will return the number of CPU's
+        results = pool.map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+    else:
+        results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
 
 utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-td",args.td , \
                     "-pd",args.pd,"-skipM",args.skipM,"-skipP",args.skipP,"-mpMearge",args.mpMearge,'-dt',args.dt, '-wt' , args.wt],args.run,args.sequence)
