@@ -61,10 +61,10 @@ The following files are not kept:
 .r
 
 10. For Distributed Parallel (dp) we need the following:
-A. rabbitmq
-B. celery
-C. flower
-D. drbl
+i. rabbitmq: The broker queue and ther backend queue. The broker queue is for tasks and backend queue is for results.
+ii. celery: This can be run in 2 modes. The celery server and the celery client. The celery server submits tasks to the queue and celery worker takes tasks out of the queue and executes tasks
+iii. flower: Web interface to celery
+iv. drbl: This is used to make the celery worker run on a different computer.
 
 11. How to install rabbitmq?
 osx:
@@ -90,37 +90,40 @@ Start rabbitmq using /ml/config/rabbitmq/rabbitmq.config
 root@scp1.ao:/home/vikas/ml> rm -rf /etc/rabbitmq/
 root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitmq
 
-12. If you are using drbl then install drbl with the steps at:
-http://drbl.org/installation/
-
-13. Python packages that are needed: 
+12. Python packages that are needed: 
     easy_install celery flower termcolor argparse
     
-14. to start the celery worker
+13. to start the celery worker
 ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
-the details for dp are defined in src/dp.py
+we do export PYTHONPATH="./src" since dp.py is inside the src folder
+the -A dp tells to open the file dp.py and get the connection params from there
+The worker param tells to start celery program in worker mode.
+the -n worker1 is used to give the name "worker1" to this worker.
 The above command starts a worker ready to accept tasks
 
-15. Flower (This is the web interface to the task computers)
+14. Flower (This is the web interface to the task computers)
 to start 
 >flower --port=81
 To see the web interface: In the browser enter http://10.105.1.194:81/
 
-To test that the worker is able to execute a simple task:
+15. To test that the worker is able to execute a simple task:
 ml/src/> python
->>> from dp import add
+>>> from dp import add # add is a python function
 >>> from celery import Celery
 >>> app = Celery('dp', broker='amqp://guest@10.1.35.6//',backend='amqp://guest@10.1.35.6//')
->>> result = add.delay(4, 4)
+>>> result = add.delay(4, 4) # we are submitting the add function as a task to the celery server. The 4,4 are the params to the add function
 >>> print result.get()
 
-16. Other good to have software:
+16. If you are using drbl then install drbl with the steps at:
+http://drbl.org/installation/
+
+17. Other good to have software:
 multitail
 
-17. What are synthetic columns ?
+18. What are synthetic columns ?
 Features are treated as synthetic columns.
 
-18. What are the different short forms used?
+19. What are the different short forms used?
 wf => working files
 rs => results
 t => target
