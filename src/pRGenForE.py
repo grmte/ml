@@ -11,7 +11,8 @@ def main():
     parser.add_argument('-a', required=True,help='Algorithm name')
     parser.add_argument('-pd', required=True,help='Prediction directory')
     parser.add_argument('-td',required=True,help="Day on which it was trained")
-    parser.add_argument('-dt',required=True,help="Number of days it was trained")    
+    parser.add_argument('-dt',required=True,help="Number of days it was trained")
+    parser.add_argument('-wt',required=True,help="exp/default")
     parser.add_argument('-targetClass',required=True,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
     args = parser.parse_args()
@@ -35,7 +36,7 @@ def main():
         algo =args.a
 
     rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
-                + "-wt." + args.wt + "-wt." + args.wt + ".r"
+                + "-wt." + args.wt  + ".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 

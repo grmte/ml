@@ -34,7 +34,7 @@ utility.runCommand([scriptName,"-d",trainingDataListString],args.run,args.sequen
 
 dirName = args.pd.replace('/ro/','/wf/')    
 scriptName=args.e+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +\
-             "-pd"  + os.path.basename(os.path.abspath(args.pd)) + "-wt." + args.wt +".r"
+             "-pd."  + os.path.basename(os.path.abspath(args.pd)) + "-wt." + args.wt +".r"
 utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
 
 
