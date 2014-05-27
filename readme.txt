@@ -68,6 +68,8 @@ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.rabbitmq.plist
 sudo /usr/local/sbin/rabbitmq-server 
 linux:
 https://www.rabbitmq.com/install-rpm.html
+wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.3.1/rabbitmq-server-3.3.1-1.noarch.rpm
+rpm -Uvh rabbitmq-server-3.3.1-1.noarch.rpm
 service rabbitmq-server start
 service rabbitmq-server status
 
