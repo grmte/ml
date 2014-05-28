@@ -64,7 +64,8 @@ The following files are not kept:
 i. rabbitmq: The broker queue and ther backend queue. The broker queue is for tasks and backend queue is for results.
 ii. celery: This can be run in 2 modes. The celery server and the celery client. The celery server submits tasks to the queue and celery worker takes tasks out of the queue and executes tasks
 iii. flower: Web interface to celery
-iv. drbl: This is used to make the celery worker run on a different computer.
+iv. nfs to get a common file system across multiple machines.
+v. drbl: This is used to make the celery worker run on a different computer.
 
 11. How to install rabbitmq?
 osx:
@@ -113,6 +114,21 @@ ml/src/> python
 >>> app = Celery('dp', broker='amqp://guest@10.1.35.6//',backend='amqp://guest@10.1.35.6//')
 >>> result = add.delay(4, 4) # we are submitting the add function as a task to the celery server. The 4,4 are the params to the add function
 >>> print result.get()
+
+16. How to install the nfs server:
+on scp1
+======
+service nfs start
+service rpcbind start
+the content of /etc/exports file:
+/home/vikas   10.1.31.0/255.255.255.0(rw,sync,no_root_squash)  
+The conent of /etc/hosts.allow file:
+rpcbind:10.1.0.0/255.255.0.0
+
+On the client computer
+=====================
+service rpcbind start
+mount 10.1.35.6:/home/vikas vikas
 
 16. If you are using drbl then install drbl with the steps at:
 http://drbl.org/installation/
