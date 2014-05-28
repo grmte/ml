@@ -32,7 +32,10 @@ if args.wt == None:
     args.wt = "default"
                         
 absPathOfExperimentName = os.path.abspath(args.e)
-pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
+if int(args.tickSize)==25000:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
+elif int(args.tickSize)==5:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
 if "/" in pathAfterE:
     mainExperimentName = pathAfterE[:pathAfterE.index("/")]
 else:
