@@ -95,7 +95,7 @@ root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitm
     easy_install celery flower termcolor argparse
     
 13. to start the celery worker
-ml> export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1
+ml> export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1 --concurrency 1
 we do export PYTHONPATH="./src" since dp.py is inside the src folder
 the -A dp tells to open the file dp.py and get the connection params from there
 The worker param tells to start celery program in worker mode.
@@ -140,8 +140,38 @@ multitail
 Features are treated as synthetic columns.
 
 19. What are the different short forms used?
+ro => read only files
 wf => working files
 rs => results
-t => target
+t => target in ob/data/wf/ folder name and t for trade logs directories in ob/data/rs/ folder
 f => features
+p => prediction
+c => confusionMatrix
+r => R program in program name and results directory in data folders name
+m => model prepared
 
+
+
+20. Installation required to get ml codes in a machine and start using the ml structure
+
+a. easy_install configobj
+b. yum install git* # We require git for numpy instalation with checkout the ml codes
+c. easy_install argparse
+d. yum install yum-conf-epel
+e. yum install R-core*
+f. yum install R*
+g. yum install pypy
+h. git clone https://bitbucket.org/pypy/numpy.git
+i. cd numpy/
+j. ls
+k. pypy setup.py install
+l. cd ..
+m. rm -rf numpy
+n. yum install libffi*
+o. easy_install cffi
+p. easy_install importlib
+q. git clone https://github.com/grmte/ml.git #This will checkout codes in our local machine . 
+(Note it will create ml folder inside wherever you given this command . So dont gove this command inside ml folder . it will then result into ml/ml .)
+r. ln -sf /usr/bin/python /usr/local/bin/pypy
+s. Then go inside R program by typing R
+   >install.packages('glmnet')
