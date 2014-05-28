@@ -33,6 +33,7 @@ algo = rCodeGen.getAlgoName(args)
 dirName=os.path.dirname(args.e)
             
 designFiles = utility.list_files(dirName+"/s/")    
+
 # lets make a list of all the experiments for which we need to run cMatrixGen and trading
 experimentNames = list()
 for designFile in designFiles:
@@ -47,8 +48,17 @@ def scriptWrapper(experimentName):
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
         utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","60","-exitCL","50","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55","-exitCL","45","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55","-exitCL","50","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","65","-exitCL","50","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","65","-exitCL","45","-orderQty","500",\
+                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
     except:
         pass
+
 if args.sequence == 'lp':
     # to run it in local parallel mode
     pool = multiprocessing.Pool() # this will return the number of CPU's
