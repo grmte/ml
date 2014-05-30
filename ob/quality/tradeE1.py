@@ -33,7 +33,14 @@ sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 
 absPathOfExperimentName = os.path.abspath(args.e)
-pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
+
+if 'nsecur' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
+elif 'nsefut' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
+elif 'nseopt' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
+
 if "/" in pathAfterE:
     mainExperimentName = pathAfterE[:pathAfterE.index("/")]
 else:

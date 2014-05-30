@@ -15,7 +15,6 @@ parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-t', required=True,help='Transaction Cost of data used')
 parser.add_argument('-m', required=True,help='Meassge regarding experiment it has run')
 parser.add_argument('-f', required=True,help='Format of the Trade File (can be 0 (old format) or 1 (new format)')
-parser.add_argument('-dataType',required=True,help='NseCur/Fut')
 args = parser.parse_args()
 
 dirName = args.pd.replace('/ro/','/rs/')
@@ -132,10 +131,15 @@ for file_name in filtered_file_list:
         except:
             lAvgNetProfitLong = 0.0
         lNetProfitLongAndShort =  ( lAvgNetProfitShort * lTotOpenSellQty ) + ( lAvgNetProfitLong *  lTotOpenBuyQty ) 
-        if args.dataType.lower() == "nsecur" :
+        if "nsecur" in os.path.abspath(args.e):
             lNetProfitLongAndShortInDollars = lNetProfitLongAndShort /  ( 60 * 10000 )  
-        else:
+        elif "nsefut" in os.path.abspath(args.e):
             lNetProfitLongAndShortInDollars = lNetProfitLongAndShort /  ( 60 * 100 )  
+        elif "nseopt" in os.path.abspath(args.e):
+            lNetProfitLongAndShortInDollars = lNetProfitLongAndShort /  ( 60 * 100 )
+        else:
+            lNetProfitLongAndShortInDollars = ""
+            print "Error in experiment file complete path name "
         
         l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(args.pd)) , targetClass ,\
                               weightTypeTaken , feature , entryCL , exitCL , tradeEngine , str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \

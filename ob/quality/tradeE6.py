@@ -35,10 +35,14 @@ if args.wt == None:
     args.wt = "default"
                     
 absPathOfExperimentName = os.path.abspath(args.e)
-if int(args.tickSize)==25000:
+
+if 'nsecur' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
-elif int(args.tickSize)==5:
+elif 'nsefut' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
+elif 'nseopt' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
+    
 if "/" in pathAfterE:
     mainExperimentName = pathAfterE[:pathAfterE.index("/")]
 else:
@@ -400,7 +404,7 @@ def main():
        tradeStats['totalSellValueLong'] += tradeStats['currentPositionLong'] * (bidP0AtTimeOfPreviousDataRow)
        tradeStats['currentPositionLong'] = 0
        lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)'
-   elif tradeStats['currentPositionShort'] > 0:
+   if tradeStats['currentPositionShort'] > 0:
        reasonForTrade['CloseBuyTradeHappened'] += tradeStats['currentPositionShort']
        tradeStats['totalBuyValueShort'] += tradeStats['currentPositionShort'] * (askP0AtTimeOfPreviousDataRow)
        tradeStats['currentPositionShort'] = 0
@@ -422,7 +426,7 @@ def main():
 
    fileName = tradeLogSubDirectoryName + initialFileName + ".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-#   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+   attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
