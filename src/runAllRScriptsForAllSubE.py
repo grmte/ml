@@ -7,7 +7,7 @@ import os
 import attribute
 
 def parseCommandLine():
-   parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/ob>rRunForE.py -e e3.6/ -td data/20140204/ -pd data/20140205/')
+   parser = argparse.ArgumentParser(description='This program will run train-algo.r and predict-algo.r. An e.g. command line ~/ml/>src/runAllRScriptsForAllSubE.py -e ob/e/nsecur/24/ -a glmnet -td ob/data/ro/nsecur/20140203/ -dt 10 -pd ob/data/ro/nsecur/20140218/ -run dry -sequence serial -mpMearge yes -wt exp')
    parser.add_argument('-e', required=True,help='Directory of the experiment')
    parser.add_argument('-a', required=True,help='Algorithm name')
    parser.add_argument('-td', required=True,help='Training directory')

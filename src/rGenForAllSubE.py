@@ -4,7 +4,7 @@ import utility
 from configobj import ConfigObj
  
 parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is\n\
-rGenForAllSubE.py -e ob/e/9.1/ -a glmnet -run dry -sequence serial -targetClass multinomial -pd ob/data/ro/20140205 -skipM yes -skipP yes -mpMearge yes', formatter_class=argparse.RawTextHelpFormatter)
+src/rGenForAllSubE.py -e ob/e/nsecur/24/ -a glmnet -run real -sequence lp -pd ob/data/ro/nsecur/20140218/ -td ob/data/ro/nsecur/20140203/ -dt 10 -targetClass binomial -skipM yes -skipP yes -mpMearge yes -wt exp', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-run', required=False,help='real or dummy run')
