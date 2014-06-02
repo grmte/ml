@@ -65,7 +65,7 @@ write_file_object.write("\n")    # Header done
 l_list_of_all_results = []
 for file_name in filtered_file_list:
     algoName = file_name[:file_name.index("-")]
-    print "File Name " , file_name
+#    print "File Name " , file_name
     trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-dt.")]
     noOfDaysForTraining = file_name[file_name.index("-dt.") + 4:file_name.index("-targetClass.")]
     targetClass = file_name[file_name.index("-targetClass.") + 13:file_name.index("-f.")]

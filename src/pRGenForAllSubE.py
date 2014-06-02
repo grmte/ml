@@ -16,6 +16,7 @@ def main():
     parser.add_argument('-dt',required=True,help="Number of days it was trained")  
     parser.add_argument('-targetClass',required=True,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
+    parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
     args = parser.parse_args()
 
     if args.skipP == None:
@@ -65,11 +66,13 @@ def main():
         rScript.write('\n\nprint ("Running r code for' + designFile + '")')
         config = ConfigObj(designFile)
         for target in config['target']:
-            predictionFileName = predictDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) + \
-                                 "-wt." + args.wt +".predictions"
+            predictionFileName = predictDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) + "-wt." + args.wt +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-                rCodeGen.ForPredictions(rScript,config,args,designFile,target)
+                lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
+                if os.path.isfile(lModelGeneratedAfterTraining):
+                    rCodeGen.ForPredictions(rScript,config,args,designFile,target)
+                else:
+                    print "Model file does not exists :- " , lModelGeneratedAfterTraining
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 

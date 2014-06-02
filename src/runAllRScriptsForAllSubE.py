@@ -54,8 +54,7 @@ def getTrainCommandList(experimentFolder,algoName,trainFolder,pNumberOfDays,pWts
 def getPredictCommandList(experimentFolder,algoName,predictFolder,trainFolder,pNumberOfDays,pWtsTaken):
    commandList = list()
    # lets make a list of all the scripts that need to be run
-   predictScriptNames = glob.glob(experimentFolder+"/predict" + algoName + "-td." + os.path.basename(os.path.abspath(trainFolder)) + \
-                                  "-dt." + pNumberOfDays + "-pd." + os.path.basename(os.path.abspath(predictFolder)) +"-wt." + pWtsTaken +"-For*.r")
+   predictScriptNames = glob.glob(experimentFolder+"/predict" + algoName + "-td." + os.path.basename(os.path.abspath(trainFolder)) + "-dt." + pNumberOfDays + "-pd." + os.path.basename(os.path.abspath(predictFolder)) +"-wt." + pWtsTaken +"-For*.r")
    dirName = predictFolder.replace('/ro/','/wf/')      
    for predictScriptName in predictScriptNames:
       commandList.append([predictScriptName,"-d",dirName])

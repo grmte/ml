@@ -95,7 +95,9 @@ root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitm
     easy_install celery flower termcolor argparse
     
 13. to start the celery worker
-ml> export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1 --concurrency 1
+a)Ensure the clock of new machine is synced with server machine using the follwing command
+       ntpdate pool.ntp.org && hwclock --systohc && hwclock --adjust
+b)Give the following command :- export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1 --concurrency 1
 we do export PYTHONPATH="./src" since dp.py is inside the src folder
 the -A dp tells to open the file dp.py and get the connection params from there
 The worker param tells to start celery program in worker mode.
