@@ -494,12 +494,20 @@ def main():
 
 if __name__ == "__main__":
    dirName = args.pd.replace('/ro/','/rs/')
-   fileName = dirName + "/r/" + mainExperimentName + "/" + experimentName+initialFileName+".result"
-   if os.path.isfile(fileName) and args.skipT == "yes":
+   fileName = dirName + "/r/" + mainExperimentName + "/" + initialFileName+".result"
+   if os.path.isfile(fileName) and args.skipT.lower() == "yes":
        print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
    else: 
-       print ("\nRunning the simulated trading program")
-       main()
+       lWFDirName = args.pd.replace('/ro/','/wf/')
+       predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+
+       predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+
+       if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
+           print ("\nRunning the simulated trading program")
+           main()
+       else:
+           print "Predcition files not yet generated"
 
 
 
