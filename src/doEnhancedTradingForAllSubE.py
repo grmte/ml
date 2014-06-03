@@ -42,19 +42,7 @@ for designFile in designFiles:
 
 def scriptWrapper(experimentName):
     try:
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","75","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","60","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55","-exitCL","45","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","65","-exitCL","50","-orderQty","500",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","65","-exitCL","45","-orderQty","500",\
+        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
     except:
         pass

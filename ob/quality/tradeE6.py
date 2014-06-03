@@ -51,9 +51,21 @@ else:
 experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
+
+totalEntryCL = args.entryCL.split(";")
+totalExitCL = args.exitCL.split(";")
+initialFileName = []
+for indexOfCL in range(0,len(totalEntryCL)):
+    lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6"
+    initialFileName.append(lInitialFileName)
+    
+'''
 initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt +\
                    '-l.'+args.entryCL+"-"+args.exitCL + "-te6" 
+'''
 g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
 
@@ -285,11 +297,8 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
 
     return [ lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong , l_dummy_BidQ0 , l_dummy_AskQ0 , l_dummy_TTQChange_For_Buy , l_dummy_TTQChange_For_Sell]
 
-def main():
+def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
    attribute.initList()
-   dataFile.getDataIntoMatrix(args.pd)
-   predictedValuesDict = dict()
-   getPredictedValuesIntoDict(predictedValuesDict)
    enterTradeShort = 0
    enterTradeLong = 0
    ltpAtTimeOfPreviousDataRow = 0
@@ -309,8 +318,9 @@ def main():
    noPredictionForThisRow = 0
    currentPredictedValueShort = 0
    currentPredictedValueLong = 0
-   entryCL = float(args.entryCL)/100
-   exitCL = float(args.exitCL)/100
+   entryCL = float(totalEntryCL[pIndexOfEntryOrExitCL])/100
+   exitCL = float(totalExitCL[pIndexOfEntryOrExitCL])/100
+   print (entryCL, exitCL)
  #  entryCLCutoff = float(args.entryCLCutoff)
  #  exitCLCutoff = float(args.exitCLCutoff)
    numberOfTimesAskedToEnterTradeShort = 0
@@ -424,7 +434,7 @@ def main():
    if not os.path.exists(tradeLogSubDirectoryName):
         os.mkdir(tradeLogSubDirectoryName)
 
-   fileName = tradeLogSubDirectoryName + initialFileName + ".trade" 
+   fileName = tradeLogSubDirectoryName + pFileName + ".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
    attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
@@ -434,7 +444,7 @@ def main():
    tradeResultSubDirectoryName =  tradeResultMainDirName + mainExperimentName+"/"
    if not os.path.exists(tradeResultSubDirectoryName):
         os.mkdir(tradeResultSubDirectoryName)
-   fileName = tradeResultSubDirectoryName+initialFileName+".result" 
+   fileName = tradeResultSubDirectoryName+pFileName+".result" 
    outputFile = open(fileName,"w")
  
    #changed file write to modify it to Short Long version
@@ -492,22 +502,39 @@ def main():
    print("P/L for Long trading 10 lots is: " + str(pLPerLotLong * 10), file = outputFile)
 
 
+def main():
+    dataFile.getDataIntoMatrix(args.pd)
+    predictedValuesDict = dict()
+    getPredictedValuesIntoDict(predictedValuesDict)
+    lIndexOfEntryOrExitCL = 0
+    for lFileName in initialFileName:
+        readOnceAndWrite(lFileName, lIndexOfEntryOrExitCL, predictedValuesDict)
+        lIndexOfEntryOrExitCL = lIndexOfEntryOrExitCL + 1
+    
 if __name__ == "__main__":
    dirName = args.pd.replace('/ro/','/rs/')
-   fileName = dirName + "/r/" + mainExperimentName + "/" + initialFileName+".result"
-   if os.path.isfile(fileName) and args.skipT.lower() == "yes":
-       print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
-   else: 
-       lWFDirName = args.pd.replace('/ro/','/wf/')
-       predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+   checkAllFilesAreExistOrNot = 'false'
 
-       predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+   lWFDirName = args.pd.replace('/ro/','/wf/')
+   predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
+   args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+   
+   predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
+   args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
 
-       if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
+   if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
+       for lFileName in initialFileName:
+           fileName = dirName + "/r/" + mainExperimentName + "/" + lFileName+".result"
+           if os.path.isfile(fileName) and args.skipT.lower() == "yes":
+               print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
+           else: 
+               checkAllFilesAreExistOrNot = 'true'
+               print("Trade results file " + fileName + " Does not exist.")
+        
+       if checkAllFilesAreExistOrNot == 'true':
            print ("\nRunning the simulated trading program")
            main()
-       else:
-           print "Predcition files not yet generated"
-
+   else:
+       print ("Predcition files not yet generated")
 
 
