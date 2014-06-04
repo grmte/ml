@@ -177,3 +177,9 @@ q. git clone https://github.com/grmte/ml.git #This will checkout codes in our lo
 r. ln -sf /usr/bin/python /usr/local/bin/pypy
 s. Then go inside R program by typing R
    >install.packages('glmnet')
+
+21. Date, Time should be same for all the server to run celery
+cat /etc/sysconfig/clock 
+ll /etc/localtime 
+ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+date +%T -s "hh:mm:ss"(Curent Time)
