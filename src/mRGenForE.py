@@ -43,19 +43,30 @@ def main():
         rScript.write('require (mda) \n')
     
     rCodeGen.ForSetUpChecks(rScript)
-    rCodeGen.ToReadTargetFile(rScript,config)
-    rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
-    rCodeGen.ToReadFeatureFiles(rScript,config)
-    rCodeGen.ForSanityChecks(rScript,config)
+    lAllFilePresent = True
     for target in config['target']:
         lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
-                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
+                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'  
         if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
-            print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
+            continue
         else:
-            rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
-            rCodeGen.ForTraining(rScript,args,config,target)
-            rCodeGen.saveTrainingModel(rScript,args,dirName,target)
+            lAllFilePresent = False
+            break
+    if lAllFilePresent == False:
+        rCodeGen.ToReadTargetFile(rScript,config)
+        rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
+        rCodeGen.ToReadFeatureFiles(rScript,config)
+        rCodeGen.ForSanityChecks(rScript,config)
+    
+        for target in config['target']:
+            lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
+            if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
+                print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
+            else:
+                rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
+                rCodeGen.ForTraining(rScript,args,config,target)
+                rCodeGen.saveTrainingModel(rScript,args,dirName,target)
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
