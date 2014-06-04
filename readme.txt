@@ -97,7 +97,10 @@ root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitm
 13. to start the celery worker
 a)Ensure the clock of new machine is synced with server machine using the follwing command
        ntpdate pool.ntp.org && hwclock --systohc && hwclock --adjust
-b)Give the following command :- export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1 --concurrency 1
+b)Give the following command :- 
+       export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery -A dp worker --loglevel=INFO -n worker1 --concurrency 1
+       	      			       			  OR
+       export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery multi start -A dp worker -n 9 --logfile="./celery/%n.log" --pidfile="./celery/%n.pid"
 we do export PYTHONPATH="./src" since dp.py is inside the src folder
 the -A dp tells to open the file dp.py and get the connection params from there
 The worker param tells to start celery program in worker mode.
@@ -177,3 +180,4 @@ q. git clone https://github.com/grmte/ml.git #This will checkout codes in our lo
 r. ln -sf /usr/bin/python /usr/local/bin/pypy
 s. Then go inside R program by typing R
    >install.packages('glmnet')
+(if easy install is not installed in machine then  wget https://bootstrap.pypa.io/ez_setup.py -O - | python to install it)

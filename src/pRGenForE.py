@@ -15,21 +15,23 @@ def main():
     parser.add_argument('-wt',required=True,help="exp/default")
     parser.add_argument('-targetClass',required=True,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
+    parser.add_argument('-s',required=False,help="Experiment sub folders")
     args = parser.parse_args()
 
     if args.skipP == None:
         args.skipP = "yes"
-    
+    if args.s == None:
+        args.s = args.e    
+        
     print "\nRunning pGen.py to generate the predict script"
     print "Using the experiment folder " + args.e
 
-    config = ConfigObj(args.e+"/design.ini")
+    config = ConfigObj(args.s+"/design.ini")
 
     print "The config parameters that I am working with are"
     print config 
 
-    dirName=os.path.dirname(args.e)
-    
+    dirName=os.path.dirname(args.s)
     if args.a is None:
         algo ='glmnet'
     else:
@@ -42,25 +44,35 @@ def main():
 
     rScript.write('#!/usr/bin/Rscript \n')
     predictDataDirectoryName = args.pd.replace('/ro/','/wf/')
-    predictDataDirectoryName = predictDataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e))
+    predictDataDirectoryName = predictDataDirectoryName + "/p/" + os.path.basename(os.path.dirname(args.e)) + "/"
     if not os.path.exists(predictDataDirectoryName):
         os.mkdir(predictDataDirectoryName)
     if(args.a == 'glmnet'):
         rScript.write('require (glmnet) \n')
     elif(args.a == 'randomForest'):
         rScript.write('require (randomForest) \n')
-
     rCodeGen.ForSetUpChecks(rScript)
-    rCodeGen.ToReadFeatureFiles(rScript,config)
-    rCodeGen.ForSanityChecks(rScript,config)
+    lAllFilePresent = True
     for target in config['target']:
         predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
-        + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.e)) + \
+        + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
         "-wt." + args.wt +".predictions"
-        if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-            rCodeGen.ForPredictions(rScript,config,args,args.e,target)
+        if os.path.isfile(predictionFileName) and ( args.skipM.lower() == "yes" ):
+            continue
         else:
-            print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
+            lAllFilePresent = False
+            break
+    if lAllFilePresent == False:
+        rCodeGen.ToReadFeatureFiles(rScript,config)
+        rCodeGen.ForSanityChecks(rScript,config)
+        for target in config['target']:
+            predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
+            + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
+            "-wt." + args.wt +".predictions"
+            if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
+                rCodeGen.ForPredictions(rScript,config,args,args.s,target)
+            else:
+                print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
     rScript.close()
     print "Finished generating R prediction program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)
