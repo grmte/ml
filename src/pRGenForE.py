@@ -57,7 +57,7 @@ def main():
         predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
         + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
         "-wt." + args.wt +".predictions"
-        if os.path.isfile(predictionFileName) and ( args.skipM.lower() == "yes" ):
+        if os.path.isfile(predictionFileName) and ( args.skipP.lower() == "yes" ):
             continue
         else:
             lAllFilePresent = False
@@ -70,7 +70,12 @@ def main():
             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
             "-wt." + args.wt +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-                rCodeGen.ForPredictions(rScript,config,args,args.s,target)
+                lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
+                print lModelGeneratedAfterTraining
+                if os.path.isfile(lModelGeneratedAfterTraining):
+                    rCodeGen.ForPredictions(rScript,config,args,args.s,target)
+                else:
+                    print("Model File does not exist")
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
     rScript.close()
