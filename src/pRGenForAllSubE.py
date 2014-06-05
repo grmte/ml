@@ -76,7 +76,7 @@ def main():
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
-
+    rScript.write('rm(list=ls())')
     rScript.close()
     print "Finished generating R prediction program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)

@@ -69,7 +69,7 @@ def main():
                 rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
                 rCodeGen.ForTraining(rScript,args,config,target)
                 rCodeGen.saveTrainingModel(rScript,args,os.path.dirname(designFile),target)
-
+    rScript.write('rm(list=ls())')
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)
