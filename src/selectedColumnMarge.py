@@ -103,13 +103,7 @@ for indexOfCL in range(0,len(totalEntryCL)):
     lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
                    '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".trade"
-    try:
-        lTradeFp = open(lInitialFileName, "rb")
-    except:
-       e = sys.exc_info()[0]
-       print (e)
-       os._exit(-1)
-        
+    lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
     
 
