@@ -82,8 +82,6 @@ for target in targetSet:
     targetFiles.append(ltargetFile)
     trrgetFp = trrgetFp + 1
 
-outputfile = codecs.open("combined.txt", 'wb') 
-
 tdFiles = args.td + "*.txt" 
 files = glob.glob(tdFiles)  
 trainingFiles = []
@@ -106,6 +104,13 @@ for indexOfCL in range(0,len(totalEntryCL)):
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
     
+dirName = args.pd.replace('/ro/','/rs/')
+fileNamesForTradeDirectory = dirName + "/r/" + mainExperimentName + "/" 
+lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".result"
+
+outputfile = codecs.open(lInitialFileName, 'wb') 
 
 while True:
     allFeatureData = ''
