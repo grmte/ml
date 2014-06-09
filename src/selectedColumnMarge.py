@@ -105,41 +105,48 @@ for indexOfCL in range(0,len(totalEntryCL)):
     tradeFpList.append(lTradeFp)
     
 dirName = args.pd.replace('/ro/','/rs/')
-fileNamesForTradeDirectory = dirName + "/r/" + mainExperimentName + "/" 
+fileNamesForTradeDirectory = dirName + "/r/" 
 lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".result"
-
+               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".csv"
+print ("filename---", lInitialFileName)
 outputfile = codecs.open(lInitialFileName, 'wb') 
 
+startIndex = 0
 while True:
     allFeatureData = ''
     for trFp in trainingFpList:
         line = trFp.readline()
         if line == '' :
             exit(0)
-        allFeatureData = allFeatureData + line + ";"
+        allFeatureData = allFeatureData + line.strip() + ";"
     for predFp in predFpList:
         line = predFp.readline()
         if line == '' :
             exit(0)
-        allFeatureData = allFeatureData + line.split(",")[1] + ";"    
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + line.split(",")[2].strip() + ";"  
+        else:
+            allFeatureData = allFeatureData + os.path.basename(os.path.abspath(predFp.name.split('.predictions')[0]))  + ";"
     for fFp in featureFpList:
         line = fFp.readline()
         if line == '' :
             exit(0)
-        allFeatureData = allFeatureData + line.split(";")[1] + ";"
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
+        else:
+            allFeatureData = allFeatureData + os.path.basename(os.path.abspath(fFp.name.split(".feature")[0])) + ";"
 
     for tFp in targetFpList:
         line = tFp.readline()
-        allFeatureData = allFeatureData + line.split(";")[1] + ";"
+        allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
     for tradeFp in tradeFpList:
         line = tradeFp.readline()
         if line == '' :
             exit(0)
         lineSplit = line.split(";")
         allFeatureData = allFeatureData + lineSplit[1] + ";" + lineSplit[2] + ";" + lineSplit[10] + ";" + lineSplit[13] + ";" + lineSplit[11] + ";" + lineSplit[14] + ";"
-        
+    startIndex = startIndex + 1   
     lineToWrite = str(allFeatureData) + "\n"
     outputfile.write(lineToWrite)
 

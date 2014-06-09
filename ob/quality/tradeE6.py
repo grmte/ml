@@ -182,7 +182,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             pTradeStats['totalBuyValueShort'] += l_buy_qty * (pAskP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionShort'] -= l_buy_qty
             pReasonForTrade['CloseBuyTradeHappened'] += l_buy_qty
-            lReasonForTradingOrNotTradingShort = 'CloseBuy(Hitting)'
+            lReasonForTradingOrNotTradingShort = 'CloseBuy(Hitting)' if lQtyTraded > 0 else "DummyAskQExhuasted"
         
     #open buy
     if(pEnterTradeLong == 1 and ( gMaxQty - pTradeStats['currentPositionLong'] ) > 0): # Need to buy
@@ -254,7 +254,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             pTradeStats['totalSellValueLong'] += lQtyTraded * (pBidP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionLong'] -= lQtyTraded
             l_dummy_BidQ0 -= lQtyTraded
-            lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)'
+            lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)' if lQtyTraded > 0 else "DummyBidQExhuasted"
             pReasonForTrade['CloseSellTradeHappened'] += lQtyTraded
     
     #open sell
