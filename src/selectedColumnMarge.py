@@ -94,11 +94,6 @@ for indexOfCL in range(0,len(totalEntryCL)):
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
     
-line = tradeFpList[0].readline()
-for predFp in predFpList:
-    line = predFp.readline()
-    if line == '' :
-        exit(0)
 
 while True:
     allFeatureData = ''
