@@ -72,10 +72,7 @@ def main():
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
                 print lModelGeneratedAfterTraining
-                if os.path.isfile(lModelGeneratedAfterTraining):
-                    rCodeGen.ForPredictions(rScript,config,args,args.s,target)
-                else:
-                    print("Model File does not exist")
+                rCodeGen.ForPredictions(rScript,config,args,args.s,target)
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
     rScript.close()

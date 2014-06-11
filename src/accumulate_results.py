@@ -94,7 +94,7 @@ for dirN in allPredictionDataDirectories:
         line_list = temp_read_file_object.readlines()
         if len(line_list) == 0 :
             print (file_name,"is empty")
-            os.system('rm -rf ' + tradeFileNameDirectory + "/" + file_name)
+#            os.system('rm -rf ' + tradeFileNameDirectory + "/" + file_name)
             continue
         l_line_to_be_printed = ""
         if args.f == "0":

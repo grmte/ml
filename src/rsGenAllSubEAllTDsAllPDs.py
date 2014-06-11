@@ -5,6 +5,7 @@ from configobj import ConfigObj
 from datetime import datetime
 import rCodeGen, utility
 import attribute
+import aGenForE
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
@@ -54,6 +55,35 @@ config = ConfigObj(args.e+"/design.ini")
 features = config["features"]
 indexOfFeatures = len(features)
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
+
+experimentFolder = args.e
+dataFolder = args.td
+generatorsFolder = args.g
+commandList = []
+for trainingDirectory in allDataDirectories:
+    commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+# Seperate into 2 different list one for aGen and another for operateOnAttribute
+aGenList = []
+attribute.getGenerationCommands(commandList,aGenList)
+totalGeneratorsWhichCanBeScheduled = 2 * int(args.nComputers)
+
+for chunkNum in range(0,len(aGenList),totalGeneratorsWhichCanBeScheduled ):
+    lSubGenList = aGenList[chunkNum:chunkNum+totalGeneratorsWhichCanBeScheduled]
+    utility.runCommandList(lSubGenList,args)
+    print dp.printGroupStatus()
+     
+operateOnAttributeList = []
+attribute.getOperationCommands(commandList,operateOnAttributeList)
+operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
+operatorRunInParallel = []
+LastRunDate = allDataDirectories[-1]
+for operatorCommand in operateOnAttributeListAsPerPriority:
+    operatorRunInParallel.append(operatorCommand) 
+    if LastRunDate in operatorCommand :
+        utility.runCommandList(operatorRunInParallel,args)
+        dp.printGroupStatus() 
+        operatorRunInParallel = []
+        
 for algo in allAlgos:
     while indexOfFeatures >= 2:
         lSubCombinationFolder = args.e+"/s/"+str(indexOfFeatures)+"c"
@@ -61,7 +91,7 @@ for algo in allAlgos:
         for designFile in designFiles:
             lExperimentFolderName = os.path.dirname(designFile) + "/"
             print lExperimentFolderName
-            for wt in ['default','exp']:
+            for wt in ['default']:
                 lRCodeGenCommandList = []
                 lMGenRCodeList = []
                 lPGenRCodeList = []
@@ -84,18 +114,17 @@ for algo in allAlgos:
                     lMGenRCodeList.append([scriptName,"-d",trainingDataListString])
 
                     dirName = predictionDirLastTD.replace('/ro/','/wf/')    
-                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +\
-                                 "-pd."  + os.path.basename(os.path.abspath(predictionDirLastTD)) + "-wt." + wt +".r"
+                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirLastTD)) + "-wt." + wt +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
                     dirName = predictionDirAfterLastTD.replace('/ro/','/wf/') 
-                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +\
-                                 "-pd."  + os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt +".r"
+                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
                     
                     lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt])
-                
+                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt])                
                 utility.runCommandList(lRCodeGenCommandList,args)
                 print dp.printGroupStatus()
 
