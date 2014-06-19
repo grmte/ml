@@ -14,7 +14,6 @@ parser.add_argument('-dt',required=False,help="Number of days it was trained")
 parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-pd', required=True,help='Directory of the prediction data file')
 parser.add_argument('-a', required=True,help='Algorithm name')
-parser.add_argument('-ft', required=True,help='Algorithm name')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 
@@ -24,6 +23,19 @@ if args.skipT == None:
     args.skipT = "no"
                     
 absPathOfExperimentName = os.path.abspath(args.e)
+
+if 'nsecur' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
+elif 'nsefut' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
+elif 'nseopt' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
+    
+if "/" in pathAfterE:
+    mainExperimentName = pathAfterE[:pathAfterE.index("/")]
+else:
+    mainExperimentName = pathAfterE
+    
 experimentName = os.path.basename(absPathOfExperimentName)
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
@@ -33,7 +45,7 @@ import attribute
 import codecs, glob
 
 config = ConfigObj(args.e+"/design.ini")
-featureTargetFilePath = args.ft
+featureTargetFilePath = args.pd.replace('ro', 'wf')
 
 features = config["features"]
 featureFiles = []
@@ -52,7 +64,7 @@ dirName = args.pd.replace('/ro/','/wf/')
 targetSet = config['target']
 predFpList = []
 for target in targetSet.keys():
-    predictedValuesFileName = dirName+"/p/"+experimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
     predFp = open(predictedValuesFileName, "rb")
     predFpList.append(predFp)
@@ -70,8 +82,6 @@ for target in targetSet:
     targetFiles.append(ltargetFile)
     trrgetFp = trrgetFp + 1
 
-outputfile = codecs.open("combined.txt", 'wb') 
-
 tdFiles = args.td + "*.txt" 
 files = glob.glob(tdFiles)  
 trainingFiles = []
@@ -82,7 +92,7 @@ for file in files:
     trainingFpList.append(tdFp)
         
 dirName = args.pd.replace('/ro/','/rs/')
-fileNamesForTradeDirectory = dirName + "t/" + experimentName + "/" 
+fileNamesForTradeDirectory = dirName + "/t/" + mainExperimentName + "/" 
 
 totalEntryCL = args.entryCL.split(";")
 totalExitCL = args.exitCL.split(";")
@@ -94,40 +104,49 @@ for indexOfCL in range(0,len(totalEntryCL)):
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
     
-line = tradeFpList[0].readline()
-for predFp in predFpList:
-    line = predFp.readline()
-    if line == '' :
-        exit(0)
+dirName = args.pd.replace('/ro/','/rs/')
+fileNamesForTradeDirectory = dirName + "/r/" 
+lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".csv"
+print ("filename---", lInitialFileName)
+outputfile = codecs.open(lInitialFileName, 'wb') 
 
+startIndex = 0
 while True:
     allFeatureData = ''
     for trFp in trainingFpList:
         line = trFp.readline()
         if line == '' :
             exit(0)
-        allFeatureData = allFeatureData + line + ";"
+        allFeatureData = allFeatureData + line.strip() + ";"
     for predFp in predFpList:
         line = predFp.readline()
         if line == '' :
             exit(0)
-        allFeatureData = allFeatureData + line.split(",")[1] + ";"    
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + line.split(",")[2].strip() + ";"  
+        else:
+            allFeatureData = allFeatureData + os.path.basename(os.path.abspath(predFp.name.split('.predictions')[0]))  + ";"
     for fFp in featureFpList:
         line = fFp.readline()
         if line == '' :
             exit(0)
-        allFeatureData = allFeatureData + line.split(";")[1] + ";"
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
+        else:
+            allFeatureData = allFeatureData + os.path.basename(os.path.abspath(fFp.name.split(".feature")[0])) + ";"
 
     for tFp in targetFpList:
         line = tFp.readline()
-        allFeatureData = allFeatureData + line.split(";")[1] + ";"
+        allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
     for tradeFp in tradeFpList:
         line = tradeFp.readline()
         if line == '' :
             exit(0)
         lineSplit = line.split(";")
         allFeatureData = allFeatureData + lineSplit[1] + ";" + lineSplit[2] + ";" + lineSplit[10] + ";" + lineSplit[13] + ";" + lineSplit[11] + ";" + lineSplit[14] + ";"
-        
+    startIndex = startIndex + 1   
     lineToWrite = str(allFeatureData) + "\n"
     outputfile.write(lineToWrite)
 

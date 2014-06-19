@@ -182,7 +182,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             pTradeStats['totalBuyValueShort'] += l_buy_qty * (pAskP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionShort'] -= l_buy_qty
             pReasonForTrade['CloseBuyTradeHappened'] += l_buy_qty
-            lReasonForTradingOrNotTradingShort = 'CloseBuy(Hitting)'
+            lReasonForTradingOrNotTradingShort = 'CloseBuy(Hitting)' if lQtyTraded > 0 else "DummyAskQExhuasted"
         
     #open buy
     if(pEnterTradeLong == 1 and ( gMaxQty - pTradeStats['currentPositionLong'] ) > 0): # Need to buy
@@ -254,7 +254,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             pTradeStats['totalSellValueLong'] += lQtyTraded * (pBidP0AtTimeOfPreviousDataRow)
             pTradeStats['currentPositionLong'] -= lQtyTraded
             l_dummy_BidQ0 -= lQtyTraded
-            lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)'
+            lReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)' if lQtyTraded > 0 else "DummyBidQExhuasted"
             pReasonForTrade['CloseSellTradeHappened'] += lQtyTraded
     
     #open sell
@@ -436,7 +436,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
 
    fileName = tradeLogSubDirectoryName + pFileName + ".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+#   attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
