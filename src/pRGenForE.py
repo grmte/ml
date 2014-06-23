@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python                                                                                                                                                                                                                            
 
 import os
 import argparse
@@ -21,15 +21,15 @@ def main():
     if args.skipP == None:
         args.skipP = "yes"
     if args.s == None:
-        args.s = args.e    
-        
+        args.s = args.e
+
     print "\nRunning pGen.py to generate the predict script"
     print "Using the experiment folder " + args.e
 
     config = ConfigObj(args.s+"/design.ini")
 
     print "The config parameters that I am working with are"
-    print config 
+    print config
 
     dirName=os.path.dirname(args.s)
     if args.a is None:

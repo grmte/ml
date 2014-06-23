@@ -108,7 +108,7 @@ def main():
                 rCodeGen.ForPredictions(rScript,configForPredictions,args,designFile,target,4)
             else:
                 print "Prediction File " + predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
-
+    rScript.write('rm(list=ls())')
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)

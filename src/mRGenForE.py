@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python                                                                                                                                                                                                                            
 
 import os
 import argparse
@@ -20,11 +20,11 @@ def main():
         args.skipM = "yes"
 
     print "Using the experiment folder " + args.e
-    
+
     config = ConfigObj(args.e+"/design.ini")
 
     print "The config parameters that I am working with are"
-    print config 
+    print config
 
     dirName=os.path.dirname(args.e)
 
@@ -41,12 +41,12 @@ def main():
         rScript.write('require (randomForest) \n')
     elif(algo == 'mda'):
         rScript.write('require (mda) \n')
-    
+
     rCodeGen.ForSetUpChecks(rScript)
     lAllFilePresent = True
     for target in config['target']:
         lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
-                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'  
+                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
         if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
             continue
         else:
@@ -57,7 +57,7 @@ def main():
         rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
         rCodeGen.ToReadFeatureFiles(rScript,config)
         rCodeGen.ForSanityChecks(rScript,config)
-    
+
         for target in config['target']:
             lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
                                  + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
@@ -71,6 +71,8 @@ def main():
     rScript.close()
     print "Finished generating R training program: " + rProgLocation
     os.system("chmod +x "+rProgLocation)
-    
+
 if __name__ == "__main__":
     main()
+
+

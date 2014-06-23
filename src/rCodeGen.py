@@ -209,7 +209,7 @@ def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
                      args.targetClass + "-wt." + args.wt +'.model'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
-    rScript.write('save(fit, file = "'+ outputFileName+'")')
+    rScript.write('save(fit, file = "'+ outputFileName+'")\n')
 
 def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2):
     features = config["features"]
