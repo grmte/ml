@@ -69,10 +69,7 @@ def main():
             predictionFileName = predictDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) + "-wt." + args.wt +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
-                if os.path.isfile(lModelGeneratedAfterTraining):
-                    rCodeGen.ForPredictions(rScript,config,args,designFile,target)
-                else:
-                    print "Model file does not exists :- " , lModelGeneratedAfterTraining
+                rCodeGen.ForPredictions(rScript,config,args,designFile,target)
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
 
