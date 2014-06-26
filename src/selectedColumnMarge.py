@@ -96,7 +96,7 @@ tradeFpList = []
 for indexOfCL in range(0,len(totalEntryCL)):
     lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".trade"
+                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq50" + ".trade"
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
     
@@ -104,7 +104,7 @@ dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/r/" 
 lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6" + ".csv"
+               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq50" + ".csv"
 print ("filename---", lInitialFileName)
 outputfile = codecs.open(lInitialFileName, 'wb') 
 

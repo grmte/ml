@@ -58,14 +58,10 @@ initialFileName = []
 for indexOfCL in range(0,len(totalEntryCL)):
     lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-te6"
+                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty
     initialFileName.append(lInitialFileName)
     
-'''
-initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt +\
-                   '-l.'+args.entryCL+"-"+args.exitCL + "-te6" 
-'''
+
 g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
 
