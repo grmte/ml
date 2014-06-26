@@ -1,10 +1,9 @@
 #!/usr/bin/python
 from configobj import ConfigObj
-import subprocess, argparse, os
+import argparse
 import attribute, utility
 
 print "\nStarting to run Attribute generator for experiment"
-
 
 def parseCommandLine():
     parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenForE.py -d ob/data/20140207/ -e e7.1')
@@ -21,19 +20,18 @@ def getAttributesOfExprement(experimentFolder):
     config = ConfigObj(experimentFolder+"/design.ini")
     attributes = config["features"]
     attributes.update(config["target"])
-    return attributes
+    return attributes , config
 
-def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize):
+def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
     commandLine = []
     if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
         startPos = attributeName.find("[")
         endPos = attributeName.find("]") + 1
         firstAttributeName = attributeName[0:startPos]
         secondAttributeName = attributeName[endPos:]
-        commandLine.append(genAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize)) # recursive call
-        commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize)) # recursive call
+        commandLine.append(genAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) # recursive call
+        commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) # recursive call
         operatorName = attributeName[startPos:endPos]
-        attributeFile = attribute.getOutputFileNameFromAttributeName(attributeName,dataFolder)
         if "DivideBy" in operatorName:
             commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder))
         elif "Add" in operatorName:
@@ -45,13 +43,12 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize):
             
         return commandLine   
 
-    return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder,pTickSize)
+    return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig)
 
-def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder,pTickSize):
+def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
     """
     Support the user friendly attribute name is fColBidP0InCurrentRow this will return fColCInCurrentRow -c BidP0 
     """
-    paramList = []
     paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
 
     # Getting the moduleName from the attributeName
@@ -61,9 +58,15 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         if "_" == pUserFriendlyAttributeName[startPos]:
             endPos = pUserFriendlyAttributeName.find("_",startPos+1)
             colNameWithBracketsToBeReplaced = pUserFriendlyAttributeName[startPos:endPos+1]
+            fileNameToBeSendAsFeatureCParam = colNameWithBracketsToBeReplaced
+            try:
+                if colNameWithBracketsToBeReplaced[1:-1] in pConfig["intermediate-features"]:
+                    fileNameToBeSendAsFeatureCParam = "_" + pConfig["intermediate-features"][colNameWithBracketsToBeReplaced[1:-1]] + "_"
+            except:
+                pass
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colNameWithBracketsToBeReplaced,"C",1)
             paramList.append("-c")
-            paramList.append(colNameWithBracketsToBeReplaced)
+            paramList.append(fileNameToBeSendAsFeatureCParam)
             paramList.append("-cType")
             paramList.append("synthetic") 
         else:
@@ -107,16 +110,27 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     commandLine.append(paramList)
     return commandLine
 
+def getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,pTickSize):
+    commandList = list()
+    config = ConfigObj(experimentFolder+"/design.ini")
+    try:
+        intermediate_feature_dict = config["intermediate-features"]
+    except:
+        return list()
+    for f in intermediate_feature_dict:
+        attributeName = intermediate_feature_dict[f]
+        print "\nGenerating for " + attributeName
+        command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,config)
+        commandList.extend(command)
+    return commandList   
 
 def getCommandList(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
-    attributes = getAttributesOfExprement(experimentFolder)
+    attributes , config = getAttributesOfExprement(experimentFolder)
     for f in attributes:
         attributeName = attributes[f]
         print "\nGenerating for " + attributeName
-#        if "obwave" in attributeName or "obaverge" in attributeName:
-#            continue
-        command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize)
+        command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,config)
         commandList.extend(command)
     return commandList    
 
@@ -125,6 +139,10 @@ def main():
     experimentFolder = args.e
     dataFolder = args.d
     generatorsFolder = args.g
+
+    intermediateFeatureCommandList = getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
+    utility.runCommandList(intermediateFeatureCommandList,args)
+
     commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
     return utility.runCommandList(commandList,args)
 

@@ -57,7 +57,7 @@ def extractAttributeFromDataMatrix(args):
                  attribute.aList[currentRowCount][1] = LowerValue
               else:
                  attribute.aList[currentRowCount][1] = MidValue
-          elif atrribute.aList[currentRowCount-1][1] == UpperValue:
+          elif attribute.aList[currentRowCount-1][1] == UpperValue:
               if currentTickValue >= MidCutOff:
                  attribute.aList[currentRowCount][1] = UpperValue
               else:
