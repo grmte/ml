@@ -37,9 +37,6 @@ if args.dt == None:
 if args.wt == None:
     args.wt = "default"
 
-def scriptWrapperForFeatureGeneration(trainingDirectory):
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
-                
 if args.a is not None:
     algo = args.a
 else:
@@ -49,16 +46,46 @@ if args.targetClass == None:
     args.targetClass = "binomial"
     print "Since no class of target variable is specified so taking binomial class of target variable"
 
-# only run the set of programs if the trading results file does not exist
-lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-lListOfTrainPredictDirectories = lListOfTrainingDirectories
-lListOfTrainPredictDirectories.append(args.pd)
-if args.sequence == 'lp':
-        # to run it in local parallel mode
-    pool = multiprocessing.Pool() # this will return the number of CPU's
-    results = pool.map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+if(args.sequence == "dp"):
+    import dp
+
+def scriptWrapperForFeatureGeneration(trainingDirectory):
+    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
+        
+if(args.sequence == "dp"):
+    import aGenForE
+    experimentFolder = args.e
+    dataFolder = args.td
+    generatorsFolder = args.g
+    commandList = []
+    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+    for trainingDirectory in lListofTrainingDirectories:
+        commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+    commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
+    # Seperate into 2 different list one for aGen and another for operateOnAttribute
+
+    aGenList = []
+    attribute.getGenerationCommands(commandList,aGenList)
+    utility.runCommandList(aGenList,args)
+    dp.printGroupStatus()
+
+    operateOnAttributeList = []
+    attribute.getOperationCommands(commandList,operateOnAttributeList)
+    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
+    for i in operateOnAttributeListAsPerPriority:
+        utility.runCommand(i,args.run,args.sequence)
+        dp.printGroupStatus() 
+
 else:
-    results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+    lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+    lListOfTrainPredictDirectories = lListOfTrainingDirectories
+    lListOfTrainPredictDirectories.append(args.pd)
+    if args.sequence == 'lp':
+            # to run it in local parallel mode
+        pool = multiprocessing.Pool() # this will return the number of CPU's
+        results = pool.map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+    else:
+        results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
 
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
                     '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
