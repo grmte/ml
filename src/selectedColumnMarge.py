@@ -39,9 +39,6 @@ else:
 experimentName = os.path.basename(absPathOfExperimentName)
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
-import dataFile, colNumberOfData, common
-from configobj import ConfigObj
-import attribute
 import codecs, glob
 
 config = ConfigObj(args.e+"/design.ini")
@@ -82,14 +79,13 @@ for target in targetSet:
     targetFiles.append(ltargetFile)
     trrgetFp = trrgetFp + 1
 
-tdFiles = args.td + "*.txt" 
-files = glob.glob(tdFiles)  
-trainingFiles = []
-trainingFpList = []
+pdFiles = args.pd + "*.txt" 
+files = glob.glob(pdFiles)  
+predictionFpList = []
 
-for file in files:
-    tdFp =  open(file, 'rb') 
-    trainingFpList.append(tdFp)
+for file1 in files:
+    tdFp =  open(file1, 'rb') 
+    predictionFpList.append(tdFp)
         
 dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/t/" + mainExperimentName + "/" 
@@ -115,7 +111,7 @@ outputfile = codecs.open(lInitialFileName, 'wb')
 startIndex = 0
 while True:
     allFeatureData = ''
-    for trFp in trainingFpList:
+    for trFp in predictionFpList:
         line = trFp.readline()
         if line == '' :
             exit(0)
