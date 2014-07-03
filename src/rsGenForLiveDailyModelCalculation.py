@@ -61,4 +61,7 @@ utility.runCommand(["runAllRScriptsForE.py","-td",trainingDirectory,"-pd",args.p
                      '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
 utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","50",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",trainingDirectory , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-utility.runCommand(["accumulate_results.py","-e",args.e,"-dt",args.dt,"-pd",args.pd,"-td",trainingDirectory, "-a", args.a,"-m","Python sim results for model used for next day" ,"-f","1","-t","0.000015"],args.run,args.sequence)
+
+if args.pType.lower()== "next":
+    nD = int(args.dt) + 1
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-dt",args.dt,"-nD",str(nD),"-td",trainingDirectory,"-pd",args.pd, "-a",algo,"-m","PythonSimResultsForModelToBeUsedNextDayAndTodaysSimRunResults" ,"-f","1","-t","0.000015"],args.run,args.sequence)
