@@ -208,8 +208,18 @@ def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     algo = getAlgoName(args)    
     outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
                      args.targetClass + "-wt." + args.wt +'.model'
+    modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                     args.targetClass + "-wt." + args.wt +'.coef'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")\n')
+    rScript.write('l = coef(fit, s = "lambda.min")\n')
+    rScript.write('string_intercept = paste("' + pTargetVariableKey + '" , "-intercept-value = ",toString(l[1]),"\\n",sep="")\n')
+    rScript.write('string_intercept = paste(string_intercept,"vector-of-alphas-'+ pTargetVariableKey + ' = ",sep="")\n')
+    rScript.write('for(i in 2:length(l)){\n')
+    rScript.write('    string_intercept = paste(string_intercept,l[i],",",sep="")\n')
+    rScript.write('}\n')         
+    rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
+    rScript.write('cat(string_intercept,file="'+ modelValueFileName + '",sep="",append=TRUE)\n')
 
 def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2):
     features = config["features"]

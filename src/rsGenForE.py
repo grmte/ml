@@ -93,8 +93,8 @@ utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",ar
                      '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
 if args.targetClass == "multinomial" :
 #    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt])
+    utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
 else:
-    utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt])
+    utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
