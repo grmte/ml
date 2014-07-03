@@ -15,7 +15,7 @@ The 5 steps are: \n \
 An e.g. command line >rsGenForE.py -e ob/e/8/ -td ob/data/ro/20140204/ -pd ob/data/ro/20140205/ -g ob/generators/ -run dry -sequence serial -targetClass multinomial -skipM Yes -skipP Yes', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
-parser.add_argument('-td', required=True,help='Training directory')
+parser.add_argument('-pType', required=True,help='Same day prediction or next day prediction')
 parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-dt',required=False,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-g', required=True,help='Generators directory')
@@ -46,50 +46,19 @@ if args.targetClass == None:
     args.targetClass = "binomial"
     print "Since no class of target variable is specified so taking binomial class of target variable"
 
-if(args.sequence == "dp"):
-    import dp
-
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
-        
-if(args.sequence == "dp"):
-    import aGenForE
-    experimentFolder = args.e
-    dataFolder = args.td
-    generatorsFolder = args.g
-    commandList = []
-    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-    for trainingDirectory in lListofTrainingDirectories:
-        commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-    commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
-    # Seperate into 2 different list one for aGen and another for operateOnAttribute
 
-    aGenList = []
-    attribute.getGenerationCommands(commandList,aGenList)
-    utility.runCommandList(aGenList,args)
-    dp.printGroupStatus()
-
-    operateOnAttributeList = []
-    attribute.getOperationCommands(commandList,operateOnAttributeList)
-    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-    for i in operateOnAttributeListAsPerPriority:
-        utility.runCommand(i,args.run,args.sequence)
-        dp.printGroupStatus() 
-
-else:
-    lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-    lListOfTrainPredictDirectories = lListOfTrainingDirectories
-    lListOfTrainPredictDirectories.append(args.pd)
-    results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+trainingDirectory = attribute.getTrainDirFromPredictDir( args.dt , args.pd , args.pType )        
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,trainingDirectory) 
+lListOfTrainPredictDirectories = lListOfTrainingDirectories
+lListOfTrainPredictDirectories.append(args.pd)
+results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
 
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
-                    '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
-utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
+                    '-dt',args.dt,'-pd',args.pd,"-td",trainingDirectory,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
+utility.runCommand(["runAllRScriptsForE.py","-td",trainingDirectory,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
                      '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
-if args.targetClass == "multinomial" :
-#    utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",args.e,"-a",algo],args.run,args.sequence)
-    utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
-else:
-    utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","50",\
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",trainingDirectory , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+utility.runCommand(["accumulate_results.py","-e",args.e,"-dt",args.dt,"-pd",args.pd,"-td",trainingDirectory, "-a", args.a,"-m","Python sim results for model used for next day" ,"-f","1","-t","0.000015"],args.run,args.sequence)

@@ -132,7 +132,29 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFold
       attributeFile=dirName+"/t/"+pGeneratorName+".target"
       
    return attributeFile
-   
+
+def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNextDayAfterLast ):
+    lPredicionBaseFolderName = os.path.basename(os.path.abspath(pPredictDir))   
+    lPredictionDateObject = datetime.strptime(lPredicionBaseFolderName, '%Y%m%d')
+    pNumOfTrainingDays = int(pNumOfTrainingDays)
+    index = 0
+    countOfDaysTaken = 0
+    l_training_date_full_path_name = ""
+    if pLastDayOrNextDayAfterLast.lower() == "next":
+        pNumOfTrainingDays = pNumOfTrainingDays + 1
+    while(1):
+        l_training_date = lPredictionDateObject - timedelta(days = index)
+        index = index + 1 
+        if( l_training_date.weekday() == 5 or l_training_date.weekday() == 6): # Day is monday
+            continue
+        l_training_date_in_string = l_training_date.strftime('%Y%m%d')
+        l_training_date_full_path_name = pPredictDir.replace(lPredicionBaseFolderName,l_training_date_in_string) 
+        if (os.path.exists(l_training_date_full_path_name)):
+            countOfDaysTaken += 1
+        if countOfDaysTaken == int(pNumOfTrainingDays):
+            break            
+    return l_training_date_full_path_name
+
 def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory):
     lTrainingDirectoryList = []
     l_training_day_folder_base_date = os.path.basename(os.path.abspath(pStartTrainingDirectory))
@@ -147,10 +169,10 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
         l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string) 
         if (os.path.exists(l_training_date_full_path_name)):
-           lTrainingDirectoryList.append(l_training_date_full_path_name)
-           countOfDaysTaken += 1
+            lTrainingDirectoryList.append(l_training_date_full_path_name)
+            countOfDaysTaken += 1
         if countOfDaysTaken == int(pNumOfTrainingDays):
-           break
+            break
     print lTrainingDirectoryList
     return lTrainingDirectoryList
 
