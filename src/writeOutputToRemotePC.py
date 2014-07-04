@@ -48,7 +48,7 @@ def writeIntoRemoteFile(pStringToPrint):
     global gSSH, gOutputDirectory, gOutputFilename
     
     try:
-        lCmd = 'echo -e ' + pStringToPrint + ' | cat >> ' + gOutputDirectory + gOutputFilename
+        lCmd = 'echo -e \'' + pStringToPrint + '\' | cat >> ' + gOutputDirectory + gOutputFilename
 #         print "Write: ", lCmd
         stdin, stdout, stderr = gSSH.exec_command(lCmd)
     except Exception, e:

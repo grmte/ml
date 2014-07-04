@@ -93,6 +93,7 @@ if args.pType.lower()== "same":
                     line_to_print = line_to_print + "0,"
             modelIniFP.write("    %s\n" %line_to_print)
             try:
+                line_to_print = "    " + line_to_print
                 writeOutputToRemotePC.main(line_to_print, '/home/', "model-parameters.ini", ('1.ps.eo.spalgo.com', 'root', 'omshriganeshaya'))
             except:
                 pass
