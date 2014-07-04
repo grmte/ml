@@ -1,9 +1,10 @@
 #!/usr/bin/python
 import argparse,os,multiprocessing
+import writeOutputToRemotePC
 from datetime import timedelta
 from datetime import datetime
 import utility
-import attribute
+import attribute,commands
 
 parser = argparse.ArgumentParser(description='This program will do the 5 steps necessary to get the results for an experiment. \n \
 The 5 steps are: \n \
@@ -26,8 +27,12 @@ parser.add_argument('-skipM',required=False,help="yes or no , If you want to reg
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No. Defaults to yes")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+parser.add_argument('-instrGroups',required=False,help="instruments groups used in live file")
+parser.add_argument('-nF',required=False,help="number of features")
 args = parser.parse_args()
 
+
+current_number_of_features_used = int(args.nF)
 if args.skipM == None:
     args.skipM = "yes"
 if args.skipP == None:
@@ -53,6 +58,7 @@ trainingDirectory = attribute.getTrainDirFromPredictDir( args.dt , args.pd , arg
 lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,trainingDirectory) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 lListOfTrainPredictDirectories.append(args.pd)
+
 results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
 
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
@@ -62,6 +68,38 @@ utility.runCommand(["runAllRScriptsForE.py","-td",trainingDirectory,"-pd",args.p
 utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","50",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",trainingDirectory , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
 
+instrGroupList = args.instrGroups.split(";")
+if args.pType.lower()== "same":
+    modelValueFileName = args.e+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(trainingDirectory)) + '-dt.' + args.dt + '-targetClass.' + \
+                     args.targetClass + "-wt." + args.wt +'.coef'    
+    modelFp = open(modelValueFileName,"r")
+    lines = modelFp.readlines()
+    modelIniFile = args.e + '/' + "model-parameters.ini"
+    modelIniFP = open(modelIniFile,"w")
+    writeOutputToRemotePC.clear_file_from_remote_PC('/home/', "model-parameters.ini", ('1.ps.eo.spalgo.com', 'root', 'omshriganeshaya'))
+    for n in instrGroupList:
+        startString = "[ml-instr-group" + n + "]"
+        modelIniFP.write("%s\n" %startString)
+        try:
+            writeOutputToRemotePC.main(startString, '/home/', "model-parameters.ini", ('1.ps.eo.spalgo.com', 'root', 'omshriganeshaya'))
+        except:
+            pass
+        for l in lines:
+            line_to_print = l.strip()
+            if "vector-of-alphas-" in l:
+                splitted_line = l.split(",")
+                length_of_vector = len(splitted_line)
+                for i in range(length_of_vector,current_number_of_features_used+1):
+                    line_to_print = line_to_print + "0,"
+            modelIniFP.write("    %s\n" %line_to_print)
+            try:
+                writeOutputToRemotePC.main(line_to_print, '/home/', "model-parameters.ini", ('1.ps.eo.spalgo.com', 'root', 'omshriganeshaya'))
+            except:
+                pass
+    
 if args.pType.lower()== "next":
     nD = int(args.dt) + 1
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-dt",args.dt,"-nD",str(nD),"-td",trainingDirectory,"-pd",args.pd, "-a",algo,"-m","PythonSimResultsForModelToBeUsedNextDayAndTodaysSimRunResults" ,"-f","1","-t","0.000015"],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-dt",args.dt,"-nD",str(nD),"-td",trainingDirectory,"-pd",args.pd, "-a",algo,"-m",\
+                        "PythonSimResultsForModelToBeUsedNextDayAndTodaysSimRunResults" ,"-f","1","-t","0.000015"],args.run,args.sequence)
+    
+
