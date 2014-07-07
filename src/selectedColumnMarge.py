@@ -16,7 +16,7 @@ parser.add_argument('-pd', required=True,help='Directory of the prediction data 
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
-
+parser.add_argument('-orderQty',required=True,help="Order qty to be given")
 
 args = parser.parse_args()
 if args.skipT == None:
@@ -96,7 +96,7 @@ tradeFpList = []
 for indexOfCL in range(0,len(totalEntryCL)):
     lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq50" + ".trade"
+                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty + ".trade"
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
     
@@ -104,7 +104,7 @@ dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/r/" 
 lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq50" + ".csv"
+               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty + ".csv"
 print ("filename---", lInitialFileName)
 outputfile = codecs.open(lInitialFileName, 'wb') 
 
