@@ -18,6 +18,10 @@ class ticks_values_to_be_stored(object):
         self.NewQ = 0
         self.BidP0 = 0.0
         self.AskP0 = 0.0
+        self.BidQ0 = 0
+        self.AskQ0 = 0
+        self.LTP = 0.0
+        self.TTQ = 0
         self.typeOfCase = ''
         self.buyIntensityValue = 0.0
         self.sellIntensityValue = 0.0
@@ -50,7 +54,7 @@ def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
                                            
-def updateTickDeletionFromQueue(pObjectToBeDeleted , pBuyOrSellSide , pTickSize , pDataFileObject ):
+def updateTickDeletionFromQueue(pObjectToBeDeleted , pDataFileObject ):
 
     if pObjectToBeDeleted.typeOfCase == "BUY_TRADE":
         pDataFileObject.totalBuyTradedQty -= pObjectToBeDeleted.NewQ
@@ -70,7 +74,7 @@ def extractAttributeFromDataMatrix(args):
     if args.n == None:
         N = 5
     else:
-        int(args.n) 
+        N = int(args.n) 
     
     try:
         args.c
@@ -86,6 +90,7 @@ def extractAttributeFromDataMatrix(args):
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
     lengthOfDataMatrix = len(dataFile.matrix)
     l_global_file_object = values_to_be_stored_across_whole_file()
+    lPreviousTickObject = None
     while (currentRowNumberForWhichFeatureValueIsBeingCalculated < lengthOfDataMatrix):
         if len(queueOfValuesInLastNSecs) != 0:
             lPreviousTickObject = queueOfValuesInLastNSecs[-1][0]
@@ -100,22 +105,36 @@ def extractAttributeFromDataMatrix(args):
             lCurrentTickObject.NewQ = int(lCurrentDataRow[colNumberOfData.NewQ])
             lCurrentTickObject.BidP0 = float(lCurrentDataRow[colNumberOfData.BidP0])
             lCurrentTickObject.AskP0 = float(lCurrentDataRow[colNumberOfData.AskP0])
+            lCurrentTickObject.BidQ0 = int(float(lCurrentDataRow[colNumberOfData.BidQ0]))
+            lCurrentTickObject.AskQ0 = int(float(lCurrentDataRow[colNumberOfData.AskQ0]))
+            lCurrentTickObject.LTP = float(lCurrentDataRow[colNumberOfData.LTP])
+            lCurrentTickObject.TTQ = int(float(lCurrentDataRow[colNumberOfData.TTQ]))
             updateCurrentTickAdditionToQueue(lCurrentTickObject, lPreviousTickObject , l_global_file_object , timeElapsed)
-                
             lBuyIntensityMinusSellInstensity =  lCurrentTickObject.buyIntensityValue  - lCurrentTickObject.sellIntensityValue 
-
-            lBuyIntensityMean =  ( float(l_global_file_object.buyIntensitySum) / timeElapsed )
+            try:
+                lBuyIntensityMean =  ( float(l_global_file_object.buyIntensitySum) / l_global_file_object.count )
+            except:
+                lBuyIntensityMean =  float(l_global_file_object.buyIntensitySum)
             lBuyIntensityVariance = ( lCurrentTickObject.buyIntensityValue - lBuyIntensityMean) *  (lCurrentTickObject.buyIntensityValue - lBuyIntensityMean)
-
-            lSellIntensityMean =  ( float(l_global_file_object.sellIntensitySum) / timeElapsed )
+            try:
+                lSellIntensityMean =  ( float(l_global_file_object.sellIntensitySum) / l_global_file_object.count )
+            except:
+                lSellIntensityMean =   float(l_global_file_object.sellIntensitySum)
+                
             lSellIntensityVariance = (lCurrentTickObject.sellIntensityValue - lSellIntensityMean) *  (lCurrentTickObject.sellIntensityValue - lSellIntensityMean)
             
-            lFeatureValue = lBuyIntensityMinusSellInstensity / sqrt( lBuyIntensityVariance + lSellIntensityVariance )
-
+            try:
+                lFeatureValue = lBuyIntensityMinusSellInstensity / sqrt( lBuyIntensityVariance + lSellIntensityVariance )
+            except:
+                lFeatureValue = lBuyIntensityMinusSellInstensity
+                
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(lCurrentDataRow[colNumberOfTimeStamp])
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = str(lFeatureValue) 
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = ";".join( map( str , [ timeElapsed , lCurrentTickObject.buyIntensityValue , lCurrentTickObject.sellIntensityValue , \
-                                                                                                          lBuyIntensityMean , lSellIntensityMean ,  lBuyIntensityVariance , lSellIntensityVariance ] ) )
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = ";".join( map( str , [ timeElapsed , l_global_file_object.totalBuyTradedQty , l_global_file_object.totalSellTradedQty , lCurrentTickObject.buyIntensityValue , lCurrentTickObject.sellIntensityValue , \
+                                                                                                              l_global_file_object.buyIntensitySum , l_global_file_object.sellIntensitySum ,\
+                                                                                                          lBuyIntensityMean , lSellIntensityMean ,  lBuyIntensityVariance , lSellIntensityVariance , lCurrentTickObject.MsgCode ,\
+                                                                                                          lCurrentTickObject.OrderType , lCurrentTickObject.NewP , lCurrentTickObject.NewQ  , lCurrentTickObject.BidP0 , lCurrentTickObject.AskP0 , \
+                                                                                                          lCurrentTickObject.BidQ0 , lCurrentTickObject.AskQ0  , lCurrentTickObject.LTP , lCurrentTickObject.TTQ] ) )
 
             queueOfValuesInLastNSecs.append([lCurrentTickObject,timeOfCurrentRow])
             numberOfRowsInLastNSecs += 1   # Every append gets a +1 
@@ -135,7 +154,7 @@ def extractAttributeFromDataMatrix(args):
                     oldestElementInQueue = queueOfValuesInLastNSecs.popleft()
                     colValueInOldestElementInQueue = oldestElementInQueue[0]
                     colTimeStampInOldestElementInQueue = oldestElementInQueue[1]
-                    updateTickDeletionFromQueue(colValueInOldestElementInQueue )
+                    updateTickDeletionFromQueue(colValueInOldestElementInQueue , l_global_file_object )
                     timeOfOldestRow = colTimeStampInOldestElementInQueue
                     numberOfRowsInLastNSecs -= 1 # every pop from the queue gets a -1
                     timeElapsed = timeOfCurrentRow - timeOfOldestRow
@@ -146,6 +165,8 @@ def extractAttributeFromDataMatrix(args):
         print "Processed row number " + str(currentRowNumberForWhichFeatureValueIsBeingCalculated)
 
     lNameOfFeaturePrinted = "fIntensityOfOrdersInLast" + str(args.n) + "Secs" 
-    return [ "TimeStamp", lNameOfFeaturePrinted , "TimeElapsed" , "BuyIntensityValue" , "SellIntensityValue" , "BuyIntensityMean" , "SellIntensityMean" , "BuyIntensityVariance" , "SellIntensityVariance" 
+    return [ "TimeStamp", lNameOfFeaturePrinted , "TimeElapsed" ,"totalBuyTradedQty","totalSellTradedQty" ,\
+            "BuyIntensityValue" , "SellIntensityValue" , "BuyIntensityValueSum" , "SellIntensityValueSum" , \
+            "BuyIntensityMean" , "SellIntensityMean" , "BuyIntensityVariance" , "SellIntensityVariance" , "MsgCode" , "Ordertype" ,"NewP","NewQ","BidP0","AskP0","BidQ","AskQ","LTP","TTQ"
             ]
             

@@ -394,7 +394,7 @@ def extractAttributeFromDataMatrix(args):
     if args.n == None:
         N = 5
     else:
-        int(args.n) 
+        N = int(args.n) 
     
     try:
         args.c

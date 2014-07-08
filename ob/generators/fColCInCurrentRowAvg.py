@@ -13,15 +13,17 @@ import common
 
 
 def extractAttributeFromDataMatrix(args):
-   currentRowCount = 0
-   for dataRow in dataFile.matrix:
-      codeString = 'float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'0])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'1])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'2])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'3])+float(dataFile.matrix[currentRowCount][colNumberOfData.'+args.c+'4])'
-      qSum = eval(codeString) / 5
-      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
-      attribute.aList[currentRowCount][1] = qSum
-      currentRowCount = currentRowCount + 1
-      if (currentRowCount%10000==0):
-         print "Processed row number " + str(currentRowCount)
-
-   lNameOfFeaturePrinted = "fCol" + args.c + "InCurrentRowSum"
-   return ["TimeStamp",lNameOfFeaturePrinted,"Zero1","Zero2"]
+    currentRowCount = 0
+    list_of_array = [ eval('colNumberOfData.'+args.c+'0') , eval('colNumberOfData.'+args.c+'1') ,eval('colNumberOfData.'+args.c+'2') , eval('colNumberOfData.'+args.c+'3') , eval('colNumberOfData.'+args.c+'4')  ]
+    for dataRow in dataFile.matrix:
+        qSum = float(dataRow[list_of_array[0]]) + float(dataRow[list_of_array[1]]) + \
+                      float(dataRow[list_of_array[2]]) + float(dataRow[list_of_array[3]]) + float(dataRow[list_of_array[4]])
+        qAverage = eval(qSum) / 5
+        attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
+        attribute.aList[currentRowCount][1] = qAverage
+        currentRowCount = currentRowCount + 1
+        if (currentRowCount%10000==0):
+            print "Processed row number " + str(currentRowCount)
+    
+    lNameOfFeaturePrinted = "fCol" + args.c + "InCurrentRowAvg"
+    return ["TimeStamp",lNameOfFeaturePrinted,"Zero1","Zero2"]
