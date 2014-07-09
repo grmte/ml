@@ -18,7 +18,7 @@ def extractAttributeFromDataMatrix(args):
     for dataRow in dataFile.matrix:
         qSum = float(dataRow[list_of_array[0]]) + float(dataRow[list_of_array[1]]) + \
                       float(dataRow[list_of_array[2]]) + float(dataRow[list_of_array[3]]) + float(dataRow[list_of_array[4]])
-        qAverage = eval(qSum) / 5
+        qAverage = qSum / 5
         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
         attribute.aList[currentRowCount][1] = qAverage
         currentRowCount = currentRowCount + 1
