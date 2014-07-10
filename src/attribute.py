@@ -106,7 +106,7 @@ def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
    return attributeFile
    
 
-def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder):
+def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder):
    if "NRows" in pGeneratorName:
       N = number
       pGeneratorName = pGeneratorName.replace("NRows",str(N)+"Rows")   
@@ -123,7 +123,9 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFold
 
    if "ColC" in pGeneratorName:
       pGeneratorName = pGeneratorName.replace("ColC","Col"+columnName)   
-
+      
+   if "OrderO" in pGeneratorName:
+      pGeneratorName = pGeneratorName.replace("OrderO","Order"+orderType)  
    # we need to replace /ro with /wf   
    dirName = dataFolder.replace('/ro/','/wf/')   
    if (getAttributeTypeFromAttributeName(pGeneratorName) == "feature"):   
@@ -176,8 +178,8 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
     print lTrainingDirectoryList
     return lTrainingDirectoryList
 
-def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,dataFolder):
-   attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,dataFolder)
+def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,dataFolder):
+   attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."

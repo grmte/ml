@@ -17,8 +17,10 @@ def parseCommandLine():
     parser.add_argument('-d', required=True,help='Directory of data file')
     parser.add_argument('-g', required=True,help='Directory of geneartors')
     parser.add_argument('-c', required=False,help='Column name')
+    parser.add_argument('-o', required=False,help='Order type N/X/T')
     parser.add_argument('-cType', required=False,help='primary / synthetic')
     parser.add_argument('-n', required=False,help='Number of rows / cols / seconds / Qty')
+    parser.add_argument('-i',required=False,help="Imaginary Name of column")
     parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options data give 5')
     # This is a command and it does not have sub commands. Hence it does not need 
     # 1. A "sequence of commands" as a parameter.
@@ -45,7 +47,10 @@ except:
 
 def main():
    try:
-      attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.d)
+      if args.i is not None: 
+          attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.i,args.o,args.d)
+      else:
+          attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.o,args.d)
       if(args.cType == "synthetic"):
           dataFile.getDataIntoMatrix(args.d,args.c)
       else:
@@ -53,7 +58,10 @@ def main():
       
       attribute.initList()
       lHeaderColumnNamesList = userModule.extractAttributeFromDataMatrix(args)
-      fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.d)
+      if args.i is not None:
+          fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.i,args.o,args.d)
+      else:
+          fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.o,args.d)
       attribute.writeToFile(fileName , lHeaderColumnNamesList)
    except:
       traceback.print_exc()

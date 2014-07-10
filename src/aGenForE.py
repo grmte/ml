@@ -62,6 +62,8 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             try:
                 if colNameWithBracketsToBeReplaced[1:-1] in pConfig["intermediate-features"]:
                     fileNameToBeSendAsFeatureCParam = "_" + pConfig["intermediate-features"][colNameWithBracketsToBeReplaced[1:-1]] + "_"
+                paramList.append("-i")
+                paramList.append(colNameWithBracketsToBeReplaced)
             except:
                 pass
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colNameWithBracketsToBeReplaced,"C",1)
@@ -77,6 +79,14 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             paramList.append(colName)
             paramList.append("-cType")
             paramList.append("primary") 
+
+    if "Order" in pUserFriendlyAttributeName:
+            startPos = pUserFriendlyAttributeName.find("Order") + 5
+            endPos = pUserFriendlyAttributeName.find("In",startPos + 1)
+            colName = pUserFriendlyAttributeName[startPos:endPos]
+            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"O")
+            paramList.append("-o")
+            paramList.append(colName)
 
     if "Last" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.rfind("Last") + 4
@@ -110,6 +120,43 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     commandLine.append(paramList)
     return commandLine
 
+def getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature_dict):
+    startPos = 0
+    endPos = 0
+    countOfPos = 0
+    listOfInsideFeatures = []
+    while countOfPos < len(attributeName):
+        letterAtThatPos = attributeName[countOfPos]
+        if letterAtThatPos == '_':
+            startPos = countOfPos
+            endPos = attributeName.find('_',startPos+1)
+            featureName = attributeName[startPos+1:endPos]
+            if featureName not in intermediate_feature_dict:
+                listOfInsideFeatures.append( attributeName[startPos+1:endPos] )
+            countOfPos = endPos+1
+            continue
+        countOfPos += 1
+    return listOfInsideFeatures
+
+def getCommandListForInsideFeatures(experimentFolder,dataFolder,generatorsFolder,pTickSize):
+    commandList = list()
+    config = ConfigObj(experimentFolder+"/design.ini")
+    try:
+        intermediate_feature_dict = config["intermediate-features"]
+        normal_feature_list = config["features"]
+        normal_feature_list.update(intermediate_feature_dict)
+    except:
+        normal_feature_list = config["features"]    
+    
+    for f in normal_feature_list:
+        attributeName = normal_feature_list[f]
+        print "\nGenerating for " + attributeName
+        listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature_dict)
+        for features in listOfInsideFeatures:
+            command = genAttribute(features,dataFolder,generatorsFolder,pTickSize,config)
+            commandList.extend(command)
+    return commandList            
+
 def getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
     config = ConfigObj(experimentFolder+"/design.ini")
@@ -140,6 +187,9 @@ def main():
     dataFolder = args.d
     generatorsFolder = args.g
 
+    insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
+    utility.runCommandList(insideFeatureCommandList,args)
+    
     intermediateFeatureCommandList = getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
     utility.runCommandList(intermediateFeatureCommandList,args)
 
