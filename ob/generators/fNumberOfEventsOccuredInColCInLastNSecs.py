@@ -531,9 +531,12 @@ def extractAttributeFromDataMatrix(args):
                 else:   
                     oldestElementInQueue = queueOfValuesInLastNSecs.popleft()
                     colValueInOldestElementInQueue = oldestElementInQueue[0]
-                    colTimeStampInOldestElementInQueue = oldestElementInQueue[1]
                     updateTickDeletionFromQueue(colValueInOldestElementInQueue , buyOrSellSide , tickSize , g_data_file_values_to_be_stored)
-                    timeOfOldestRow = colTimeStampInOldestElementInQueue
+                    if len(queueOfValuesInLastNSecs) == 0:
+                        timeElapsed = 0
+                        timeOfOldestRow = timeOfCurrentRow
+                    else:
+                        timeOfOldestRow = queueOfValuesInLastNSecs[0][1]
                     numberOfRowsInLastNSecs -= 1 # every pop from the queue gets a -1
                     timeElapsed = timeOfCurrentRow - timeOfOldestRow
                     if(len(queueOfValuesInLastNSecs) != numberOfRowsInLastNSecs):

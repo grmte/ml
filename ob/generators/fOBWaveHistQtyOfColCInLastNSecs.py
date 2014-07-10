@@ -254,8 +254,11 @@ def extractAttributeFromDataMatrix(args):
             else:   
                oldestElementInQueue = queueOfValuesInLastNSecs.popleft()
                colDictInOldestElementInQueue = oldestElementInQueue[2]
-               colTimeStampInOldestElementInQueue = oldestElementInQueue[1]
-               timeOfOldestRow = colTimeStampInOldestElementInQueue
+               if len(queueOfValuesInLastNSecs) == 0:
+                    timeElapsed = 0
+                    timeOfOldestRow = timeOfCurrentRow
+               else:
+                    timeOfOldestRow = queueOfValuesInLastNSecs[0][1]
                numberOfRowsInLastNSecs -= 1 # every pop from the queue gets a -1
                timeElapsed = timeOfCurrentRow - timeOfOldestRow
 
