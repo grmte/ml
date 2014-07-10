@@ -17,7 +17,10 @@ def extractAttributeFromDataMatrix(args):
    except:
       print "Since -c has not been specified I cannot proceed"
       os._exit(-1)
-
+   list_of_price_array = [ eval('colNumberOfData.'+args.c+'P0') , eval('colNumberOfData.'+args.c+'P1') ,\
+                           eval('colNumberOfData.'+args.c+'P2') , eval('colNumberOfData.'+args.c+'P3') , eval('colNumberOfData.'+args.c+'P4')  ]
+   list_of_qty_array = [ eval('colNumberOfData.'+args.c+'Q0') , eval('colNumberOfData.'+args.c+'Q1') ,\
+                           eval('colNumberOfData.'+args.c+'Q2') , eval('colNumberOfData.'+args.c+'Q3') , eval('colNumberOfData.'+args.c+'Q4')  ]
    currentRowCount = 0
    qtyForCalculatingWeightedAverage = float(args.n)
    levelOfDataAvailable = 4
@@ -27,10 +30,8 @@ def extractAttributeFromDataMatrix(args):
       totalPriceAtThisLevel = 0
       i = 0
       while(i <= levelOfDataAvailable and qSum < qtyForCalculatingWeightedAverage):
-         codeStringForQ = 'float(dataFile.matrix['+str(currentRowCount)+'][colNumberOfData.'+args.c+'Q'+str(i)+'])'
-         codeStringForP = 'float(dataFile.matrix['+str(currentRowCount)+'][colNumberOfData.'+args.c+'P'+str(i)+'])'
-         priceAtThisLevel = eval(codeStringForP)
-         qtyAtThisLevel = eval(codeStringForQ)
+         priceAtThisLevel = float(dataFile.matrix[currentRowCount][list_of_price_array[i]])
+         qtyAtThisLevel = float(dataFile.matrix[currentRowCount][list_of_qty_array[i]])
          qSum += qtyAtThisLevel
          if(qSum > qtyForCalculatingWeightedAverage):
             qtyToUseAtThisLevel = qtyAtThisLevel - (qSum - qtyForCalculatingWeightedAverage)
