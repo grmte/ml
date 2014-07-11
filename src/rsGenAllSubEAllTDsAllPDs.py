@@ -25,8 +25,11 @@ parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to 
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
 parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
+parser.add_argument('-t',required=False,help="TransactionCost")
 args = parser.parse_args()
 
+if args.t == None:
+    args.t = "0.000015"
 if args.skipM == None:
     args.skipM = "yes"
 if args.skipP == None:
@@ -142,3 +145,4 @@ for algo in allAlgos:
                 print dp.printGroupStatus()            
         indexOfFeatures = indexOfFeatures - 1
 
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" , "Following experiment results" , "-f" , "1"],args.run,args.sequence)
