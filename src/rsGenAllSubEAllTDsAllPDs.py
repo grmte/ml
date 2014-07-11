@@ -55,11 +55,11 @@ config = ConfigObj(args.e+"/design.ini")
 features = config["features"]
 indexOfFeatures = len(features)
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
-
-experimentFolder = args.e
 dataFolder = args.td
 generatorsFolder = args.g
 commandList = []
+
+experimentFolder = args.e
 for trainingDirectory in allDataDirectories:
     commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
@@ -121,9 +121,9 @@ for algo in allAlgos:
                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
                     
-                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
+                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50","-orderQty","300",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt])
-                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
+                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50","-orderQty","300",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt])                
                 utility.runCommandList(lRCodeGenCommandList,args)
                 print dp.printGroupStatus()

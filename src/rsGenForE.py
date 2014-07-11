@@ -80,8 +80,13 @@ else:
     lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
     lListOfTrainPredictDirectories = lListOfTrainingDirectories
     lListOfTrainPredictDirectories.append(args.pd)
-    results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
-
+    if args.sequence == 'lp':
+        # to run it in local parallel mode
+        pool = multiprocessing.Pool() # this will return the number of CPU's
+        results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+    else:
+        results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
+        
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
                     '-dt',args.dt,'-pd',args.pd,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
