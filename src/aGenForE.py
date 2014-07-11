@@ -151,7 +151,7 @@ def getCommandListForInsideFeatures(experimentFolder,dataFolder,generatorsFolder
     for f in normal_feature_list:
         attributeName = normal_feature_list[f]
         print "\nGenerating for " + attributeName
-        listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature_dict)
+        listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , normal_feature_list)
         for features in listOfInsideFeatures:
             command = genAttribute(features,dataFolder,generatorsFolder,pTickSize,config)
             commandList.extend(command)
