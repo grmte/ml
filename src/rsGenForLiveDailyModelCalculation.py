@@ -13,7 +13,10 @@ The 5 steps are: \n \
 3. R code running.  \n \
 4. CMatrix generation  \n \
 5. Doing the trading.   \n \
-An e.g. command line >rsGenForE.py -e ob/e/8/ -td ob/data/ro/20140204/ -pd ob/data/ro/20140205/ -g ob/generators/ -run dry -sequence serial -targetClass multinomial -skipM Yes -skipP Yes', formatter_class=argparse.RawTextHelpFormatter)
+An example of command line :-\
+src/rsGenForLiveDailyModelCalculation.py -e ob/e/nsecur/live_experiment/ -pType same -dt 10 -pd ob/data/ro/nsecur/20140620/ \
+-targetClass binomial -wt default -run real -sequence lp -g ob/generators/ -tickSize 25000 -instrGroups "1;2;3;4;5" -nF 5 -orderQty 500 -entryCL "57;57;58;58;60;60;65;65" -exitCL \
+"45;50;45;50;45;50;45;50"', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name. This is optional and defaults to glmnet.')
 parser.add_argument('-pType', required=True,help='Same day prediction or next day prediction')
@@ -27,8 +30,11 @@ parser.add_argument('-skipM',required=False,help="yes or no , If you want to reg
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No. Defaults to yes")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
-parser.add_argument('-instrGroups',required=False,help="instruments groups used in live file")
-parser.add_argument('-nF',required=False,help="number of features")
+parser.add_argument('-instrGroups',required=True,help="instruments groups used in live file")
+parser.add_argument('-nF',required=True,help="number of features")
+parser.add_argument('-entryCL',required=True,help="Trade open position entry point separated by semicolon")
+parser.add_argument('-exitCL',required=True,help="Trade close position point separated by semicolon")
+parser.add_argument('orderQty',required=True,help="Qty with which you want to trade")
 args = parser.parse_args()
 
 
@@ -65,7 +71,7 @@ utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequenc
                     '-dt',args.dt,'-pd',args.pd,"-td",trainingDirectory,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",trainingDirectory,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
                      '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
-utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","50",\
+utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",trainingDirectory , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
 
 instrGroupList = args.instrGroups.split(";")
