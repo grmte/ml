@@ -34,7 +34,7 @@ parser.add_argument('-instrGroups',required=True,help="instruments groups used i
 parser.add_argument('-nF',required=True,help="number of features")
 parser.add_argument('-entryCL',required=True,help="Trade open position entry point separated by semicolon")
 parser.add_argument('-exitCL',required=True,help="Trade close position point separated by semicolon")
-parser.add_argument('orderQty',required=True,help="Qty with which you want to trade")
+parser.add_argument('-orderQty',required=True,help="Qty with which you want to trade")
 args = parser.parse_args()
 
 
