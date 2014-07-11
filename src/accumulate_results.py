@@ -16,7 +16,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-t', required=True,help='Transaction Cost of data used')
 parser.add_argument('-m', required=True,help='Meassge regarding experiment it has run')
-parser.add_argument('-f', required=True,help='Format of the Trade File (can be 0 (old format) or 1 (new format)')
+parser.add_argument('-f', required=False,help='Format of the Trade File (can be 0 (old format) or 1 (new format)')
 parser.add_argument('-nD',required=False,help='Number of days of data present')
 parser.add_argument('-pd',required=False,help="Prediction Directory , if all days after 1st training set is to be given , then we need not specify it")
 args = parser.parse_args()
@@ -28,7 +28,8 @@ if args.pd == None:
     allPredictionDataDirectories = allDataDirectories[int(args.dt)-1:]
 else:
     allPredictionDataDirectories = args.pd.split(";")
-    
+if args.f == None:
+    args.f = "1"    
 if args.f == "0":
     desired_statistic_line_numbers = [6,9,12,13,15]    # Line numbers for desired statistics 6: - Total Sell qty , 9 : Total Buy Qty , 15 :- Total Gross Profit
 elif args.f == "1":
