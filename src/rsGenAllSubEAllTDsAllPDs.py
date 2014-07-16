@@ -145,4 +145,4 @@ for algo in allAlgos:
                 print dp.printGroupStatus()            
         indexOfFeatures = indexOfFeatures - 1
 
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" , "Following experiment results" , "-f" , "1"],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" , "FollowingExperimentResults" , "-f" , "1"],args.run,args.sequence)
