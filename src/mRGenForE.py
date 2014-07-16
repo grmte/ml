@@ -55,10 +55,10 @@ def main():
     if lAllFilePresent == False:
         rCodeGen.ToReadTargetFile(rScript,config)
         rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
-        rCodeGen.ToReadFeatureFiles(rScript,config)
-        rCodeGen.ForSanityChecks(rScript,config)
 
         for target in config['target']:
+            rCodeGen.ToReadFeatureFiles(rScript,config,target)
+            rCodeGen.ForSanityChecks(rScript,config,target)
             lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
                                  + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
             if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):

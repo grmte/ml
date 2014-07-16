@@ -60,8 +60,9 @@ def main():
     rCodeGen.ForSetUpChecksForTrainPredictTogather(rScript)
     rCodeGen.ToReadTargetFile(rScript,config)
     rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
-    rCodeGen.ToReadFeatureFiles(rScript,config,2)
-    rCodeGen.ForSanityChecks(rScript,config)
+    for target in config['target']:
+        rCodeGen.ToReadFeatureFiles(rScript,config,target,2)
+        rCodeGen.ForSanityChecks(rScript,config,target)
 
     print "For prediction data set"
     configForPredictions = ConfigObj(args.e+"/design.ini")
@@ -73,8 +74,9 @@ def main():
         features[new_key] = features[key]
         del features[key]
     print configForPredictions 
-    rCodeGen.ToReadFeatureFiles(rScript,configForPredictions,4)
-    rCodeGen.ForSanityChecks(rScript,configForPredictions)
+    for target in configForPredictions['target']:
+        rCodeGen.ToReadFeatureFiles(rScript,configForPredictions,target,4)
+        rCodeGen.ForSanityChecks(rScript,configForPredictions,target)
     
     designFiles = utility.list_files(args.s)
 
@@ -83,14 +85,14 @@ def main():
         rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
         config = ConfigObj(designFile)
         configForPredictions = ConfigObj(designFile)
-        feature_keys = configForPredictions['features'].keys()
-        features = configForPredictions['features']
-        for key in feature_keys:
-            new_key = key + "P"
-            features[new_key] = features[key]
-            del features[key]
         #--------------MODEL--------------------
         for target in config['target']:
+            feature_keys = configForPredictions['features-'+target].keys()
+            features = configForPredictions['features-'+target]
+            for key in feature_keys:
+                new_key = key + "P"
+                features[new_key] = features[key]
+                del features[key]
             lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
             '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
             if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):

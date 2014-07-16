@@ -51,8 +51,9 @@ def main():
     rCodeGen.ForSetUpChecks(rScript)
     rCodeGen.ToReadTargetFile(rScript,config)
     rCodeGen.ForWtVectorGeneration(rScript,args.wt.lower())
-    rCodeGen.ToReadFeatureFiles(rScript,config)
-    rCodeGen.ForSanityChecks(rScript,config)
+    for target in config['target']:
+        rCodeGen.ToReadFeatureFiles(rScript,config,target)
+        rCodeGen.ForSanityChecks(rScript,config,target)
     
     designFiles = utility.list_files(args.s)
 

@@ -2,9 +2,24 @@ import os
 import dataFile
 from datetime import timedelta
 from datetime import datetime
+from configobj import ConfigObj
 
 aList = []
 
+def getTargetVariableKeys(pConfig):
+    return pConfig["target"]
+
+def getFeatureVariableKeys(pConfig , pTargetKey):
+    featureKeyName = "features-" + pTargetKey
+    attributes = pConfig[featureKeyName] 
+    return attributes
+    
+def getIntermediateAttributesForExperiment(experimentFolder):
+    config = ConfigObj(experimentFolder+"/design.ini")
+    attributes = {} 
+    if "intermediate-features" in config:
+        attributes = config["intermediate-features"]
+    return attributes , config
 
 def getOperationCommandsInPriority(operateOnAttributeList):
    return sorted(operateOnAttributeList, key = lambda x: len(x[6]))

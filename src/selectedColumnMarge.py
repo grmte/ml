@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 import os, sys, argparse
 from configobj import ConfigObj
-
+import attribute
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
  An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
@@ -48,7 +48,11 @@ features = config["features"]
 featureFiles = []
 featureFpList = []
 featureFp = 1
-for feature in features:
+intermediate_feature_dict , config = attribute.getIntermediateAttributesForExperiment(args.e)
+normal_feature_list , config = attribute.getAttributesOfExperiment(args.e)
+normal_feature_list.update(intermediate_feature_dict)
+
+for feature in normal_feature_list:
     lFeatureFile = featureTargetFilePath + "/f/" + features[feature] + ".feature"
     featureFP = "featureFp" + str(featureFp)
     featureFP = open(lFeatureFile, "rb")

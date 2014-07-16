@@ -96,8 +96,8 @@ def ForWtVectorGeneration(rScript,weightType):
     rScript.write('    weightVector = ( sumOfAllDaysLength / sumOfDaysExp ) * weightVector\n')
     rScript.write('}\n')
     
-def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
-    features = config["features"]
+def ToReadFeatureFiles(rScript,config,targetVariable,pUseWhichArgumentForData=2):
+    features = config["features-"+targetVariable]
     rScript.write('\nprint ("Section3: Read feature files") \n')
     if pUseWhichArgumentForData == 4:
         rScript.write('lDirectorySet<-strsplit(args[4],";",fixed=TRUE,useBytes=FALSE)\n')
@@ -107,62 +107,62 @@ def ToReadFeatureFiles(rScript,config,pUseWhichArgumentForData=2):
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
-        rScript.write('        '+feature+'<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        '+feature+targetVariable+'<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
         rScript.write('        lFlag=TRUE\n')
         rScript.write('    }\n')
         rScript.write('    else {\n')  
         rScript.write('        temp<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')  
-        rScript.write('        '+feature+'<-rbind('+feature+',temp)\n')    
+        rScript.write('        '+feature+targetVariable+'<-rbind('+feature+targetVariable+',temp)\n')    
         rScript.write('        rm(temp)\n')
         rScript.write('    }\n')
         rScript.write('    print ("Reading '+ features[feature] +'.feature' + '") \n')
         rScript.write('}\n')
 
-def ForSanityChecks(rScript,config):
-    features = config["features"]
+def ForSanityChecks(rScript,config,targetVariable):
+    features = config["features-"+targetVariable]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     rScript.write('\nprint ("Section4: Making sure all feature vectors are of same length") \n')
     currentFeatureNumber = 0
     while currentFeatureNumber  <  (len(features) - 1) :
-        rScript.write('if (length(' + features.keys()[currentFeatureNumber] + '[,1]) != length(' + features.keys()[currentFeatureNumber+1] + '[,1])) { \n')
-        rScript.write('print ("The feature lengths do not match for ' + features.keys()[currentFeatureNumber] +  '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1] + '=' + features.values()[currentFeatureNumber+1]+'") \n')
+        rScript.write('if (length(' + features.keys()[currentFeatureNumber]+targetVariable + '[,1]) != length(' + features.keys()[currentFeatureNumber+1] +targetVariable+ '[,1])) { \n')
+        rScript.write('print ("The feature lengths do not match for ' + features.keys()[currentFeatureNumber]+targetVariable +  '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+targetVariable + '=' + features.values()[currentFeatureNumber+1]+'") \n')
         rScript.write("quit('no',-1) \n")
         rScript.write('}else{ \n')
-        rScript.write('print ("Length of ' + features.keys()[currentFeatureNumber] + ' == '+features.keys()[currentFeatureNumber+1] +'")\n')
+        rScript.write('print ("Length of ' + features.keys()[currentFeatureNumber]+targetVariable + ' == '+features.keys()[currentFeatureNumber+1]+targetVariable +'")\n')
         rScript.write('}\n')
         currentFeatureNumber = currentFeatureNumber + 1
         
     rScript.write('\nprint ("Section5: Making sure all feature vectors have same time stamp over each row") \n')
-    features = config["features"]
+    features = config["features-"+targetVariable]
     currentFeatureNumber = 0
     while currentFeatureNumber  <  (len(features) - 1) :
-        rScript.write('if (all(' + features.keys()[currentFeatureNumber] + '[,1] == ' + features.keys()[currentFeatureNumber+1] + '[,1]) != TRUE) { \n')
-        rScript.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber] + '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1] + '=' + features.values()[currentFeatureNumber+1]+'") \n')
+        rScript.write('if (all(' + features.keys()[currentFeatureNumber] + targetVariable + '[,1] == ' + features.keys()[currentFeatureNumber+1] + targetVariable + '[,1]) != TRUE) { \n')
+        rScript.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber]+targetVariable + '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+targetVariable + '=' + features.values()[currentFeatureNumber+1]+'") \n')
         rScript.write("quit('no',-1) \n")
         rScript.write('}else{ \n')
-        rScript.write('print ("Timestamps of ' + features.keys()[currentFeatureNumber] + ' == '+features.keys()[currentFeatureNumber+1] +'")\n')
+        rScript.write('print ("Timestamps of ' + features.keys()[currentFeatureNumber]+targetVariable + ' == '+features.keys()[currentFeatureNumber+1]+targetVariable +'")\n')
         rScript.write('}\n')
         currentFeatureNumber = currentFeatureNumber + 1
 
 def ToCreateDataFrameForTraining(rScript,config,pTargetVariableKey):
-    features = config["features"]
+    features = config["features-"+pTargetVariableKey]
     rScript.write('\nprint ("Section6: Creating the data frame") \n')
     rScript.write('df = data.frame('+config["target"][pTargetVariableKey]+'='+pTargetVariableKey+'[,2]')
     for feature in features:
         userFriendlyName = features[feature] 
         userFriendlyName = userFriendlyName.replace('[','')
         userFriendlyName = userFriendlyName.replace(']','')
-        rScript.write(','+userFriendlyName+'='+feature+'[,2]')
+        rScript.write(','+userFriendlyName+'='+feature+pTargetVariableKey+'[,2]')
     rScript.write(")\n\n")
 
 def ForTraining(rScript,args,config,pTargetVariableKey):
-    features = config["features"]
+    features = config["features-"+pTargetVariableKey]
     if(args.a == 'glmnet'):
         rScript.write('print ("Section7: Running glmnet") \n')
         rScript.write('X <- cbind(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features.keys()[currentFeatureNumber]+'[,2]')
+            rScript.write(features.keys()[currentFeatureNumber]+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
@@ -174,7 +174,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
         rScript.write('fit <- glm ('+config["target"][pTargetVariableKey]+' ~ ')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features[feature])
+            rScript.write(features[feature]+pTargetVariableKey)
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write('+')
@@ -184,7 +184,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
         rScript.write('X <- cbind(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features.keys()[currentFeatureNumber]+'[,2]')
+            rScript.write(features.keys()[currentFeatureNumber]+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
@@ -195,7 +195,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
         rScript.write('X <- cbind(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features.keys()[currentFeatureNumber]+'[,2]')
+            rScript.write(features.keys()[currentFeatureNumber]+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
@@ -222,7 +222,7 @@ def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     rScript.write('cat(string_intercept,file="'+ modelValueFileName + '",sep="",append=TRUE)\n')
 
 def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2):
-    features = config["features"]
+    features = config["features-"+pTargetVariableKey]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     algo = getAlgoName(args)
     predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
@@ -235,7 +235,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
         rScript.write('df = cbind(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(feature+'[,2]')
+            rScript.write(feature+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')
@@ -249,7 +249,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
         rScript.write('df = data.frame(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features[feature]+'='+feature+'[,2]')
+            rScript.write(features[feature]+'='+feature+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')
@@ -263,7 +263,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
         rScript.write('df = data.frame(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features[feature]+'='+feature+'[,2]')
+            rScript.write(features[feature]+'='+feature+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')
@@ -277,7 +277,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
         rScript.write('df = data.frame(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features[feature]+'='+feature+'[,2]')
+            rScript.write(features[feature]+'='+feature+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')
@@ -291,7 +291,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
         os._exit(-1)
 
     rScript.write('\nprint ("Section9: Creating the data frame to write in the file") \n')
-    rScript.write('dfForFile <- data.frame('+features.keys()[0]+'[,1]) \n')
+    rScript.write('dfForFile <- data.frame('+features.keys()[0]+pTargetVariableKey+'[,1]) \n')
     
     rScript.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')

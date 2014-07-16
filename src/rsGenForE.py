@@ -13,7 +13,7 @@ The 5 steps are: \n \
 4. CMatrix generation  \n \
 5. Doing the trading.   \n \
 src/rsGenForE.py -e ob/e/nsecur/32/ -dt 10 -td ob/data/ro/nsecur/20140620/ \
--targetClass binomial -wt default -run real -sequence lp -g ob/generators/ -tickSize 25000 -instrGroups "1;2;3;4;5" -nF 5 -orderQty 500 -entryCL "57;57;58;58;60;60;65;65" -exitCL \
+-targetClass binomial -wt default -run real -sequence lp -g ob/generators/ -tickSize 25000 -orderQty 500 -entryCL "57;57;58;58;60;60;65;65" -exitCL \
 "45;50;45;50;45;50;45;50"', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-td', required=True,help='Training directory')

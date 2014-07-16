@@ -56,8 +56,9 @@ def main():
         rScript.write('require (randomForest) \n')
 
     rCodeGen.ForSetUpChecks(rScript)
-    rCodeGen.ToReadFeatureFiles(rScript,config)
-    rCodeGen.ForSanityChecks(rScript,config)
+    for target in config['target']:
+        rCodeGen.ToReadFeatureFiles(rScript,config,target)
+        rCodeGen.ForSanityChecks(rScript,config,target)
 
     designFiles = utility.list_files(args.s)
 
