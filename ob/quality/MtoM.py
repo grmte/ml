@@ -152,7 +152,7 @@ def main():
     calculate_current_tick_sim_mtm_profit()
     
     print "----",len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list)
-    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list , "GROSS_MTM_SIM_LIVE" , "/spa/ml/src/ml/ob/quality/test.png")
+    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list , "GROSS_MTM_SIM_LIVE" , "/home/vikas/ml/ob/quality/test.png")
     
 
 if __name__ == "__main__":
