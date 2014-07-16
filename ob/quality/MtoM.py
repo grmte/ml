@@ -34,7 +34,7 @@ g_epoch_timestamp_list = []
 def plot(p_xlabel_list,p_ylabel_list,p_title,p_image_name):
     l_dates = matplotlib.dates.date2num(p_xlabel_list)
     # Create the plot for gross profit  
-    ll1 = plt.plot_date(l_dates, p_ylabel_list[0], 'r')
+    ll1 = plt.plot_date(l_dates, p_ylabel_list, 'r')
     
     plt.title(p_title +'(Red Sim)')
     plt.xlabel('Timestamp')
@@ -116,7 +116,9 @@ def calculate_current_tick_sim_mtm_profit():
         l_epoch_time = calculate_epoch_time(float(index[0]))
         g_epoch_timestamp_list.append(datetime.datetime.strptime(l_epoch_time, '%Y-%m-%d %H:%M:%S'))
         
-    return [l_current_obj_tot_gross_profit,l_current_obj_tot_net_profit]
+        g_sim_gross_mtm_profit_list.append(l_current_obj_tot_gross_profit)
+        
+        
 
 
 def addDataRowToMatrix(pDataRow):
@@ -138,20 +140,18 @@ def makeFileForMarketToMarket():
     print matrix[1]   
     
 def main():
-    lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140708/t/ABFeatureExp/glmnet-td.20140623-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
-    #lFileName = "/spa/ml/src/ml/ob/data/rs/20140205/t/9/9glmnet.10-.00.trade"
+    #lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140708/t/ABFeatureExp/glmnet-td.20140623-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
+    lFileName = "/spa/ml/src/ml/ob/data/rs/20140205/t/9/9glmnet.10-.00.trade"
     if os.path.isfile(lFileName):
         print "Yes file is exist"
     else:
         print "File does not exist"
     getDataIntoMatrix(lFileName)
     makeFileForMarketToMarket()
-    l_gross_net_sim_profit_list = calculate_current_tick_sim_mtm_profit()
-    g_sim_gross_mtm_profit_list.append(l_gross_net_sim_profit_list[0])
-    g_sim_net_mtm_profit_list.append(l_gross_net_sim_profit_list[1])
-
-    l_yLabel_list = [g_sim_gross_mtm_profit_list]
-    plot(g_epoch_timestamp_list , l_yLabel_list , "GROSS_MTM_SIM_LIVE" , "test.ping")
+    calculate_current_tick_sim_mtm_profit()
+    
+    print "----",len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list)
+    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list , "GROSS_MTM_SIM_LIVE" , "/spa/ml/src/ml/ob/quality/test.png")
     
 
 if __name__ == "__main__":
