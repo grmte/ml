@@ -44,7 +44,7 @@ def calculate_current_tick_sim_mtm_profit():
     global gross_sim_mtm_profit_long, g_sim_running_profit_long, g_sim_running_qty_long, gross_sim_mtm_profit_short, g_sim_running_profit_short, g_sim_running_qty_short, g_total_sim_traded_price_short, g_total_sim_traded_price_short,\
     g_total_sim_traded_price_long, g_transaction_cost
     global g_sim_gross_mtm_profit_list, g_sim_net_mtm_profit_list
-    prviousIndex = []
+    prviousIndex = [0] * 23
     for index in matrix: 
         l_action_performed_long = index[14]
         l_action_performed_short = index[14]
@@ -94,6 +94,7 @@ def calculate_current_tick_sim_mtm_profit():
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
                 
             prviousIndex = index
+            print prviousIndex
          
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
@@ -130,7 +131,7 @@ def makeFileForMarketToMarket():
     print matrix[1]   
     
 def main():
-    lFileName = "/spa/ml/src/ml/ob/data/rs/20140205/t/9/9glmnet.10-.00.trade"
+    lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140708/t/ABFeatureExp/glmnet-td.20140623-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
     if os.path.isfile(lFileName):
         print "Yes file is exist"
     else:
