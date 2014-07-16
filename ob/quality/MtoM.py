@@ -78,7 +78,7 @@ def calculate_current_tick_sim_mtm_profit():
                     l_trade_price_short = float(index[5]) -1
                 else:
                     l_trade_price_short = float(index[4])                
-                l_trade_qty_long = abs(float(prviousIndex[2]) - float(index[2]))
+                l_trade_qty_short = abs(float(prviousIndex[2]) - float(index[2]))
                 g_sim_running_qty_short += l_trade_qty_short
                 g_sim_running_profit_short += (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
@@ -88,7 +88,7 @@ def calculate_current_tick_sim_mtm_profit():
                     l_trade_price_short = float(index[4]) +1
                 else:
                     l_trade_price_short = float(index[5]) 
-                l_trade_qty_long = abs(float(prviousIndex[2]) - float(index[2]))
+                l_trade_qty_short = abs(float(prviousIndex[2]) - float(index[2]))
                 g_sim_running_qty_short -= l_trade_qty_short
                 g_sim_running_profit_short -= (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
