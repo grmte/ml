@@ -50,6 +50,8 @@ def calculate_current_tick_sim_mtm_profit():
     g_total_sim_traded_price_long, g_transaction_cost
     global g_sim_gross_mtm_profit_list_long,g_sim_gross_mtm_profit_list_short, g_sim_net_mtm_profit_list
     prviousIndex = [0] * 23
+    fp = open("/home/vikas/ml/ob/quality/output.csv", "w")
+    fp.write("g_sim_running_qty_long;g_sim_running_profit_long;g_total_sim_traded_price_long;g_sim_running_qty_short;g_sim_running_profit_short;g_total_sim_traded_price_short")
     for index in matrix: 
         l_action_performed_long = str(index[14])
         l_action_performed_short = str(index[11])
@@ -88,14 +90,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_profit_short += (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
                 
-                print l_trade_price_short
-                print l_trade_qty_short
-                print g_sim_running_qty_short 
-                print g_sim_running_profit_short 
-                print g_total_sim_traded_price_short
-                
-                
-                
             if l_action_performed_short.find("CloseBuy") >= 0:
                 if l_action_performed_short.find("Standing") >= 0:
                     l_trade_price_short = float(index[4]) + 25000
@@ -105,7 +99,9 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_short -= l_trade_qty_short
                 g_sim_running_profit_short -= (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
-                
+            
+            lineToPrint = g_sim_running_qty_long + ";" + g_sim_running_profit_long + ";" + g_total_sim_traded_price_long + ";" + g_sim_running_qty_short + ";" + g_sim_running_profit_short + ";" + g_total_sim_traded_price_short
+            fp.write(lineToPrint)
             prviousIndex = index
          
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
@@ -116,6 +112,7 @@ def calculate_current_tick_sim_mtm_profit():
         
         g_sim_gross_mtm_profit_list_long.append(gross_sim_mtm_profit_long)
         g_sim_gross_mtm_profit_list_short.append(gross_sim_mtm_profit_short)
+        fp.close()
 
 def addDataRowToMatrix(pDataRow):
    dataColumns=pDataRow.split(';')
