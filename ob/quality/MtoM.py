@@ -25,7 +25,6 @@ gross_sim_mtm_profit_long = 0.0
 g_sim_running_profit_short = 0.0
 g_sim_running_qty_short = 0.0
 g_total_sim_traded_price_short = 0.0
-g_total_sim_traded_price_short = 0.0
 g_transaction_cost = 0.00001
 g_sim_gross_mtm_profit_list_long = []
 g_sim_gross_mtm_profit_list_short = []
@@ -47,7 +46,7 @@ def plot(p_xlabel_list,p_ylabel_list,p_title,p_image_name):
     plt.close()
 
 def calculate_current_tick_sim_mtm_profit():
-    global gross_sim_mtm_profit_long, g_sim_running_profit_long, g_sim_running_qty_long, gross_sim_mtm_profit_short, g_sim_running_profit_short, g_sim_running_qty_short, g_total_sim_traded_price_short, g_total_sim_traded_price_short,\
+    global gross_sim_mtm_profit_long, g_sim_running_profit_long, g_sim_running_qty_long, gross_sim_mtm_profit_short, g_sim_running_profit_short, g_sim_running_qty_short, g_total_sim_traded_price_short,\
     g_total_sim_traded_price_long, g_transaction_cost
     global g_sim_gross_mtm_profit_list_long,g_sim_gross_mtm_profit_list_short, g_sim_net_mtm_profit_list
     prviousIndex = [0] * 23
@@ -67,12 +66,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_long += l_trade_qty_long
                 g_sim_running_profit_long -= (l_trade_price_long * l_trade_qty_long)
                 g_total_sim_traded_price_long += (l_trade_price_long * l_trade_qty_long)
-                
-                print l_trade_price_long
-                print l_trade_qty_long
-                print g_sim_running_qty_long
-                print g_sim_running_profit_long
-                print g_total_sim_traded_price_long
                 
             if l_action_performed_long.find("CloseSell") >= 0:
                 if l_action_performed_long.find("Standing") >= 0:
