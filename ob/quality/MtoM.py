@@ -18,14 +18,14 @@ def calculate_epoch_time(p_epoch):
     return str(l_dt.year) + "-" + str(l_dt.month) + "-" + str(l_dt.day) + " " + str(l_dt.hour) + ":" + str(l_dt.minute) + ":" + str(l_dt.second)
 
 matrix = []
-g_sim_running_qty_long = 0
-g_sim_running_profit_long = 0
-g_total_sim_traded_price_long = 0
-gross_sim_mtm_profit_long = 0
-g_sim_running_profit_short = 0
-g_sim_running_qty_short = 0
-g_total_sim_traded_price_short = 0
-g_total_sim_traded_price_short = 0
+g_sim_running_qty_long = 0.0
+g_sim_running_profit_long = 0.0
+g_total_sim_traded_price_long = 0.0
+gross_sim_mtm_profit_long = 0.0
+g_sim_running_profit_short = 0.0
+g_sim_running_qty_short = 0.0
+g_total_sim_traded_price_short = 0.0
+g_total_sim_traded_price_short = 0.0
 g_transaction_cost = 0.00001
 g_sim_gross_mtm_profit_list_long = []
 g_sim_gross_mtm_profit_list_short = []
@@ -57,8 +57,8 @@ def calculate_current_tick_sim_mtm_profit():
         
         if len(l_action_performed_long) > 5 or len(l_action_performed_short) > 5:
             #FOR LONG FILE----------------------------------------------------------------------
-            if l_action_performed_long.find("OpenBuy"):
-                if l_action_performed_long.find("Standing"):
+            if l_action_performed_long.find("OpenBuy") >= 0:
+                if l_action_performed_long.find("Standing") >= 0:
                     l_trade_price_long = float(index[4]) +1
                 else:
                     l_trade_price_long = float(index[5]) 
@@ -74,8 +74,8 @@ def calculate_current_tick_sim_mtm_profit():
                 print g_sim_running_profit_long
                 print g_total_sim_traded_price_long
                 
-            if l_action_performed_long.find("CloseSell"):
-                if l_action_performed_long.find("Standing"):
+            if l_action_performed_long.find("CloseSell") >= 0:
+                if l_action_performed_long.find("Standing") >= 0:
                     l_trade_price_long = float(index[5]) - 1
                 else:
                     l_trade_price_long = int(index[4])
@@ -85,8 +85,8 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_profit_long += (l_trade_price_long * l_trade_qty_long)
                 g_total_sim_traded_price_long += (l_trade_price_long * l_trade_qty_long)
 
-            if l_action_performed_short.find("OpenSell"):
-                if l_action_performed_short.find("Standing"):
+            if l_action_performed_short.find("OpenSell") >= 0:
+                if l_action_performed_short.find("Standing") >= 0:
                     l_trade_price_short = float(index[5]) -1
                 else:
                     l_trade_price_short = float(index[4])                
@@ -95,8 +95,8 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_profit_short += (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
                 
-            if l_action_performed_short.find("CloseBuy"):
-                if l_action_performed_short.find("Standing"):
+            if l_action_performed_short.find("CloseBuy") >= 0:
+                if l_action_performed_short.find("Standing") >= 0:
                     l_trade_price_short = float(index[4]) +1
                 else:
                     l_trade_price_short = float(index[5]) 
