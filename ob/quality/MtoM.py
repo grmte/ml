@@ -50,9 +50,11 @@ def calculate_current_tick_sim_mtm_profit():
     g_total_sim_traded_price_long, g_transaction_cost
     global g_sim_gross_mtm_profit_list_long,g_sim_gross_mtm_profit_list_short, g_sim_net_mtm_profit_list
     prviousIndex = [0] * 23
+    fp = open("/home/vikas/ml/ob/quality/output.csv", "w")
+    fp.write("g_sim_running_qty_long;g_sim_running_profit_long;g_total_sim_traded_price_long;g_sim_running_qty_short;g_sim_running_profit_short;g_total_sim_traded_price_short\n")
     for index in matrix: 
-        l_action_performed_long = index[14]
-        l_action_performed_short = index[11]
+        l_action_performed_long = str(index[14])
+        l_action_performed_short = str(index[11])
         
         if len(l_action_performed_long) > 5 or len(l_action_performed_short) > 5:
             #FOR LONG FILE----------------------------------------------------------------------
@@ -97,7 +99,9 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_short -= l_trade_qty_short
                 g_sim_running_profit_short -= (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
-                
+            
+            lineToPrint = str(g_sim_running_qty_long) + ";" + str(g_sim_running_profit_long) + ";" + str(g_total_sim_traded_price_long) + ";" + str(g_sim_running_qty_short) + ";" + str(g_sim_running_profit_short) + ";" + str(g_total_sim_traded_price_short) + "\n"
+            fp.write(lineToPrint)
             prviousIndex = index
          
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
@@ -108,6 +112,7 @@ def calculate_current_tick_sim_mtm_profit():
         
         g_sim_gross_mtm_profit_list_long.append(gross_sim_mtm_profit_long)
         g_sim_gross_mtm_profit_list_short.append(gross_sim_mtm_profit_short)
+    fp.close()
 
 def addDataRowToMatrix(pDataRow):
    dataColumns=pDataRow.split(';')
