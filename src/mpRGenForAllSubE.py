@@ -67,14 +67,15 @@ def main():
     print "For prediction data set"
     configForPredictions = ConfigObj(args.e+"/design.ini")
     print "The config parameters that I am working with are"
-    feature_keys = configForPredictions['features'].keys()
-    features = configForPredictions['features']
-    for key in feature_keys:
-        new_key = key + "P"
-        features[new_key] = features[key]
-        del features[key]
-    print configForPredictions 
     for target in configForPredictions['target']:
+        feature_keys = configForPredictions['features-'+target].keys()
+        features = configForPredictions['features-'+target]
+        for key in feature_keys:
+            new_key = key + "P"
+            features[new_key] = features[key]
+            del features[key]
+        print configForPredictions 
+
         rCodeGen.ToReadFeatureFiles(rScript,configForPredictions,target,4)
         rCodeGen.ForSanityChecks(rScript,configForPredictions,target)
     

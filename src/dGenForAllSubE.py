@@ -43,7 +43,7 @@ while i < len(features):
             newConfig['target'][target] = targets[target]
             newConfig['features-'+target] = {}
             for feature in featureSet:
-                newConfig['features-'+target][feature] = features[feature]
+                newConfig['features-'+target][feature] = config["features-"+target][feature]
         newConfig.write()
         numberOfFeatureSet += 1
 
