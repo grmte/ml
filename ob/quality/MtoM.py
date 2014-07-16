@@ -53,9 +53,9 @@ def calculate_current_tick_sim_mtm_profit():
             #FOR LONG FILE----------------------------------------------------------------------
             if l_action_performed_long.find("OpenBuy"):
                 if l_action_performed_long.find("Standing"):
-                    l_trade_price_long = bid +1
+                    l_trade_price_long = float(index[4]) +1
                 else:
-                    l_trade_price_long = ask 
+                    l_trade_price_long = float(index[5]) 
                 l_trade_qty_long = abs(prviousIndex - index[1])
                     
                 g_sim_running_qty_long += l_trade_qty_long
@@ -64,9 +64,9 @@ def calculate_current_tick_sim_mtm_profit():
                 
             if l_action_performed_long.find("CloseSell"):
                 if l_action_performed_long.find("Standing"):
-                    l_trade_price_long = ask -1
+                    l_trade_price_long = float(index[5]) - 1
                 else:
-                    l_trade_price_long = bid 
+                    l_trade_price_long = int(index[4])
                 l_trade_qty_long = abs(prviousIndex - index[1])
                                 
                 g_sim_running_qty_long -= l_trade_qty_long
@@ -75,9 +75,9 @@ def calculate_current_tick_sim_mtm_profit():
 
             if l_action_performed_short.find("OpenSell"):
                 if l_action_performed_short.find("Standing"):
-                    l_trade_price_short = ask -1
+                    l_trade_price_short = float(index[5]) -1
                 else:
-                    l_trade_price_short = bid                
+                    l_trade_price_short = float(index[4])                
                 l_trade_qty_long = abs(prviousIndex - index[2])
                 g_sim_running_qty_short += l_trade_qty_short
                 g_sim_running_profit_short += (l_trade_price_short * l_trade_qty_short)
@@ -85,9 +85,9 @@ def calculate_current_tick_sim_mtm_profit():
                 
             if l_action_performed_short.find("CloseBuy"):
                 if l_action_performed_short.find("Standing"):
-                    l_trade_price_short = bid +1
+                    l_trade_price_short = float(index[4]) +1
                 else:
-                    l_trade_price_short = ask 
+                    l_trade_price_short = float(index[5]) 
                 l_trade_qty_long = abs(prviousIndex - index[2])
                 g_sim_running_qty_short -= l_trade_qty_short
                 g_sim_running_profit_short -= (l_trade_price_short * l_trade_qty_short)
