@@ -80,7 +80,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_long -= l_trade_qty_long
                 g_sim_running_profit_long += (l_trade_price_long * l_trade_qty_long)
                 g_total_sim_traded_price_long += (l_trade_price_long * l_trade_qty_long)
-                print g_sim_running_qty_long
 
             if l_action_performed_short.find("OpenSell"):
                 if l_action_performed_short.find("Standing"):
