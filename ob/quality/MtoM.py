@@ -69,7 +69,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_long += l_trade_qty_long
                 g_sim_running_profit_long -= (l_trade_price_long * l_trade_qty_long)
                 g_total_sim_traded_price_long += (l_trade_price_long * l_trade_qty_long)
-                print g_sim_running_qty_long
                 
             if l_action_performed_long.find("CloseSell"):
                 if l_action_performed_long.find("Standing"):
@@ -92,7 +91,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_short += l_trade_qty_short
                 g_sim_running_profit_short += (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
-                print g_sim_running_qty_short
                 
             if l_action_performed_short.find("CloseBuy"):
                 if l_action_performed_short.find("Standing"):
@@ -103,7 +101,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_qty_short -= l_trade_qty_short
                 g_sim_running_profit_short -= (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
-                print g_sim_running_qty_short
                 
             prviousIndex = index
          
@@ -151,7 +148,7 @@ def main():
     getDataIntoMatrix(lFileName)
     calculate_current_tick_sim_mtm_profit()
     
-    print "----",len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), long(g_sim_gross_mtm_profit_list_short)
+    print "----",len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_LONG" , "/home/vikas/ml/ob/quality/for-long.png")
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , "/home/vikas/ml/ob/quality/for-short.png")
     
