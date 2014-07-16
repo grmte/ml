@@ -10,6 +10,13 @@ import matplotlib.pyplot as plt
 
 import time,datetime
 
+import datetime, time
+
+def calculate_epoch_time(p_epoch):
+    l_dt = datetime.datetime.fromtimestamp(p_epoch)
+    
+    return str(l_dt.year) + "-" + str(l_dt.month) + "-" + str(l_dt.day) + " " + str(l_dt.hour) + ":" + str(l_dt.minute) + ":" + str(l_dt.second)
+
 matrix = []
 g_sim_running_qty_long = 0
 g_sim_running_profit_long = 0
@@ -94,7 +101,6 @@ def calculate_current_tick_sim_mtm_profit():
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
                 
             prviousIndex = index
-            print prviousIndex
          
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
@@ -107,7 +113,8 @@ def calculate_current_tick_sim_mtm_profit():
         l_current_obj_tot_gross_profit = gross_sim_mtm_profit_long + gross_sim_mtm_profit_short
         l_current_obj_tot_net_profit = l_mtm_net_profit_long + l_mtm_net_profit_short
         
-        g_epoch_timestamp_list.append(index[0])
+        l_epoch_time = calculate_epoch_time(float(index[0]))
+        g_epoch_timestamp_list.append(datetime.datetime.strptime(l_epoch_time, '%Y-%m-%d %H:%M:%S'))
         
     return [l_current_obj_tot_gross_profit,l_current_obj_tot_net_profit]
 
@@ -132,6 +139,7 @@ def makeFileForMarketToMarket():
     
 def main():
     lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140708/t/ABFeatureExp/glmnet-td.20140623-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
+    #lFileName = "/spa/ml/src/ml/ob/data/rs/20140205/t/9/9glmnet.10-.00.trade"
     if os.path.isfile(lFileName):
         print "Yes file is exist"
     else:
