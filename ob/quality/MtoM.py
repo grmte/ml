@@ -58,7 +58,7 @@ def calculate_current_tick_sim_mtm_profit():
             #FOR LONG FILE----------------------------------------------------------------------
             if l_action_performed_long.find("OpenBuy") >= 0:
                 if l_action_performed_long.find("Standing") >= 0:
-                    l_trade_price_long = float(index[4]) +1
+                    l_trade_price_long = float(index[4]) + 25000
                 else:
                     l_trade_price_long = float(index[5]) 
                 l_trade_qty_long = abs(float(prviousIndex[1]) - float(index[1]))
@@ -69,7 +69,7 @@ def calculate_current_tick_sim_mtm_profit():
                 
             if l_action_performed_long.find("CloseSell") >= 0:
                 if l_action_performed_long.find("Standing") >= 0:
-                    l_trade_price_long = float(index[5]) - 1
+                    l_trade_price_long = float(index[5]) - 25000
                 else:
                     l_trade_price_long = float(index[4])
                 l_trade_qty_long = abs(float(prviousIndex[1]) - float(index[1]))
@@ -80,7 +80,7 @@ def calculate_current_tick_sim_mtm_profit():
 
             if l_action_performed_short.find("OpenSell") >= 0:
                 if l_action_performed_short.find("Standing") >= 0:
-                    l_trade_price_short = float(index[5]) -1
+                    l_trade_price_short = float(index[5]) - 25000
                 else:
                     l_trade_price_short = float(index[4])                
                 l_trade_qty_short = abs(float(prviousIndex[2]) - float(index[2]))
@@ -90,7 +90,7 @@ def calculate_current_tick_sim_mtm_profit():
                 
             if l_action_performed_short.find("CloseBuy") >= 0:
                 if l_action_performed_short.find("Standing") >= 0:
-                    l_trade_price_short = float(index[4]) +1
+                    l_trade_price_short = float(index[4]) + 25000
                 else:
                     l_trade_price_short = float(index[5]) 
                 l_trade_qty_short = abs(float(prviousIndex[2]) - float(index[2]))
