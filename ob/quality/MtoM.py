@@ -140,6 +140,7 @@ def makeFileForMarketToMarket():
     print matrix[1]   
     
 def main():
+    global g_sim_gross_mtm_profit_list, g_epoch_timestamp_list
     lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140708/t/ABFeatureExp/glmnet-td.20140623-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
     #lFileName = "/spa/ml/src/ml/ob/data/rs/20140205/t/9/9glmnet.10-.00.trade"
     if os.path.isfile(lFileName):
