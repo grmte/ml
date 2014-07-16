@@ -18,12 +18,12 @@ def calculate_epoch_time(p_epoch):
     return str(l_dt.year) + "-" + str(l_dt.month) + "-" + str(l_dt.day) + " " + str(l_dt.hour) + ":" + str(l_dt.minute) + ":" + str(l_dt.second)
 
 matrix = []
-g_sim_running_qty_long = 0.0
+g_sim_running_qty_long = 0
 g_sim_running_profit_long = 0.0
 g_total_sim_traded_price_long = 0.0
 gross_sim_mtm_profit_long = 0.0
 g_sim_running_profit_short = 0.0
-g_sim_running_qty_short = 0.0
+g_sim_running_qty_short = 0
 g_total_sim_traded_price_short = 0.0
 g_transaction_cost = 0.00001
 g_sim_gross_mtm_profit_list_long = []
