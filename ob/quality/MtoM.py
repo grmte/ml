@@ -52,7 +52,7 @@ def calculate_current_tick_sim_mtm_profit():
     prviousIndex = [0] * 23
     for index in matrix: 
         l_action_performed_long = index[14]
-        l_action_performed_short = index[14]
+        l_action_performed_short = index[11]
         
         if len(l_action_performed_long) > 5 or len(l_action_performed_short) > 5:
             #FOR LONG FILE----------------------------------------------------------------------
@@ -103,7 +103,6 @@ def calculate_current_tick_sim_mtm_profit():
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
         
-        print gross_sim_mtm_profit_long, gross_sim_mtm_profit_short
         l_epoch_time = calculate_epoch_time(float(index[0]))
         g_epoch_timestamp_list.append(datetime.datetime.strptime(l_epoch_time, '%Y-%m-%d %H:%M:%S'))
         
