@@ -78,7 +78,7 @@ def calculate_current_tick_sim_mtm_profit():
                 if l_action_performed_long.find("Standing") >= 0:
                     l_trade_price_long = float(index[5]) - 1
                 else:
-                    l_trade_price_long = int(index[4])
+                    l_trade_price_long = float(index[4])
                 l_trade_qty_long = abs(float(prviousIndex[1]) - float(index[1]))
                                 
                 g_sim_running_qty_long -= l_trade_qty_long
