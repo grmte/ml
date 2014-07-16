@@ -44,8 +44,6 @@ def plot(p_xlabel_list,p_ylabel_list,p_title,p_image_name):
     # Save the figure in a separate file
     plt.savefig(p_image_name)
     
-    # Draw the plot to the screen
-#    plt.show()
     plt.close()
 
 def calculate_current_tick_sim_mtm_profit():
@@ -106,21 +104,11 @@ def calculate_current_tick_sim_mtm_profit():
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
         
-        l_mtm_net_profit_long = gross_sim_mtm_profit_long - ((g_total_sim_traded_price_long + (float(index[4]) * g_sim_running_qty_long)) *  g_transaction_cost)
-        l_mtm_net_profit_short = gross_sim_mtm_profit_short - ((g_total_sim_traded_price_short + (float(index[5]) * g_sim_running_qty_short)) *  g_transaction_cost)
-        net_sim_mtm_profit_long = l_mtm_net_profit_long
-        net_sim_mtm_profit_short = l_mtm_net_profit_short
-        
-        l_current_obj_tot_net_profit = l_mtm_net_profit_long + l_mtm_net_profit_short
-        
         l_epoch_time = calculate_epoch_time(float(index[0]))
         g_epoch_timestamp_list.append(datetime.datetime.strptime(l_epoch_time, '%Y-%m-%d %H:%M:%S'))
         
         g_sim_gross_mtm_profit_list_long.append(gross_sim_mtm_profit_long)
         g_sim_gross_mtm_profit_list_short.append(gross_sim_mtm_profit_short)
-        
-        
-
 
 def addDataRowToMatrix(pDataRow):
    dataColumns=pDataRow.split(';')
@@ -139,16 +127,12 @@ def getDataIntoMatrix(lFileName):
 def main():
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140708/t/ABFeatureExp/glmnet-td.20140623-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
-    #lFileName = "/spa/ml/src/ml/ob/data/rs/20140205/t/9/9glmnet.10-.00.trade"
-    if os.path.isfile(lFileName):
-        print "Yes file is exist"
-    else:
-        print "File does not exist"
     getDataIntoMatrix(lFileName)
     calculate_current_tick_sim_mtm_profit()
     
-    print "----",len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
-    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_LONG" , "/home/vikas/ml/ob/quality/for-long.png")
+    print len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
+    
+    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , "/home/vikas/ml/ob/quality/for-long.png")
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , "/home/vikas/ml/ob/quality/for-short.png")
     
 
