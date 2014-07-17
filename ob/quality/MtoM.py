@@ -163,10 +163,10 @@ def makeMtoMGraph(lTrainDir, td, lFileName):
     calculate_current_tick_sim_mtm_profit()
     
     print len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
-    grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir + "-" + td + "-long.png"
+    grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir.split("/")[-2] + "-" + td + "-long.png"
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , grFile)
     
-    grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir + "-" + td + "-short.png"
+    grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir.split("/")[-2] + "-" + td + "-short.png"
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , grFile)
     
 def main():
