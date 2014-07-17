@@ -102,7 +102,7 @@ def calculate_current_tick_sim_mtm_profit():
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
             
             lineToPrint = str(g_sim_running_qty_long) + ";" + str(g_sim_running_profit_long) + ";" + str(g_sim_running_qty_short) + ";" + str(g_sim_running_profit_short) \
-            + ";" + l_action_performed_long+ ";" + l_action_performed_short + "\n"
+            + ";" + l_action_performed_long+ ";" + l_action_performed_short 
             #fp.write(lineToPrint)
             prviousIndex = index
          
@@ -110,7 +110,7 @@ def calculate_current_tick_sim_mtm_profit():
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
         
         if "Close" in l_action_performed_long[:5] or "Open" in l_action_performed_short[:5] or "Open" in l_action_performed_long[:5] or "Close" in l_action_performed_short[:5]:
-            lineToPrint = lineToPrint + ";"+ str(gross_sim_mtm_profit_long) +";"+ str(gross_sim_mtm_profit_short)
+            lineToPrint = lineToPrint + ";"+ str(gross_sim_mtm_profit_long) +";"+ str(gross_sim_mtm_profit_short) + "\n"
             fp.write(lineToPrint)
             
         l_epoch_time = calculate_epoch_time(float(index[0]))
