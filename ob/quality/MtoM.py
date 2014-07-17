@@ -159,15 +159,18 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
 def makeMtoMGraph(lTrainDir, td):
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     lFileName = lTrainDir +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
+    print "File name to be generated mtom:-",lFileName
     getDataIntoMatrix(lFileName)
     calculate_current_tick_sim_mtm_profit()
     
     print len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
     grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir.split("/")[-2] + "-" + td + "-long.png"
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , grFile)
+    print "Graph Completed For Long:-", grFile
     
     grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir.split("/")[-2] + "-" + td + "-short.png"
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , grFile)
+    print "Graph Colpleted For Short:-", grFile
     
 def main():
     lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, "/home/vikas/ml/ob/data/rs/nsecur/20140618/")
