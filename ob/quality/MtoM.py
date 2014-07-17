@@ -56,7 +56,7 @@ def calculate_current_tick_sim_mtm_profit():
         l_action_performed_long = str(index[14])
         l_action_performed_short = str(index[11])
         
-        if len(l_action_performed_long) > 5 or len(l_action_performed_short) > 5:
+        if "Open" in l_action_performed_long[:5] or "Close" in l_action_performed_short[:5]:
             #FOR LONG FILE----------------------------------------------------------------------
             if l_action_performed_long.find("OpenBuy") >= 0:
                 if l_action_performed_long.find("Standing") >= 0:
