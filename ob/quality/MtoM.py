@@ -156,6 +156,7 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
     return lTrainingDirectoryList
 
 def makeMtoMGraph(lTrainDir, td, lFileName):
+    global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     getDataIntoMatrix(lFileName)
     calculate_current_tick_sim_mtm_profit()
     
@@ -170,9 +171,8 @@ def main():
     lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, "/home/vikas/ml/ob/data/rs/nsecur/20140618/")
     print lTrainingDirectoryList[-1], lTrainingDirectoryList[-2]
     largs = "/home/vikas/ml/ob/data/rs/nsecur/20140618/"
-    td = largs.split("/")[-1]
+    td = largs.split("/")[-2]
     
-    global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     lFileName = lTrainingDirectoryList[-1] +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
     makeMtoMGraph(lTrainingDirectoryList[-1], td, lFileName)
 
