@@ -153,10 +153,12 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             countOfDaysTaken += 1
         if countOfDaysTaken == int(pNumOfTrainingDays):
             break
-    print lTrainingDirectoryList
+    return lTrainingDirectoryList
 
     
 def main():
+    lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, "/home/vikas/ml/ob/data/rs/nsecur/20140618/")
+    print lTrainingDirectoryList[-1], lTrainingDirectoryList[-2]
     '''
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     lFileName = "/home/vikas/ml/ob/data/rs/nsecur/20140703/t/ABFeatureExp/glmnet-td.20140618-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
@@ -168,7 +170,7 @@ def main():
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , "/home/vikas/ml/ob/quality/for-long.png")
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , "/home/vikas/ml/ob/quality/for-short.png")
     '''
-    getListOfTrainingDirectoriesNames(10, "/home/vikas/ml/ob/data/rs/nsecur/20140618/")
+    
 
 if __name__ == "__main__":
     main()
