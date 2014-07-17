@@ -13,6 +13,10 @@ import datetime, time
 from datetime import timedelta
 from datetime import datetime
 
+parser = argparse.ArgumentParser(description='Mark To Market Graph Plot', formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-pd', required=False,help='Prediction directory')
+args = parser.parse_args()
+
 def calculate_epoch_time(p_epoch):
     import datetime
     l_dt = datetime.datetime.fromtimestamp(p_epoch)
@@ -173,10 +177,9 @@ def makeMtoMGraph(lTrainDir, td):
     print "Graph Colpleted For Short:-", grFile
     
 def main():
-    lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, "/home/vikas/ml/ob/data/rs/nsecur/20140618/")
+    lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, args.pd)#"/home/vikas/ml/ob/data/rs/nsecur/20140618/")
     print lTrainingDirectoryList[-1], lTrainingDirectoryList[-2]
-    largs = "/home/vikas/ml/ob/data/rs/nsecur/20140618/"
-    td = largs.split("/")[-2]
+    td = args.pd.split("/")[-2]
     
     makeMtoMGraph(lTrainingDirectoryList[-1], td)
     makeMtoMGraph(lTrainingDirectoryList[-2], td)
