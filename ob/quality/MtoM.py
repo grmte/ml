@@ -102,7 +102,7 @@ def calculate_current_tick_sim_mtm_profit():
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
             
             #fp.write(lineToPrint)
-            prviousIndex = index
+        prviousIndex = index
          
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
