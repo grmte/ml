@@ -55,6 +55,7 @@ def calculate_current_tick_sim_mtm_profit():
     for index in matrix: 
         l_action_performed_long = str(index[14])
         l_action_performed_short = str(index[11])
+        lineToPrint = ''
         
         if "Close" in l_action_performed_long[:5] or "Open" in l_action_performed_short[:5] or "Open" in l_action_performed_long[:5] or "Close" in l_action_performed_short[:5]:
             #FOR LONG FILE----------------------------------------------------------------------
@@ -100,14 +101,18 @@ def calculate_current_tick_sim_mtm_profit():
                 g_sim_running_profit_short -= (l_trade_price_short * l_trade_qty_short)
                 g_total_sim_traded_price_short += (l_trade_price_short * l_trade_qty_short)
             
-            lineToPrint = str(g_sim_running_qty_long) + ";" + str(g_sim_running_profit_long) + ";" + str(g_total_sim_traded_price_long) + ";" + str(g_sim_running_qty_short) + ";" + str(g_sim_running_profit_short) + ";" + str(g_total_sim_traded_price_short) \
-            + ";"+l_action_performed_long+ ";"+l_action_performed_short+ "\n"
-            fp.write(lineToPrint)
+            lineToPrint = str(g_sim_running_qty_long) + ";" + str(g_sim_running_profit_long) + ";" + str(g_sim_running_qty_short) + ";" + str(g_sim_running_profit_short) \
+            + ";" + l_action_performed_long+ ";" + l_action_performed_short + "\n"
+            #fp.write(lineToPrint)
             prviousIndex = index
          
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
         
+        if "Close" in l_action_performed_long[:5] or "Open" in l_action_performed_short[:5] or "Open" in l_action_performed_long[:5] or "Close" in l_action_performed_short[:5]:
+            lineToPrint = lineToPrint + ";"+ gross_sim_mtm_profit_long +";"+ gross_sim_mtm_profit_short
+            fp.write(lineToPrint)
+            
         l_epoch_time = calculate_epoch_time(float(index[0]))
         g_epoch_timestamp_list.append(datetime.datetime.strptime(l_epoch_time, '%Y-%m-%d %H:%M:%S'))
         
