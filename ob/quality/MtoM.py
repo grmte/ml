@@ -14,6 +14,7 @@ from datetime import timedelta
 from datetime import datetime
 
 def calculate_epoch_time(p_epoch):
+    import datetime
     l_dt = datetime.datetime.fromtimestamp(p_epoch)
     
     return str(l_dt.year) + "-" + str(l_dt.month) + "-" + str(l_dt.day) + " " + str(l_dt.hour) + ":" + str(l_dt.minute) + ":" + str(l_dt.second)
@@ -47,6 +48,7 @@ def plot(p_xlabel_list,p_ylabel_list,p_title,p_image_name):
     plt.close()
 
 def calculate_current_tick_sim_mtm_profit():
+    import datetime
     global gross_sim_mtm_profit_long, g_sim_running_profit_long, g_sim_running_qty_long, gross_sim_mtm_profit_short, g_sim_running_profit_short, g_sim_running_qty_short, g_total_sim_traded_price_short,\
     g_total_sim_traded_price_long, g_transaction_cost
     global g_sim_gross_mtm_profit_list_long,g_sim_gross_mtm_profit_list_short, g_sim_net_mtm_profit_list
