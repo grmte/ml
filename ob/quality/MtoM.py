@@ -149,7 +149,6 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             continue
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
         l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string) 
-        print l_training_date_full_path_name
         if (os.path.exists(l_training_date_full_path_name)):
             lTrainingDirectoryList.append(l_training_date_full_path_name)
             countOfDaysTaken += 1
@@ -157,8 +156,9 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             break
     return lTrainingDirectoryList
 
-def makeMtoMGraph(lTrainDir, td, lFileName):
+def makeMtoMGraph(lTrainDir, td):
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
+    lFileName = lTrainDir +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
     getDataIntoMatrix(lFileName)
     calculate_current_tick_sim_mtm_profit()
     
@@ -175,8 +175,8 @@ def main():
     largs = "/home/vikas/ml/ob/data/rs/nsecur/20140618/"
     td = largs.split("/")[-2]
     
-    lFileName = lTrainingDirectoryList[-1] +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
-    makeMtoMGraph(lTrainingDirectoryList[-1], td, lFileName)
+    makeMtoMGraph(lTrainingDirectoryList[-1], td)
+    makeMtoMGraph(lTrainingDirectoryList[-2], td)
 
     
 
