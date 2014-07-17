@@ -36,6 +36,25 @@ g_sim_gross_mtm_profit_list_long = []
 g_sim_gross_mtm_profit_list_short = []
 g_sim_net_mtm_profit_list = []
 g_epoch_timestamp_list = []
+    
+def initializeGlobalVar():
+    global matrix, g_sim_running_qty_long, g_sim_running_profit_long, g_total_sim_traded_price_long, gross_sim_mtm_profit_long, g_sim_running_profit_short, g_sim_running_qty_short, g_total_sim_traded_price_short, g_transaction_cost,\
+    g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_sim_net_mtm_profit_list, g_epoch_timestamp_list, matrix
+
+    matrix = []
+    g_sim_running_qty_long = 0
+    g_sim_running_profit_long = 0.0
+    g_total_sim_traded_price_long = 0.0
+    gross_sim_mtm_profit_long = 0.0
+    g_sim_running_profit_short = 0.0
+    g_sim_running_qty_short = 0
+    g_total_sim_traded_price_short = 0.0
+    g_transaction_cost = 0.00001
+    g_sim_gross_mtm_profit_list_long = []
+    g_sim_gross_mtm_profit_list_short = []
+    g_sim_net_mtm_profit_list = []
+    g_epoch_timestamp_list = []    
+    
 
 def plot(p_xlabel_list,p_ylabel_list,p_title,p_image_name):
     l_dates = matplotlib.dates.date2num(p_xlabel_list)
@@ -162,6 +181,7 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
 
 def makeMtoMGraph(lTrainDir, td):
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
+    initializeGlobalVar()
     lFileName = lTrainDir +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
     print "File name to be generated mtom:-",lFileName
     getDataIntoMatrix(lFileName)
