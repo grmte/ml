@@ -63,9 +63,9 @@ def main():
             lAllFilePresent = False
             break
     if lAllFilePresent == False:
-        rCodeGen.ToReadFeatureFiles(rScript,config)
-        rCodeGen.ForSanityChecks(rScript,config)
         for target in config['target']:
+            rCodeGen.ToReadFeatureFiles(rScript,config,target)
+            rCodeGen.ForSanityChecks(rScript,config,target)
             predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
             "-wt." + args.wt +".predictions"

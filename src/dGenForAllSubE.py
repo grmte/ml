@@ -9,8 +9,8 @@ args = parser.parse_args()
 
 config = ConfigObj(args.e+"/design.ini")
 
-features = config["features"]
 targets = config["target"]
+features = config["features-"+targets.keys()[0]]
 
 i = 1
 numberOfFeatureSet = 1
@@ -41,9 +41,9 @@ while i < len(features):
         newConfig['target'] = {}
         for target in targets:
             newConfig['target'][target] = targets[target]
-        newConfig['features'] = {}
-        for feature in featureSet:
-            newConfig['features'][feature] = features[feature]
+            newConfig['features-'+target] = {}
+            for feature in featureSet:
+                newConfig['features-'+target][feature] = config["features-"+target][feature]
         newConfig.write()
         numberOfFeatureSet += 1
 

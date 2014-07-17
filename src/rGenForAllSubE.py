@@ -2,6 +2,7 @@
 import argparse
 import utility
 from configobj import ConfigObj
+import attribute
  
 parser = argparse.ArgumentParser(description='This program will run mGen.py and pGen.py. An e.g. command line is\n\
 src/rGenForAllSubE.py -e ob/e/nsecur/24/ -a glmnet -run real -sequence lp -pd ob/data/ro/nsecur/20140218/ -td ob/data/ro/nsecur/20140203/ -dt 10 -targetClass binomial -skipM yes -skipP yes -mpMearge yes -wt exp', formatter_class=argparse.RawTextHelpFormatter)
@@ -34,8 +35,9 @@ else:
     allAlgos = ['logitr','glmnet','randomForest']
 
 config = ConfigObj(args.e+"/design.ini")
-features = config["features"]
-totalNumberOfFeatures = len(features)
+targetAttributes = attribute.getTargetVariableKeys(config)
+one_feature_attributes = attribute.getFeatureVariableKeys(config , targetAttributes.keys()[0])
+totalNumberOfFeatures = len(one_feature_attributes)
 
 i = 2
 for algo in allAlgos:

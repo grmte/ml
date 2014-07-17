@@ -44,8 +44,6 @@ if args.dt == None:
 if(args.sequence == "dp"):
     import dp
 
-config = ConfigObj(args.e+"/design.ini")
-features = config["features"]
 
 algo = rCodeGen.getAlgoName(args)
 
@@ -55,37 +53,54 @@ else:
     allAlgos = ['logitr','glmnet','randomForest']
     
 config = ConfigObj(args.e+"/design.ini")
-features = config["features"]
-indexOfFeatures = len(features)
+targetAttributes = attribute.getTargetVariableKeys(config)
+one_feature_attributes = attribute.getFeatureVariableKeys(config , targetAttributes.keys()[0])
+indexOfFeatures = len(one_feature_attributes)
+
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
 dataFolder = args.td
 generatorsFolder = args.g
 commandList = []
 
 experimentFolder = args.e
-for trainingDirectory in allDataDirectories:
-    commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-# Seperate into 2 different list one for aGen and another for operateOnAttribute
-aGenList = []
-attribute.getGenerationCommands(commandList,aGenList)
-totalGeneratorsWhichCanBeScheduled = 2 * int(args.nComputers)
 
-for chunkNum in range(0,len(aGenList),totalGeneratorsWhichCanBeScheduled ):
-    lSubGenList = aGenList[chunkNum:chunkNum+totalGeneratorsWhichCanBeScheduled]
-    utility.runCommandList(lSubGenList,args)
-    print dp.printGroupStatus()
-     
-operateOnAttributeList = []
-attribute.getOperationCommands(commandList,operateOnAttributeList)
-operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-operatorRunInParallel = []
-LastRunDate = allDataDirectories[-1]
-for operatorCommand in operateOnAttributeListAsPerPriority:
-    operatorRunInParallel.append(operatorCommand) 
-    if LastRunDate in operatorCommand :
-        utility.runCommandList(operatorRunInParallel,args)
-        dp.printGroupStatus() 
-        operatorRunInParallel = []
+insideFeatureCommandList = []
+for trainingDirectory in allDataDirectories:
+    insideFeatureCommandList.extend(aGenForE.getCommandListForInsideFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+commandList.append(insideFeatureCommandList)
+
+intermediateFeatureCommandList = []
+for trainingDirectory in allDataDirectories:
+    intermediateFeatureCommandList.extend(aGenForE.getCommandListForIntermediateFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+commandList.append(intermediateFeatureCommandList)
+    
+actualFeaturescommandList = []
+for trainingDirectory in allDataDirectories:
+    actualFeaturescommandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+commandList.append(actualFeaturescommandList)
+
+# Seperate into 2 different list one for aGen and another for operateOnAttribute
+for commandListElement in commandList:
+    aGenList = []
+    attribute.getGenerationCommands(commandListElement,aGenList)
+    totalGeneratorsWhichCanBeScheduled = 2 * int(args.nComputers)
+    
+    for chunkNum in range(0,len(aGenList),totalGeneratorsWhichCanBeScheduled ):
+        lSubGenList = aGenList[chunkNum:chunkNum+totalGeneratorsWhichCanBeScheduled]
+        utility.runCommandList(lSubGenList,args)
+        print dp.printGroupStatus()
+         
+    operateOnAttributeList = []
+    attribute.getOperationCommands(commandListElement,operateOnAttributeList)
+    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
+    operatorRunInParallel = []
+    LastRunDate = allDataDirectories[-1]
+    for operatorCommand in operateOnAttributeListAsPerPriority:
+        operatorRunInParallel.append(operatorCommand) 
+        if LastRunDate in operatorCommand :
+            utility.runCommandList(operatorRunInParallel,args)
+            dp.printGroupStatus() 
+            operatorRunInParallel = []
         
 for algo in allAlgos:
     while indexOfFeatures >= 2:

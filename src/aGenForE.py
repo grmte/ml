@@ -1,8 +1,8 @@
 #!/usr/bin/python
-from configobj import ConfigObj
+
 import argparse
 import attribute, utility
-
+from configobj import ConfigObj
 print "\nStarting to run Attribute generator for experiment"
 
 def parseCommandLine():
@@ -15,12 +15,6 @@ def parseCommandLine():
     parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options give 5')
     args = parser.parse_args()
     return args
-
-def getAttributesOfExprement(experimentFolder):
-    config = ConfigObj(experimentFolder+"/design.ini")
-    attributes = config["features"]
-    attributes.update(config["target"])
-    return attributes , config
 
 def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
     commandLine = []
@@ -140,30 +134,32 @@ def getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature
 
 def getCommandListForInsideFeatures(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
-    config = ConfigObj(experimentFolder+"/design.ini")
-    try:
-        intermediate_feature_dict = config["intermediate-features"]
-        normal_feature_list = config["features"]
-        normal_feature_list.update(intermediate_feature_dict)
-    except:
-        normal_feature_list = config["features"]    
-    
-    for f in normal_feature_list:
-        attributeName = normal_feature_list[f]
-        print "\nGenerating for " + attributeName
-        listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , normal_feature_list)
+    intermediate_feature_dict , config = attribute.getIntermediateAttributesForExperiment(experimentFolder)
+    for f in intermediate_feature_dict:
+        attributeName = intermediate_feature_dict[f]
+        listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature_dict)
         for features in listOfInsideFeatures:
             command = genAttribute(features,dataFolder,generatorsFolder,pTickSize,config)
             commandList.extend(command)
+    target = config['target']
+    for f in target:
+        attributeName = target[f]
+        listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature_dict)
+        for features in listOfInsideFeatures:
+            command = genAttribute(features,dataFolder,generatorsFolder,pTickSize,config)
+            commandList.extend(command)  
+        featureConfig = config["features-" + f]
+        for featureAttribute in featureConfig:   
+            attributeName = featureConfig[featureAttribute]
+            listOfInsideFeatures = getInsideFeaturesNamesFromAttributeName(attributeName , intermediate_feature_dict)
+            for features in listOfInsideFeatures:
+                command = genAttribute(features,dataFolder,generatorsFolder,pTickSize,config)
+                commandList.extend(command)                             
     return commandList            
 
 def getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
-    config = ConfigObj(experimentFolder+"/design.ini")
-    try:
-        intermediate_feature_dict = config["intermediate-features"]
-    except:
-        return list()
+    intermediate_feature_dict , config = attribute.getIntermediateAttributesForExperiment(experimentFolder)
     for f in intermediate_feature_dict:
         attributeName = intermediate_feature_dict[f]
         print "\nGenerating for " + attributeName
@@ -173,12 +169,19 @@ def getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generators
 
 def getCommandList(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
-    attributes , config = getAttributesOfExprement(experimentFolder)
-    for f in attributes:
-        attributeName = attributes[f]
+    config = ConfigObj(experimentFolder+"/design.ini")
+    target = config['target']
+    for f in target:
+        attributeName = target[f]
         print "\nGenerating for " + attributeName
         command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,config)
         commandList.extend(command)
+        featureConfig = config["features-" + f]
+        for featureAttribute in featureConfig:
+            attributeName = featureConfig[featureAttribute]
+            print "\nGenerating for " + attributeName
+            command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,config)
+            commandList.extend(command)            
     return commandList    
 
 def main():

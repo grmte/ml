@@ -43,7 +43,6 @@ if(args.sequence == "dp"):
     import dp
 
 config = ConfigObj(args.e+"/design.ini")
-features = config["features"]
 
 algo = rCodeGen.getAlgoName(args)
 
@@ -55,24 +54,40 @@ if(args.sequence == "dp"):
     experimentFolder = args.e
     dataFolder = args.td
     generatorsFolder = args.g
-    commandList = []
     lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+    commandList = []
+
+    insideFeatureCommandList = []
     for trainingDirectory in lListofTrainingDirectories:
-        commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-    commandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
+        insideFeatureCommandList.extend(aGenForE.getCommandListForInsideFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+    insideFeatureCommandList.extend(aGenForE.getCommandListForInsideFeatures(experimentFolder,args.pd,generatorsFolder,args.tickSize))
+    commandList.append(insideFeatureCommandList)
+
+    intermediateFeatureCommandList = []
+    for trainingDirectory in lListofTrainingDirectories:
+        intermediateFeatureCommandList.extend(aGenForE.getCommandListForIntermediateFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+    intermediateFeatureCommandList.extend(aGenForE.getCommandListForIntermediateFeatures(experimentFolder,args.pd,generatorsFolder,args.tickSize))
+    commandList.append(intermediateFeatureCommandList)
+        
+    actualFeaturescommandList = []
+    for trainingDirectory in lListofTrainingDirectories:
+        actualFeaturescommandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
+    actualFeaturescommandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
+    commandList.append(actualFeaturescommandList)
     # Seperate into 2 different list one for aGen and another for operateOnAttribute
-
-    aGenList = []
-    attribute.getGenerationCommands(commandList,aGenList)
-    utility.runCommandList(aGenList,args)
-    dp.printGroupStatus()
-
-    operateOnAttributeList = []
-    attribute.getOperationCommands(commandList,operateOnAttributeList)
-    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-    for i in operateOnAttributeListAsPerPriority:
-        utility.runCommand(i,args.run,args.sequence)
-        dp.printGroupStatus() 
+    
+    for commandListElement in commandList:
+        aGenList = []
+        attribute.getGenerationCommands(commandListElement,aGenList)
+        utility.runCommandList(aGenList,args)
+        dp.printGroupStatus()
+    
+        operateOnAttributeList = []
+        attribute.getOperationCommands(commandListElement,operateOnAttributeList)
+        operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
+        for i in operateOnAttributeListAsPerPriority:
+            utility.runCommand(i,args.run,args.sequence)
+            dp.printGroupStatus() 
 
 else:
     lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
