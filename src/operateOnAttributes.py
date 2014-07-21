@@ -1,5 +1,5 @@
 #!/usr/local/bin/pypy
-
+import attribute
 """
 attribute generator
 """
@@ -31,8 +31,15 @@ def main():
    try:
       outputFileName = attribute.getFileNameFromOperationCommand(args.a1,args.a2,args.operand,args.d)
       if (os.path.isfile(outputFileName)):
-          print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
-          os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
+          print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file." , outputFileName
+          lNameAfterDecimal = outputFileName.split(".")[1] 
+          attributeBinaryFileName = outputFileName.replace(lNameAfterDecimal,"bin")
+          if (os.path.isfile(attributeBinaryFileName)):
+            print   attributeBinaryFileName
+            os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
+          else:
+            attribute.callRProgramToConvertToBinary(outputFileName) 
+            os._exit(0) 
       attribute.aList,lListOfHeaderColNames = attribute.operateOnAttributes(args.a1,args.a2,args.operand,args.d)
       attribute.writeToFile(outputFileName,lListOfHeaderColNames)
    except:

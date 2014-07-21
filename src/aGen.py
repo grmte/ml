@@ -63,6 +63,7 @@ def main():
       else:
           fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.o,args.d)
       attribute.writeToFile(fileName , lHeaderColumnNamesList)
+      attribute.callRProgramToConvertToBinary(fileName) 
    except:
       traceback.print_exc()
       e = sys.exc_info()[0]

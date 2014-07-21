@@ -193,13 +193,29 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
     print lTrainingDirectoryList
     return lTrainingDirectoryList
 
+def callRProgramToConvertToBinary(pFileName):
+    lVariableName = (pFileName.split("/")[-1]).split(".")[0]
+    lNameAfterDecimal = pFileName.split(".")[1] 
+    lFileNameToStore = pFileName.replace(lNameAfterDecimal,"bin")
+    
+    lCommandToConvertToBinary = "./src/rScriptSaveFeatureFileInBinaryFormat.r " + pFileName + " " + lVariableName + " " + lFileNameToStore
+    
+    os.system(lCommandToConvertToBinary)
+
 def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,dataFolder):
    attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
-      os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
-
+      lNameAfterDecimal = attributeFile.split(".")[1] 
+      attributeBinaryFileName = attributeFile.replace(lNameAfterDecimal,"bin")
+      if (os.path.isfile(attributeBinaryFileName)):
+        print   attributeBinaryFileName
+        os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
+      else:
+        callRProgramToConvertToBinary(attributeFile) 
+        os._exit(0) 
+        
 def writeToFile(outputFileName,pListOfHeaderColNames):
    global aList
    print "Writing to file the attribute: "+ outputFileName
