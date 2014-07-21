@@ -162,7 +162,7 @@ m => model prepared
 a. easy_install configobj
 b. yum install git* # We require git for numpy instalation with checkout the ml codes
 c. easy_install argparse
-d. yum install yum-conf-epel
+d. rpm -Uvh http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
 e. yum install R-core*
 f. yum install R*
 g. yum install pypy
@@ -173,6 +173,7 @@ k. pypy setup.py install
 l. cd ..
 m. rm -rf numpy
 n. yum install libffi*
+u. yum install python-devel 
 o. easy_install cffi
 p. easy_install importlib
 q. git clone https://github.com/grmte/ml.git #This will checkout codes in our local machine . 
@@ -181,6 +182,9 @@ r. ln -sf /usr/bin/python /usr/local/bin/pypy
 s. Then go inside R program by typing R
    >install.packages('glmnet')
 (if easy install is not installed in machine then  wget https://bootstrap.pypa.io/ez_setup.py -O - | python to install it)
+t. yum install ntpdate
+v. easy_install celery flower termcolor argparse
+w. ntpdate 0.centos.pool.ntp.org
 
 21. Date, Time should be same for all the server to run celery
 cat /etc/sysconfig/clock 
