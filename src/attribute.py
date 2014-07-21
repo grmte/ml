@@ -195,6 +195,8 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
 
 def callRProgramToConvertToBinary(pFileName):
     lVariableName = (pFileName.split("/")[-1]).split(".")[0]
+    lVariableName = lVariableName.replace("[","")
+    lVariableName = lVariableName.replace("]","")
     lNameAfterDecimal = pFileName.split(".")[1] 
     lFileNameToStore = pFileName.replace(lNameAfterDecimal,"bin")
     
