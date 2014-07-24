@@ -58,7 +58,7 @@ initialFileName = []
 for indexOfCL in range(0,len(totalEntryCL)):
     lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty
+                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty + "-te.6" 
     initialFileName.append(lInitialFileName)
     
 
@@ -123,7 +123,9 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         pPredictedValuesDict[elements]['sell'] = lPredictedSellValuesDict[elements] 
 
 
-def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow,pBidP0AtTimeOfPreviousDataRow,pAskQ0AtTimeOfPreviousDataRow , pBidQ0AtTimeOfPreviousDataRow , pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade ):
+def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQAtTimeOfPreviousDataRow,pAskP0AtTimeOfPreviousDataRow,pBidP0AtTimeOfPreviousDataRow,pAskQ0AtTimeOfPreviousDataRow , \
+                                                           pBidQ0AtTimeOfPreviousDataRow , pEnterTradeShort, pEnterTradeLong, pTradeStats,pReasonForTrade , \
+                                                           pPrevReasonForTradingOrNotTradingLong  , pPrevReasonForTradingOrNotTradingShort):
     global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy
     spreadAtTimeOfPreviousDataRow = pAskP0AtTimeOfPreviousDataRow - pBidP0AtTimeOfPreviousDataRow
     lReasonForTradingOrNotTradingShort = ""
@@ -157,6 +159,9 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             elif(currentLTP != pBidP0AtTimeOfPreviousDataRow): 
                 pReasonForTrade['LTPDoesNotEqualBidP0Short'] += 1
                 lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(LTP!=Bid)'
+            elif ("CloseBuy(Hitting)" in pPrevReasonForTradingOrNotTradingShort) or ("OpenBuy(Hitting)" in pPrevReasonForTradingOrNotTradingLong) :
+                pReasonForTrade['PrevWasOurOrder'] += 1
+                lReasonForTradingOrNotTradingShort = 'TTQChangeBecauseOfOurOrder'                
             else:    
                
                 lQtyTraded = min(  pTradeStats['currentPositionShort'] , l_dummy_TTQChange_For_Buy )
@@ -194,6 +199,9 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             elif(currentLTP != pBidP0AtTimeOfPreviousDataRow):
                 pReasonForTrade['LTPDoesNotEqualBidP0Long'] += 1
                 lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(LTPDoesNotEqualBidP0Long)'
+            elif ("CloseBuy(Hitting)" in pPrevReasonForTradingOrNotTradingShort) or ("OpenBuy(Hitting)" in pPrevReasonForTradingOrNotTradingLong):
+                pReasonForTrade['PrevWasOurOrder'] += 1
+                lReasonForTradingOrNotTradingShort = 'TTQChangeBecauseOfOurPrevOrder'               
             else:
 
                 lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionLong'] )
@@ -234,6 +242,9 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             elif(currentLTP != pAskP0AtTimeOfPreviousDataRow): 
                 pReasonForTrade['LTPDoesNotEqualAskP0Long'] += 1
                 lReasonForTradingOrNotTradingLong = '(Spread>Pip)&&(NextTickLTP!=Ask)'
+            elif ("OpenSell(Hitting)" in pPrevReasonForTradingOrNotTradingShort) or ("CloseSell(Hitting)" in pPrevReasonForTradingOrNotTradingLong):
+                pReasonForTrade['PrevWasOurOrder'] += 1
+                lReasonForTradingOrNotTradingShort = 'TTQChangeBecauseOfOurOrder' 
             else:    
 
                 lQtyTraded = min(  pTradeStats['currentPositionLong'] , l_dummy_TTQChange_For_Sell )
@@ -271,6 +282,9 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
             elif(currentLTP != pAskP0AtTimeOfPreviousDataRow):
                 pReasonForTrade['LTPDoesNotEqualAskP0Short'] += 1
                 lReasonForTradingOrNotTradingShort = '(Spread>Pip)&&(NextTickLTP!=Ask)'
+            elif ("OpenSell(Hitting)" in pPrevReasonForTradingOrNotTradingShort) or ("CloseSell(Hitting)" in pPrevReasonForTradingOrNotTradingLong):
+                pReasonForTrade['PrevWasOurOrder'] += 1
+                lReasonForTradingOrNotTradingShort = 'TTQChangeBecauseOfOurOrder' 
             else:
 
                 lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionShort'] )
@@ -344,12 +358,18 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
    reasonForTrade['VolumeDidNotIncreaseDuringSellAttemptLong'] = 0
    reasonForTrade['OpenSellTradeHappened'] = 0
    reasonForTrade['CloseSellTradeHappened'] = 0
+   reasonForTrade['PrevWasOurOrder'] = 0
    currentIndex = 0
+   lReasonForTradingOrNotTradingLong = ""
+   lReasonForTradingOrNotTradingShort = ""
    print("Processing the data file for trades :")
    attribute.initList()
    for currentDataRow in dataFile.matrix:
        
-       lReturnList = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,askQ0AtTimeOfPreviousDataRow , bidQ0AtTimeOfPreviousDataRow , enterTradeShort,enterTradeLong,tradeStats,reasonForTrade )
+       lReturnList = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,\
+                                                                            bidP0AtTimeOfPreviousDataRow,askQ0AtTimeOfPreviousDataRow , bidQ0AtTimeOfPreviousDataRow , \
+                                                                            enterTradeShort,enterTradeLong,tradeStats,reasonForTrade , lReasonForTradingOrNotTradingLong , \
+                                                                            lReasonForTradingOrNotTradingShort)
 
        lReasonForTradingOrNotTradingShort = lReturnList[0]
        lReasonForTradingOrNotTradingLong = lReturnList[1] 

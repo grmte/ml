@@ -51,7 +51,7 @@ if args.f == "0":
     desired_statistic_names = ["FeatureCombination","EntryCL","ExitCL","TotalSellQty","TotalBuyQty","AvgSellP","AvgBuyPrice","AvgGrossProfit","AvgNetProfit"]
 else:
     desired_statistic_names = ["AlgorithmUsed","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
-                               "EntryCL","ExitCL","OrderQty","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
+                               "EntryCL","ExitCL","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
                                "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars"]
 #os.chdir("")    # Directory name needed
@@ -104,7 +104,8 @@ for dirN in allPredictionDataDirectories:
         weightTypeTaken = file_name[file_name.index("-wt.")+3:file_name.index("-l.")]
         entryCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][:(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")]   
         exitCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")+1:]  
-        orderQty = file_name[file_name.index("-tq.")+4:file_name.index(".result")]        
+        orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
+        tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")]        
         temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
         line_list = temp_read_file_object.readlines()
         if len(line_list) == 0 :
@@ -177,7 +178,7 @@ for dirN in allPredictionDataDirectories:
                 print "Error in experiment file complete path name "
             
             l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
-                                  weightTypeTaken , feature , entryCL , exitCL , orderQty , str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
+                                  weightTypeTaken , feature , entryCL , exitCL , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
                                   str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
                                   str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]

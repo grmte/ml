@@ -33,7 +33,6 @@ def main():
     rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt +".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
-
     rScript.write('#!/usr/bin/Rscript \n')
     if(algo == 'glmnet'):
         rScript.write('require (glmnet) \n')
@@ -41,7 +40,6 @@ def main():
         rScript.write('require (randomForest) \n')
     elif(algo == 'mda'):
         rScript.write('require (mda) \n')
-
     rCodeGen.ForSetUpChecks(rScript)
     lAllFilePresent = True
     for target in config['target']:
@@ -67,6 +65,7 @@ def main():
                 rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
                 rCodeGen.ForTraining(rScript,args,config,target)
                 rCodeGen.saveTrainingModel(rScript,args,dirName,target)
+
 
     rScript.close()
     print "Finished generating R training program: " + rProgLocation

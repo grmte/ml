@@ -2,8 +2,8 @@
 import os, sys, argparse
 import commands
 from configobj import ConfigObj
-
 from numpy import *
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ from datetime import timedelta
 from datetime import datetime
 
 parser = argparse.ArgumentParser(description='Mark To Market Graph Plot', formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-pd', required=False,help='Prediction directory')
+parser.add_argument('-td', required=False,help='Prediction directory')
 args = parser.parse_args()
 
 def calculate_epoch_time(p_epoch):
@@ -179,30 +179,30 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             break
     return lTrainingDirectoryList
 
-def makeMtoMGraph(lTrainDir, td):
+def makeMtoMGraph(pPredictDir, td):
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     initializeGlobalVar()
-    lFileName = lTrainDir +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.55-45-tq.300.trade"
+    lFileName = pPredictDir +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.60-55-tq.300.trade"
     print "File name to be generated mtom:-",lFileName
     getDataIntoMatrix(lFileName)
     calculate_current_tick_sim_mtm_profit()
     
     print len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
-    grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir.split("/")[-2] + "-" + td + "-long.png"
+    grFile = "/home/vikas/ml/ob/data/g/" +  td  + "-" +pPredictDir.split("/")[-2]+ "-long.png"
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , grFile)
     print "Graph Completed For Long:-", grFile
     
-    grFile = "/home/vikas/ml/ob/data/g/" + lTrainDir.split("/")[-2] + "-" + td + "-short.png"
+    grFile = "/home/vikas/ml/ob/data/g/" + td  + "-" +pPredictDir.split("/")[-2]+ "-short.png"
     plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , grFile)
     print "Graph Colpleted For Short:-", grFile
     
 def main():
-    lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, args.pd)#"/home/vikas/ml/ob/data/rs/nsecur/20140618/")
+    lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, args.td)#"/home/vikas/ml/ob/data/rs/nsecur/20140618/")
     print lTrainingDirectoryList[-1], lTrainingDirectoryList[-2]
-    td = args.pd.split("/")[-2]
+    td = args.td.split("/")[-2]
     
     makeMtoMGraph(lTrainingDirectoryList[-1], td)
-    makeMtoMGraph(lTrainingDirectoryList[-2], td)
+#    makeMtoMGraph(lTrainingDirectoryList[-2], td)
 
     
 

@@ -17,3 +17,5 @@
 *.gz
 *.result
 *.coef
+*.profile
+*.ini

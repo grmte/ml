@@ -56,16 +56,23 @@ def ToReadTargetFile(rScript,config):
     lTargetSet = config["target"]
     rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
     for target in lTargetSet:
+        userFriendlyName = lTargetSet[target]
+        userFriendlyName = userFriendlyName.replace('[','')
+        userFriendlyName = userFriendlyName.replace(']','')
         rScript.write('lengthOfEachDay = numeric()\n')
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
-        rScript.write('        ' + target+'<- read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        load(paste(file,"/t/'+lTargetSet[target]+'.bin",sep=""))\n')
+        rScript.write('        ' + target+'<- ' + userFriendlyName + '\n')
+        rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(' + target + '))\n')
         rScript.write('        lFlag=TRUE\n')   
         rScript.write('    }\n')
         rScript.write('    else{\n')
-        rScript.write('        temp<-read.csv(paste(file,"/t/'+lTargetSet[target]+'.target",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        load(paste(file,"/t/'+lTargetSet[target]+'.bin",sep=""))\n')
+        rScript.write('        temp<-' + userFriendlyName + '\n')
+        rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(temp))\n')
         rScript.write('        '+target+'<-rbind('+target+',temp)\n')
         rScript.write('        rm(temp)\n')
@@ -104,14 +111,21 @@ def ToReadFeatureFiles(rScript,config,targetVariable,pUseWhichArgumentForData=2)
     else:
         rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
     for feature in features:
+        userFriendlyName = features[feature]
+        userFriendlyName = userFriendlyName.replace('[','')
+        userFriendlyName = userFriendlyName.replace(']','')
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
-        rScript.write('        '+feature+targetVariable+'<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')
+        rScript.write('        load(paste(file,"/f/'+features[feature]+'.bin",sep=""))\n')
+        rScript.write('        '+feature+targetVariable+'<-'+userFriendlyName+' \n')
+        rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lFlag=TRUE\n')
         rScript.write('    }\n')
         rScript.write('    else {\n')  
-        rScript.write('        temp<-read.csv(paste(file,"/f/'+features[feature]+'.feature",sep=""), header=TRUE ,sep=";", row.names=NULL ) \n')  
+        rScript.write('        load(paste(file,"/f/'+features[feature]+'.bin",sep=""))\n')
+        rScript.write('        temp<-'+userFriendlyName+ '\n')  
+        rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        '+feature+targetVariable+'<-rbind('+feature+targetVariable+',temp)\n')    
         rScript.write('        rm(temp)\n')
         rScript.write('    }\n')
@@ -174,7 +188,10 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
         rScript.write('fit <- glm ('+config["target"][pTargetVariableKey]+' ~ ')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features[feature]+pTargetVariableKey)
+            userFriendlyName = features[feature]
+            userFriendlyName = userFriendlyName.replace('[','')
+            userFriendlyName = userFriendlyName.replace(']','')            
+            rScript.write(userFriendlyName)
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write('+')
@@ -249,7 +266,10 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
         rScript.write('df = data.frame(')
         currentFeatureNumber=0
         for feature in features:
-            rScript.write(features[feature]+'='+feature+pTargetVariableKey+'[,2]')
+            userFriendlyName = features[feature]
+            userFriendlyName = userFriendlyName.replace('[','')
+            userFriendlyName = userFriendlyName.replace(']','')        
+            rScript.write(userFriendlyName+'='+feature+pTargetVariableKey+'[,2]')
             currentFeatureNumber = currentFeatureNumber+1
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')
