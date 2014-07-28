@@ -13,7 +13,7 @@ class ticks_values_to_be_stored(object):
         self.IntensityValue = 0.0
 
               
-def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , totalTradedQty , timeElapsed , l_first_time_elapsed , N , C , O):
+def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , totalTradedQty , timeElapsed , l_first_time_elapsed , N , C , O , pNumberOfRowsInLastNSecs):
     if O == 'T':
         if pPreviousTickObject != None:
             if  pCurrentTickObject.NewP == pPreviousTickObject.Price:
@@ -28,11 +28,11 @@ def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , 
             
     if timeElapsed != 0:
         if l_first_time_elapsed == False:
-            pCurrentTickObject.IntensityValue = float(totalTradedQty) / timeElapsed
+            pCurrentTickObject.IntensityValue = float(totalTradedQty) / (pNumberOfRowsInLastNSecs+1)
         else:
             pCurrentTickObject.IntensityValue = float(totalTradedQty) / N
     else:
-        pCurrentTickObject.IntensityValue = totalTradedQty
+        pCurrentTickObject.IntensityValue = 1
     
     return  totalTradedQty   
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -65,10 +65,11 @@ def extractAttributeFromDataMatrix(args):
         os._exit()       
 
     colNumberOfTimeStamp = colNumberOfData.TimeStamp
+    colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
     numberOfRowsInLastNSecs = 0
     l_first_time_elapsed = False   
     queueOfValuesInLastNSecs = deque()
-    timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfTimeStamp])
+    timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfExchangeStamp],"synthetic")
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
     lengthOfDataMatrix = len(dataFile.matrix)
     totalTradedQty = 0
@@ -82,7 +83,7 @@ def extractAttributeFromDataMatrix(args):
 
         lCurrentTickObject = ticks_values_to_be_stored()
         lCurrentDataRow = dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated]
-        timeOfCurrentRow = common.convertTimeStampFromStringToFloat(lCurrentDataRow[colNumberOfTimeStamp],args.cType)
+        timeOfCurrentRow = common.convertTimeStampFromStringToFloat(lCurrentDataRow[colNumberOfExchangeStamp],"synthetic")
         timeElapsed = timeOfCurrentRow - timeOfOldestRow
         if (timeElapsed < N):
             lCurrentTickObject.MsgCode = lCurrentDataRow[colNumberOfData.MsgCode]
@@ -91,7 +92,7 @@ def extractAttributeFromDataMatrix(args):
             lCurrentTickObject.NewQ = int(lCurrentDataRow[colNumberOfData.NewQ])
             lCurrentTickObject.Price = float( lCurrentDataRow[priceIndex] )
 
-            totalTradedQty = updateCurrentTickAdditionToQueue(lCurrentTickObject, lPreviousTickObject , totalTradedQty , timeElapsed , l_first_time_elapsed , N , orderTypeToBeTracked , args.o )
+            totalTradedQty = updateCurrentTickAdditionToQueue(lCurrentTickObject, lPreviousTickObject , totalTradedQty , timeElapsed , l_first_time_elapsed , N , orderTypeToBeTracked , args.o , numberOfRowsInLastNSecs)
 
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(lCurrentDataRow[colNumberOfTimeStamp])
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = str(lCurrentTickObject.IntensityValue) 

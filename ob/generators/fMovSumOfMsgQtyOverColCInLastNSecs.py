@@ -15,11 +15,12 @@ def extractAttributeFromDataMatrix(args):
       os._exit()
       
    colNumberOfTimeStamp = colNumberOfData.TimeStamp
-
+   colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
+   l_first_time_elapsed = False   
    numberOfRowsInLastNSecs = 0
    queueOfValuesInLastNSecs = deque()
    totalOfRowsInLastNSecs = 0.0
-   timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfTimeStamp])
+   timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfExchangeStamp],"synthetic")
    currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
    lengthOfDataMatrix = len(dataFile.matrix)
    while (currentRowNumberForWhichFeatureValueIsBeingCalculated < lengthOfDataMatrix):
@@ -27,7 +28,7 @@ def extractAttributeFromDataMatrix(args):
           lPreviousDataRow = dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated - 1]
       lCurrentDataRow = dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated]
       lPreviousRowData = dataFile.matrix[ currentRowNumberForWhichFeatureValueIsBeingCalculated - 1 ]
-      timeOfCurrentRow = common.convertTimeStampFromStringToFloat(lCurrentDataRow[colNumberOfTimeStamp],args.cType)
+      timeOfCurrentRow = common.convertTimeStampFromStringToFloat(lCurrentDataRow[colNumberOfExchangeStamp],"synthetic")
       timeElapsed = timeOfCurrentRow - timeOfOldestRow
       if (timeElapsed < N):
          lMsgCode = lCurrentDataRow[colNumberOfData.MsgCode]
@@ -71,8 +72,16 @@ def extractAttributeFromDataMatrix(args):
          elif (len(lColCPrevPriceList) != 0) and (lMsgCode == "T" and lNewPrice==lColCPrevPriceList[0]):
                 cellValue = -1 * lNewQty
          totalOfRowsInLastNSecs = totalOfRowsInLastNSecs + cellValue
+         lAvgValue = 0
+         if timeElapsed != 0:
+            if l_first_time_elapsed == False:
+                lAvgValue = float(totalOfRowsInLastNSecs) / (numberOfRowsInLastNSecs+1)
+            else:
+                lAvgValue = float(totalOfRowsInLastNSecs) / N
+         else:
+            lAvgValue = 1         
          attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(lCurrentDataRow[colNumberOfTimeStamp])
-         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
+         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = lAvgValue# in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
          attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(cellValue) + ";" + str(timeElapsed)
          queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
          numberOfRowsInLastNSecs += 1   # Every append gets a +1 
@@ -80,6 +89,7 @@ def extractAttributeFromDataMatrix(args):
          continue     # Since we are going back 1 row from current we cannot get data from current row
 
       else:
+         l_first_time_elapsed = True
          # We need to reset the timeOfOldestRow since timeElapsed has exceeded N seconds
          while(timeElapsed >= N):
             if(len(queueOfValuesInLastNSecs) == 0):

@@ -14,19 +14,21 @@ def extractAttributeFromDataMatrix(args):
     if(args.cType == "synthetic"):
         colNumberOfAttribute = 1
         colNumberOfTimeStamp = 0
+        colNumberOfExchangeStamp = 0
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
         colNumberOfTimeStamp = colNumberOfData.TimeStamp
+        colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
     
     numberOfRowsInLastNSecs = 0
     queueOfValuesInLastNSecs = deque()
     totalOfRowsInLastNSecs = 0.0
     totalOfSquareOfRowsInLastNSecs = 0.0
-    timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfTimeStamp],args.cType)
+    timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfExchangeStamp],"synthetic")
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
     lengthOfDataMatrix = len(dataFile.matrix)
     while (currentRowNumberForWhichFeatureValueIsBeingCalculated < lengthOfDataMatrix):
-        timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp],args.cType)
+        timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfExchangeStamp],"synthetic")
         timeElapsed = timeOfCurrentRow - timeOfOldestRow
         if (timeElapsed < N):
             cellValue = float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfAttribute])
