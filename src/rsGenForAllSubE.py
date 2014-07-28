@@ -141,7 +141,7 @@ def scriptWrapper(experimentName):
         utility.runCommand(["./ob/quality/tradeE5.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;90;60;50","-exitCL","45;50;40;25","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE6.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60","-exitCL","50;50;50","-orderQty","500",\
+        utility.runCommand(["./ob/quality/tradeE7.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60","-exitCL","50;50;50","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
         
 if args.sequence == 'lp':

@@ -139,9 +139,9 @@ for algo in allAlgos:
                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
                     
-                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
+                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt])
-                    lTradingCommandList.append(["./ob/quality/tradeE6.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
+                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt])                
                 utility.runCommandList(lRCodeGenCommandList,args)
                 print dp.printGroupStatus()
