@@ -1,10 +1,10 @@
 #!/usr/bin/python
-
+import EvaluationOfExpression
 import argparse
 import attribute, utility
 from configobj import ConfigObj
 print "\nStarting to run Attribute generator for experiment"
-
+import pdb
 def parseCommandLine():
     parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenForE.py -d ob/data/20140207/ -e e7.1')
     parser.add_argument('-d', required=True,help='Directory of data file')
@@ -18,26 +18,47 @@ def parseCommandLine():
 
 def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
     commandLine = []
-    if "DivideBy" in attributeName or "Add" in attributeName or "Subtract" in attributeName or "MultiplyBy" in attributeName:
-        startPos = attributeName.find("[")
-        endPos = attributeName.find("]") + 1
-        firstAttributeName = attributeName[0:startPos]
-        secondAttributeName = attributeName[endPos:]
-        commandLine.append(genAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) # recursive call
-        commandLine.append(genAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) # recursive call
-        operatorName = attributeName[startPos:endPos]
-        if "DivideBy" in operatorName:
-            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder))
-        elif "Add" in operatorName:
-            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder))
-        elif "Subtract" in operatorName:
-            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder))
-        elif "MultiplyBy" in operatorName:
-            commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder))
-            
-        return commandLine   
-
-    return getCommandLineForSingleAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig)
+    postfixStackEvaulation = []
+    postfixStack = EvaluationOfExpression.convertingInfixToPostfix(attributeName)
+    for token in postfixStack:
+        if token.type != "OPERATOR":
+            postfixStackEvaulation.append(token.name)
+        else:
+            secondAttributeName = postfixStackEvaulation.pop()
+            firstAttributeName = postfixStackEvaulation.pop()
+            try:
+                float(firstAttributeName)
+            except:
+                if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
+                and "[Pow]" not in firstAttributeName:
+                    commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))
+            try:
+                float(secondAttributeName)
+            except:
+                if  "[DivideBy]" not in secondAttributeName and "[Add]" not in secondAttributeName and "[Subtract]" not in secondAttributeName and "[Exp]" not in secondAttributeName \
+                and "[Pow]" not in secondAttributeName:
+                    commandLine.append(getCommandLineForSingleAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) 
+                
+            operatorName = token.name
+            if "[DivideBy]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"DivideBy",dataFolder))
+            elif "[Add]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Add",dataFolder))
+            elif "[Subtract]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder))
+            elif "[MultiplyBy]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder))
+            elif "[Exp]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Exp",dataFolder))
+            elif "[Pow]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Pow",dataFolder))
+            postfixStackEvaulation.append(firstAttributeName + operatorName + secondAttributeName)
+    while len(postfixStackEvaulation)!=0:
+            firstAttributeName = postfixStackEvaulation.pop()
+            if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
+                and "[Pow]" not in firstAttributeName:
+                commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))        
+    return commandLine                     
 
 def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
     """
@@ -52,10 +73,15 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         if "_" == pUserFriendlyAttributeName[startPos]:
             endPos = pUserFriendlyAttributeName.find("_",startPos+1)
             colNameWithBracketsToBeReplaced = pUserFriendlyAttributeName[startPos:endPos+1]
+            colNameWithBracketsToBeReplaced = colNameWithBracketsToBeReplaced.replace('(','')
+            colNameWithBracketsToBeReplaced = colNameWithBracketsToBeReplaced.replace(')','')
             fileNameToBeSendAsFeatureCParam = colNameWithBracketsToBeReplaced
             try:
                 if colNameWithBracketsToBeReplaced[1:-1] in pConfig["intermediate-features"]:
-                    fileNameToBeSendAsFeatureCParam = "_" + pConfig["intermediate-features"][colNameWithBracketsToBeReplaced[1:-1]] + "_"
+                    tempVariable = pConfig["intermediate-features"][colNameWithBracketsToBeReplaced[1:-1]]
+                    tempVariable = tempVariable.replace('(','')
+                    tempVariable = tempVariable.replace(')','')
+                    fileNameToBeSendAsFeatureCParam = "_" + tempVariable + "_"
                 paramList.append("-i")
                 paramList.append(colNameWithBracketsToBeReplaced)
             except:
@@ -189,13 +215,13 @@ def main():
     experimentFolder = args.e
     dataFolder = args.d
     generatorsFolder = args.g
-
+    
     insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
     utility.runCommandList(insideFeatureCommandList,args)
     
     intermediateFeatureCommandList = getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
     utility.runCommandList(intermediateFeatureCommandList,args)
-
+    
     commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
     return utility.runCommandList(commandList,args)
 
