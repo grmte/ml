@@ -3,7 +3,7 @@ import dataFile
 from datetime import timedelta
 from datetime import datetime
 from configobj import ConfigObj
-
+import math
 aList = []
 
 def getTargetVariableKeys(pConfig):
@@ -73,11 +73,25 @@ def getFileNameFromOperationCommand(a1,a2,operand,d):
 def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
    featureMatrix = [] 
-   firstFileName = getOutputFileNameFromAttributeName(pFirstAttributeName,dataFolder)
-   secondFileName = getOutputFileNameFromAttributeName(pSecondAttributeName,dataFolder)
+   firstIsConstant = False
+   secondIsConstant = False
+   try:
+      float(pFirstAttributeName)
+      firstIsConstant = True
+   except: 
+       firstFileName = getOutputFileNameFromAttributeName(pFirstAttributeName,dataFolder)
+       firstMatrix = readAttributeFileIntoMatrix(firstFileName)
+   try:
+       float(pSecondAttributeName)
+       secondIsConstant = True
+   except:
+       secondFileName = getOutputFileNameFromAttributeName(pSecondAttributeName,dataFolder)
+       secondMatrix = readAttributeFileIntoMatrix(secondFileName)
    
-   firstMatrix = readAttributeFileIntoMatrix(firstFileName)
-   secondMatrix = readAttributeFileIntoMatrix(secondFileName)
+   if firstIsConstant == True:
+       firstMatrix =[ [i[0],float(pFirstAttributeName)] for i in secondMatrix]
+   elif  secondIsConstant == True:
+       secondMatrix = [ [i[0],float(pSecondAttributeName)] for i in firstMatrix]
 
    currentRowCount = 0
    for dataRow in firstMatrix:
@@ -97,6 +111,10 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
             value = float(firstMatrix[currentRowCount][1]) - float(secondMatrix[currentRowCount][1])
          elif(pOperand == "MultiplyBy"):
             value = float(firstMatrix[currentRowCount][1]) * float(secondMatrix[currentRowCount][1])
+         elif(pOperand == "Exp"):
+            value = math.exp( float(firstMatrix[currentRowCount][1]) )
+         elif(pOperand == "Pow"):
+            value = math.pow(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
          featureMatrix.append([timeStamp,value,firstMatrix[currentRowCount][1],pOperand,secondMatrix[currentRowCount][1]])
 
       currentRowCount += 1   
