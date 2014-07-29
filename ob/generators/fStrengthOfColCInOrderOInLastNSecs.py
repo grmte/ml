@@ -9,6 +9,7 @@ class ticks_values_to_be_stored(object):
         self.NewP = 0.0
         self.NewQ = 0
         self.Price = 0.0
+        self.QtyList = [ 0 , 0 , 0 , 0 , 0 ]
         self.typeOfCase = False
         self.IntensityValue = 0.0
 
@@ -20,11 +21,16 @@ def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , 
                 pCurrentTickObject.typeOfCase = True
                 totalTradedQty += pCurrentTickObject.NewQ
     else: 
-        if O == 'N' or O == 'X' :   
+        if O == 'N' :   
             if pCurrentTickObject.MsgCode == O :
                 if  pCurrentTickObject.OrderType.upper() == C:
                     pCurrentTickObject.typeOfCase = True
                     totalTradedQty += pCurrentTickObject.NewQ
+        elif O == 'X':
+            if pCurrentTickObject.MsgCode == O :
+                if  pCurrentTickObject.OrderType.upper() == C:
+                    pCurrentTickObject.typeOfCase = True
+                    totalTradedQty +=  ( pCurrentTickObject.NewQ / max( pPreviousTickObject.QtyList ) )
             
     if timeElapsed != 0:
         if l_first_time_elapsed == False:
@@ -75,6 +81,7 @@ def extractAttributeFromDataMatrix(args):
     totalTradedQty = 0
     lPreviousTickObject = None
     priceIndex = eval('colNumberOfData.'+args.c+'P0')
+    qtyIndex = [ eval('colNumberOfData.'+args.c+'Q0') , eval('colNumberOfData.'+args.c+'Q1') , eval('colNumberOfData.'+args.c+'Q2') , eval('colNumberOfData.'+args.c+'Q3') , eval('colNumberOfData.'+args.c+'Q4') ]
     if args.c == 'Ask':
         orderTypeToBeTracked = 'S'
     else:
@@ -91,6 +98,7 @@ def extractAttributeFromDataMatrix(args):
             lCurrentTickObject.NewP = float(lCurrentDataRow[colNumberOfData.NewP])
             lCurrentTickObject.NewQ = int(lCurrentDataRow[colNumberOfData.NewQ])
             lCurrentTickObject.Price = float( lCurrentDataRow[priceIndex] )
+            lCurrentTickObject.QtyList = [ int(lCurrentDataRow[qtyIndex[0]]) , int(lCurrentDataRow[qtyIndex[1]]), int(lCurrentDataRow[qtyIndex[2]]),int(lCurrentDataRow[qtyIndex[3]]),int(lCurrentDataRow[qtyIndex[4]]) ]
 
             totalTradedQty = updateCurrentTickAdditionToQueue(lCurrentTickObject, lPreviousTickObject , totalTradedQty , timeElapsed , l_first_time_elapsed , N , orderTypeToBeTracked , args.o , numberOfRowsInLastNSecs)
 
