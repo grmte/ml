@@ -71,7 +71,7 @@ utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequenc
                     '-dt',args.dt,'-pd',args.pd,"-td",trainingDirectory,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",trainingDirectory,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
                      '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
-utility.runCommand(["./ob/quality/tradeE6.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,\
+utility.runCommand(["./ob/quality/tradeE7.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",trainingDirectory , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
 
 instrGroupList = args.instrGroups.split(";")
