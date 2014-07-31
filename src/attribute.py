@@ -75,24 +75,30 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
    featureMatrix = [] 
    firstIsConstant = False
    secondIsConstant = False
-   try:
-      float(pFirstAttributeName)
+   if pFirstAttributeName == 'E': 
       firstIsConstant = True
-   except: 
-       firstFileName = getOutputFileNameFromAttributeName(pFirstAttributeName,dataFolder)
-       firstMatrix = readAttributeFileIntoMatrix(firstFileName)
-   try:
-       float(pSecondAttributeName)
-       secondIsConstant = True
-   except:
-       secondFileName = getOutputFileNameFromAttributeName(pSecondAttributeName,dataFolder)
-       secondMatrix = readAttributeFileIntoMatrix(secondFileName)
+   else:
+       try:
+           float(pFirstAttributeName)
+           firstIsConstant = True
+       except: 
+           firstFileName = getOutputFileNameFromAttributeName(pFirstAttributeName,dataFolder)
+           firstMatrix = readAttributeFileIntoMatrix(firstFileName)
+   if pSecondAttributeName == 'E':
+      secondIsConstant = True
+   else: 
+       try:
+           float(pSecondAttributeName)
+           secondIsConstant = True
+       except:
+           secondFileName = getOutputFileNameFromAttributeName(pSecondAttributeName,dataFolder)
+           secondMatrix = readAttributeFileIntoMatrix(secondFileName)
    
    if firstIsConstant == True:
-       firstMatrix =[ [i[0],float(pFirstAttributeName)] for i in secondMatrix]
+       firstMatrix =[ [i[0],pFirstAttributeName] for i in secondMatrix]
    elif  secondIsConstant == True:
-       secondMatrix = [ [i[0],float(pSecondAttributeName)] for i in firstMatrix]
-
+       secondMatrix = [ [i[0],pSecondAttributeName] for i in firstMatrix]
+   count =0  
    currentRowCount = 0
    for dataRow in firstMatrix:
       if(firstMatrix[currentRowCount][0] != secondMatrix[currentRowCount][0]):
@@ -112,9 +118,17 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
          elif(pOperand == "MultiplyBy"):
             value = float(firstMatrix[currentRowCount][1]) * float(secondMatrix[currentRowCount][1])
          elif(pOperand == "Exp"):
-            value = math.exp( float(firstMatrix[currentRowCount][1]) )
+            try: 
+                value = math.exp( float(firstMatrix[currentRowCount][1])  * float(secondMatrix[currentRowCount][1]))
+            except:
+                value = math.exp(709)
          elif(pOperand == "Pow"):
             value = math.pow(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
+         elif(pOperand == "Log"):
+            if secondMatrix[currentRowCount][1]=='E':
+               value = math.log(float(firstMatrix[currentRowCount][1]))
+            else:   
+               value = math.log(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
          featureMatrix.append([timeStamp,value,firstMatrix[currentRowCount][1],pOperand,secondMatrix[currentRowCount][1]])
 
       currentRowCount += 1   
@@ -122,10 +136,10 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
    return featureMatrix , lListOfHeaderColNames   
 
 def getAttributeTypeFromAttributeName(pAttributeName):
-   if(pAttributeName[0]=='f'):
-      return "feature"
-   else:
+   if(pAttributeName[0]=='t'):
       return "target"
+   else:
+      return "feature"
    
 
 def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
