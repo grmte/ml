@@ -19,3 +19,4 @@
 *.coef
 *.profile
 *.ini
+*.nfs*
