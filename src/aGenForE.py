@@ -26,18 +26,24 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
         else:
             secondAttributeName = postfixStackEvaulation.pop()
             firstAttributeName = postfixStackEvaulation.pop()
-            try:
-                float(firstAttributeName)
-            except:
-                if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
-                and "[Pow]" not in firstAttributeName:
-                    commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))
-            try:
-                float(secondAttributeName)
-            except:
-                if  "[DivideBy]" not in secondAttributeName and "[Add]" not in secondAttributeName and "[Subtract]" not in secondAttributeName and "[Exp]" not in secondAttributeName \
-                and "[Pow]" not in secondAttributeName:
-                    commandLine.append(getCommandLineForSingleAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) 
+            if firstAttributeName=='E':
+                pass
+            else:
+                try:
+                    float(firstAttributeName)
+                except:
+                    if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
+                    and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName:
+                        commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))
+            if secondAttributeName=='E':
+                pass
+            else:
+                try:
+                    float(secondAttributeName)
+                except:
+                    if  "[DivideBy]" not in secondAttributeName and "[Add]" not in secondAttributeName and "[Subtract]" not in secondAttributeName and "[Exp]" not in secondAttributeName \
+                    and "[Pow]" not in secondAttributeName and "[Log]" not in firstAttributeName:
+                        commandLine.append(getCommandLineForSingleAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) 
                 
             operatorName = token.name
             if "[DivideBy]" in operatorName:
@@ -52,11 +58,13 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
                 commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Exp",dataFolder))
             elif "[Pow]" in operatorName:
                 commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Pow",dataFolder))
+            elif "[Log]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Log",dataFolder))
             postfixStackEvaulation.append(firstAttributeName + operatorName + secondAttributeName)
     while len(postfixStackEvaulation)!=0:
             firstAttributeName = postfixStackEvaulation.pop()
             if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
-                and "[Pow]" not in firstAttributeName:
+                and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName : 
                 commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))        
     return commandLine                     
 
