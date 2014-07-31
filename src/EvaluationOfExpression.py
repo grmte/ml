@@ -7,6 +7,7 @@ tokenTypeDictionary = {
 priority = {
             "[Pow]":1,
             "[Exp]":1,
+            "[Log]":1,
             "[Add]":2,
             "[Subtract]":2,
             "[MultiplyBy]":3,
