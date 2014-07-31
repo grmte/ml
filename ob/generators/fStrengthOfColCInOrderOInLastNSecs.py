@@ -30,7 +30,7 @@ def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , 
             if pCurrentTickObject.MsgCode == O :
                 if  pCurrentTickObject.OrderType.upper() == C:
                     pCurrentTickObject.typeOfCase = True
-                    totalTradedQty +=  ( pCurrentTickObject.NewQ / max( pPreviousTickObject.QtyList ) )
+                    totalTradedQty +=  ( float(pCurrentTickObject.NewQ) / max( pPreviousTickObject.QtyList ) )
             
     if timeElapsed != 0:
         if l_first_time_elapsed == False:
