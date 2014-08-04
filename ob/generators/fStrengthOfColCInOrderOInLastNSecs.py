@@ -11,6 +11,7 @@ class ticks_values_to_be_stored(object):
         self.Price = 0.0
         self.QtyList = [ 0 , 0 , 0 , 0 , 0 ]
         self.typeOfCase = False
+        self.valueToSubtracted = 0.0
         self.IntensityValue = 0.0
 
               
@@ -19,18 +20,21 @@ def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , 
         if pPreviousTickObject != None:
             if  pCurrentTickObject.NewP == pPreviousTickObject.Price:
                 pCurrentTickObject.typeOfCase = True
-                totalTradedQty += pCurrentTickObject.NewQ
+                pCurrentTickObject.valueToSubtracted = pCurrentTickObject.NewQ
+                totalTradedQty += pCurrentTickObject.valueToSubtracted
     else: 
         if O == 'N' :   
             if pCurrentTickObject.MsgCode == O :
                 if  pCurrentTickObject.OrderType.upper() == C:
                     pCurrentTickObject.typeOfCase = True
-                    totalTradedQty += pCurrentTickObject.NewQ
+                    pCurrentTickObject.valueToSubtracted = pCurrentTickObject.NewQ
+                    totalTradedQty += pCurrentTickObject.valueToSubtracted
         elif O == 'X':
             if pCurrentTickObject.MsgCode == O :
                 if  pCurrentTickObject.OrderType.upper() == C:
                     pCurrentTickObject.typeOfCase = True
-                    totalTradedQty +=  ( float(pCurrentTickObject.NewQ) / max( pPreviousTickObject.QtyList ) )
+                    pCurrentTickObject.valueToSubtracted = ( float(pCurrentTickObject.NewQ) / max( pPreviousTickObject.QtyList ) )
+                    totalTradedQty +=  pCurrentTickObject.valueToSubtracted
             
     if timeElapsed != 0:
         if l_first_time_elapsed == False:
@@ -46,7 +50,7 @@ def updateCurrentTickAdditionToQueue( pCurrentTickObject, pPreviousTickObject , 
 def updateTickDeletionFromQueue(pObjectToBeDeleted , totalTradedQty ):
 
     if pObjectToBeDeleted.typeOfCase == True:
-        totalTradedQty -= pObjectToBeDeleted.NewQ
+        totalTradedQty -= pObjectToBeDeleted.valueToSubtracted 
     return totalTradedQty
      
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -105,7 +109,7 @@ def extractAttributeFromDataMatrix(args):
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(lCurrentDataRow[colNumberOfTimeStamp])
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = str(lCurrentTickObject.IntensityValue) 
             
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = ";".join( map( str , [ timeElapsed , totalTradedQty , lCurrentTickObject.MsgCode ,\
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = ";".join( map( str , [ lCurrentDataRow[colNumberOfExchangeStamp] , timeElapsed , totalTradedQty , lCurrentTickObject.MsgCode ,\
                                                                                                           lCurrentTickObject.OrderType , lCurrentTickObject.NewP , lCurrentTickObject.NewQ ] ) )
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(lCurrentTickObject.Price)
             queueOfValuesInLastNSecs.append([lCurrentTickObject,timeOfCurrentRow])
@@ -142,6 +146,6 @@ def extractAttributeFromDataMatrix(args):
         print "Processed row number " + str(currentRowNumberForWhichFeatureValueIsBeingCalculated)
 
     lNameOfFeaturePrinted = "fIntensityOfCol" + str(args.c) + "InOrder" + str(args.o) + "InLast" + str(args.n) + "Secs" 
-    return [ "TimeStamp", lNameOfFeaturePrinted , "TimeElapsed" ,"totalQty", "MsgCode" , "Ordertype" ,"NewP","NewQ" ,"Price"
+    return [ "TimeStamp", lNameOfFeaturePrinted , "ExTimeStamp","TimeElapsed" ,"totalQty", "MsgCode" , "Ordertype" ,"NewP","NewQ" ,"Price"
             ]
             
