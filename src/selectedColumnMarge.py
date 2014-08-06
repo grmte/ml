@@ -44,16 +44,14 @@ import codecs, glob
 config = ConfigObj(args.e+"/design.ini")
 featureTargetFilePath = args.pd.replace('ro', 'wf')
 
-features = config["features"]
+features = config["features-buy"]
 featureFiles = []
 featureFpList = []
 featureFp = 1
 intermediate_feature_dict , config = attribute.getIntermediateAttributesForExperiment(args.e)
-normal_feature_list , config = attribute.getAttributesOfExperiment(args.e)
-normal_feature_list.update(intermediate_feature_dict)
 
-for feature in normal_feature_list:
-    lFeatureFile = featureTargetFilePath + "/f/" + features[feature] + ".feature"
+for feature in features:
+    lFeatureFile = featureTargetFilePath + "/f/" + features[feature].replace('(','').replace(')','') + ".feature"
     featureFP = "featureFp" + str(featureFp)
     featureFP = open(lFeatureFile, "rb")
     featureFpList.append(featureFP)
@@ -66,7 +64,7 @@ targetSet = config['target']
 predFpList = []
 for target in targetSet.keys():
     predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
+                                 '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
     predFp = open(predictedValuesFileName, "rb")
     predFpList.append(predFp)
     
@@ -94,21 +92,18 @@ for file1 in files:
 dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/t/" + mainExperimentName + "/" 
 
-totalEntryCL = args.entryCL.split(";")
-totalExitCL = args.exitCL.split(";")
 tradeFpList = []
-for indexOfCL in range(0,len(totalEntryCL)):
-    lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-                   '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty + ".trade"
-    lTradeFp = open(lInitialFileName, "rb")
-    tradeFpList.append(lTradeFp)
+lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-te.7.trade"
+lTradeFp = open(lInitialFileName, "rb")
+tradeFpList.append(lTradeFp)
     
 dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/r/" 
 lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-               '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty + ".csv"
+               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + ".csv"
 print ("filename---", lInitialFileName)
 outputfile = codecs.open(lInitialFileName, 'wb') 
 
