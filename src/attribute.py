@@ -126,9 +126,22 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
             value = math.pow(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
          elif(pOperand == "Log"):
             if secondMatrix[currentRowCount][1]=='E':
-               value = math.log(float(firstMatrix[currentRowCount][1]))
+               try: 
+                   value = math.log(float(firstMatrix[currentRowCount][1]))
+               except:
+                   if float(firstMatrix[currentRowCount][1])==0:
+                       value = 0 
+                   else:
+                       value = math.log(float(firstMatrix[currentRowCount][1]))
+               
             else:   
-               value = math.log(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
+               try: 
+                   value = math.log(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
+               except:
+                   if float(firstMatrix[currentRowCount][1])==0:
+                       value = 0 
+                   else:
+                       value = math.log(float(firstMatrix[currentRowCount][1]),float(secondMatrix[currentRowCount][1]))
          featureMatrix.append([timeStamp,value,firstMatrix[currentRowCount][1],pOperand,secondMatrix[currentRowCount][1]])
 
       currentRowCount += 1   
