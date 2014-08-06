@@ -224,6 +224,7 @@ def main():
     dataFolder = args.d
     generatorsFolder = args.g
     
+    args.sequence = "lp"
     insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
     utility.runCommandList(insideFeatureCommandList,args)
     
