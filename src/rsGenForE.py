@@ -36,11 +36,11 @@ parser.add_argument('-skipT',required=False,help="yes or no , If you want to reg
 args = parser.parse_args()
 
 if args.entryCL == None:
-    args.entryCL = "90;75;60;55;55;65;65"
+    args.entryCL = "55;55;57;57;58;58;60;60;65;65"
 if args.exitCL == None:
-    args.exitCL = "50;50;50;45;50;50;45"
+    args.exitCL = "45;50;45;50;45;50;45;50;45;50"
 if args.orderQty == None:
-    args.orderQty = "500"
+    args.orderQty = "300"
 if args.t == None:
     args.t = "0.000015"
 if args.skipM == None:
@@ -68,42 +68,25 @@ if(args.sequence == "dp"):
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
         
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+lListOfTrainPredictDirectories = lListOfTrainingDirectories
+if args.pd is None:
+    predictionDirectory = attribute.getListOfTrainingDirectoriesNames(2,lListOfTrainPredictDirectories[-1])[-1]
+else:
+    predictionDirectory = args.pd
+lListOfTrainPredictDirectories.append(predictionDirectory)
+
 if(args.sequence == "dp"):
-    import aGenForE
     experimentFolder = args.e
     dataFolder = args.td
     generatorsFolder = args.g
     commandList = []
-    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-    if args.pd is None:
-        predictionDirectory = attribute.getListOfTrainingDirectoriesNames(2,lListofTrainingDirectories[-1])[-1]
-    else:
-        predictionDirectory = args.pd
-    for trainingDirectory in lListofTrainingDirectories:
-        commandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-    commandList.extend(aGenForE.getCommandList(experimentFolder,predictionDirectory,generatorsFolder,args.tickSize))
-    # Seperate into 2 different list one for aGen and another for operateOnAttribute
-
-    aGenList = []
-    attribute.getGenerationCommands(commandList,aGenList)
-    utility.runCommandList(aGenList,args)
-    dp.printGroupStatus()
-
-    operateOnAttributeList = []
-    attribute.getOperationCommands(commandList,operateOnAttributeList)
-    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-    for i in operateOnAttributeListAsPerPriority:
-        utility.runCommand(i,args.run,args.sequence)
-        dp.printGroupStatus() 
-
+    for directories in lListOfTrainPredictDirectories:
+        commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize])
+    utility.runCommandList( commandList ,args)
+    print dp.printGroupStatus() 
+            
 else:
-    lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-    lListOfTrainPredictDirectories = lListOfTrainingDirectories
-    if args.pd is None:
-        predictionDirectory = attribute.getListOfTrainingDirectoriesNames(2,lListOfTrainPredictDirectories[-1])[-1]
-    else:
-        predictionDirectory = args.pd
-    lListOfTrainPredictDirectories.append(predictionDirectory)
     if args.sequence == 'lp':
         # to run it in local parallel mode
         pool = multiprocessing.Pool() # this will return the number of CPU's
@@ -124,4 +107,4 @@ else:
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
 
 
-utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) ,"-pd", predictionDirectory, "-m" , "FollowingExperimentResults" , "-f" , "1"],args.run,args.sequence)
+# utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) ,"-pd", predictionDirectory, "-m" , "FollowingExperimentResults" , "-f" , "1"],args.run,args.sequence)

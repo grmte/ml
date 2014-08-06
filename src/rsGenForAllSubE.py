@@ -49,50 +49,21 @@ algo = rCodeGen.getAlgoName(args)
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
         
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+lListOfTrainPredictDirectories = lListOfTrainingDirectories
+lListOfTrainPredictDirectories.append(args.pd)
 if(args.sequence == "dp"):
-    import aGenForE
+
     experimentFolder = args.e
     dataFolder = args.td
     generatorsFolder = args.g
-    lListofTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
     commandList = []
-
-    insideFeatureCommandList = []
-    for trainingDirectory in lListofTrainingDirectories:
-        insideFeatureCommandList.extend(aGenForE.getCommandListForInsideFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-    insideFeatureCommandList.extend(aGenForE.getCommandListForInsideFeatures(experimentFolder,args.pd,generatorsFolder,args.tickSize))
-    commandList.append(insideFeatureCommandList)
-
-    intermediateFeatureCommandList = []
-    for trainingDirectory in lListofTrainingDirectories:
-        intermediateFeatureCommandList.extend(aGenForE.getCommandListForIntermediateFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-    intermediateFeatureCommandList.extend(aGenForE.getCommandListForIntermediateFeatures(experimentFolder,args.pd,generatorsFolder,args.tickSize))
-    commandList.append(intermediateFeatureCommandList)
-        
-    actualFeaturescommandList = []
-    for trainingDirectory in lListofTrainingDirectories:
-        actualFeaturescommandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-    actualFeaturescommandList.extend(aGenForE.getCommandList(experimentFolder,args.pd,generatorsFolder,args.tickSize))
-    commandList.append(actualFeaturescommandList)
-    # Seperate into 2 different list one for aGen and another for operateOnAttribute
-    
-    for commandListElement in commandList:
-        aGenList = []
-        attribute.getGenerationCommands(commandListElement,aGenList)
-        utility.runCommandList(aGenList,args)
-        dp.printGroupStatus()
-    
-        operateOnAttributeList = []
-        attribute.getOperationCommands(commandListElement,operateOnAttributeList)
-        operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-        for i in operateOnAttributeListAsPerPriority:
-            utility.runCommand(i,args.run,args.sequence)
-            dp.printGroupStatus() 
+    for directories in lListOfTrainPredictDirectories:
+        commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize])
+    utility.runCommandList( commandList ,args)
+    print dp.printGroupStatus() 
 
 else:
-    lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
-    lListOfTrainPredictDirectories = lListOfTrainingDirectories
-    lListOfTrainPredictDirectories.append(args.pd)
     if args.sequence == 'lp':
         # to run it in local parallel mode
         pool = multiprocessing.Pool() # this will return the number of CPU's

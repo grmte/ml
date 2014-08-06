@@ -64,44 +64,14 @@ commandList = []
 
 experimentFolder = args.e
 
-insideFeatureCommandList = []
-for trainingDirectory in allDataDirectories:
-    insideFeatureCommandList.extend(aGenForE.getCommandListForInsideFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-commandList.append(insideFeatureCommandList)
-
-intermediateFeatureCommandList = []
-for trainingDirectory in allDataDirectories:
-    intermediateFeatureCommandList.extend(aGenForE.getCommandListForIntermediateFeatures(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-commandList.append(intermediateFeatureCommandList)
-    
-actualFeaturescommandList = []
-for trainingDirectory in allDataDirectories:
-    actualFeaturescommandList.extend(aGenForE.getCommandList(experimentFolder,trainingDirectory,generatorsFolder,args.tickSize))
-commandList.append(actualFeaturescommandList)
-
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
-for commandListElement in commandList:
-    aGenList = []
-    attribute.getGenerationCommands(commandListElement,aGenList)
-    totalGeneratorsWhichCanBeScheduled = 2 * int(args.nComputers)
-    
-    for chunkNum in range(0,len(aGenList),totalGeneratorsWhichCanBeScheduled ):
-        lSubGenList = aGenList[chunkNum:chunkNum+totalGeneratorsWhichCanBeScheduled]
-        utility.runCommandList(lSubGenList,args)
-        print dp.printGroupStatus()
-         
-    operateOnAttributeList = []
-    attribute.getOperationCommands(commandListElement,operateOnAttributeList)
-    operateOnAttributeListAsPerPriority = attribute.getOperationCommandsInPriority(operateOnAttributeList)
-    operatorRunInParallel = []
-    LastRunDate = allDataDirectories[-1]
-    for operatorCommand in operateOnAttributeListAsPerPriority:
-        operatorRunInParallel.append(operatorCommand) 
-        if LastRunDate in operatorCommand :
-            utility.runCommandList(operatorRunInParallel,args)
-            dp.printGroupStatus() 
-            operatorRunInParallel = []
-        
+for directories in allDataDirectories:
+    commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize])
+for chunkNum in range(0,len(commandList),int(args.nComputers)):
+    lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
+    utility.runCommandList(lSubGenList,args)
+    print dp.printGroupStatus() 
+           
 for algo in allAlgos:
     while indexOfFeatures >= 2:
         lSubCombinationFolder = args.e+"/s/"+str(indexOfFeatures)+"c"
@@ -138,7 +108,7 @@ for algo in allAlgos:
                     dirName = predictionDirAfterLastTD.replace('/ro/','/wf/') 
                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
-                    
+
                     lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt])
                     lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
@@ -147,7 +117,7 @@ for algo in allAlgos:
                 print dp.printGroupStatus()
 
                 noOfModelsToBeScheduledToOneComputer = 60 / ( indexOfFeatures * int(args.dt) )
-                totalModelsWhichCanBeScheduled = noOfModelsToBeScheduledToOneComputer * int(args.nComputers)
+                totalModelsWhichCanBeScheduled = int(args.nComputers)
                 for chunkNum in range(0,len(lMGenRCodeList),totalModelsWhichCanBeScheduled):
                     lSubModelList = lMGenRCodeList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
                     utility.runCommandList(lSubModelList,args)
