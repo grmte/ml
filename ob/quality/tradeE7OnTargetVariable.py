@@ -355,12 +355,14 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
    prevBuyTargetValue = 0
    prevSellTargetValue = 0
    exchangeTimeStamp = 0
+   l_exchange_time_stamp_to_print= ""
    for currentDataRow in dataFile.matrix:
     
        l_expiry_wrt_1970 = exchangeTimeStamp + 315513000.0
        
        l_dt = datetime.datetime.fromtimestamp(l_expiry_wrt_1970)
-       if (l_dt.hour >= startTime[0] and l_dt.minute >= startTime[1] ):
+       l_exchange_time_stamp_to_print = str(l_dt.hour) + ":" + str(l_dt.minute) + ":" + str(l_dt.second)
+       if (l_dt.hour > startTime[0] or (l_dt.hour == startTime[0] and l_dt.minute >= startTime[1]) ):
            lReturnList = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,\
                                                                                 askQ0AtTimeOfPreviousDataRow , bidQ0AtTimeOfPreviousDataRow , enterTradeShort,enterTradeLong,tradeStats,reasonForTrade,\
                                                                                 lReasonForTradingOrNotTradingLong,lReasonForTradingOrNotTradingShort )
@@ -378,12 +380,12 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
                listOfStringsToPrint = [ str(bidQ0AtTimeOfPreviousDataRow) , str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) , \
                                        str(askQ0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , str(ltpAtTimeOfPreviousDataRow) ,\
                                        str(currentSellTargetValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(currentBuyTargetValue) ,\
-                                       str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
+                                       str(enterTradeLong) ,lReasonForTradingOrNotTradingLong ,l_exchange_time_stamp_to_print, str(reasonForTrade['CloseBuyTradeHappened']),\
                                        str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
                                        str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
                                        str(lDummyTTQForBuy),str(lDummyTTQForSell)]
                attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint)
-               if l_dt.hour >= endTime[0] and l_dt.minute >= endTime[1] and tradeStats['currentPositionShort'] == 0 and tradeStats['currentPositionLong'] == 0 :
+               if ( l_dt.hour > endTime[0] or ( l_dt.hour == endTime[0] and l_dt.minute >= endTime[1] )  )and tradeStats['currentPositionShort'] == 0 and tradeStats['currentPositionLong'] == 0 :
                    break
        currentTimeStamp = common.convertTimeStampFromStringToFloat(currentDataRow[colNumberOfData.TimeStamp])
 
@@ -442,7 +444,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
    listOfStringsToPrint = [ str(bidQ0AtTimeOfPreviousDataRow) , str(bidP0AtTimeOfPreviousDataRow) , str(askP0AtTimeOfPreviousDataRow) ,\
                             str(askQ0AtTimeOfPreviousDataRow) , str(ttqAtTimeOfPreviousDataRow) , str(ltpAtTimeOfPreviousDataRow) , \
                             str(currentSellTargetValue) , str(enterTradeShort) , "" , str(currentBuyTargetValue) , str(enterTradeLong) ,\
-                            "" , str(reasonForTrade['CloseBuyTradeHappened']),str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                            "" ,l_exchange_time_stamp_to_print, str(reasonForTrade['CloseBuyTradeHappened']),str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
                             str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),str(lDummyTTQForBuy),str(lDummyTTQForSell)]
    attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint) 
    
@@ -457,7 +459,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
    fileName = tradeLogSubDirectoryName + pFileName + ".targetTrade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP',\
                               'CurTargetValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurTargetValueLong','EnterTradeLong',\
-                              'ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0',\
+                              'ReasonForTradingOrNotTradingLong','Exchange_TS','totalBuyShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0',\
                               'DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
    attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
