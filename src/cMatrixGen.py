@@ -5,7 +5,6 @@ import sys
 
 import argparse
 parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is cMatrixGen.py -d ob/data/20140207/ -e e1 -a logitr')
-parser.add_argument('-d', required=True,help='Directory of the data file')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-pd', required=True,help='Prediction directory')
@@ -26,17 +25,24 @@ eDesignConfigObj = ConfigObj(args.e+"/design.ini")
  
 # The following will take care if args.e = "ob/e1/" or args.e = "ob/e1"
 absPathOfExperimentName = os.path.abspath(args.e)
-pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/e/")+3:]
+if 'nsecur' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
+elif 'nsefut' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
+elif 'nseopt' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
+    
 if "/" in pathAfterE:
     mainExperimentName = pathAfterE[:pathAfterE.index("/")]
 else:
     mainExperimentName = pathAfterE
     
+    
 experimentName = os.path.basename(absPathOfExperimentName)
 
 print "\nStarting to generate the confusion matrix"
 
-dirName = args.td.replace('/ro/','/wf/')
+dirName = args.pd.replace('/ro/','/wf/')
 def matrixUpdate(pPredictedProb,pActualValue):
     #print pPredictedProb,pActualValue
 
@@ -138,7 +144,7 @@ for target in targetSet.keys():
     print "Starting to write: "+fileName
     
     formatString = "%3s,%10s,%10s,%10s,%10s,%10s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s,%7s \n"
-    outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","$","MCC","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))
+    outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","N","Accuracy","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))
     
     import cmath
     for i in xrange (1,10,1):
@@ -147,6 +153,9 @@ for target in targetSet.keys():
         FP = state[i][0][1]
         TP = state[i][1][1] 
         N = TN + TP +FN + FP
+        
+        Accuracy = (TP+TN) / N
+        
         S = ( TP + FN ) / N
         P =  TP + FN 
         PForMCC = (TP + FP )/ N
@@ -165,7 +174,7 @@ for target in targetSet.keys():
         ACC = round ((TP + TN) / (P+N),3)
         F1 = round(2 * TP / (2 * TP + FP + FN) , 3)
         dollar = TP * .5 - (FP * 1.5)
-        outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(dollar),str(MCC),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
+        outputFile.write(formatString % (str(i*10),str(FN),str(TN),str(FP),str(TP),str(N),str(Accuracy),str(TPR),str(TNR),str(PPV),str(NPV),str(FPR),str(FDR),str(FNR),str(ACC),str(F1)))
     
     outputFile.write("Ref: http://en.wikipedia.org/wiki/Matthews_correlation_coefficient \n")
     outputFile.write("========== Section: Experiment design ================ \n")
