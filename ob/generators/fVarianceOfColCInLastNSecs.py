@@ -14,7 +14,7 @@ def extractAttributeFromDataMatrix(args):
     if(args.cType == "synthetic"):
         colNumberOfAttribute = 1
         colNumberOfTimeStamp = 0
-        colNumberOfExchangeStamp = 0
+        colNumberOfExchangeStamp = 2
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
         colNumberOfTimeStamp = colNumberOfData.TimeStamp
@@ -47,8 +47,8 @@ def extractAttributeFromDataMatrix(args):
                 
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp],args.cType)
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = variance # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs)  
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(totalOfSquareOfRowsInLastNSecs) + ";" +  str(numberOfRowsInLastNSecs+1) + ";" + str(timeElapsed)
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(timeElapsed)
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(totalOfRowsInLastNSecs)+ ";"  + str(totalOfSquareOfRowsInLastNSecs) + ";" +  str(numberOfRowsInLastNSecs+1) 
             queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
             numberOfRowsInLastNSecs += 1   # Every append gets a +1 
             currentRowNumberForWhichFeatureValueIsBeingCalculated += 1
@@ -84,5 +84,5 @@ def extractAttributeFromDataMatrix(args):
         print "Processed row number " + str(currentRowNumberForWhichFeatureValueIsBeingCalculated)
     
     lNameOfFeaturePrinted = "fVarianceOfCol" + args.c + "InLast" + str(args.n) + "Secs"
-    return [ "TimeStamp", lNameOfFeaturePrinted , "TotalOfRowsInLastNSecs" , "TotalOfSquareOfRowsInLastNSecs" , "NumberOfRowsInLastNSecs" , "TimeElapsed"]
+    return [ "TimeStamp", lNameOfFeaturePrinted , "TimeElapsed","TotalOfRowsInLastNSecs" , "TotalOfSquareOfRowsInLastNSecs" , "NumberOfRowsInLastNSecs" , ]
 
