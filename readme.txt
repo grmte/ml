@@ -77,7 +77,7 @@ sudo /usr/local/sbin/rabbitmq-server
 linux:
 =====
 https://www.rabbitmq.com/install-rpm.html
-wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.3.1/rabbitmq-server-3.3.1-1.noarch.rpm
+wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.3.4/rabbitmq-server-3.3.4-1.noarch.rpm
 yum install rabbitmq-server-3.3.1-1.noarch.rpm # This will install erlang since erlang is a dependency
 make sure that the epmd deamon is running by giving the command:  telnet 127.0.0.1 4369
 make sure that the host file entry is correct. On 26th may 2014 I had to enter scp1 inside /etc/hosts
@@ -114,7 +114,7 @@ To see the web interface: In the browser enter http://10.105.1.194:81/
 
 15. To test that the worker is able to execute a simple task:
 ml/src/> python
->>> from dp import add # add is a python function
+>>> from dp import add # add is a python functiony
 >>> from celery import Celery
 >>> app = Celery('dp', broker='amqp://guest@10.1.35.6//',backend='amqp://guest@10.1.35.6//')
 >>> result = add.delay(4, 4) # we are submitting the add function as a task to the celery server. The 4,4 are the params to the add function
@@ -134,6 +134,11 @@ On the client computer
 =====================
 service rpcbind start
 mount 10.1.35.6:/home/vikas vikas
+export PATH="/home/vikas/ml/src/:$PATH"
+ntpdate pool.ntp.org && hwclock --systohc && hwclock --adjust
+screen -
+export C_FORCE_ROOT=True;export PYTHONPATH="./src" ; celery multi start -A dp worker -n 9 --logfile="./celery/%n.log" --pidfile="./celery/%n.pid"
+ntpdate 0.centos.pool.ntp.org
 
 16. If you are using drbl then install drbl with the steps at:
 http://drbl.org/installation/
