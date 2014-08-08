@@ -78,7 +78,7 @@ linux:
 =====
 https://www.rabbitmq.com/install-rpm.html
 wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.3.4/rabbitmq-server-3.3.4-1.noarch.rpm
-yum install rabbitmq-server-3.3.1-1.noarch.rpm # This will install erlang since erlang is a dependency
+yum install rabbitmq-server-3.3.4-1.noarch.rpm # This will install erlang since erlang is a dependency
 make sure that the epmd deamon is running by giving the command:  telnet 127.0.0.1 4369
 make sure that the host file entry is correct. On 26th may 2014 I had to enter scp1 inside /etc/hosts
 service rabbitmq-server start
