@@ -47,7 +47,7 @@ startTimeList = args.startTime.split(";")
 endTimeList = args.endTime.split(";")
 initialFileName = []
 for indexOfCL in range(0,len(startTimeList)):
-    lInitialFileName ='DummyTradeEngine-d.' + os.path.basename(os.path.abspath(args.d)) + '-l.'+startTimeList[indexOfCL]+"-"+endTimeList[indexOfCL] + "-tq." + args.orderQty + "-dte.7" 
+    lInitialFileName ='DummyTradeEngine-d.' + os.path.basename(os.path.abspath(args.d)) + '-l.'+startTimeList[indexOfCL]+"-"+endTimeList[indexOfCL] + "-tq." + args.orderQty + "-tarType" + args.targetType + "-dte.7" 
     initialFileName.append(lInitialFileName)
     
 
@@ -77,7 +77,7 @@ def getTargetValuesIntoDict(pTargetValuesDict):
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
     lTargetBuyValuesDict = dict()
-    targetBuyValuesFileName = dirName+"/t/" + target['buy'+args.targetType] + ".target"
+    targetBuyValuesFileName = dirName+"/t/" + target['newBuy'+args.targetType] + ".target"
     print("Buy Target values file : "+ targetBuyValuesFileName)
     sys.stdout.flush()
     targetBuyValuesFile = open(targetBuyValuesFileName)
@@ -85,13 +85,13 @@ def getTargetValuesIntoDict(pTargetValuesDict):
     numberOfLinesInBuyTargetValuesFile = functionToReadTargetFileToDictionary(targetBuyValuesFile,lTargetBuyValuesDict,fileHasHeader)
     print("Finished reading the buy target values file")    
     print("The number of elements in the buy target values dictionary is : " + str(len(lTargetBuyValuesDict)))
-    if (numberOfLinesInBuyTargetValuesFile != len(lTargetBuyValuesDict)):
-        print("Number of duplicate time stamps rejected in buy target values dictionary = " + str(numberOfLinesInBuyTargetValuesFile - len(lTargetBuyValuesDict)))
-        os._exit(-1)
+#     if (numberOfLinesInBuyTargetValuesFile != len(lTargetBuyValuesDict)):
+#         print("Number of duplicate time stamps rejected in buy target values dictionary = " + str(numberOfLinesInBuyTargetValuesFile - len(lTargetBuyValuesDict)))
+#         os._exit(-1)
     sys.stdout.flush()
 
     lTargetSellValuesDict = dict()
-    targetSellValuesFileName = dirName+"/t/" + target['sell'+args.targetType] + ".target"
+    targetSellValuesFileName = dirName+"/t/" + target['newSell'+args.targetType] + ".target"
     print("Sell Target values file : "+ targetSellValuesFileName)
     sys.stdout.flush()
     targetSellValuesFile = open(targetSellValuesFileName)
@@ -99,9 +99,9 @@ def getTargetValuesIntoDict(pTargetValuesDict):
     numberOfLinesInSellTargetValuesFile = functionToReadTargetFileToDictionary(targetSellValuesFile,lTargetSellValuesDict,fileHasHeader)
     print("Finished reading the sell target values file")    
     print("The number of elements in the sell target values dictionary is : " + str(len(lTargetSellValuesDict)))
-    if (numberOfLinesInSellTargetValuesFile != len(lTargetSellValuesDict)):
-        print("Number of duplicate timestamps rejected in sell target values dictionary = " + str(numberOfLinesInSellTargetValuesFile - len(lTargetSellValuesDict)))
-        os._exit(-1)
+#     if (numberOfLinesInSellTargetValuesFile != len(lTargetSellValuesDict)):
+#         print("Number of duplicate timestamps rejected in sell target values dictionary = " + str(numberOfLinesInSellTargetValuesFile - len(lTargetSellValuesDict)))
+#         os._exit(-1)
     sys.stdout.flush()
 #-----------------Getting target values into dictionary -------------------------------------
     for elements in lTargetBuyValuesDict.keys():
@@ -324,8 +324,8 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
    noTargetForThisRow = 0
    currentSellTargetValue = 0
    currentBuyTargetValue = 0
-   startTime = map(float,startTimeList[pIndexOfEntryOrExitCL].split(":"))
-   endTime = map(float,endTimeList[pIndexOfEntryOrExitCL].split(":"))
+   startTime = map(float,startTimeList[pIndexOfEntryOrExitCL].split("h"))
+   endTime = map(float,endTimeList[pIndexOfEntryOrExitCL].split("h"))
    print (startTime, endTime)
  #  entryCLCutoff = float(args.entryCLCutoff)
  #  exitCLCutoff = float(args.exitCLCutoff)
@@ -350,6 +350,10 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
    lReasonForTradingOrNotTradingShort = ""
    lReasonForTradingOrNotTradingLong = ""
    currentIndex = 0
+   lDummyBidQ0 = 0
+   lDummyAskQ0=0 
+   lDummyTTQForBuy =0 
+   lDummyTTQForSell = 0
    print("Processing the data file for trades :")
    attribute.initList()
    prevBuyTargetValue = 0
@@ -461,7 +465,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
                               'CurTargetValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurTargetValueLong','EnterTradeLong',\
                               'ReasonForTradingOrNotTradingLong','Exchange_TS','totalBuyShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0',\
                               'DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+#    attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
