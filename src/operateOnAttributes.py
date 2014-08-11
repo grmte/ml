@@ -42,6 +42,7 @@ def main():
             os._exit(0) 
       attribute.aList,lListOfHeaderColNames = attribute.operateOnAttributes(args.a1,args.a2,args.operand,args.d)
       attribute.writeToFile(outputFileName,lListOfHeaderColNames)
+      attribute.callRProgramToConvertToBinary(outputFileName)
    except:
       traceback.print_exc()
       e = sys.exc_info()[0]
