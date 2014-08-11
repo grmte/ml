@@ -1,5 +1,5 @@
 import os, sys
-
+import commands
 matrix = []
 
 def addDataRowToMatrix(pDataRow):
@@ -11,7 +11,7 @@ def printMatrix():
       print "The data row is" , dataRow
 
 
-def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
+def getFileNameFromCommandLineParam(pDirName,pSyntheticColName="",inst="",exp="",strike="",optionType=""):
    foundFile=False
    fileName =""
    if(pSyntheticColName):
@@ -24,12 +24,20 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
               foundFile = True
               break
    else:   
-      list_of_files = os.listdir(pDirName) #list of files in the directory                                                                                                                                          
-      for each_file in list_of_files:
-         if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
-            foundFile = True
-            fileName = pDirName+"/"+each_file
-            break
+      if(inst):
+         command = "ls -1 | grep " +  inst + " | grep " + exp + " | grep " + strike + " | grep " +  optionType
+         print command
+         dataFile = commands.getoutput(command)
+         if dataFile != None:
+             foundFile = True
+             fileName = pDirName+"/"+ dataFile
+      else:
+          list_of_files = os.listdir(pDirName) 
+          for each_file in list_of_files:
+                 if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
+                    foundFile = True
+                    fileName = pDirName+"/"+each_file
+                    break
    
 
    if(foundFile != True):
@@ -40,8 +48,8 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
       sys.stdout.flush()
       return fileName
 
-def getDataIntoMatrix(pDirName,pSyntheticColName=""):
-   fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
+def getDataIntoMatrix(pDirName,pSyntheticColName="",inst="",exp="",strike="",optionType=""):
+   fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName,inst,exp,strike , optionType)
    fileHasHeader = 1
    headerSkipped = 0
    for dataRow in open(fileName):
