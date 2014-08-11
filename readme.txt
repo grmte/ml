@@ -91,6 +91,20 @@ Start rabbitmq using /ml/config/rabbitmq/rabbitmq.config
 root@scp1.ao:/home/vikas/ml> rm -rf /etc/rabbitmq/
 root@scp1.ao:/home/vikas/ml> ln -sf /home/vikas/ml/config/rabbitmq/ /etc/rabbitmq
 
+
+How to check if rabbit-mq server is working?
+telnet 127.0.0.1 5672 
+
+What to do if rabbit-mq server does not start?
+The DB for the rabbitmq server is kept in /var/lib/rabbitmq
+
+if the DB becomes corrupted than rabbitmq-server will not start. 
+To fix this problem:
+  rm -rf /var/lib/rabbitmq/
+  mkdir /var/lib/rabbitmq
+  chmod -R 777 /var/lib/rabbitmq/
+  service rabbitmq-server start
+
 12. Python packages that are needed: 
     easy_install celery flower termcolor argparse
     
