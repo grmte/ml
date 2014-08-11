@@ -45,6 +45,7 @@ config = ConfigObj(args.e+"/design.ini")
 featureTargetFilePath = args.pd.replace('ro', 'wf')
 
 features = config["features-buy"]
+features.update(config["features-sell"])
 featureFiles = []
 featureFpList = []
 featureFp = 1
