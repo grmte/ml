@@ -12,6 +12,9 @@ strikePrice = ''
 def getTargetVariableKeys(pConfig):
     return pConfig["target"]
 
+def generateExtension(pInstType,pOptionsType,pStrikePrice):
+    return "-iT." + pInstType + '-oT.' +  pOptionsType + '-sP.' +  pStrikePrice
+    
 def getFeatureVariableKeys(pConfig , pTargetKey):
     featureKeyName = "features-" + pTargetKey
     attributes = pConfig[featureKeyName] 
@@ -44,6 +47,7 @@ def getOperationCommands(pCombinedList,pOperationList):
             pOperationList.append(i)
 
 def readAttributeFileIntoMatrix(pFeatureFile):
+   
    print "Reading " +pFeatureFile
    matrix = []
    fileHasHeader = 1
@@ -58,6 +62,9 @@ def readAttributeFileIntoMatrix(pFeatureFile):
    return matrix   
 
 def getCommandLineToOperateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
+   global instType
+   global optionsType
+   global strikePrice
    paramList = []                        
    paramList = ["operateOnAttributes.py","-d",dataFolder]  
    paramList.append("-a1")
@@ -66,12 +73,25 @@ def getCommandLineToOperateOnAttributes(pFirstAttributeName,pSecondAttributeName
    paramList.append(pSecondAttributeName)  
    paramList.append("-operand")
    paramList.append(pOperand)  
+   try:
+       len(instType)
+       paramList.extend(["-iT",instType,"-sP",strikePrice,"-oT",optionsType])
+   except:
+       pass
    return paramList
 
 def getFileNameFromOperationCommand(a1,a2,operand,d):
+   global instType
+   global optionsType
+   global strikePrice
+   try:
+       len(instType)
+       extension = generateExtension(instType,optionsType,strikePrice)
+   except:
+       extension = ""
    # assuming that all operations happen on f to operate on t this function needs to change.
    d = d.replace('/ro/','/wf/')   
-   return d+"/f/"+a1+"["+operand+"]"+a2+".feature"
+   return d+"/f/"+a1+"["+operand+"]"+a2+extension+".feature"
 
 def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
    print "\nOperating on attributes. First attribute: "+pFirstAttributeName + " 2nd attribute: "+pSecondAttributeName + " Operation: "+ pOperand
@@ -159,12 +179,20 @@ def getAttributeTypeFromAttributeName(pAttributeName):
    
 
 def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
+   global instType
+   global optionsType
+   global strikePrice
+   try:
+       len(instType)
+       extension = generateExtension(instType,optionsType,strikePrice)
+   except:
+       extension = ""
    # we need to replace /ro with /wf   
    dirName = dataFolder.replace('/ro/','/wf/')   
    if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
-      attributeFile=dirName+"/f/"+pAttributesName+".feature"
+      attributeFile=dirName+"/f/"+pAttributesName+extension+".feature"
    else:   
-      attributeFile=dirName+"/t/"+pAttributesName+".target"
+      attributeFile=dirName+"/t/"+pAttributesName+extension+".target"
       
    return attributeFile
    
@@ -197,7 +225,7 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderTyp
      
     try: 
         if len(instType)>0:
-            pGeneratorName = pGeneratorName + "-iT." + instType + '-oT.' +  optionsType + '-sP.' +  strikePrice
+            pGeneratorName = pGeneratorName + generateExtension(instType,optionsType,strikePrice) 
     except:
         pass
     # we need to replace /ro with /wf   

@@ -5,6 +5,7 @@ import attribute, utility
 from configobj import ConfigObj
 print "\nStarting to run Attribute generator for experiment"
 import pdb
+
 def parseCommandLine():
     parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenForE.py -d ob/data/20140207/ -e e7.1')
     parser.add_argument('-d', required=True,help='Directory of data file')
@@ -13,6 +14,9 @@ def parseCommandLine():
     parser.add_argument('-run', required=True,help='dry or real')
     parser.add_argument('-sequence', required=True,help='ld (local distributed) or pd(parallel distributed)')
     parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options give 5')
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
     return args
 
@@ -73,7 +77,11 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     Support the user friendly attribute name is fColBidP0InCurrentRow this will return fColCInCurrentRow -c BidP0 
     """
     paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
-
+    try:
+        len(attribute.instType)
+        paramList.extend(["-iT",attribute.instType,"-oT",attribute.optionsType,"-sP",attribute.strikePrice])
+    except:
+        pass
     # Getting the moduleName from the attributeName
     if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
@@ -223,6 +231,8 @@ def main():
     experimentFolder = args.e
     dataFolder = args.d
     generatorsFolder = args.g
+
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
     
     args.sequence = "lp"
     insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )

@@ -18,6 +18,9 @@ def parseCommandLine():
     parser.add_argument('-a1', required=True,help='Attribute 1')
     parser.add_argument('-a2', required=False,help='Attribute 2')
     parser.add_argument('-operand', required=False,help='Operand')
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     """ 
     this does not need a command sequence since this does not generate sub commands
     this does not need a dry or real since this is the final execution command
@@ -29,6 +32,7 @@ args = parseCommandLine()
 
 def main():
    try:
+      attribute.initializeInstDetails(args.iT,args.sP,args.oT)  
       outputFileName = attribute.getFileNameFromOperationCommand(args.a1,args.a2,args.operand,args.d)
       if (os.path.isfile(outputFileName)):
           print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file." , outputFileName
