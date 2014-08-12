@@ -21,7 +21,10 @@ def parseCommandLine():
     parser.add_argument('-cType', required=False,help='primary / synthetic')
     parser.add_argument('-n', required=False,help='Number of rows / cols / seconds / Qty')
     parser.add_argument('-i',required=False,help="Imaginary Name of column")
-    parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options data give 5')
+    parser.add_argument('-tickSize',required=False,help='For NseCurrency data give 25000 and for future options data give 5')
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     # This is a command and it does not have sub commands. Hence it does not need 
     # 1. A "sequence of commands" as a parameter.
     # 2. Whether the command is to be run in dry more or real mode.
@@ -40,13 +43,11 @@ except:
    e = sys.exc_info()[0]
    print e
    os._exit(-1)
-   
-   
-   
-
+ 
 
 def main():
    try:
+      attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
       if args.i is not None: 
           attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.i,args.o,args.d)
       else:

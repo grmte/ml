@@ -5,6 +5,9 @@ from datetime import datetime
 from configobj import ConfigObj
 import math
 aList = []
+instType = ''
+optionsType = ''
+strikePrice = ''
 
 def getTargetVariableKeys(pConfig):
     return pConfig["target"]
@@ -167,33 +170,44 @@ def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
    
 
 def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder):
-   if "NRows" in pGeneratorName:
-      N = number
-      pGeneratorName = pGeneratorName.replace("NRows",str(N)+"Rows")   
-   if "NTrades" in pGeneratorName:
-      N = number
-      pGeneratorName = pGeneratorName.replace("NTrades",str(N)+"Trades") 
-   if "NSecs" in pGeneratorName:
-      N = number
-      pGeneratorName = pGeneratorName.replace("NSecs",str(N)+"Secs")   
 
-   if "NQty" in pGeneratorName:
-      N = number
-      pGeneratorName = pGeneratorName.replace("NQty",str(N)+"Qty")   
+    global instType
+    global optionsType
+    global strikePrice
 
-   if "ColC" in pGeneratorName:
-      pGeneratorName = pGeneratorName.replace("ColC","Col"+columnName)   
-      
-   if "OrderO" in pGeneratorName:
-      pGeneratorName = pGeneratorName.replace("OrderO","Order"+orderType)  
-   # we need to replace /ro with /wf   
-   dirName = dataFolder.replace('/ro/','/wf/')   
-   if (getAttributeTypeFromAttributeName(pGeneratorName) == "feature"):   
-      attributeFile=dirName+"/f/"+pGeneratorName+".feature"
-   else:   
-      attributeFile=dirName+"/t/"+pGeneratorName+".target"
-      
-   return attributeFile
+    if "NRows" in pGeneratorName:
+        N = number
+        pGeneratorName = pGeneratorName.replace("NRows",str(N)+"Rows")   
+    if "NTrades" in pGeneratorName:
+        N = number
+        pGeneratorName = pGeneratorName.replace("NTrades",str(N)+"Trades") 
+    if "NSecs" in pGeneratorName:
+        N = number
+        pGeneratorName = pGeneratorName.replace("NSecs",str(N)+"Secs")   
+    
+    if "NQty" in pGeneratorName:
+        N = number
+        pGeneratorName = pGeneratorName.replace("NQty",str(N)+"Qty")   
+    
+    if "ColC" in pGeneratorName:
+        pGeneratorName = pGeneratorName.replace("ColC","Col"+columnName)   
+       
+    if "OrderO" in pGeneratorName:
+        pGeneratorName = pGeneratorName.replace("OrderO","Order"+orderType)  
+     
+    try: 
+        if len(instType)>0:
+            pGeneratorName = pGeneratorName + "-iT." + instType + '-oT.' +  optionsType + '-sP.' +  strikePrice
+    except:
+        pass
+    # we need to replace /ro with /wf   
+    dirName = dataFolder.replace('/ro/','/wf/')   
+    if (getAttributeTypeFromAttributeName(pGeneratorName) == "feature"):   
+        attributeFile=dirName+"/f/"+pGeneratorName+".feature"
+    else:   
+        attributeFile=dirName+"/t/"+pGeneratorName+".target"
+       
+    return attributeFile
 
 def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNextDayAfterLast ):
     lPredicionBaseFolderName = os.path.basename(os.path.abspath(pPredictDir))   
@@ -239,10 +253,12 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
     return lTrainingDirectoryList
 
 def callRProgramToConvertToBinary(pFileName):
-    lVariableName = (pFileName.split("/")[-1]).split(".")[0]
+    lastPointInFileName = pFileName.rfind(".") 
+    lFileWithoutExtension= pFileName[:lastPointInFileName]
+    lVariableName = (lFileWithoutExtension.split("/")[-1])
     lVariableName = lVariableName.replace("[","")
     lVariableName = lVariableName.replace("]","")
-    lNameAfterDecimal = pFileName.split(".")[1] 
+    lNameAfterDecimal = pFileName.split(".")[-1] 
     lFileNameToStore = pFileName.replace(lNameAfterDecimal,"bin")
     
     lCommandToConvertToBinary = "./src/rScriptSaveFeatureFileInBinaryFormat.r " + pFileName + " " + lVariableName + " " + lFileNameToStore
@@ -250,11 +266,14 @@ def callRProgramToConvertToBinary(pFileName):
     os.system(lCommandToConvertToBinary)
 
 def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,dataFolder):
+   global instType
+   global optionsType
+   global strikePrice
    attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder)
    print "Checking if attribute file exists " + attributeFile 
    if (os.path.isfile(attributeFile)):
       print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
-      lNameAfterDecimal = attributeFile.split(".")[1] 
+      lNameAfterDecimal = attributeFile.split(".")[-1] 
       attributeBinaryFileName = attributeFile.replace(lNameAfterDecimal,"bin")
       if (os.path.isfile(attributeBinaryFileName)):
         print   attributeBinaryFileName
@@ -281,3 +300,13 @@ def writeToFile(outputFileName,pListOfHeaderColNames):
 def initList():
    global aList
    aList =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
+
+def initializeInstDetails(pInstType,pStrikePrice,pOptionType):
+    global instType
+    global optionsType
+    global strikePrice
+    instType = pInstType
+    optionsType = pOptionType
+    strikePrice = pStrikePrice
+    
+         

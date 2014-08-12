@@ -1,6 +1,7 @@
 import os, sys
 import commands
 matrix = []
+import attribute
 
 def addDataRowToMatrix(pDataRow):
    dataColumns=pDataRow.split(';')
@@ -11,7 +12,7 @@ def printMatrix():
       print "The data row is" , dataRow
 
 
-def getFileNameFromCommandLineParam(pDirName,pSyntheticColName="",inst="",exp="",strike="",optionType=""):
+def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
    foundFile=False
    fileName =""
    if(pSyntheticColName):
@@ -23,15 +24,16 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName="",inst="",exp=""
               fileName = pDirName.replace("ro","wf") +pSyntheticColName+".feature"
               foundFile = True
               break
-   else:   
-      if(inst):
-         command = "ls -1 | grep " +  inst + " | grep " + exp + " | grep " + strike + " | grep " +  optionType
-         print command
-         dataFile = commands.getoutput(command)
-         if dataFile != None:
-             foundFile = True
-             fileName = pDirName+"/"+ dataFile
-      else:
+   else: 
+      try:   
+          if(attribute.instType!=''):
+             command = "ls -1  " +  pDirName + " | grep " +  attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType
+             print command
+             dataFile = commands.getoutput(command)
+             if dataFile != None:
+                 foundFile = True
+                 fileName = pDirName+"/"+ dataFile
+      except:
           list_of_files = os.listdir(pDirName) 
           for each_file in list_of_files:
                  if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
@@ -48,8 +50,8 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName="",inst="",exp=""
       sys.stdout.flush()
       return fileName
 
-def getDataIntoMatrix(pDirName,pSyntheticColName="",inst="",exp="",strike="",optionType=""):
-   fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName,inst,exp,strike , optionType)
+def getDataIntoMatrix(pDirName,pSyntheticColName=""):
+   fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
    fileHasHeader = 1
    headerSkipped = 0
    for dataRow in open(fileName):

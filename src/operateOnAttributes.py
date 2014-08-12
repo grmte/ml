@@ -32,7 +32,7 @@ def main():
       outputFileName = attribute.getFileNameFromOperationCommand(args.a1,args.a2,args.operand,args.d)
       if (os.path.isfile(outputFileName)):
           print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file." , outputFileName
-          lNameAfterDecimal = outputFileName.split(".")[1] 
+          lNameAfterDecimal = outputFileName.split(".")[-1] 
           attributeBinaryFileName = outputFileName.replace(lNameAfterDecimal,"bin")
           if (os.path.isfile(attributeBinaryFileName)):
             print   attributeBinaryFileName
