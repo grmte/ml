@@ -77,11 +77,6 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     Support the user friendly attribute name is fColBidP0InCurrentRow this will return fColCInCurrentRow -c BidP0 
     """
     paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
-    try:
-        len(attribute.instType)
-        paramList.extend(["-iT",attribute.instType,"-oT",attribute.optionsType,"-sP",attribute.strikePrice])
-    except:
-        pass
     # Getting the moduleName from the attributeName
     if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
@@ -152,6 +147,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     paramList.append("-g")
     paramList.append(generatorsFolder+pUserFriendlyAttributeName)
 
+    paramList.extend(["-iT",attribute.instType,"-oT",attribute.optionsType,"-sP",attribute.strikePrice])
     commandLine =[]
     commandLine.append(paramList)
     return commandLine

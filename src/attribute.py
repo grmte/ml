@@ -5,15 +5,24 @@ from datetime import datetime
 from configobj import ConfigObj
 import math
 aList = []
-instType = ''
-optionsType = ''
-strikePrice = ''
+instType = None
+optionsType = None
+strikePrice = None
 
 def getTargetVariableKeys(pConfig):
     return pConfig["target"]
 
-def generateExtension(pInstType,pOptionsType,pStrikePrice):
-    return "-iT." + pInstType + '-oT.' +  pOptionsType + '-sP.' +  pStrikePrice
+def generateExtension():
+
+    global instType
+    global optionsType
+    global strikePrice   
+    
+    try:
+        len(instType)
+        return "-iT." + instType + '-oT.' +  optionsType + '-sP.' +  strikePrice
+    except:
+        return ""
     
 def getFeatureVariableKeys(pConfig , pTargetKey):
     featureKeyName = "features-" + pTargetKey
@@ -28,67 +37,56 @@ def getIntermediateAttributesForExperiment(experimentFolder):
     return attributes , config
 
 def getOperationCommandsInPriority(operateOnAttributeList):
-   return sorted(operateOnAttributeList, key = lambda x: len(x[6]))
+    return sorted(operateOnAttributeList, key = lambda x: len(x[6]))
 
 def getGenerationCommands(pCombinedList,pGenList):
-   for i in pCombinedList:
-      if(isinstance(i[0],list)):
-         getGenerationCommands(i,pGenList)
-      else:
-         if "aGen.py" in i:
-            pGenList.append(i)
+    for i in pCombinedList:
+        if(isinstance(i[0],list)):
+            getGenerationCommands(i,pGenList)
+        else:
+            if "aGen.py" in i:
+                pGenList.append(i)
 
 def getOperationCommands(pCombinedList,pOperationList):
-   for i in pCombinedList:
-      if(isinstance(i[0],list)):
-         getOperationCommands(i,pOperationList)
-      else:
-         if "operateOnAttributes.py" in i:
-            pOperationList.append(i)
+    for i in pCombinedList:
+        if(isinstance(i[0],list)):
+            getOperationCommands(i,pOperationList)
+        else:
+            if "operateOnAttributes.py" in i:
+                pOperationList.append(i)
 
 def readAttributeFileIntoMatrix(pFeatureFile):
    
-   print "Reading " +pFeatureFile
-   matrix = []
-   fileHasHeader = 1
-   for dataRow in open(pFeatureFile):
-      if(fileHasHeader == 1):
-         fileHasHeader = 0 
-         continue
-      dataRow=dataRow.rstrip('\n')
-      dataColumns=dataRow.split(';')
-      matrix.append(dataColumns)
-
-   return matrix   
+    print "Reading " +pFeatureFile
+    matrix = []
+    fileHasHeader = 1
+    for dataRow in open(pFeatureFile):
+        if(fileHasHeader == 1):
+            fileHasHeader = 0 
+            continue
+        dataRow=dataRow.rstrip('\n')
+        dataColumns=dataRow.split(';')
+        matrix.append(dataColumns)
+    
+    return matrix   
 
 def getCommandLineToOperateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFolder):
-   global instType
-   global optionsType
-   global strikePrice
-   paramList = []                        
-   paramList = ["operateOnAttributes.py","-d",dataFolder]  
-   paramList.append("-a1")
-   paramList.append(pFirstAttributeName)  
-   paramList.append("-a2")
-   paramList.append(pSecondAttributeName)  
-   paramList.append("-operand")
-   paramList.append(pOperand)  
-   try:
-       len(instType)
-       paramList.extend(["-iT",instType,"-sP",strikePrice,"-oT",optionsType])
-   except:
-       pass
-   return paramList
+    global instType
+    global optionsType
+    global strikePrice
+    paramList = ["operateOnAttributes.py","-d",dataFolder]  
+    paramList.append("-a1")
+    paramList.append(pFirstAttributeName)  
+    paramList.append("-a2")
+    paramList.append(pSecondAttributeName)  
+    paramList.append("-operand")
+    paramList.append(pOperand)  
+    paramList.extend(["-iT",instType,"-sP",strikePrice,"-oT",optionsType])
+    return paramList
 
 def getFileNameFromOperationCommand(a1,a2,operand,d):
-   global instType
-   global optionsType
-   global strikePrice
-   try:
-       len(instType)
-       extension = generateExtension(instType,optionsType,strikePrice)
-   except:
-       extension = ""
+
+   extension = generateExtension()
    # assuming that all operations happen on f to operate on t this function needs to change.
    d = d.replace('/ro/','/wf/')   
    return d+"/f/"+a1+"["+operand+"]"+a2+extension+".feature"
@@ -172,36 +170,25 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
    return featureMatrix , lListOfHeaderColNames   
 
 def getAttributeTypeFromAttributeName(pAttributeName):
-   if(pAttributeName[0]=='t'):
-      return "target"
-   else:
-      return "feature"
+    if(pAttributeName[0]=='t'):
+        return "target"
+    else:
+        return "feature"
    
 
 def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
-   global instType
-   global optionsType
-   global strikePrice
-   try:
-       len(instType)
-       extension = generateExtension(instType,optionsType,strikePrice)
-   except:
-       extension = ""
-   # we need to replace /ro with /wf   
-   dirName = dataFolder.replace('/ro/','/wf/')   
-   if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
-      attributeFile=dirName+"/f/"+pAttributesName+extension+".feature"
-   else:   
-      attributeFile=dirName+"/t/"+pAttributesName+extension+".target"
-      
-   return attributeFile
+    extension = generateExtension()
+    # we need to replace /ro with /wf   
+    dirName = dataFolder.replace('/ro/','/wf/')   
+    if (getAttributeTypeFromAttributeName(pAttributesName) == "feature"):   
+        attributeFile=dirName+"/f/"+pAttributesName+extension+".feature"
+    else:   
+        attributeFile=dirName+"/t/"+pAttributesName+extension+".target"
+       
+    return attributeFile
    
 
 def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder):
-
-    global instType
-    global optionsType
-    global strikePrice
 
     if "NRows" in pGeneratorName:
         N = number
@@ -223,11 +210,7 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderTyp
     if "OrderO" in pGeneratorName:
         pGeneratorName = pGeneratorName.replace("OrderO","Order"+orderType)  
      
-    try: 
-        if len(instType)>0:
-            pGeneratorName = pGeneratorName + generateExtension(instType,optionsType,strikePrice) 
-    except:
-        pass
+    pGeneratorName = pGeneratorName + generateExtension() 
     # we need to replace /ro with /wf   
     dirName = dataFolder.replace('/ro/','/wf/')   
     if (getAttributeTypeFromAttributeName(pGeneratorName) == "feature"):   
@@ -294,40 +277,37 @@ def callRProgramToConvertToBinary(pFileName):
     os.system(lCommandToConvertToBinary)
 
 def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,dataFolder):
-   global instType
-   global optionsType
-   global strikePrice
-   attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder)
-   print "Checking if attribute file exists " + attributeFile 
-   if (os.path.isfile(attributeFile)):
-      print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
-      lNameAfterDecimal = attributeFile.split(".")[-1] 
-      attributeBinaryFileName = attributeFile.replace(lNameAfterDecimal,"bin")
-      if (os.path.isfile(attributeBinaryFileName)):
-        print   attributeBinaryFileName
-        os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
-      else:
-        callRProgramToConvertToBinary(attributeFile) 
-        os._exit(0) 
+    attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder)
+    print "Checking if attribute file exists " + attributeFile 
+    if (os.path.isfile(attributeFile)):
+        print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
+        lNameAfterDecimal = attributeFile.split(".")[-1] 
+        attributeBinaryFileName = attributeFile.replace(lNameAfterDecimal,"bin")
+        if (os.path.isfile(attributeBinaryFileName)):
+            print   attributeBinaryFileName
+            os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
+        else:
+            callRProgramToConvertToBinary(attributeFile) 
+            os._exit(0) 
         
 def writeToFile(outputFileName,pListOfHeaderColNames):
-   global aList
-   print "Writing to file the attribute: "+ outputFileName
-   attributeFile = open(outputFileName,"w")
-   lHeaderString = ";".join(pListOfHeaderColNames) + "\n"
-   attributeFile.write(lHeaderString)
-   for featureRow in aList:
-      featureCount = 1
-      for feature in featureRow:
-         attributeFile.write("%s" % (feature))
-         if(featureCount < len(featureRow)):
-            attributeFile.write(";")
-         featureCount = featureCount + 1   
-      attributeFile.write('\n')
+    global aList
+    print "Writing to file the attribute: "+ outputFileName
+    attributeFile = open(outputFileName,"w")
+    lHeaderString = ";".join(pListOfHeaderColNames) + "\n"
+    attributeFile.write(lHeaderString)
+    for featureRow in aList:
+        featureCount = 1
+        for feature in featureRow:
+            attributeFile.write("%s" % (feature))
+            if(featureCount < len(featureRow)):
+                attributeFile.write(";")
+            featureCount = featureCount + 1   
+        attributeFile.write('\n')
 
 def initList():
-   global aList
-   aList =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
+    global aList
+    aList =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
 
 def initializeInstDetails(pInstType,pStrikePrice,pOptionType):
     global instType

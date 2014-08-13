@@ -35,7 +35,21 @@ def runCommand(pProgDefinationList,pRun,pRunType):
     else:
         print "Time taken to run the program is " + str(tEnd - tStart)
 
-
+def removeNullFieldsIntheList(pProgDefinationList):
+    count = 0
+    new_command = []
+    loopLength = len(pProgDefinationList) - 1
+    while( count < loopLength ):
+        if pProgDefinationList[count+1] == None:
+            print "Following field has value None :-" ,  pProgDefinationList[count]
+            count = count + 1
+        else:
+            new_command.append( pProgDefinationList[count] )
+        count = count + 1
+    if count == loopLength:
+        new_command.append(pProgDefinationList[count]) 
+    return new_command
+        
 def runCommandList(pCommandList,pArgs):
     run = pArgs.run
     sequence = pArgs.sequence
@@ -43,4 +57,5 @@ def runCommandList(pCommandList,pArgs):
         if(isinstance(command[0],list)):
             runCommandList(command,pArgs)
             continue
-        runCommand(command,run,sequence)
+        newCommand = removeNullFieldsIntheList(command)
+        runCommand(newCommand,run,sequence)
