@@ -14,20 +14,21 @@ def list_files(dir):
     return r       
 
 def runCommand(pProgDefinationList,pRun,pRunType):
+    lModifiedProgDefinationList = removeNullFieldsIntheList(pProgDefinationList)
     if(pRun == "dry"):
-        message = "\ndryrun>"+' '.join(pProgDefinationList)
+        message = "\ndryrun>"+' '.join(lModifiedProgDefinationList)
         print colored(message,'red')
         return
     elif(pRunType == "dp"):
-        message = "\nsubmitting>"+' '.join(pProgDefinationList)
+        message = "\nsubmitting>"+' '.join(lModifiedProgDefinationList)
         print colored(message,'red')
         import dp
-        dp.commandStatus[' '.join(pProgDefinationList)] = dp.runCommand.delay(pProgDefinationList)
+        dp.commandStatus[' '.join(lModifiedProgDefinationList)] = dp.runCommand.delay(lModifiedProgDefinationList)
         return
-    message = "\nexecuting>"+' '.join(pProgDefinationList)
+    message = "\nexecuting>"+' '.join(lModifiedProgDefinationList)
     print colored(message,'red')
     tStart = datetime.now()
-    returnState = subprocess.check_call(pProgDefinationList)
+    returnState = subprocess.check_call(lModifiedProgDefinationList)
     tEnd = datetime.now()
     if(returnState < 0):
         print "Unrecoverable error code: " + str(returnState)
@@ -35,7 +36,21 @@ def runCommand(pProgDefinationList,pRun,pRunType):
     else:
         print "Time taken to run the program is " + str(tEnd - tStart)
 
-
+def removeNullFieldsIntheList(pProgDefinationList):
+    count = 0
+    new_command = []
+    loopLength = len(pProgDefinationList) - 1
+    while( count < loopLength ):
+        if pProgDefinationList[count+1] == None:
+            print "Following field has value None :-" ,  pProgDefinationList[count]
+            count = count + 1
+        else:
+            new_command.append( pProgDefinationList[count] )
+        count = count + 1
+    if count == loopLength:
+        new_command.append(pProgDefinationList[count]) 
+    return new_command
+        
 def runCommandList(pCommandList,pArgs):
     run = pArgs.run
     sequence = pArgs.sequence

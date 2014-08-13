@@ -15,13 +15,16 @@ parser.add_argument('-endTime', required=True,help='End Time List')
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-targetType',required=True,help="1,2,3,4 ")
 parser.add_argument('-e',required=True,help="experiment design file to be used")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 import attribute
-
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 if args.skipT == None:
     args.skipT = "no"
                     
@@ -47,7 +50,7 @@ startTimeList = args.startTime.split(";")
 endTimeList = args.endTime.split(";")
 initialFileName = []
 for indexOfCL in range(0,len(startTimeList)):
-    lInitialFileName ='DummyTradeEngine-d.' + os.path.basename(os.path.abspath(args.d)) + '-l.'+startTimeList[indexOfCL]+"-"+endTimeList[indexOfCL] + "-tq." + args.orderQty + "-tarType" + args.targetType + "-dte.7" 
+    lInitialFileName ='DummyTradeEngine-d.' + os.path.basename(os.path.abspath(args.d))+ attribute.generateExtension() + '-l.'+startTimeList[indexOfCL]+"-"+endTimeList[indexOfCL] + "-tq." + args.orderQty + "-tarType" + args.targetType + "-dte.7" 
     initialFileName.append(lInitialFileName)
     
 
@@ -77,7 +80,7 @@ def getTargetValuesIntoDict(pTargetValuesDict):
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
     lTargetBuyValuesDict = dict()
-    targetBuyValuesFileName = dirName+"/t/" + target['newBuy'+args.targetType] + ".target"
+    targetBuyValuesFileName = dirName+"/t/" + target['newBuy'+args.targetType]+ attribute.generateExtension() + ".target"
     print("Buy Target values file : "+ targetBuyValuesFileName)
     sys.stdout.flush()
     targetBuyValuesFile = open(targetBuyValuesFileName)
@@ -91,7 +94,7 @@ def getTargetValuesIntoDict(pTargetValuesDict):
     sys.stdout.flush()
 
     lTargetSellValuesDict = dict()
-    targetSellValuesFileName = dirName+"/t/" + target['newSell'+args.targetType] + ".target"
+    targetSellValuesFileName = dirName+"/t/" + target['newSell'+args.targetType]+ attribute.generateExtension() + ".target"
     print("Sell Target values file : "+ targetSellValuesFileName)
     sys.stdout.flush()
     targetSellValuesFile = open(targetSellValuesFileName)

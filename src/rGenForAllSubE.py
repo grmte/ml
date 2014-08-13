@@ -18,6 +18,9 @@ parser.add_argument('-skipM',required=False,help="yes or no , If you want to reg
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
 parser.add_argument('-mpMearge',required=True,help="yes or no , If you want to separate model and prediction files then make this no")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -43,8 +46,11 @@ i = 2
 for algo in allAlgos:
     while i <= totalNumberOfFeatures:
         if args.mpMearge == "yes":
-            utility.runCommand(["mpRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-skipP",args.skipP ,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt ,  '-wt' , args.wt , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+            utility.runCommand(["mpRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-pd",args.pd ,"-skipP",args.skipP ,"-skipM",args.skipM,"-td",args.td,\
+                                 "-dt" , args.dt ,  '-wt' , args.wt , "-s",args.e+"/s/"+str(i)+"c","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         else:
-            utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-td" , args.td , "-dt", args.dt,"-skipM",args.skipM, '-wt' , args.wt,"-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
-            utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td , "-dt", args.dt, "-wt", args.wt  , "-s",args.e+"/s/"+str(i)+"c"],args.run,args.sequence)
+            utility.runCommand(["mRGenForAllSubE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-td" , args.td , "-dt", args.dt,"-skipM",args.skipM,\
+                                 '-wt' , args.wt,"-s",args.e+"/s/"+str(i)+"c","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+            utility.runCommand(["pRGenForAllSubE.py","-e",args.e,"-a",algo,"-skipP",args.skipP ,"-targetClass",args.targetClass,"-pd",args.pd ,"-td" , args.td ,\
+                                 "-dt", args.dt, "-wt", args.wt  , "-s",args.e+"/s/"+str(i)+"c","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         i +=1

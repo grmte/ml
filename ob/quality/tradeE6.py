@@ -18,13 +18,16 @@ parser.add_argument('-dt',required=False,help="Number of days it was trained")
 parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 import attribute
-
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 if args.skipT == None:
     args.skipT = "no"
 if args.dt == None:
@@ -57,7 +60,7 @@ totalExitCL = args.exitCL.split(";")
 initialFileName = []
 for indexOfCL in range(0,len(totalEntryCL)):
     lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
                    '-l.'+totalEntryCL[indexOfCL]+"-"+totalExitCL[indexOfCL] + "-tq." + args.orderQty + "-te.6" 
     initialFileName.append(lInitialFileName)
     
@@ -89,7 +92,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     target = config["target"]
     lPredictedBuyValuesDict = dict()
     predictedBuyValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
     print("Buy Predicted values file : "+ predictedBuyValuesFileName)
     sys.stdout.flush()
     predictedBuyValuesFile = open(predictedBuyValuesFileName)
@@ -104,7 +107,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
 
     lPredictedSellValuesDict = dict()
     predictedSellValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[1] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
     print("Sell Predicted values file : "+ predictedSellValuesFileName)
     sys.stdout.flush()
     predictedSellValuesFile = open(predictedSellValuesFileName)
@@ -541,10 +544,10 @@ if __name__ == "__main__":
 
    lWFDirName = args.pd.replace('/ro/','/wf/')
    predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
-   args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+   args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
    
    predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
-   args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + ".predictions"
+   args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
 
    if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
        for lFileName in initialFileName:

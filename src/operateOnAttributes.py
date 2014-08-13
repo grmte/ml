@@ -18,6 +18,9 @@ def parseCommandLine():
     parser.add_argument('-a1', required=True,help='Attribute 1')
     parser.add_argument('-a2', required=False,help='Attribute 2')
     parser.add_argument('-operand', required=False,help='Operand')
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     """ 
     this does not need a command sequence since this does not generate sub commands
     this does not need a dry or real since this is the final execution command
@@ -28,26 +31,27 @@ def parseCommandLine():
 args = parseCommandLine()
 
 def main():
-   try:
-      outputFileName = attribute.getFileNameFromOperationCommand(args.a1,args.a2,args.operand,args.d)
-      if (os.path.isfile(outputFileName)):
-          print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file." , outputFileName
-          lNameAfterDecimal = outputFileName.split(".")[1] 
-          attributeBinaryFileName = outputFileName.replace(lNameAfterDecimal,"bin")
-          if (os.path.isfile(attributeBinaryFileName)):
-            print   attributeBinaryFileName
-            os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
-          else:
-            attribute.callRProgramToConvertToBinary(outputFileName) 
-            os._exit(0) 
-      attribute.aList,lListOfHeaderColNames = attribute.operateOnAttributes(args.a1,args.a2,args.operand,args.d)
-      attribute.writeToFile(outputFileName,lListOfHeaderColNames)
-      attribute.callRProgramToConvertToBinary(outputFileName)
-   except:
-      traceback.print_exc()
-      e = sys.exc_info()[0]
-      print e
-      os._exit(-1)
+    try:
+        attribute.initializeInstDetails(args.iT,args.sP,args.oT)  
+        outputFileName = attribute.getFileNameFromOperationCommand(args.a1,args.a2,args.operand,args.d)
+        if (os.path.isfile(outputFileName)):
+            print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file." , outputFileName
+            lNameAfterDecimal = outputFileName.split(".")[-1] 
+            attributeBinaryFileName = outputFileName.replace(lNameAfterDecimal,"bin")
+            if (os.path.isfile(attributeBinaryFileName)):
+                print   attributeBinaryFileName
+                os._exit(0)  # We do not take it as a error condition hence return 0 and not -1
+            else:
+                attribute.callRProgramToConvertToBinary(outputFileName) 
+                os._exit(0) 
+        attribute.aList,lListOfHeaderColNames = attribute.operateOnAttributes(args.a1,args.a2,args.operand,args.d)
+        attribute.writeToFile(outputFileName,lListOfHeaderColNames)
+        attribute.callRProgramToConvertToBinary(outputFileName)
+    except:
+        traceback.print_exc()
+        e = sys.exc_info()[0]
+        print e
+        os._exit(-1)
 
 if __name__ == "__main__":
    main()

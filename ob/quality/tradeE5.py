@@ -18,12 +18,16 @@ parser.add_argument('-orderQty',required=True,help='Order Quantity with which we
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 import dataFile, colNumberOfData, common
 import attribute
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 
 if args.skipT == None:
     args.skipT = "no"
@@ -53,7 +57,7 @@ experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
 initialFileName =  args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() +  \
                     '-l.'+args.entryCL+"-"+args.exitCL + "-te5"    
 g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
@@ -64,7 +68,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     config = ConfigObj(args.e+"/design.ini")
     target = config["target"]
     predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/"+args.a + target.keys()[0] + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
     print("Predicted values file : "+ predictedValuesFileName)
     sys.stdout.flush()
     predictedValuesFile = open(predictedValuesFileName)
