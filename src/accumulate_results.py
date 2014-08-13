@@ -19,7 +19,12 @@ parser.add_argument('-m', required=True,help='Meassge regarding experiment it ha
 parser.add_argument('-f', required=False,help='Format of the Trade File (can be 0 (old format) or 1 (new format)')
 parser.add_argument('-nD',required=False,help='Number of days of data present')
 parser.add_argument('-pd',required=False,help="Prediction Directory , if all days after 1st training set is to be given , then we need not specify it")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
+
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 
 if args.nD == None:
     args.nD = args.dt
@@ -50,7 +55,14 @@ else:
 if args.f == "0":
     desired_statistic_names = ["FeatureCombination","EntryCL","ExitCL","TotalSellQty","TotalBuyQty","AvgSellP","AvgBuyPrice","AvgGrossProfit","AvgNetProfit"]
 else:
-    desired_statistic_names = ["AlgorithmUsed","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
+    if args.iT is not None:
+        desired_statistic_names = ["AlgorithmUsed","InstrName-Ticker","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
+                               "EntryCL","ExitCL","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
+                               "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
+                               "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars"]
+
+    else:
+        desired_statistic_names = ["AlgorithmUsed","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
                                "EntryCL","ExitCL","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
                                "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars"]
@@ -99,9 +111,23 @@ for dirN in allPredictionDataDirectories:
             lLastDayOrDayAfter = "DayAfterTraining"
         
         print "Filename " , file_name
+        '''
+        glmnet-td.20140128-dt.1-targetClass.binomial-f.1-wt.default-l.55-45-tq.300-te.7.result
+        glmnet-td.20140128-dt.1-targetClass.binomial-f.ABC-wt.default-iT.RELIANCE-oT.0-sP.-1-l.60-50-tq.500-te.7.result
+        '''
+        
         targetClass = file_name[file_name.index("-targetClass.") + 13:file_name.index("-f.")]
         feature = file_name[file_name.index("-f.") + 3:file_name.index("-wt.")]
-        weightTypeTaken = file_name[file_name.index("-wt.")+3:file_name.index("-l.")]
+        if args.iT is not None:
+            try:
+                weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-iT.")]
+                instrType = file_name[file_name.index("-iT.")+4:file_name.index("-oT.")]
+                optionsType = file_name[file_name.index("-oT.")+4:file_name.index("-sP.")]
+                strikePrice = file_name[file_name.index("-sP.")+4:file_name.index("-l.")]
+            except:
+                continue
+        else:
+            weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-l.")]
         entryCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][:(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")]   
         exitCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")+1:]  
         orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
@@ -176,8 +202,16 @@ for dirN in allPredictionDataDirectories:
             else:
                 lNetProfitLongAndShortInDollars = ""
                 print "Error in experiment file complete path name "
-            
-            l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
+            if args.iT is not None:
+                instrTicker = instrType +"-"+ strikePrice +"-"+ optionsType
+                l_list_to_printed = [algoName ,instrTicker, trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
+                                  weightTypeTaken , feature , entryCL , exitCL , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
+                                  str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
+                                  str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
+                                  str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]
+
+            else:
+                l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
                                   weightTypeTaken , feature , entryCL , exitCL , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
                                   str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
