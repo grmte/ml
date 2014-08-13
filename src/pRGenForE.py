@@ -4,6 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 import rCodeGen
+import attribute
 
 def main():
     parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGenForE.py -e ob/e1/')
@@ -16,8 +17,12 @@ def main():
     parser.add_argument('-targetClass',required=True,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
     parser.add_argument('-s',required=False,help="Experiment sub folders")
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
 
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     if args.skipP == None:
         args.skipP = "yes"
     if args.s == None:
@@ -38,7 +43,7 @@ def main():
         algo =args.a
 
     rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
-                + "-wt." + args.wt  + ".r"
+                + "-wt." + args.wt+ attribute.generateExtension()   + ".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -56,7 +61,7 @@ def main():
     for target in config['target']:
         predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
         + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
-        "-wt." + args.wt +".predictions"
+        "-wt." + args.wt+ attribute.generateExtension()  +".predictions"
         if os.path.isfile(predictionFileName) and ( args.skipP.lower() == "yes" ):
             continue
         else:
@@ -68,7 +73,7 @@ def main():
             rCodeGen.ForSanityChecks(rScript,config,target)
             predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
-            "-wt." + args.wt +".predictions"
+            "-wt." + args.wt+ attribute.generateExtension()  +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
                 print lModelGeneratedAfterTraining

@@ -26,6 +26,9 @@ parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Futur
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
 parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
 parser.add_argument('-t',required=False,help="TransactionCost")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 if args.t == None:
@@ -66,7 +69,8 @@ experimentFolder = args.e
 
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
 for directories in allDataDirectories:
-    commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize])
+    commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+        
 for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
     utility.runCommandList(lSubGenList,args)
@@ -89,12 +93,15 @@ for algo in allAlgos:
                     predictionDirLastTD = allDataDirectories[i + int(args.dt) - 1]
                     predictionDirAfterLastTD = allDataDirectories[i + int(args.dt)]
 
-                    lRCodeGenCommandList.append(["mRGenForE.py","-e",lExperimentFolderName,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt , '-wt' , wt])
-                    lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirLastTD , "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt])
-                    lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt])
+                    lRCodeGenCommandList.append(["mRGenForE.py","-e",lExperimentFolderName,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , \
+                                                 args.dt , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+                    lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirLastTD , \
+                                                 "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+                    lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD ,\
+                                                  "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
 
                     dirName = args.td.replace('/ro/','/wf/')
-                    scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt +".r"
+                    scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
                     trainingDataList = [] #";".join(allDataDirectories[i:i+ int(args.dt) ])
                     for trainDirs in allDataDirectories[i:i+ int(args.dt)]:
                         trainingDataList.append(trainDirs.replace('/ro/','/wf/'))
@@ -102,17 +109,19 @@ for algo in allAlgos:
                     lMGenRCodeList.append([scriptName,"-d",trainingDataListString])
 
                     dirName = predictionDirLastTD.replace('/ro/','/wf/')    
-                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirLastTD)) + "-wt." + wt +".r"
+                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + \
+                                os.path.basename(os.path.abspath(predictionDirLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
                     dirName = predictionDirAfterLastTD.replace('/ro/','/wf/') 
-                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt +".r"
+                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
+                                 os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
                     lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt])
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
                     lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt])                
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])                
                 utility.runCommandList(lRCodeGenCommandList,args)
                 print dp.printGroupStatus()
 
@@ -130,4 +139,5 @@ for algo in allAlgos:
                 print dp.printGroupStatus()            
         indexOfFeatures = indexOfFeatures - 1
 
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" , "FollowingExperimentResults" , "-f" , "1"],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,\
+                         "FollowingExperimentResults" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)

@@ -5,6 +5,7 @@ import argparse
 from configobj import ConfigObj
 import rCodeGen
 import utility
+import attribute
 
 def main():
     parser = argparse.ArgumentParser(description='Generates predict.r which will use design.model to make predictions. Sample command is pGenForE.py -e ob/e1/')
@@ -17,8 +18,12 @@ def main():
     parser.add_argument('-targetClass',required=True,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
     parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No")
     parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
 
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     if args.skipP == None:
         args.skipP = "yes"
 
@@ -45,7 +50,7 @@ def main():
         os.mkdir(predictDataDirectoryName)
         
     rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
-                + "-wt." + args.wt +"-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
+                + "-wt." + args.wt + attribute.generateExtension() +"-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -64,12 +69,12 @@ def main():
 
     for designFile in designFiles:
         print "Generating r code for " + designFile
-        rScript.write('\n\nprint ("Running r code for' + designFile + '")')
+        rScript.write('\n\nprint ("Running r code for' + designFile + '")\n')
         config = ConfigObj(designFile)
         for target in config['target']:
-            predictionFileName = predictDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) + "-wt." + args.wt +".predictions"
+            predictionFileName = predictDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt +\
+             '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) + "-wt." + args.wt+ attribute.generateExtension()  +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-                lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
                 rCodeGen.ForPredictions(rScript,config,args,designFile,target)
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "

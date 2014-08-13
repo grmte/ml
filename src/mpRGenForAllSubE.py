@@ -5,6 +5,7 @@ import argparse
 from configobj import ConfigObj
 import rCodeGen
 import utility
+import attribute
 
 def main():
     parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
@@ -18,8 +19,12 @@ def main():
     parser.add_argument('-td',required=True,help="Day on which it was trained")
     parser.add_argument('-dt',required=True,help="Number of days it was trained")
     parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
 
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     if args.skipM == None:
         args.skipM = "yes"
     if args.skipP == None:
@@ -44,7 +49,7 @@ def main():
 
     args.s = args.s + "/"
     rProgName = "trainPredict"+ algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +\
-     "-pd." + os.path.basename(os.path.abspath(args.pd)) +  "-wt." + args.wt + "-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
+     "-pd." + os.path.basename(os.path.abspath(args.pd)) +  "-wt." + args.wt+ attribute.generateExtension()  + "-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -83,7 +88,7 @@ def main():
 
     for designFile in designFiles:
         print "Generating r code for " + designFile
-        rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
+        rScript.write('\n\nprint ("Running r code for ' + designFile + '")\n')
         config = ConfigObj(designFile)
         configForPredictions = ConfigObj(designFile)
         #--------------MODEL--------------------
@@ -95,7 +100,7 @@ def main():
                 features[new_key] = features[key]
                 del features[key]
             lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-            '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
+            '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  + '.model'
             if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:
@@ -106,7 +111,7 @@ def main():
         #--------------Prediction Part--------------------
             predictionFileName = predictionDataDirectoryName + "/" +  args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(designFile)) +\
-                                 "-wt." + args.wt +".predictions"
+                                 "-wt." + args.wt+ attribute.generateExtension()  +".predictions"
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 rCodeGen.ForPredictions(rScript,configForPredictions,args,designFile,target,4)
             else:

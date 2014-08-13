@@ -5,7 +5,7 @@ import argparse
 from configobj import ConfigObj
 import rCodeGen
 import utility
-
+import attribute
 
 
 def main():
@@ -18,8 +18,12 @@ def main():
     parser.add_argument('-td',required=True,help="Day on which it was trained")
     parser.add_argument('-dt',required=True,help="Number of days it was trained")
     parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
 
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     if args.skipM == None:
         args.skipM = "yes"
 
@@ -35,7 +39,8 @@ def main():
     algo = rCodeGen.getAlgoName(args)
 
     args.s = args.s + "/"
-    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt +"-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
+    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt+ attribute.generateExtension()  +\
+                "-For"+os.path.basename(os.path.dirname(args.s))+"SubE.r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -59,11 +64,11 @@ def main():
 
     for designFile in designFiles:
         print "Generating r code for " + designFile
-        rScript.write('\n\nprint ("Running r code for ' + designFile + '")')
+        rScript.write('\n\nprint ("Running r code for ' + designFile + '")\n')
         config = ConfigObj(designFile)
         for target in config['target']:
             lModelGeneratedAfterTraining = os.path.dirname(designFile) + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-            '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
+            '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  + '.model'
             if os.path.isfile(lModelGeneratedAfterTraining)and ( args.skipM.lower() == "yes" ):
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:

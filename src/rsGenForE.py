@@ -33,6 +33,9 @@ parser.add_argument('-entryCL',required=False,help="Trade open position entry po
 parser.add_argument('-exitCL',required=False,help="Trade close position point separated by semicolon")
 parser.add_argument('-orderQty',required=False,help="Qty with which you want to trade")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 if args.entryCL == None:
@@ -58,6 +61,7 @@ if args.a is not None:
 else:
     algo = 'glmnet'
 
+
 if args.targetClass == None:
     args.targetClass = "binomial"
     print "Since no class of target variable is specified so taking binomial class of target variable"
@@ -66,8 +70,8 @@ if(args.sequence == "dp"):
     import dp
 
 def scriptWrapperForFeatureGeneration(trainingDirectory):
-    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize],args.run,args.sequence)
-        
+    utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+
 lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 if args.pd is None:
@@ -82,7 +86,7 @@ if(args.sequence == "dp"):
     generatorsFolder = args.g
     commandList = []
     for directories in lListOfTrainPredictDirectories:
-        commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize])
+        commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
     utility.runCommandList( commandList ,args)
     print dp.printGroupStatus() 
             
@@ -95,16 +99,16 @@ else:
         results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
         
 utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequence,"-targetClass",args.targetClass,"-skipM",args.skipM,\
-                    '-dt',args.dt,'-pd',predictionDirectory,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
+                    '-dt',args.dt,'-pd',predictionDirectory,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",predictionDirectory,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
-                     '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
+                     '-wt' , args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-sequence",args.sequence],args.run,args.sequence)
 if args.targetClass == "multinomial" :
 #    utility.runCommand(["cMatrixGen.py","-d",predictionDirectory,"-e",args.e,"-a",algo],args.run,args.sequence)
     utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 else:
     utility.runCommand(["./ob/quality/tradeE7.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 
 
-# utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) ,"-pd", predictionDirectory, "-m" , "FollowingExperimentResults" , "-f" , "1"],args.run,args.sequence)
+# utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) ,"-pd", predictionDirectory, "-m" , "FollowingExperimentResults" , "-f" , "1",,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)

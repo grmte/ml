@@ -4,7 +4,6 @@ import argparse
 import attribute, utility
 from configobj import ConfigObj
 print "\nStarting to run Attribute generator for experiment"
-import pdb
 
 def parseCommandLine():
     parser = argparse.ArgumentParser(description='This program will run aGen.py for all attributes required for an experiement. An e.g. command line is aGenForE.py -d ob/data/20140207/ -e e7.1')

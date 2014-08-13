@@ -3,7 +3,7 @@
 import os
 import argparse
 from configobj import ConfigObj
-
+import attribute
 def getAlgoName(args):
     if args.a is None:
         algo = 'glmnet'
@@ -59,25 +59,26 @@ def ToReadTargetFile(rScript,config):
         userFriendlyName = lTargetSet[target]
         userFriendlyName = userFriendlyName.replace('[','')
         userFriendlyName = userFriendlyName.replace(']','')
+        fileToRead = lTargetSet[target]+ attribute.generateExtension() 
         rScript.write('lengthOfEachDay = numeric()\n')
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
-        rScript.write('        load(paste(file,"/t/'+lTargetSet[target]+'.bin",sep=""))\n')
+        rScript.write('        load(paste(file,"/t/'+fileToRead+'.bin",sep=""))\n')
         rScript.write('        ' + target+'<- ' + userFriendlyName + '\n')
         rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(' + target + '))\n')
         rScript.write('        lFlag=TRUE\n')   
         rScript.write('    }\n')
         rScript.write('    else{\n')
-        rScript.write('        load(paste(file,"/t/'+lTargetSet[target]+'.bin",sep=""))\n')
+        rScript.write('        load(paste(file,"/t/'+fileToRead+'.bin",sep=""))\n')
         rScript.write('        temp<-' + userFriendlyName + '\n')
         rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(temp))\n')
         rScript.write('        '+target+'<-rbind('+target+',temp)\n')
         rScript.write('        rm(temp)\n')
         rScript.write('    }\n')
-        rScript.write('    print ("Reading '+ lTargetSet[target] +'.target' + '") \n')
+        rScript.write('    print ("Reading '+ fileToRead +'.target' + '") \n')
         rScript.write('}\n')
 
 def ForWtVectorGeneration(rScript,weightType):
@@ -116,7 +117,7 @@ def ToReadFeatureFiles(rScript,config,targetVariable,pUseWhichArgumentForData=2)
         userFriendlyName = userFriendlyName.replace(']','')
         userFriendlyName = userFriendlyName.replace('(','')
         userFriendlyName = userFriendlyName.replace(')','')
-        featureNameWithoutBrackets = features[feature].replace('(','').replace(')','')
+        featureNameWithoutBrackets = features[feature].replace('(','').replace(')','') + attribute.generateExtension() 
         rScript.write('lFlag=FALSE\n')
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
@@ -193,7 +194,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
         rScript.write('fit <- glm ('+config["target"][pTargetVariableKey]+' ~ ')
         currentFeatureNumber=0
         for feature in features:
-            userFriendlyName = features[feature]
+            userFriendlyName = features[feature] 
             userFriendlyName = userFriendlyName.replace('[','')
             userFriendlyName = userFriendlyName.replace(']','')   
             userFriendlyName = userFriendlyName.replace('(','')
@@ -231,9 +232,9 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
 def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     algo = getAlgoName(args)    
     outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                     args.targetClass + "-wt." + args.wt +'.model'
+                     args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
     modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                     args.targetClass + "-wt." + args.wt +'.coef'
+                     args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.coef'
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")\n')
     rScript.write('l = coef(fit, s = "lambda.min")\n')
@@ -250,7 +251,7 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     algo = getAlgoName(args)
     predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
-                        "-wt." + args.wt + '.model'
+                        "-wt." + args.wt+ attribute.generateExtension()  + '.model'
     rScript.write('\nprint ("Section6: Read in prediction model'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'") \n')
     rScript.write('load("'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'")')
 
@@ -337,14 +338,14 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     
     rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/' + args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) + \
-                                 "-wt." + args.wt +'.predictions") \n')
+                                 "-wt." + args.wt+ attribute.generateExtension()  +'.predictions") \n')
     if pUseWhichArgumentForData == 4:
         rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ \
-                                 "-wt." + args.wt +'.predictions",sep="") \n')
+                                 "-wt." + args.wt+ attribute.generateExtension()  +'.predictions",sep="") \n')
     else:
         rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +\
-                                 "-wt." + args.wt + '.predictions",sep="") \n')
+                                 "-wt." + args.wt+ attribute.generateExtension()  + '.predictions",sep="") \n')
     rScript.write('print (fileName) \n')
-    rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)')
+    rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)\n')

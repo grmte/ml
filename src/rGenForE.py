@@ -15,6 +15,9 @@ parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-td',required=True,help='Training Directory')
 parser.add_argument('-dt',required=False,help='No of day from start for which it is to be trained ')
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 if args.skipM == None:
@@ -26,8 +29,6 @@ if args.dt == None:
 if args.wt == None:
     args.wt = "default"
         
-import subprocess
-
 if args.a is not None:
     allAlgos = [args.a]
 else:
@@ -36,5 +37,7 @@ else:
 
 
 for algo in allAlgos:
-    utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt , '-wt' , args.wt],args.run,args.sequence)
-    utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , args.pd , "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , args.wt],args.run,args.sequence)
+    utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt ,\
+                         '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , args.pd , "-dt" , args.dt ,\
+                         "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)

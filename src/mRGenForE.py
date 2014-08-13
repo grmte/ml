@@ -4,6 +4,7 @@ import os
 import argparse
 from configobj import ConfigObj
 import rCodeGen
+import attribute
 
 def main():
     parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
@@ -14,8 +15,12 @@ def main():
     parser.add_argument('-td',required=True,help="Day on which it was trained")
     parser.add_argument('-dt',required=True,help="Number of days it was trained")
     parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
 
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     if args.skipM == None:
         args.skipM = "yes"
 
@@ -30,7 +35,7 @@ def main():
 
     algo = rCodeGen.getAlgoName(args)
 
-    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt +".r"
+    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
     rScript.write('#!/usr/bin/Rscript \n')
@@ -44,7 +49,7 @@ def main():
     lAllFilePresent = True
     for target in config['target']:
         lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
-                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
+                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
         if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
             continue
         else:
@@ -58,7 +63,7 @@ def main():
             rCodeGen.ToReadFeatureFiles(rScript,config,target)
             rCodeGen.ForSanityChecks(rScript,config,target)
             lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
-                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt +'.model'
+                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
             if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:

@@ -269,6 +269,7 @@ def callRProgramToConvertToBinary(pFileName):
     lVariableName = (lFileWithoutExtension.split("/")[-1])
     lVariableName = lVariableName.replace("[","")
     lVariableName = lVariableName.replace("]","")
+    lVariableName = lVariableName.split("-")[0]
     lNameAfterDecimal = pFileName.split(".")[-1] 
     lFileNameToStore = pFileName.replace(lNameAfterDecimal,"bin")
     
