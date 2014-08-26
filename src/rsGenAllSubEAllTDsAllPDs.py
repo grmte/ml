@@ -75,7 +75,15 @@ for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
     utility.runCommandList(lSubGenList,args)
     print dp.printGroupStatus() 
-           
+
+entrylist = ""
+exitlist = ""
+for i in range(50,76,1):
+    for j in range(50,i,1):
+        exitlist = exitlist + str(j) + ";"
+        entrylist = entrylist + str(i) + ";"
+exitlist = exitlist[:-1]
+entrylist = entrylist[:-1]          
 for algo in allAlgos:
     while indexOfFeatures >= 2:
         lSubCombinationFolder = args.e+"/s/"+str(indexOfFeatures)+"c"
@@ -108,20 +116,18 @@ for algo in allAlgos:
                     trainingDataListString = ";".join(trainingDataList)
                     lMGenRCodeList.append([scriptName,"-d",trainingDataListString])
 
-                    dirName = predictionDirLastTD.replace('/ro/','/wf/')    
-                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + \
-                                os.path.basename(os.path.abspath(predictionDirLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
-                    lPGenRCodeList.append([scriptName,"-d",dirName])
+#                     dirName = predictionDirLastTD.replace('/ro/','/wf/')    
+#                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + \
+#                                 os.path.basename(os.path.abspath(predictionDirLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
+#                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
                     dirName = predictionDirAfterLastTD.replace('/ro/','/wf/') 
                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
                                  os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
-                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;55;57;57;58;58;60;60;65;65","-exitCL","45;50;45;50;45;50;45;50;45;50","-orderQty","300",\
-                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])                
+                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",'55;55;55;55;58;58;58;58;60;60;60;60;61;61;61;61;62;62;62;62',"-exitCL",'50;52;54;55;52;54;55;56;56;58;59;60;58;59;60;61;58;59;60;61',"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
+
                 utility.runCommandList(lRCodeGenCommandList,args)
                 print dp.printGroupStatus()
 
@@ -137,7 +143,13 @@ for algo in allAlgos:
                 
                 utility.runCommandList(lTradingCommandList,args)
                 print dp.printGroupStatus()            
-        indexOfFeatures = indexOfFeatures - 1
 
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,\
-                         "FollowingExperimentResults" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+            utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"HISTORICAL_WA_TAKEN_WITH_BUY_SELL_MIX_MATCH" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        indexOfFeatures = indexOfFeatures - 1
+    for i in range(len(allDataDirectories)-int(args.dt)):
+        args.td = allDataDirectories[i]
+        predictionDirLastTD = allDataDirectories[i + int(args.dt) - 1]
+        predictionDirAfterLastTD = allDataDirectories[i + int(args.dt)]
+        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", '55;55;55;55;58;58;58;58;60;60;60;60;61;61;61;61;62;62;62;62',"-exitCL",'50;52;54;55;52;54;55;56;56;58;59;60;58;59;60;61;58;59;60;61',"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+        print dp.printGroupStatus()
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"HISTORICAL_WA_TAKEN_WITH_BUY_SELL_MIX_MATCH" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
