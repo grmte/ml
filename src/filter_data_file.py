@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import argparse
+import sys
 
 parser = argparse.ArgumentParser(description='This program will filter 6 level data')
 parser.add_argument('-fileName', required=True,help='Name Of File')
@@ -12,7 +13,7 @@ def addDataRowToMatrix(pDataRow,pPreviousDataRow):
     list_temp = []
     list_temp.extend(dataColumns[0:11])
     list_temp.extend(dataColumns[13:23])
-    list_temp.extend(dataColumns[25:44])
+    list_temp.extend(dataColumns[25:45])
     list_temp.extend( [dataColumns[11],dataColumns[12],dataColumns[23],dataColumns[24] ] )
     if pPreviousDataRow==None:
         matrix.append( list_temp )
@@ -20,9 +21,11 @@ def addDataRowToMatrix(pDataRow,pPreviousDataRow):
     else:
         previousDataColumns = pPreviousDataRow.split(';')
         pPreviousDataRow.split(";")
-        if previousDataColumns[1:11] != dataColumns[0:11] or previousDataColumns[13:23] != dataColumns[13:23] :
-            matrix.append(list)
-        
+#        import pdb
+#        pdb.set_trace()
+        if previousDataColumns[1:11] != dataColumns[1:11] or previousDataColumns[13:23] != dataColumns[13:23] :
+            matrix.append(list_temp)
+
 
 def writeToFile(outputFileName):
     print "Writing to file the attribute: "+ outputFileName
