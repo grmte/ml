@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import argparse
 import sys
-
+sys.path.append("./ob/generators/")
+import colNumberOfData
 parser = argparse.ArgumentParser(description='This program will filter 6 level data')
 parser.add_argument('-inputFileName', required=True,help='Name Of Input File Name File')
-parser.add_argument('-outputFileNAme', required=False,help='Name of output file name')
+parser.add_argument('-outputFileName', required=False,help='Name of output file name')
 args = parser.parse_args()
 
 matrix = []
@@ -47,6 +48,18 @@ def getDataIntoMatrix(pFileName):
 
 def main():
     getDataIntoMatrix(args.inputFileName)
+    tempFileName = args.inputFileName.replace("pdepth-6","pdepth-5")
+    tempFileObject = open(tempFileName,"r")
+    tempFileObject.readLine()
+    matrix0thElement = matrix[1]
+    while(1):
+        line = tempFileObject.readLine().split(";")
+        if line[colNumberOfData.TimeStamp] == matrix0thElement[colNumberOfData.TimeStamp]:
+            break
+        else:
+            list_to_be_appended = line.append(matrix0thElement[-4:])
+            matrix.insert(1,list_to_be_appended)
+    tempFileObject.close()     
     writeToFile(args.outputFileName)
     
 if __name__ == "__main__":
