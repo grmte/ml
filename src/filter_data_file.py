@@ -3,8 +3,8 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(description='This program will filter 6 level data')
-parser.add_argument('-fileName', required=True,help='Name Of File')
-parser.add_argument('-a', required=False,help='Algorithm name')
+parser.add_argument('-inputFileName', required=True,help='Name Of Input File Name File')
+parser.add_argument('-outputFileNAme', required=False,help='Name of output file name')
 args = parser.parse_args()
 
 matrix = []
@@ -20,9 +20,6 @@ def addDataRowToMatrix(pDataRow,pPreviousDataRow):
         #,13,14,15,16,17,18,19,20,21,22,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,11,12,23,24])
     else:
         previousDataColumns = pPreviousDataRow.split(';')
-        pPreviousDataRow.split(";")
-#        import pdb
-#        pdb.set_trace()
         if previousDataColumns[1:11] != dataColumns[1:11] or previousDataColumns[13:23] != dataColumns[13:23] :
             matrix.append(list_temp)
 
@@ -49,9 +46,8 @@ def getDataIntoMatrix(pFileName):
     
 
 def main():
-    fileName = args.fileName
-    getDataIntoMatrix(fileName)
-    writeToFile(fileName)
+    getDataIntoMatrix(args.inputFileName)
+    writeToFile(args.outputFileName)
     
 if __name__ == "__main__":
     main()
