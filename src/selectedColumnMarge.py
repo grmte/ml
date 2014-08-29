@@ -13,117 +13,140 @@ parser.add_argument('-td', required=True,help='Directory of the training data fi
 parser.add_argument('-dt',required=False,help="Number of days it was trained")  
 parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-pd', required=True,help='Directory of the prediction data file')
-parser.add_argument('-a', required=True,help='Algorithm name')
-parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
+parser.add_argument('-a', required=False,help='Algorithm name')
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 parser.add_argument('-orderQty',required=True,help="Order qty to be given")
 
 args = parser.parse_args()
-if args.skipT == None:
-    args.skipT = "no"
-                    
-absPathOfExperimentName = os.path.abspath(args.e)
+if args.targetClass == None:
+    args.targetClass = "binomial"
+if args.wt == None:
+    args.wt = "default"
+if args.a == None:
+    args.a = "glmnet"
 
-if 'nsecur' in absPathOfExperimentName:
-    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
-elif 'nsefut' in absPathOfExperimentName:
-    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
-elif 'nseopt' in absPathOfExperimentName:
-    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
-    
-if "/" in pathAfterE:
-    mainExperimentName = pathAfterE[:pathAfterE.index("/")]
-else:
-    mainExperimentName = pathAfterE
-    
-experimentName = os.path.basename(absPathOfExperimentName)
-sys.path.append("./src/")
-sys.path.append("./ob/generators/")
-import codecs, glob
-
-config = ConfigObj(args.e+"/design.ini")
-featureTargetFilePath = args.pd.replace('ro', 'wf')
-
-features = config["features-buy"]
-features.update(config["features-sell"])
-featureFiles = []
 featureFpList = []
-featureFp = 1
-intermediate_feature_dict , config = attribute.getIntermediateAttributesForExperiment(args.e)
-
-for feature in features:
-    lFeatureFile = featureTargetFilePath + "/f/" + features[feature].replace('(','').replace(')','') + ".feature"
-    featureFP = "featureFp" + str(featureFp)
-    featureFP = open(lFeatureFile, "rb")
-    featureFpList.append(featureFP)
-    featureFiles.append(lFeatureFile)
-    featureFp = featureFp + 1
-
-
-dirName = args.pd.replace('/ro/','/wf/')
-targetSet = config['target']
+featureNames = []
+experimnetList = args.e.split(";")
 predFpList = []
-for target in targetSet.keys():
-    predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
-    predFp = open(predictedValuesFileName, "rb")
-    predFpList.append(predFp)
-    
-    print (predictedValuesFileName)                             
-
-targetFiles = []
+predNames = []
 targetFpList = []
-trrgetFp = 1
-for target in targetSet:
-    ltargetFile = featureTargetFilePath + "/t/" + targetSet[target] +".target"
-    lTargetFP = "target" + str(trrgetFp)
-    lTargetFP = open(ltargetFile, "rb")
-    targetFpList.append(lTargetFP)
-    targetFiles.append(ltargetFile)
-    trrgetFp = trrgetFp + 1
+targetNames = []
+tradeFpList = []
+mainExperimentNameList = []
+for experiment in  experimnetList:                            
+    absPathOfExperimentName = os.path.abspath(experiment)
+    
+    if 'nsecur' in absPathOfExperimentName:
+        pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
+    elif 'nsefut' in absPathOfExperimentName:
+        pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
+    elif 'nseopt' in absPathOfExperimentName:
+        pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
+        
+    if "/" in pathAfterE:
+        mainExperimentName = pathAfterE[:pathAfterE.index("/")]
+    else:
+        mainExperimentName = pathAfterE
 
-pdFiles = args.pd + "*.txt" 
-files = glob.glob(pdFiles)  
-predictionFpList = []
+    mainExperimentNameList.append(mainExperimentName)    
+    experimentName = os.path.basename(absPathOfExperimentName)
+    sys.path.append("./src/")
+    sys.path.append("./ob/generators/")
+    
+    config = ConfigObj(experiment+"/design.ini")
+    featureTargetFilePath = args.pd.replace('ro', 'wf')
+    
+    
+    for feature in config["features-buy"]:
+        lName = config["features-buy"][feature].replace('(','').replace(')','')
+        if lName not in featureNames:
+            lFeatureFile = featureTargetFilePath + "/f/" + lName+ ".feature"
+            featureFP = open(lFeatureFile, "rb")
+            featureFpList.append(featureFP)
+            featureNames.append(lName)
+        
+    for feature in config["features-sell"]:
+        lName = config["features-sell"][feature].replace('(','').replace(')','')
+        if lName not in featureNames:
+            lFeatureFile = featureTargetFilePath + "/f/" + lName + ".feature"
+            featureFP = open(lFeatureFile, "rb")
+            featureFpList.append(featureFP)
+            featureNames.append(lName)
+            
+    dirName = args.pd.replace('/ro/','/wf/')
+    targetSet = config['target']
+    for target in targetSet.keys():
+        predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                     '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
+        predFp = open(predictedValuesFileName, "rb")
+        predFpList.append(predFp)
+        predNames.append(mainExperimentName+"_"+target)
+        print (predictedValuesFileName)                             
+    
+    for target in targetSet:
+        lName = targetSet[target] +".target"
+        if  lName not in targetNames:
+            ltargetFile = featureTargetFilePath + "/t/" + lName
+            lTargetFP = open(ltargetFile, "rb")
+            targetFpList.append(lTargetFP)
+            targetNames.append(lName)
+    
+    dirName = args.pd.replace('/ro/','/rs/')
+    fileNamesForTradeDirectory = dirName + "/t/" + mainExperimentName + "/" 
+    
+    lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
+                   '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-te.7.trade"
+    lTradeFp = open(lInitialFileName, "rb")
+    tradeFpList.append(lTradeFp)
+    
+list_of_files = os.listdir(args.pd) 
+for each_file in list_of_files:
+    if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
+        foundFile = True
+        fileName = args.pd+"/"+each_file
+        break
 
-for file1 in files:
-    tdFp =  open(file1, 'rb') 
-    predictionFpList.append(tdFp)
+dataFp = open(fileName,"rb")    
+            
         
 dirName = args.pd.replace('/ro/','/rs/')
-fileNamesForTradeDirectory = dirName + "/t/" + mainExperimentName + "/" 
-
-tradeFpList = []
-lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-te.7.trade"
-lTradeFp = open(lInitialFileName, "rb")
-tradeFpList.append(lTradeFp)
-    
-dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/r/" 
-lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-               '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + ".csv"
-print ("filename---", lInitialFileName)
-outputfile = codecs.open(lInitialFileName, 'wb') 
 
+lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+               '-dt.' + args.dt + '-f.' + "_".join(mainExperimentNameList) + \
+               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + ".csv"
+
+print ("filename---", lInitialFileName)
+outputfile = open(lInitialFileName, 'wb') 
+# featureFpList = []
+# featureNames = []
+# experimnetList = args.e.split(";")
+# predFpList = []
+# predNames = []
+# targetFpList = []
+# targetNames = []
+# tradeFpList = []
 startIndex = 0
 while True:
     allFeatureData = ''
-    for trFp in predictionFpList:
-        line = trFp.readline()
-        if line == '' :
-            exit(0)
-        allFeatureData = allFeatureData + line.strip() + ";"
-    for predFp in predFpList:
-        line = predFp.readline()
-        if line == '' :
-            exit(0)
-        if startIndex != 0 :
-            allFeatureData = allFeatureData + line.split(",")[2].strip() + ";"  
-        else:
-            allFeatureData = allFeatureData + os.path.basename(os.path.abspath(predFp.name.split('.predictions')[0]))  + ";"
+    line = dataFp.readline()
+    if line == '' :
+        exit(0)
+    ls = line.strip().split(";")
+    list_temp = []
+    list_temp.append(ls[33])
+    list_temp.extend(ls[0:11])
+    list_temp.extend([ls[41],ls[42]])
+    list_temp.extend(ls[11:21])
+    list_temp.extend([ls[43],ls[44]])
+    list_temp.extend(ls[21:23])
+    list_temp.extend(ls[34:41])
+    line = ";".join(list_temp)
+    allFeatureData = allFeatureData + line + ";"
+    
+    index = 0
     for fFp in featureFpList:
         line = fFp.readline()
         if line == '' :
@@ -131,17 +154,43 @@ while True:
         if startIndex != 0 :
             allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
         else:
-            allFeatureData = allFeatureData + os.path.basename(os.path.abspath(fFp.name.split(".feature")[0])) + ";"
+            allFeatureData = allFeatureData + featureNames[index]+ ";"
+        index = index + 1 
 
+    index = 0    
     for tFp in targetFpList:
         line = tFp.readline()
-        allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + line.split(";")[1].strip() + ";"
+        else:
+            allFeatureData = allFeatureData + targetNames[index]+ ";"
+        index = index + 1
+    index = 0
+
+    for predFp in predFpList:
+        line = predFp.readline()
+        if line == '' :
+            exit(0)
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + line.split(",")[2].strip() + ";"  
+        else:
+            allFeatureData = allFeatureData + predNames[index]  + ";"
+        index = index + 1
+
+    index = 0    
     for tradeFp in tradeFpList:
         line = tradeFp.readline()
         if line == '' :
             exit(0)
         lineSplit = line.split(";")
-        allFeatureData = allFeatureData + lineSplit[1] + ";" + lineSplit[2] + ";" + lineSplit[10] + ";" + lineSplit[13] + ";" + lineSplit[11] + ";" + lineSplit[14] + ";"
+        if startIndex != 0 :
+            allFeatureData = allFeatureData + lineSplit[1] + ";" + lineSplit[2] + ";" + lineSplit[14] + ";" + lineSplit[11] + ";"
+        else:
+            allFeatureData = allFeatureData + lineSplit[1]+"_"+mainExperimentNameList[index]+ ";" + lineSplit[2]+"_"+mainExperimentNameList[index] + ";" \
+             + lineSplit[14]+"_"+mainExperimentNameList[index] + ";" + lineSplit[11]+"_"+mainExperimentNameList[index] + ";"
+             
+        index = index + 1 
+        
     startIndex = startIndex + 1   
     lineToWrite = str(allFeatureData) + "\n"
     outputfile.write(lineToWrite)
