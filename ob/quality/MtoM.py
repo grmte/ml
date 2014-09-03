@@ -14,7 +14,7 @@ from datetime import timedelta
 from datetime import datetime
 
 parser = argparse.ArgumentParser(description='Mark To Market Graph Plot', formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-td', required=False,help='Prediction directory')
+parser.add_argument('-fileName', required=False,help='FileName for which MTM is to be prepared')
 args = parser.parse_args()
 
 def calculate_epoch_time(p_epoch):
@@ -60,7 +60,7 @@ def plot(p_xlabel_list,p_ylabel_list,p_title,p_image_name):
     l_dates = matplotlib.dates.date2num(p_xlabel_list)
     # Create the plot for gross profit  
     ll1 = plt.plot_date(l_dates, p_ylabel_list, 'r')
-    
+    plt.gcf().autofmt_xdate()
     plt.title(p_title +'(Red Sim)')
     plt.xlabel('Timestamp')
     plt.ylabel(p_title)
@@ -76,8 +76,9 @@ def calculate_current_tick_sim_mtm_profit():
     g_total_sim_traded_price_long, g_transaction_cost
     global g_sim_gross_mtm_profit_list_long,g_sim_gross_mtm_profit_list_short, g_sim_net_mtm_profit_list
     prviousIndex = [0] * 23
-    fp = open("/home/vikas/ml/ob/quality/output.csv", "w")
-    fp.write("g_sim_running_qty_long;g_sim_running_profit_long;g_total_sim_traded_price_long;g_sim_running_qty_short;g_sim_running_profit_short;g_total_sim_traded_price_short\n")
+#     fp = open("/home/vikas/ml/ob/quality/output.csv", "w")
+#     fp.write("g_sim_running_qty_long;g_sim_running_profit_long;g_total_sim_traded_price_long;g_sim_running_qty_short;g_sim_running_profit_short;g_total_sim_traded_price_short\n")
+    l_count = 0
     for index in matrix: 
         l_action_performed_long = str(index[14])
         l_action_performed_short = str(index[11])
@@ -132,17 +133,20 @@ def calculate_current_tick_sim_mtm_profit():
         gross_sim_mtm_profit_long = g_sim_running_profit_long + (float(index[4]) * g_sim_running_qty_long)
         gross_sim_mtm_profit_short = g_sim_running_profit_short - (float(index[5]) * g_sim_running_qty_short)
         
-        lineToPrint = str(g_sim_running_qty_long) + ";" + str(g_sim_running_profit_long) + ";" + str(g_sim_running_qty_short) + ";" + str(g_sim_running_profit_short) \
-            + ";" + l_action_performed_long+ ";" + l_action_performed_short 
-        lineToPrint = lineToPrint + ";"+ str(gross_sim_mtm_profit_long) +";"+ str(gross_sim_mtm_profit_short) + "\n"
-        fp.write(lineToPrint)
+#         lineToPrint = str(g_sim_running_qty_long) + ";" + str(g_sim_running_profit_long) + ";" + str(g_sim_running_qty_short) + ";" + str(g_sim_running_profit_short) \
+#             + ";" + l_action_performed_long+ ";" + l_action_performed_short 
+#         lineToPrint = lineToPrint + ";"+ str(gross_sim_mtm_profit_long) +";"+ str(gross_sim_mtm_profit_short) + "\n"
+#         fp.write(lineToPrint)
             
-        l_epoch_time = calculate_epoch_time(float(index[0]))
+#        l_epoch_time = calculate_epoch_time(float(index[0]))
+        l_exchange_time_to_current_time = float(index[23]) + 315513000.0 + (l_count*0.00001)
+        l_epoch_time = calculate_epoch_time(l_exchange_time_to_current_time)
+        l_count = l_count+1
         g_epoch_timestamp_list.append(datetime.datetime.strptime(l_epoch_time, '%Y-%m-%d %H:%M:%S'))
         
         g_sim_gross_mtm_profit_list_long.append(gross_sim_mtm_profit_long)
         g_sim_gross_mtm_profit_list_short.append(gross_sim_mtm_profit_short)
-    fp.close()
+#     fp.close()
 
 def addDataRowToMatrix(pDataRow):
    dataColumns=pDataRow.split(';')
@@ -179,29 +183,62 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             break
     return lTrainingDirectoryList
 
-def makeMtoMGraph(pPredictDir, td):
+def makeMtoMGraph(pFileName , pLongFileName , pShortFileName , pLongShortFileName ):
     global g_sim_gross_mtm_profit_list_long, g_sim_gross_mtm_profit_list_short, g_epoch_timestamp_list
     initializeGlobalVar()
-    lFileName = pPredictDir +"/t/ABFeatureExp/glmnet-td." + td +"-dt.10-targetClass.binomial-f.AB-wt.default-l.60-55-tq.300.trade"
-    print "File name to be generated mtom:-",lFileName
-    getDataIntoMatrix(lFileName)
+    print "File name to be generated mtom:-",pFileName
+    getDataIntoMatrix(pFileName)
     calculate_current_tick_sim_mtm_profit()
     
     print len(g_epoch_timestamp_list), len(g_sim_gross_mtm_profit_list_long), len(g_sim_gross_mtm_profit_list_short)
-    grFile = "/home/vikas/ml/ob/data/g/" +  td  + "-" +pPredictDir.split("/")[-2]+ "-long.png"
-    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , grFile)
-    print "Graph Completed For Long:-", grFile
+    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_long , "GROSS_MTM_SIM_FOR_LONG" , pLongFileName)
+    print "Graph Completed For Long:-", pLongFileName
     
-    grFile = "/home/vikas/ml/ob/data/g/" + td  + "-" +pPredictDir.split("/")[-2]+ "-short.png"
-    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , grFile)
-    print "Graph Colpleted For Short:-", grFile
+    plot(g_epoch_timestamp_list , g_sim_gross_mtm_profit_list_short , "GROSS_MTM_SIM_FOR_SHORT" , pShortFileName)
+    print "Graph Completed For Short:-", pShortFileName
+
+    l = len(g_sim_gross_mtm_profit_list_short)
+    g_sim_profit_long_short = []
+    for i in range(l):
+        g_sim_profit_long_short.append(g_sim_gross_mtm_profit_list_long[i]+g_sim_gross_mtm_profit_list_short[i])
+
+    plot(g_epoch_timestamp_list , g_sim_profit_long_short , "GROSS_MTM_SIM_FOR_LONG_SHORT" , pLongShortFileName)
+    print "Graph Completed For Short:-", pLongShortFileName
+
     
 def main():
-    lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, args.td)#"/home/vikas/ml/ob/data/rs/nsecur/20140618/")
-    print lTrainingDirectoryList[-1], lTrainingDirectoryList[-2]
-    td = args.td.split("/")[-2]
+    #lTrainingDirectoryList = getListOfTrainingDirectoriesNames(11, args.td)#"/home/vikas/ml/ob/data/rs/nsecur/20140618/")
+    #print lTrainingDirectoryList[-1], lTrainingDirectoryList[-2]
     
-    makeMtoMGraph(lTrainingDirectoryList[-1], td)
+    splitted_file_name = args.fileName.split("/")
+    print splitted_file_name
+    index = 0 
+    for element in splitted_file_name:
+        try:
+            print(int(element))
+            
+        except:
+            index+=1
+            continue
+        pdCompleteDirName = "/".join(splitted_file_name[:index+1])
+        mainExperimentName = splitted_file_name[ index+2 ]
+        actualFileName = splitted_file_name[-1]
+        startOfActualFileName = actualFileName.split(".te")[0]
+        
+        graphsMainDirectoryName = pdCompleteDirName+"/g/"
+        if not os.path.exists(graphsMainDirectoryName):
+            os.mkdir(graphsMainDirectoryName)
+        graphResultSubDirectoryName =  graphsMainDirectoryName + mainExperimentName+"/"
+        if not os.path.exists(graphResultSubDirectoryName):
+            os.mkdir(graphResultSubDirectoryName)  
+            
+        longFileName =  graphResultSubDirectoryName + startOfActualFileName + "-mtm-long.png"  
+        shortFileName =  graphResultSubDirectoryName + startOfActualFileName + "-mtm-short.png"
+        longShortFileName = graphResultSubDirectoryName + startOfActualFileName + "-mtm-long-short.png"    
+        makeMtoMGraph(args.fileName, longFileName , shortFileName , longShortFileName)
+        index+=1    
+    
+    
 #    makeMtoMGraph(lTrainingDirectoryList[-2], td)
 
     
