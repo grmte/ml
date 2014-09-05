@@ -134,9 +134,6 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
     lReasonForTradingOrNotTradingShort = ""
     lReasonForTradingOrNotTradingLong = ""
 
-    if(pEnterTradeShort == 0 and pEnterTradeLong == 0):
-        return [ lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong , pBidQ0AtTimeOfPreviousDataRow , pAskQ0AtTimeOfPreviousDataRow , 0 , 0 ]
-
     if pBidP0AtTimeOfPreviousDataRow in g_quantity_adjustment_list_for_sell:
         pBidQ0AtTimeOfPreviousDataRow = max( 0 , pBidQ0AtTimeOfPreviousDataRow - g_quantity_adjustment_list_for_sell[pBidP0AtTimeOfPreviousDataRow])
     else:
@@ -146,6 +143,9 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentDataRow,pTTQA
         pAskQ0AtTimeOfPreviousDataRow = max( 0 ,pAskQ0AtTimeOfPreviousDataRow - g_quantity_adjustment_list_for_buy[pAskP0AtTimeOfPreviousDataRow])
     else:
         g_quantity_adjustment_list_for_buy = {}    
+
+    if(pEnterTradeShort == 0 and pEnterTradeLong == 0):
+        return [ lReasonForTradingOrNotTradingShort , lReasonForTradingOrNotTradingLong , pBidQ0AtTimeOfPreviousDataRow , pAskQ0AtTimeOfPreviousDataRow , 0 , 0 ]
 
     currentLTP = float(pCurrentDataRow[colNumberOfData.LTP])
     currentTTQ = float(pCurrentDataRow[colNumberOfData.TTQ])    
@@ -462,7 +462,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
 
    fileName = tradeLogSubDirectoryName + pFileName + ".trade" 
    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-   attribute.writeToFile(fileName , lHeaderColumnNamesList)
+   #attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
