@@ -11,21 +11,21 @@ parser.add_argument('-pd', required=True,help='Prediction directory')
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no")
 parser.add_argument('-run', required=True,help='Dry or Real')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
-parser.add_argument('-te',required=True,help="E1/E2/E3/E4/E5/E6 , specify which trade engine to use")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
-parser.add_argument('-dt',required=False,help="Number of days for which it has to be run")
-parser.add_argument('-targetClass',required=True,help="binomial/multinomial")
+parser.add_argument('-dt',required=True,help="Number of days for which it has to be run")
+parser.add_argument('-targetClass',required=False,help="binomial/multinomial")
 parser.add_argument('-td',required=True,help="training directory")
 parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
+parser.add_argument('orderQty',required=True,help="Order qty for trade")
 args = parser.parse_args()
 
 if args.skipT == None:
     args.skipT = "yes"
-if args.dt == None:
-    args.dt = 1
 if args.wt == None:
     args.wt = "default"
-    
+if args.targetClass == None:
+    args.targetClass = "binomial"
+         
 if(args.sequence == "dp"):
     import dp
 
@@ -40,9 +40,16 @@ for designFile in designFiles:
     experimentName = os.path.dirname(designFile)
     experimentNames.append(experimentName)
 
+entrylist = ""
+exitlist = ""        
+for i in range(55,60,1):
+    for j in range(50,i,1):
+        exitlist = exitlist + str(j) + ";"
+        entrylist = entrylist + str(i) + ";"
+
 def scriptWrapper(experimentName):
     try:
-        utility.runCommand(["./ob/quality/trade"+args.te+".py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60;55;55;65;65","-exitCL","50;50;50;45;50;50;45","-orderQty","500",\
+        utility.runCommand(["./ob/quality/tradeE7.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty",args.orderQty,\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
     except:
         pass
