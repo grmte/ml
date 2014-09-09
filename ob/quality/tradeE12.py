@@ -664,6 +664,7 @@ def readOnceAndWrite(pFileName, entryCL1 , entryCL2 , entryCL3 , entryCL4 , exit
                                ,'BestBidQ','BestBidP','BestAskP','BestAskQ','BuyTradedPrcie','BuyTradedQty','SellTradedPrice','SellTradedQty']
     
     #attribute.writeToFile(fileName , lHeaderColumnNamesList)
+
     
     tradeResultMainDirName = dirName+"/r/"
     if not os.path.exists(tradeResultMainDirName):
