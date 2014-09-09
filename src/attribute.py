@@ -203,7 +203,11 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderTyp
     if "NQty" in pGeneratorName:
         N = number
         pGeneratorName = pGeneratorName.replace("NQty",str(N)+"Qty")   
-    
+
+    if "NLevels" in pGeneratorName:
+        N = number
+        pGeneratorName = pGeneratorName.replace("NLevels",str(N)+"Levels")   
+            
     if "ColC" in pGeneratorName:
         pGeneratorName = pGeneratorName.replace("ColC","Col"+columnName)   
        

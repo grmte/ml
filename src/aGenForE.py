@@ -125,6 +125,8 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             endPos = pUserFriendlyAttributeName.rfind("Secs")
             if endPos == -1:
                 endPos = pUserFriendlyAttributeName.rfind("Qty")
+                if endPos == -1:
+                    endPos = pUserFriendlyAttributeName.rfind("Levels")
         N = pUserFriendlyAttributeName[startPos:endPos]
         reversedAttributeName = pUserFriendlyAttributeName[::-1]
         pUserFriendlyAttributeName = reversedAttributeName.replace(N[::-1],"N",1)[::-1]

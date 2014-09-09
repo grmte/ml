@@ -499,8 +499,8 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
                     l_dummy_TTQChange_For_Sell = 0
                     g_bestqty_list_for_sell['qty'] = g_bestqty_list_for_sell['qty'] -l_dummy_TTQChange_For_Sell
                 else:
-                  l_dummy_TTQChange_For_Sell = l_dummy_TTQChange_For_Sell - g_bestqty_list_for_sell['qty']
-                  g_bestqty_list_for_sell['qty'] = 0
+                    l_dummy_TTQChange_For_Sell = l_dummy_TTQChange_For_Sell - g_bestqty_list_for_sell['qty']
+                    g_bestqty_list_for_sell['qty'] = 0
                 if(l_dummy_TTQChange_For_Sell > 0):
                     lQtyToBeTraded = ( gMaxQty - pTradeStats['currentPositionShort'] )
                     lQtyForWhichWeTrade = min( lQtyToBeTraded , l_dummy_TTQChange_For_Sell)
