@@ -188,7 +188,7 @@ def getOutputFileNameFromAttributeName(pAttributesName,dataFolder):
     return attributeFile
    
 
-def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder):
+def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,diffPip,dataFolder):
 
     if "NRows" in pGeneratorName:
         N = number
@@ -209,7 +209,9 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderTyp
        
     if "OrderO" in pGeneratorName:
         pGeneratorName = pGeneratorName.replace("OrderO","Order"+orderType)  
-     
+    if "DiffM" in pGeneratorName:
+        pGeneratorName = pGeneratorName.replace("DiffM","Diff"+diffPip)   
+            
     pGeneratorName = pGeneratorName + generateExtension() 
     # we need to replace /ro with /wf   
     dirName = dataFolder.replace('/ro/','/wf/')   
@@ -277,8 +279,8 @@ def callRProgramToConvertToBinary(pFileName):
     
     os.system(lCommandToConvertToBinary)
 
-def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,dataFolder):
-    attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,dataFolder)
+def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,diffPip,dataFolder):
+    attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,diffPip,dataFolder)
     print "Checking if attribute file exists " + attributeFile 
     if (os.path.isfile(attributeFile)):
         print "The attribute has already been generated. If you want to re-generate it then first delete the attribute file."
