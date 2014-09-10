@@ -16,8 +16,14 @@ parser.add_argument('-pd', required=True,help='Directory of the prediction data 
 parser.add_argument('-a', required=False,help='Algorithm name')
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 parser.add_argument('-orderQty',required=True,help="Order qty to be given")
-
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
+import attribute
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
+
+
 if args.targetClass == None:
     args.targetClass = "binomial"
 if args.wt == None:
@@ -61,7 +67,7 @@ for experiment in  experimnetList:
     for feature in config["features-buy"]:
         lName = config["features-buy"][feature].replace('(','').replace(')','')
         if lName not in featureNames:
-            lFeatureFile = featureTargetFilePath + "/f/" + lName+ ".feature"
+            lFeatureFile = featureTargetFilePath + "/f/" + lName+ attribute.generateExtension() + ".feature"
             featureFP = open(lFeatureFile, "rb")
             featureFpList.append(featureFP)
             featureNames.append(lName)
@@ -69,7 +75,7 @@ for experiment in  experimnetList:
     for feature in config["features-sell"]:
         lName = config["features-sell"][feature].replace('(','').replace(')','')
         if lName not in featureNames:
-            lFeatureFile = featureTargetFilePath + "/f/" + lName + ".feature"
+            lFeatureFile = featureTargetFilePath + "/f/" + lName + attribute.generateExtension() + ".feature"
             featureFP = open(lFeatureFile, "rb")
             featureFpList.append(featureFP)
             featureNames.append(lName)
@@ -78,14 +84,14 @@ for experiment in  experimnetList:
     targetSet = config['target']
     for target in targetSet.keys():
         predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                     '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
+                                     '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + attribute.generateExtension()+ ".predictions"
         predFp = open(predictedValuesFileName, "rb")
         predFpList.append(predFp)
         predNames.append(mainExperimentName+"_"+target)
         print (predictedValuesFileName)                             
     
     for target in targetSet:
-        lName = targetSet[target] +".target"
+        lName = targetSet[target] +attribute.generateExtension() +".target"
         if  lName not in targetNames:
             ltargetFile = featureTargetFilePath + "/t/" + lName
             lTargetFP = open(ltargetFile, "rb")
@@ -96,18 +102,29 @@ for experiment in  experimnetList:
     fileNamesForTradeDirectory = dirName + "/t/" + mainExperimentName + "/" 
     
     lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + \
-                   '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-te.7.trade"
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + attribute.generateExtension() + '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-te.7.trade"
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
-    
-list_of_files = os.listdir(args.pd) 
-for each_file in list_of_files:
-    if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
-        foundFile = True
-        fileName = args.pd+"/"+each_file
-        break
 
+fileName = ''
+try:   
+   if(attribute.instType!=''):
+     command = "ls -1  " +  args.pd + " | grep " +  attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType
+     print(command)
+     import commands
+     dataFile = commands.getoutput(command)
+     print(dataFile)
+     if dataFile != None:
+        foundFile = True
+        fileName = args.pd+"/"+ dataFile
+except:
+    list_of_files = os.listdir(args.pd) 
+    for each_file in list_of_files:
+        if each_file.startswith('data') and each_file.endswith('txt'):  #since its all type str you can simply use startswith
+            foundFile = True
+            fileName = args.pd+"/"+each_file
+            break
+print("data file being read ", fileName)
 dataFp = open(fileName,"rb")    
             
         
@@ -138,9 +155,9 @@ while True:
     list_temp = []
     list_temp.append(ls[33])
     list_temp.extend(ls[0:11])
-    list_temp.extend([ls[41],ls[42]])
+    #list_temp.extend([ls[41],ls[42]])
     list_temp.extend(ls[11:21])
-    list_temp.extend([ls[43],ls[44]])
+    #list_temp.extend([ls[43],ls[44]])
     list_temp.extend(ls[21:23])
     list_temp.extend(ls[34:41])
     line = ";".join(list_temp)
