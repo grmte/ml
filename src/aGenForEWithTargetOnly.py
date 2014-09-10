@@ -13,6 +13,9 @@ def parseCommandLine():
     parser.add_argument('-run', required=True,help='dry or real')
     parser.add_argument('-sequence', required=True,help='ld (local distributed) or pd(parallel distributed)')
     parser.add_argument('-tickSize',required=True,help='For NseCurrency data give 25000 and for future options give 5')
+    parser.add_argument('-iT',required=False,help='Instrument name')
+    parser.add_argument('-sP',required=False,help='Strike price of instrument')
+    parser.add_argument('-oT',required=False,help='Options Type')
     args = parser.parse_args()
     return args
 
@@ -129,6 +132,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         paramList.append("-n")
         paramList.append(N)
 
+
     if "Future" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Future") + 6
         endPos = pUserFriendlyAttributeName.find("Rows")
@@ -140,10 +144,17 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
         paramList.append("-n")
         paramList.append(N)
+    if "Diff" in pUserFriendlyAttributeName:
+            startPos = pUserFriendlyAttributeName.find("Diff") + 4
+            endPos = pUserFriendlyAttributeName.find("Pip",startPos + 1)
+            colName = pUserFriendlyAttributeName[startPos:endPos]
+            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"M")
+            paramList.append("-m")
+            paramList.append(colName) 
 
     paramList.append("-g")
     paramList.append(generatorsFolder+pUserFriendlyAttributeName)
-
+    paramList.extend(["-iT",attribute.instType,"-oT",attribute.optionsType,"-sP",attribute.strikePrice])
     commandLine =[]
     commandLine.append(paramList)
     return commandLine
@@ -170,7 +181,7 @@ def main():
     experimentFolder = args.e
     dataFolder = args.d
     generatorsFolder = args.g
-    
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     args.sequence = "lp"
 #     insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
 #     utility.runCommandList(insideFeatureCommandList,args)

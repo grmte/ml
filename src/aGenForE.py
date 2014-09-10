@@ -117,6 +117,13 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"O")
             paramList.append("-o")
             paramList.append(colName)
+    if "Diff" in pUserFriendlyAttributeName:
+            startPos = pUserFriendlyAttributeName.find("Diff") + 4
+            endPos = pUserFriendlyAttributeName.find("Pip",startPos + 1)
+            colName = pUserFriendlyAttributeName[startPos:endPos]
+            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"M")
+            paramList.append("-m")
+            paramList.append(colName) 
 
     if "Last" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.rfind("Last") + 4
@@ -125,6 +132,8 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             endPos = pUserFriendlyAttributeName.rfind("Secs")
             if endPos == -1:
                 endPos = pUserFriendlyAttributeName.rfind("Qty")
+                if endPos == -1:
+                    endPos = pUserFriendlyAttributeName.rfind("Levels")
         N = pUserFriendlyAttributeName[startPos:endPos]
         reversedAttributeName = pUserFriendlyAttributeName[::-1]
         pUserFriendlyAttributeName = reversedAttributeName.replace(N[::-1],"N",1)[::-1]

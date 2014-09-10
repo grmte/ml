@@ -25,6 +25,7 @@ def parseCommandLine():
     parser.add_argument('-iT',required=False,help='Instrument name')
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
     parser.add_argument('-oT',required=False,help='Options Type')
+    parser.add_argument('-m',required=False,help='Diff Pip')
     # This is a command and it does not have sub commands. Hence it does not need 
     # 1. A "sequence of commands" as a parameter.
     # 2. Whether the command is to be run in dry more or real mode.
@@ -49,9 +50,9 @@ def main():
    try:
       attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
       if args.i is not None: 
-          attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.i,args.o,args.d)
+          attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.i,args.o,args.m,args.d)
       else:
-          attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.o,args.d)
+          attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.o,args.m,args.d)
       if(args.cType == "synthetic"):
           dataFile.getDataIntoMatrix(args.d,args.c)
       else:
@@ -60,9 +61,9 @@ def main():
       attribute.initList()
       lHeaderColumnNamesList = userModule.extractAttributeFromDataMatrix(args)
       if args.i is not None:
-          fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.i,args.o,args.d)
+          fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.i,args.o,args.m,args.d )
       else:
-          fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.o,args.d)
+          fileName = attribute.getOutputFileNameFromGeneratorName(os.path.basename(moduleName),args.n,args.c,args.o,args.m,args.d )
       attribute.writeToFile(fileName , lHeaderColumnNamesList)
       attribute.callRProgramToConvertToBinary(fileName) 
    except:
