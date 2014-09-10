@@ -49,12 +49,14 @@ def getDataIntoMatrix(pFileName):
 def main():
     getDataIntoMatrix(args.inputFileName)
     tempFileName = args.outputFileName.replace("pdepth-6","pdepth-5")
+    tempFileName = tempFileName.replace("data-","")
     tempFileObject = open(tempFileName,"r")
     tempFileObject.readline()
     matrix0thElement = matrix[1]
     startIndex = 1 
     while(1):
         line = tempFileObject.readline().strip().split(";")
+        
         if line[colNumberOfData.TimeStamp] == matrix0thElement[colNumberOfData.TimeStamp]:
             break
         elif float(line[colNumberOfData.TimeStamp][:-2].replace("s",".")) > float(matrix0thElement[colNumberOfData.TimeStamp][:-2].replace("s",".")):
@@ -66,14 +68,14 @@ def main():
                    break
         else:
             line.extend(matrix0thElement[-4:])
-            matrix.insert(1,line)
+            matrix.insert(startIndex,line)
             startIndex = startIndex + 1
 
     tempFileObject.close()     
-    tempToBeMovedFileName = tempFileName.replace("data-","")
-    commandToBeMoved = "mv " + tempFileName + " " + tempToBeMovedFileName
-    print commandToBeMoved
-    os.system(commandToBeMoved)
+#    tempToBeMovedFileName = tempFileName.replace("data-","")
+#    commandToBeMoved = "mv " + tempFileName + " " + tempToBeMovedFileName
+#    print commandToBeMoved
+#    os.system(commandToBeMoved)
     writeToFile(args.outputFileName)
     
 if __name__ == "__main__":

@@ -20,15 +20,18 @@ parser.add_argument('-nComputers',required=False,help="Number of computers at wh
 parser.add_argument('-t',required=False,help="TransactionCost")
 parser.add_argument('-targetType',required=False,help="list of 1,2,3,4,5,6 etc")
 parser.add_argument('-orderQty',required=True,help="qty for whcih it is to be traded")
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 if(args.sequence == "dp"):
     import dp
-
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)  
 commandList = []
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.d )
 for directories in allDataDirectories:
-    commandList.append(['src/aGenForEWithTargetOnly.py','-d',directories,'-g','ob/generators/','-run',args.run,'-sequence',args.sequence,'-tickSize',args.tickSize,'-e',args.e])
+    commandList.append(['src/aGenForEWithTargetOnly.py','-d',directories,'-g','ob/generators/','-run',args.run,'-sequence',args.sequence,'-tickSize',args.tickSize,'-e',args.e  ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
 if(args.sequence != "dp"):
     utility.runCommandList(commandList,args)
 else:
@@ -39,7 +42,7 @@ else:
 
 commandList = []
 for directories in allDataDirectories:
-    commandList.append(['src/targetVariableRun.py','-orderQty',args.orderQty,'-d',directories,'-tickSize',args.tickSize,'-targetType',args.targetType,'-e',args.e,'-run',args.run,'-sequence',args.sequence])
+    commandList.append(['src/targetVariableRun.py','-orderQty',args.orderQty,'-d',directories,'-tickSize',args.tickSize,'-targetType',args.targetType,'-e',args.e,'-run',args.run,'-sequence',args.sequence,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
 
 if(args.sequence != "dp"):
     utility.runCommandList(commandList,args)
@@ -49,5 +52,5 @@ else:
         utility.runCommandList(lSubGenList,args)
         print dp.printGroupStatus() 
 
-#utility.runCommand(["src/accumulate_results_for_target_testing.py","-e",args.e,"-t",args.t,"-d",args.d, '-nD' , str(args.nD#ays) , "-m" , \
-#                    "ResultOfNewTargetVariableWhereWeForBuyWeCheckGreaterThanAskAndSellLessThanBid" , "-f" , "1"],args.run,#args.sequence)
+utility.runCommand(["src/accumulate_results_for_target_testing.py","-e",args.e,"-t",args.t,"-d",args.d, '-nD' , str(args.nDays) , "-m" , \
+                    "ResultOfNewTargetVariableWhereWeForBuyWeCheckGreaterThanAskAndSellLessThanBid" , "-f" , "1"],args.run,args.sequence)

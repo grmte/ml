@@ -15,8 +15,8 @@ parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Futur
 parser.add_argument('-dt',required=True,help="Number of days for which it has to be run")
 parser.add_argument('-targetClass',required=False,help="binomial/multinomial")
 parser.add_argument('-td',required=True,help="training directory")
-parser.add_argument('-wt',required=True,help="default/exp , weight type to be given to different days")
-parser.add_argument('orderQty',required=True,help="Order qty for trade")
+parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
+parser.add_argument('-orderQty',required=True,help="order qty to trade")
 args = parser.parse_args()
 
 if args.skipT == None:
@@ -46,6 +46,8 @@ for i in range(55,60,1):
     for j in range(50,i,1):
         exitlist = exitlist + str(j) + ";"
         entrylist = entrylist + str(i) + ";"
+exitlist = exitlist[:-1]
+entrylist = entrylist[:-1]        
 
 def scriptWrapper(experimentName):
     try:

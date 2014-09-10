@@ -50,9 +50,14 @@ def start_mail(p_files,pExperimentNo,message):
     l_subject = "Machine Learning Accumulated results of experiment :- " + pExperimentNo 
     l_send_to = ['ajay@spalgo.com', 'vikas@spalgo.com', 'mike@mbowles.com']
     l_send_to = ["dipika@spalgo.com"]
-    l_send_cc = ['saptarshi@spalgo.com', 'parth@spalgo.com', 'rahul@spalgo.com', 'arabinda@spalgo.com']
+    l_send_cc = ['saptarshi@spalgo.com', 'tulasi@spalgo.com' , 'nikhil@spalgo.com', 'rahul@spalgo.com', 'arabinda@spalgo.com']
     l_send_cc = []
     l_send_from = "MLDailyExperimentResult"
     send_mail(l_send_from, l_send_to, l_send_cc, l_subject, l_msg_body, p_files)
     
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+if __name__ == '__main__':
+    import os
+
+    start_mail(['/home/vikas/ml/ob/e/nsecur/NewABAAvgBAvgHist/Accumulated_Results_for_experiment_NewABAAvgBAvgHist_on_date_29_08_2014.csv.gz'],"ABFeaturesResults","Exp")
+                

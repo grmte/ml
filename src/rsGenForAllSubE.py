@@ -17,7 +17,7 @@ parser.add_argument('-g', required=True,help='Generators directory')
 parser.add_argument('-dt',required=False,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
-parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
+parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No.  Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No.  Defaults to yes")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
@@ -41,6 +41,8 @@ if args.dt == None:
     args.dt = "1"
 if args.wt == None:
     args.wt = "default"
+if args.targetClass == None:
+    args.targetClass = "binomial"
                     
 if(args.sequence == "dp"):
     import dp
@@ -51,7 +53,7 @@ algo = rCodeGen.getAlgoName(args)
 
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-        
+     pass
 lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 lListOfTrainPredictDirectories.append(args.pd)
@@ -108,14 +110,22 @@ experimentNames = list()
 for designFile in designFiles:
     experimentName = os.path.dirname(designFile)
     experimentNames.append(experimentName)
-
+experimentNames = [ 'ob/e/nsecur/SmartPrice/s/4c/BCDE-ACDE/' , 'ob/e/nsecur/SmartPrice/s/3c/CDE/' ]
 def scriptWrapper(experimentName):
     if args.targetClass == "multinomial" :
 #        utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE5.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;90;60;50","-exitCL","45;50;40;25","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE7.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","90;75;60","-exitCL","50;50;50","-orderQty","500",\
+        entrylist = ""
+        exitlist = ""
+        for i in range(55,67,1):
+            for j in range(max(50,i-10),i+1,1):
+                exitlist = exitlist + str(j) + ";"
+                entrylist = entrylist + str(i) + ";"
+        exitlist = exitlist[:-1]
+        entrylist = entrylist[:-1]
+        utility.runCommand(["./ob/quality/tradeE7.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         
 if args.sequence == 'lp':

@@ -17,7 +17,7 @@ parser.add_argument('-g', required=True,help='Generators directory')
 parser.add_argument('-dt',required=False,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
-parser.add_argument('-targetClass',required=True,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
+parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No.  Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No.  Defaults to yes")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
@@ -25,11 +25,15 @@ parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to 
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
 parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
-parser.add_argument('-t',required=False,help="TransactionCost")
+parser.add_argument('-t',required=True,help="TransactionCost")
 parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
+
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
+if args.targetClass == None:
+    args.targetClass = "binomial"
 
 if args.t == None:
     args.t = "0.000015"
@@ -78,7 +82,7 @@ for chunkNum in range(0,len(commandList),int(args.nComputers)):
 
 entrylist = ""
 exitlist = ""
-for i in range(50,76,1):
+for i in range(55,60,1):
     for j in range(50,i,1):
         exitlist = exitlist + str(j) + ";"
         entrylist = entrylist + str(i) + ";"
@@ -91,6 +95,7 @@ for algo in allAlgos:
         for designFile in designFiles:
             lExperimentFolderName = os.path.dirname(designFile) + "/"
             print lExperimentFolderName
+            
             for wt in ['default']:
                 lRCodeGenCommandList = []
                 lMGenRCodeList = []
@@ -126,10 +131,13 @@ for algo in allAlgos:
                                  os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
-                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",'55;55;55;55;58;58;58;58;60;60;60;60;61;61;61;61;62;62;62;62',"-exitCL",'50;52;54;55;52;54;55;56;56;58;59;60;58;59;60;61;58;59;60;61',"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
+                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
 
-                utility.runCommandList(lRCodeGenCommandList,args)
-                print dp.printGroupStatus()
+                totalModelsWhichCanBeScheduled = int(args.nComputers)
+                for chunkNum in range(0,len(lRCodeGenCommandList),totalModelsWhichCanBeScheduled):
+                    lSubModelList = lRCodeGenCommandList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
+                    utility.runCommandList(lSubModelList,args)
+                    print dp.printGroupStatus()
 
                 noOfModelsToBeScheduledToOneComputer = 60 / ( indexOfFeatures * int(args.dt) )
                 totalModelsWhichCanBeScheduled = int(args.nComputers)
@@ -140,16 +148,17 @@ for algo in allAlgos:
                     
                 utility.runCommandList(lPGenRCodeList,args)
                 print dp.printGroupStatus()
-                
-                utility.runCommandList(lTradingCommandList,args)
-                print dp.printGroupStatus()            
+                for chunkNum in range(0,len(lTradingCommandList),totalModelsWhichCanBeScheduled):
+                    lSubModelList = lTradingCommandList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
+                    utility.runCommandList(lSubModelList,args)
+                    print dp.printGroupStatus()                
 
-            utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"HISTORICAL_WA_TAKEN_WITH_BUY_SELL_MIX_MATCH" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"NSEFUT RELIANCE with AB features" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         indexOfFeatures = indexOfFeatures - 1
     for i in range(len(allDataDirectories)-int(args.dt)):
         args.td = allDataDirectories[i]
         predictionDirLastTD = allDataDirectories[i + int(args.dt) - 1]
         predictionDirAfterLastTD = allDataDirectories[i + int(args.dt)]
-        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", '55;55;55;55;58;58;58;58;60;60;60;60;61;61;61;61;62;62;62;62',"-exitCL",'50;52;54;55;52;54;55;56;56;58;59;60;58;59;60;61;58;59;60;61',"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+#        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", '55;55;55;55;58;58;58;58;60;60;60;60;61;61;61;61;62;62;62;62',"-exitCL",'50;52;54;55;52;54;55;56;56;58;59;60;58;59;60;61;58;59;60;61',"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
         print dp.printGroupStatus()
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"HISTORICAL_WA_TAKEN_WITH_BUY_SELL_MIX_MATCH" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+#    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"HISTORICAL_WA_TAKEN_WITH_BUY_SELL_MIX_MATCH" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)

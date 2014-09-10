@@ -40,7 +40,7 @@ else:
 config = ConfigObj(args.e+"/design.ini")
 targetAttributes = attribute.getTargetVariableKeys(config)
 one_feature_attributes = attribute.getFeatureVariableKeys(config , targetAttributes.keys()[0])
-totalNumberOfFeatures = len(one_feature_attributes)
+totalNumberOfFeatures = 2#len(one_feature_attributes)
 
 i = 2
 for algo in allAlgos:

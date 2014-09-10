@@ -15,8 +15,11 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-t', required=True,help='Transaction Cost of data used')
 parser.add_argument('-m', required=True,help='Message regarding experiment it has run')
 parser.add_argument('-nD',required=False,help='Number of days of data present')
+parser.add_argument('-iT',required=False,help='Instrument name')
+parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
-
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)  
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nD) , args.d )
 OSQ = 17
 CBQ = 11
@@ -80,13 +83,12 @@ for dirN in allDataDirectories :
     file_list = command_output.split("\n")
     filtered_file_list = [file_name for file_name in file_list if (file_name[-13:] == ".targetResult")]
     for file_name in filtered_file_list:
-
         print "Filename " , file_name
 #         r/targetExperimnet/DummyTradeEngine-d.20140610-l.16h00-17h00-tq.300-tarType20-dte.7.targetResult
         dataDirectory = file_name[file_name.index("-d.") + 3:file_name.index("-l.")]
         startAndEndTime = file_name[file_name.index("-l.") + 3:file_name.index("-tq.")]
         tradeQty = file_name[file_name.index("-tq.")+4:file_name.index("-tarType")]
-        targetType = dictionaryOfType[ file_name[file_name.index("-tarType")+8:file_name.index("-dte.")] ]  
+        targetType =  file_name[file_name.index("-tarType")+8:file_name.index("-dte.")]
         temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
         line_list = temp_read_file_object.readlines()
         if len(line_list) == 0 :
