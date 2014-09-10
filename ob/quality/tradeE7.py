@@ -102,7 +102,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     print("The number of elements in the buy predicted values dictionary is : " + str(len(lPredictedBuyValuesDict)))
     if (numberOfLinesInBuyPredictedValuesFile != len(lPredictedBuyValuesDict)):
         print("Number of duplicate time stamps rejected in buy predicted values dictionary = " + str(numberOfLinesInBuyPredictedValuesFile - len(lPredictedBuyValuesDict)))
-        os._exit(-1)
+#         os._exit(-1)
     sys.stdout.flush()
 
     lPredictedSellValuesDict = dict()
@@ -117,7 +117,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
     print("The number of elements in the sell predicted values dictionary is : " + str(len(lPredictedSellValuesDict)))
     if (numberOfLinesInSellPredictedValuesFile != len(lPredictedSellValuesDict)):
         print("Number of duplicate timestamps rejected in sell predicted values dictionary = " + str(numberOfLinesInSellPredictedValuesFile - len(lPredictedSellValuesDict)))
-        os._exit(-1)
+#         os._exit(-1)
     sys.stdout.flush()
 #-----------------Getting predicted values into dictionary -------------------------------------
     for elements in lPredictedBuyValuesDict.keys():
@@ -561,6 +561,7 @@ if __name__ == "__main__":
            print ("\nRunning the simulated trading program")
            main()
    else:
+       print(predictedBuyValuesFileName,predictedSellValuesFileName)
        print ("Predcition files not yet generated")
 
 
