@@ -53,7 +53,7 @@ algo = rCodeGen.getAlgoName(args)
 
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-     pass
+    pass
 lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 lListOfTrainPredictDirectories.append(args.pd)
@@ -110,7 +110,7 @@ experimentNames = list()
 for designFile in designFiles:
     experimentName = os.path.dirname(designFile)
     experimentNames.append(experimentName)
-experimentNames = [ 'ob/e/nsecur/SmartPrice/s/4c/BCDE-ACDE/' , 'ob/e/nsecur/SmartPrice/s/3c/CDE/' ]
+
 def scriptWrapper(experimentName):
     if args.targetClass == "multinomial" :
 #        utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
