@@ -6,7 +6,8 @@ from configobj import ConfigObj
 import time
 import email_accumulated_results
 import attribute
-
+import pdb
+import os
 parser = argparse.ArgumentParser(description='This program reads trade results directory\'s all file and accumulates them to single file.\n\
 An e.g. command line is \n\
 python src/accumulate_results.py -d ob/data/rs/20140205/t/ -e ob/e/9/ -a glmnet -t 0.000015 -m \"Taking tarde engine 4 \" -f 1',formatter_class=argparse.RawTextHelpFormatter)
@@ -33,37 +34,29 @@ if args.pd == None:
     allPredictionDataDirectories = allDataDirectories[int(args.dt)-1:]
 else:
     allPredictionDataDirectories = args.pd.split(";")
-if args.f == None:
-    args.f = "1"    
-if args.f == "0":
-    desired_statistic_line_numbers = [6,9,12,13,15]    # Line numbers for desired statistics 6: - Total Sell qty , 9 : Total Buy Qty , 15 :- Total Gross Profit
-elif args.f == "1":
-    OSQ = 6
-    CBQ = 8
-    OSP = 10
-    CBP = 13
-    AvgGrossProfitShort = 16
-    OBQ = 9
-    CSQ = 7
-    OBP = 12
-    CSP = 11
-    AvgGrossProfitLong = 17
-else:
-    print "\nNo valid -f argument given, -f 0 for old format and -f 1 for new format"
-    sys.exit(-99)
-  
-if args.f == "0":
-    desired_statistic_names = ["FeatureCombination","EntryCL","ExitCL","TotalSellQty","TotalBuyQty","AvgSellP","AvgBuyPrice","AvgGrossProfit","AvgNetProfit"]
-else:
-    if args.iT is not None:
+
+
+OSQ = 6
+CBQ = 8
+OSP = 10
+CBP = 13
+AvgGrossProfitShort = 16
+OBQ = 9
+CSQ = 7
+OBP = 12
+CSP = 11
+AvgGrossProfitLong = 17
+
+
+if args.iT is not None:
         desired_statistic_names = ["AlgorithmUsed","InstrName-Ticker","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
-                               "EntryCL","EntryCL0", "EntryCL1" , "EntryCL2","ExitCL","ExitCL0","ExitCL1","ExitCL2","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
+                               "EntryCL4","EntryCL3", "EntryCL2" , "EntryCL1","ExitCL4","ExitCL3","ExitCL2","ExitCL1","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
                                "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars" ]
 
-    else:
+else:
         desired_statistic_names = ["AlgorithmUsed","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
-                               "EntryCL","EntryCL0", "EntryCL1" , "EntryCL2","ExitCL","ExitCL0","ExitCL1","ExitCL2","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
+                               "EntryCL4","EntryCL3", "EntryCL2" , "EntryCL1","ExitCL4","ExitCL3","ExitCL2","ExitCL1","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
                                "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars" ]
 #os.chdir("")    # Directory name needed
@@ -103,14 +96,14 @@ for dirN in allPredictionDataDirectories:
                 except:
                     dayAfterTraining = ""
                 break
-        print noOfDaysForTraining , lastDayOfTraining , dayAfterTraining , dirN
+#        print noOfDaysForTraining , lastDayOfTraining , dayAfterTraining , dirN
         if lastDayOfTraining == dirN:
             lLastDayOrDayAfter = "LastDayOfTraining"
         
         if dayAfterTraining == dirN:
             lLastDayOrDayAfter = "DayAfterTraining"
         
-        print "Filename " , file_name
+        #print "Filename " , file_name
         '''
         glmnet-td.20140128-dt.1-targetClass.binomial-f.1-wt.default-l.55-45-tq.300-te.7.result
         glmnet-td.20140128-dt.1-targetClass.binomial-f.ABC-wt.default-iT.RELIANCE-oT.0-sP.-1-l.60-50-tq.500-te.7.result
@@ -130,41 +123,27 @@ for dirN in allPredictionDataDirectories:
         else:
             weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-l.")]
         tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")] 
-        if(tradeEngine != "10" and tradeEngine != "11"):
-            continue
-        l_file_str =  file_name[file_name.index("-l.") + 3:file_name.index("-tq")].split("-")
-        print l_file_str
-        l_length = len(l_file_str)
-        if(tradeEngine == "10"):
-            if(l_length > 4):
-                continue
+
+        l_file_str =  file_name[file_name.index("-l.") + 3:file_name.index("-tq")].split("_")
+
+
+        try:
+               
+            
                 entryCL = "."+l_file_str[0]
                 entryCL0 = "."+l_file_str[1]   
                 entryCL1 = "."+l_file_str[2]  
                 entryCL2= "."+l_file_str[3]
-                exitCL = "."+(l_file_str[4]).strip()
+                exitCL = "."+(l_file_str[4])
                 exitCL0 = "."+(l_file_str[5])
                 exitCL1 = "."+(l_file_str[6])
                 exitCL2 = "."+(l_file_str[7])
-                tradeEngine = "11"
-            else:
-                entryCL = "."+l_file_str[0]   
-                entryCL1 = "."+l_file_str[1]  
-                entryCL2= "."+l_file_str[2]
-                exitCL = "."+(l_file_str[3]).strip()
-                entryCL0 = ".0"
-                exitCL1 = ".0"
-                exitCL0 = ".0"
-                exitCL2 = ".0"
-        elif(tradeEngine == "11"):
-            entryCL = "."+l_file_str[0]
-            entryCL0 = "."+l_file_str[1]   
-            entryCL1 = "."+l_file_str[2]  
-            entryCL2= "."+l_file_str[3]
-            exitCL = "."+(l_file_str[4]).strip()
-            exitCL0 = "."+(l_file_str[5])
-            exitCL1 = "."+(l_file_str[6])
-            exitCL2 = "."+(l_file_str[7])
+                print tradeFileNameDirectory + file_name
+
+                
+        except:
+            continue
+    
         orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
                
         temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
@@ -174,85 +153,64 @@ for dirN in allPredictionDataDirectories:
 #            os.system('rm -rf ' + tradeFileNameDirectory + "/" + file_name)
             continue
         l_line_to_be_printed = ""
-        if args.f == "0":
-            last_occurence_of_space = line_list[desired_statistic_line_numbers[0]].rindex(": ")
-            lTotSellQty = int(float(line_list[desired_statistic_line_numbers[0]][last_occurence_of_space + 1:].strip()))
-            last_occurence_of_space = line_list[desired_statistic_line_numbers[1]].rindex(": ")
-            lTotBuyQty = int(float(line_list[desired_statistic_line_numbers[1]][last_occurence_of_space + 1:].strip()))
-            last_occurence_of_space = line_list[desired_statistic_line_numbers[2]].rindex(": ")
-            lAvgSellPrice = float(line_list[desired_statistic_line_numbers[2]][last_occurence_of_space + 1:])
-            last_occurence_of_space = line_list[desired_statistic_line_numbers[3]].rindex(": ")
-            lAvgBuyPrice = float(line_list[desired_statistic_line_numbers[3]][last_occurence_of_space + 1:])
-            last_occurence_of_space = line_list[desired_statistic_line_numbers[4]].rindex(": ")
-            lAvgGrossProfit = float(line_list[desired_statistic_line_numbers[4]][last_occurence_of_space + 1:])
-            lAvgTotTradedPrice = max( lTotSellQty , lTotBuyQty ) * ( lAvgSellPrice + lAvgBuyPrice )
-            lTransactionCost = float(args.t) * lAvgTotTradedPrice
-            try:
-                lAvgNetProfit = ( (lAvgGrossProfit * max( lTotSellQty , lTotBuyQty )) - lTransactionCost )  / max( lTotSellQty , lTotBuyQty )
-            except:
-                lAvgNetProfit = 0.0
-            l_list_to_printed = [feature ,entryCL, exitCL ,str(lTotSellQty) , str(lTotBuyQty) ,str(lAvgSellPrice), str(lAvgBuyPrice),str(lAvgGrossProfit),str(lAvgNetProfit)]
-            l_list_of_all_results.append(l_list_to_printed)
+
+        last_occurence_of_space = line_list[OSQ].rindex(": ")
+        lTotOpenSellQty = int(float(line_list[OSQ][last_occurence_of_space + 1:].strip()))
+        last_occurence_of_space = line_list[CBQ].rindex(": ")
+        lTotCloseBuyQty = int(float(line_list[CBQ][last_occurence_of_space + 1:].strip()))
+        last_occurence_of_space = line_list[OSP].rindex(": ")
+        lAvgOpenSellPrice = float(line_list[OSP][last_occurence_of_space + 1:])
+        last_occurence_of_space = line_list[CBP].rindex(": ")
+        lAvgCloseBuyPrice = float(line_list[CBP][last_occurence_of_space + 1:])
+        last_occurence_of_space = line_list[AvgGrossProfitShort].rindex(": ")
+        lAvgGrossProfitShort = float(line_list[AvgGrossProfitShort][last_occurence_of_space + 1:])
+        lAvgTotTradedPriceShort = max( lTotOpenSellQty , lTotCloseBuyQty ) * ( lAvgOpenSellPrice + lAvgCloseBuyPrice )
+        lTransactionCostShort = float(args.t) * lAvgTotTradedPriceShort
+        try:
+            lAvgNetProfitShort = ( (lAvgGrossProfitShort * max( lTotOpenSellQty , lTotCloseBuyQty )) - lTransactionCostShort ) / max( lTotOpenSellQty , lTotCloseBuyQty )
+        except:
+            lAvgNetProfitShort = 0.0
+               
+        last_occurence_of_space = line_list[OBQ].rindex(": ")
+        lTotOpenBuyQty = int(float(line_list[OBQ][last_occurence_of_space + 1:].strip()))
+        last_occurence_of_space = line_list[CSQ].rindex(": ")
+        lTotCloseSellQty = int(float(line_list[CSQ][last_occurence_of_space + 1:].strip()))
+        last_occurence_of_space = line_list[OBP].rindex(": ")
+        lAvgOpenBuyPrice = float(line_list[OBP][last_occurence_of_space + 1:])
+        last_occurence_of_space = line_list[CSP].rindex(": ")
+        lAvgCloseSellPrice = float(line_list[CSP][last_occurence_of_space + 1:])
+        last_occurence_of_space = line_list[AvgGrossProfitLong].rindex(": ")
+        lAvgGrossProfitLong = float(line_list[AvgGrossProfitLong][last_occurence_of_space + 1:])
+        lAvgTotTradedPriceLong = max( lTotCloseSellQty , lTotOpenBuyQty ) * ( lAvgOpenBuyPrice + lAvgCloseSellPrice )
+        lTransactionCostLong = float(args.t) * lAvgTotTradedPriceLong
+        try:
+            lAvgNetProfitLong = ( (lAvgGrossProfitLong * max( lTotOpenBuyQty , lTotCloseSellQty )) - lTransactionCostLong ) / max( lTotOpenBuyQty , lTotCloseSellQty )
+        except:
+            lAvgNetProfitLong = 0.0
+        lNetProfitLongAndShort = ( lAvgNetProfitShort * lTotOpenSellQty ) + ( lAvgNetProfitLong * lTotOpenBuyQty )
+        if "nsecur" in os.path.abspath(args.e):
+            lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 10000 )
+        elif "nsefut" in os.path.abspath(args.e):
+            lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 100 )
+        elif "nseopt" in os.path.abspath(args.e):
+            lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 100 )
         else:
-            last_occurence_of_space = line_list[OSQ].rindex(": ")
-            lTotOpenSellQty = int(float(line_list[OSQ][last_occurence_of_space + 1:].strip()))
-            last_occurence_of_space = line_list[CBQ].rindex(": ")
-            lTotCloseBuyQty = int(float(line_list[CBQ][last_occurence_of_space + 1:].strip()))
-            last_occurence_of_space = line_list[OSP].rindex(": ")
-            lAvgOpenSellPrice = float(line_list[OSP][last_occurence_of_space + 1:])
-            last_occurence_of_space = line_list[CBP].rindex(": ")
-            lAvgCloseBuyPrice = float(line_list[CBP][last_occurence_of_space + 1:])
-            last_occurence_of_space = line_list[AvgGrossProfitShort].rindex(": ")
-            lAvgGrossProfitShort = float(line_list[AvgGrossProfitShort][last_occurence_of_space + 1:])
-            lAvgTotTradedPriceShort = max( lTotOpenSellQty , lTotCloseBuyQty ) * ( lAvgOpenSellPrice + lAvgCloseBuyPrice )
-            lTransactionCostShort = float(args.t) * lAvgTotTradedPriceShort
-            try:
-                lAvgNetProfitShort = ( (lAvgGrossProfitShort * max( lTotOpenSellQty , lTotCloseBuyQty )) - lTransactionCostShort ) / max( lTotOpenSellQty , lTotCloseBuyQty )
-            except:
-                lAvgNetProfitShort = 0.0
-                
-            last_occurence_of_space = line_list[OBQ].rindex(": ")
-            lTotOpenBuyQty = int(float(line_list[OBQ][last_occurence_of_space + 1:].strip()))
-            last_occurence_of_space = line_list[CSQ].rindex(": ")
-            lTotCloseSellQty = int(float(line_list[CSQ][last_occurence_of_space + 1:].strip()))
-            last_occurence_of_space = line_list[OBP].rindex(": ")
-            lAvgOpenBuyPrice = float(line_list[OBP][last_occurence_of_space + 1:])
-            last_occurence_of_space = line_list[CSP].rindex(": ")
-            lAvgCloseSellPrice = float(line_list[CSP][last_occurence_of_space + 1:])
-            last_occurence_of_space = line_list[AvgGrossProfitLong].rindex(": ")
-            lAvgGrossProfitLong = float(line_list[AvgGrossProfitLong][last_occurence_of_space + 1:])
-            lAvgTotTradedPriceLong = max( lTotCloseSellQty , lTotOpenBuyQty ) * ( lAvgOpenBuyPrice + lAvgCloseSellPrice )
-            lTransactionCostLong = float(args.t) * lAvgTotTradedPriceLong
-            try:
-                lAvgNetProfitLong = ( (lAvgGrossProfitLong * max( lTotOpenBuyQty , lTotCloseSellQty )) - lTransactionCostLong ) / max( lTotOpenBuyQty , lTotCloseSellQty )
-            except:
-                lAvgNetProfitLong = 0.0
-            lNetProfitLongAndShort = ( lAvgNetProfitShort * lTotOpenSellQty ) + ( lAvgNetProfitLong * lTotOpenBuyQty )
-            if "nsecur" in os.path.abspath(args.e):
-                lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 10000 )
-            elif "nsefut" in os.path.abspath(args.e):
-                lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 100 )
-            elif "nseopt" in os.path.abspath(args.e):
-                lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 100 )
-            else:
-                lNetProfitLongAndShortInDollars = ""
-                print "Error in experiment file complete path name "
-            if args.iT is not None:
-                instrTicker = instrType +"-"+ strikePrice +"-"+ optionsType
-                l_list_to_printed = [algoName ,instrTicker, trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
-                                  weightTypeTaken , feature , entryCL ,entryCL0, entryCL1, entryCL2, exitCL,exitCL0,exitCL1,exitCL2 , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
-                                  str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
+            lNetProfitLongAndShortInDollars = ""
+            print "Error in experiment file complete path name "
+        if args.iT is not None:
+            instrTicker = instrType +"-"+ strikePrice +"-"+ optionsType
+            l_list_to_printed = [algoName ,instrTicker, trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,weightTypeTaken , feature , entryCL ,entryCL0, entryCL1, entryCL2, exitCL,exitCL0,exitCL1,exitCL2 , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
                                   str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]
 
-            else:
-                l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
-                                  weightTypeTaken , feature , entryCL ,entryCL0, entryCL1, entryCL2, exitCL,exitCL0,exitCL1,exitCL2 , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
+        else:
+            l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
+                              weightTypeTaken , feature , entryCL ,entryCL0, entryCL1, entryCL2, exitCL,exitCL0,exitCL1,exitCL2 , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
                                   str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
                                   str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]
-            l_list_of_all_results.append(l_list_to_printed)
-        index = index + 1
+        l_list_of_all_results.append(l_list_to_printed)
+    index = index + 1
 
 sorted_list = sorted(l_list_of_all_results, key = lambda x: float(x[-2]))
 for list_to_printed in sorted_list[::-1]:
