@@ -9,7 +9,7 @@ def list_files(dir):
         files = os.walk(subdir).next()[2]                                                                             
         if (len(files) > 0):                                                                                          
             for file in files:                                                                                        
-                if "design.ini" in file:
+                if "design.ini" in file and "design.ini~" not in file:
                     r.append(subdir + "/" + file)                                                                         
     return r       
 

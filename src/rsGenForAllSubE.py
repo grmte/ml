@@ -69,11 +69,6 @@ if(args.sequence == "dp"):
     print dp.printGroupStatus() 
 
 else:
-    if args.sequence == 'lp':
-        # to run it in local parallel mode
-        pool = multiprocessing.Pool() # this will return the number of CPU's
-        results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
-    else:
         results = map(scriptWrapperForFeatureGeneration,lListOfTrainPredictDirectories)
 
 utility.runCommand(["rGenForAllSubE.py","-e",args.e,"-a",algo,"-run",args.run,"-sequence",args.sequence,"-targetClass",args.targetClass,"-td",args.td , \
@@ -111,29 +106,36 @@ for designFile in designFiles:
     experimentName = os.path.dirname(designFile)
     experimentNames.append(experimentName)
 
+entrylist = ""
+exitlist = ""
+for i in range(55,70,1):
+    for j in range(max(50,i-10),i+1,1):
+        exitlist = exitlist + str(j) + ";"
+        entrylist = entrylist + str(i) + ";"
+exitlist = exitlist[:-1]
+entrylist = entrylist[:-1]
 def scriptWrapper(experimentName):
     if args.targetClass == "multinomial" :
 #        utility.runCommand(["cMatrixGen.py","-d",args.pd,"-e",experimentName,"-a",algo],args.run,args.sequence)
         utility.runCommand(["./ob/quality/tradeE5.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;90;60;50","-exitCL","45;50;40;25","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     else:
-        entrylist = ""
-        exitlist = ""
-        for i in range(55,67,1):
-            for j in range(max(50,i-10),i+1,1):
-                exitlist = exitlist + str(j) + ";"
-                entrylist = entrylist + str(i) + ";"
-        exitlist = exitlist[:-1]
-        entrylist = entrylist[:-1]
         utility.runCommand(["./ob/quality/tradeE7.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         
 if args.sequence == 'lp':
     # to run it in local parallel mode
-    pool = multiprocessing.Pool() # this will return the number of CPU's
+    pool = multiprocessing.Pool(2) # this will return the number of CPU's
     results = pool.map(scriptWrapper,experimentNames)
 else:
     results = map(scriptWrapper,experimentNames)
 
+utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nD) , "-m" ,"NsecurWithABCDEAllSubCombinationoforCompletionOf"+args.pd+"\n" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
+
+utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,\
+                    "-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+
+
+utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nD) , "-m" ,"NsecurWithABCDEAllSubCombinationforCompletionOf"+args.pd+"\n", "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
