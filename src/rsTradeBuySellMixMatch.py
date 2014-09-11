@@ -67,20 +67,27 @@ for buyExperimentIndex in range(experimentNamesIndex):
 buyListLength = len(buyExperimentList)
 print "List of Sub Experiments " , buyListLength
 
+def scriptWrapper(index):
 
-lTradingCommandList= []
+     utility.runCommand(["./ob/quality/tradeE7BuySellMixMatch.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        
 
-for index in range(buyListLength):
-    lTradingCommandList.append(["./ob/quality/tradeE7BuySellMixMatch.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+if(args.sequence == "dp"):
+    import dp
 
-utility.runCommandList(lTradingCommandList,args)
-print dp.printGroupStatus()
-# if args.sequence == 'lp':
-#     # to run it in local parallel mode
-#     pool = multiprocessing.Pool() # this will return the number of CPU's
-#     results = pool.map(scriptWrapper,experimentNames)
-# else:
-#     results = map(scriptWrapper,experimentNames)
-# 
-# if(args.sequence == "dp"):
-#     print dp.printGroupStatus()
+    lTradingCommandList= []
+
+    for index in range(buyListLength):
+        lTradingCommandList.append(["./ob/quality/tradeE7BuySellMixMatch.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+
+    utility.runCommandList(lTradingCommandList,args)
+    print dp.printGroupStatus()
+else:
+    buyIndexList = range(buyListLength)
+    if args.sequence == 'lp':
+        # to run it in local parallel mode
+        pool = multiprocessing.Pool(2) # this will return the number of CPU's
+        results = pool.map(scriptWrapper,buyIndexList)
+    else:
+        results = map(scriptWrapper,buyIndexList)
+
