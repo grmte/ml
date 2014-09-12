@@ -15,13 +15,18 @@ def printMatrix():
 def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
    foundFile=False
    fileName =""
+   print pSyntheticColName
    if(pSyntheticColName):
       pSyntheticColName = pSyntheticColName[1:-1] 
       pDirName = pDirName.replace("ro","wf") + "/f/" 
-      list_of_files = os.listdir(pDirName) #list of files in the directory                                                                                                                                          
+      list_of_files = os.listdir(pDirName) #list of files in the directory                                                            
+      lSyntheticColName = pSyntheticColName
+      if(attribute.instType!=''):
+         lSyntheticColName = pSyntheticColName + "-iT."+ attribute.instType + "-oT."+attribute.optionsType + "-sP."+attribute.strikePrice
       for each_file in list_of_files:
-          if pSyntheticColName+".feature" == each_file:
-              fileName = pDirName.replace("ro","wf") +pSyntheticColName+".feature"
+          if lSyntheticColName+".feature" == each_file:
+              print lSyntheticColName+".feature" , each_file
+              fileName = pDirName.replace("ro","wf") +lSyntheticColName+".feature"
               foundFile = True
               break
    else: 
@@ -43,7 +48,7 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
    
 
    if(foundFile != True):
-      print "Did not find the data file"
+      print "Did not find the data file" + fileName + "not found"
       os._exit(-1)
    else:   
       print "Data file : "+fileName + " : Found"   
