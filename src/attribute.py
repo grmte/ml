@@ -8,7 +8,7 @@ aList = []
 instType = None
 optionsType = None
 strikePrice = None
-
+rev = None
 def getTargetVariableKeys(pConfig):
     return pConfig["target"]
 
@@ -317,12 +317,14 @@ def initList():
     global aList
     aList =  [[0 for x in xrange(4)] for x in xrange(len(dataFile.matrix))]
 
-def initializeInstDetails(pInstType,pStrikePrice,pOptionType):
+def initializeInstDetails(pInstType,pStrikePrice,pOptionType,pRev=None):
     global instType
     global optionsType
     global strikePrice
+    global rev
     instType = pInstType
     optionsType = pOptionType
     strikePrice = pStrikePrice
+    rev = pRev
     
          

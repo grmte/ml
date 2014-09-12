@@ -16,6 +16,7 @@ def parseCommandLine():
     parser.add_argument('-iT',required=False,help='Instrument name')
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
     parser.add_argument('-oT',required=False,help='Options Type')
+    parser.add_argument('-rev',required=False,help="Yes/No, whether to take only relevant data row of all data rows")
     args = parser.parse_args()
     return args
 
@@ -162,6 +163,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     paramList.append(generatorsFolder+pUserFriendlyAttributeName)
 
     paramList.extend(["-iT",attribute.instType,"-oT",attribute.optionsType,"-sP",attribute.strikePrice])
+    paramList.extend(["-rev",attribute.rev ])
     commandLine =[]
     commandLine.append(paramList)
     return commandLine
@@ -242,7 +244,7 @@ def main():
     dataFolder = args.d
     generatorsFolder = args.g
 
-    attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
+    attribute.initializeInstDetails(args.iT,args.sP,args.oT,args.rev) 
     
     args.sequence = "lp"
     insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
