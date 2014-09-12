@@ -38,10 +38,6 @@ parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
-if args.entryCL == None:
-    args.entryCL = "55;55;57;57;58;58;60;60;65;65"
-if args.exitCL == None:
-    args.exitCL = "45;50;45;50;45;50;45;50;45;50"
 if args.orderQty == None:
     args.orderQty = "300"
 if args.t == None:
@@ -68,7 +64,20 @@ if args.targetClass == None:
 
 if(args.sequence == "dp"):
     import dp
+entrylist = ""
+exitlist = ""
+for i in range(55,70,1):
+    for j in range(max(50,i-10),i+1,1):
+        exitlist = exitlist + str(j) + ";"
+        entrylist = entrylist + str(i) + ";"
+exitlist = exitlist[:-1]
+entrylist = entrylist[:-1]
 
+if args.entryCL == None:
+    args.entryCL = entrylist
+if args.exitCL == None:
+    args.exitCL = exitlist
+    
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 
@@ -102,14 +111,14 @@ utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequenc
                     '-dt',args.dt,'-pd',predictionDirectory,"-td",args.td,"-skipP",args.skipP, '-wt' , args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",args.td,"-pd",predictionDirectory,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
                      '-wt' , args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-sequence",args.sequence],args.run,args.sequence)
-#if args.targetClass == "multinomial" :
-#    utility.runCommand(["cMatrixGen.py","-d",predictionDirectory,"-e",args.e,"-a",algo],args.run,args.sequence)
-#    utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
-#                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-#else:
-#    utility.runCommand(["./ob/quality/tradeE7.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
-#                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-
-
-#utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) \
-#,"-pd", predictionDirectory, "-m" , "FollowingExperimentResults" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+if args.targetClass == "multinomial" :
+    utility.runCommand(["cMatrixGen.py","-d",predictionDirectory,"-e",args.e,"-a",algo],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+else:
+    utility.runCommand(["./ob/quality/tradeE7.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
+                                        '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+  
+  
+utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) \
+,"-pd", predictionDirectory, "-m" , "FollowingExperimentResults" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
