@@ -26,6 +26,7 @@ def parseCommandLine():
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
     parser.add_argument('-oT',required=False,help='Options Type')
     parser.add_argument('-m',required=False,help='Diff Pip')
+    parser.add_argument('-rev',required=False,help="Yes/No, whether to take only relevant data row of all data rows")
     # This is a command and it does not have sub commands. Hence it does not need 
     # 1. A "sequence of commands" as a parameter.
     # 2. Whether the command is to be run in dry more or real mode.
@@ -48,15 +49,18 @@ except:
 
 def main():
    try:
-      attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
+      attribute.initializeInstDetails(args.iT,args.sP,args.oT,args.rev) 
       if args.i is not None: 
           attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.i,args.o,args.m,args.d)
       else:
           attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.o,args.m,args.d)
-      if(args.cType == "synthetic"):
-          dataFile.getDataIntoMatrix(args.d,args.c)
+      if args.rev.lower()=="yes":
+          dataFile.getSelectedDataIntoMatrix(args.d)
       else:
-          dataFile.getDataIntoMatrix(args.d)
+          if(args.cType == "synthetic"):
+              dataFile.getDataIntoMatrix(args.d,args.c)
+          else:
+              dataFile.getDataIntoMatrix(args.d)
       
       attribute.initList()
       lHeaderColumnNamesList = userModule.extractAttributeFromDataMatrix(args)
