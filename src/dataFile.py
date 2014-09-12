@@ -66,6 +66,29 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
       dataRow=dataRow.rstrip('\n')
       addDataRowToMatrix(dataRow)
 
+def getRevelantDataToBeUsedFileName(pDirName,pDirName):
+   pDirName = pDirName.replace('/ro/','/wf')
+   pDirName = pDirName + "/tr/"
+   command = "ls -1"
+   dataFile = commands.getoutput(pDirName)
+   if len(dataFile.split(" ")) > 1 :
+       print "More than one target trade file found . Dont know which one tp use"
+       os._exit(-1)
+   return dataFile.strip() 
+
+def getSelectedDataIntoMatrix(pDirName,pSyntheticColName=""):
+   dataFileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
+   relevantRowDataFileName = getRevelantDataToBeUsedFileName(pDirName)
+   fileHasHeader = 1
+   headerSkipped = 0
+   for dataFileDataRow,relevantRowsData in zip(open(dataFileName),open(relevantRowDataFileName)):
+      if(fileHasHeader == 1 and headerSkipped != 1):
+         headerSkipped = 1 
+         continue
+      if int(relevantRowsData.split(";")[1]) == 1: 
+          dataRow=dataFileDataRow.rstrip('\n')
+          addDataRowToMatrix(dataRow)
+      
 def main():
    getDataIntoMatrix()
 
