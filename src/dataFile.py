@@ -66,15 +66,16 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
       dataRow=dataRow.rstrip('\n')
       addDataRowToMatrix(dataRow)
 
-def getRevelantDataToBeUsedFileName(pDirName,pDirName):
-   pDirName = pDirName.replace('/ro/','/wf')
-   pDirName = pDirName + "/tr/"
-   command = "ls -1"
-   dataFile = commands.getoutput(pDirName)
+def getRevelantDataToBeUsedFileName(pDirName):
+   pDirName = pDirName.replace('/ro/','/wf/')
+   pDirName = pDirName + "/tr/live_experiment/"
+   command = "ls -1 " + pDirName
+   dataFile = commands.getoutput(command)
    if len(dataFile.split(" ")) > 1 :
+       print dataFile.split(" ")
        print "More than one target trade file found . Dont know which one tp use"
        os._exit(-1)
-   return dataFile.strip() 
+   return pDirName+dataFile 
 
 def getSelectedDataIntoMatrix(pDirName,pSyntheticColName=""):
    dataFileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
