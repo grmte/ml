@@ -41,7 +41,7 @@ if args.wt == None:
     args.wt = "default"
                     
 absPathOfBuyExperimentName = os.path.abspath(args.eb)
-absPathOfSellExperimentName = os.path.abspath(args.eb)
+absPathOfSellExperimentName = os.path.abspath(args.es)
 if 'nsecur' in absPathOfBuyExperimentName:
     pathAfterE = absPathOfBuyExperimentName[absPathOfBuyExperimentName.index("/nsecur/")+8:]
     if args.t ==None:
