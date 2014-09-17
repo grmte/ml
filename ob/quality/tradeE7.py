@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 import os, sys, argparse
 from configobj import ConfigObj
-
+from datetime import datetime
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
  An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
@@ -501,10 +501,10 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
     print("Number of times asked to enter trade Long: " + str(numberOfTimesAskedToEnterTradeLong), file = outputFile)    
     print("Number of times asked to exit trade Short: " + str(numberOfTimesAskedToExitTradeShort), file = outputFile)
     print("Number of times asked to exit trade Long: " + str(numberOfTimesAskedToExitTradeLong), file = outputFile)
-    print("The net results for Short are: %.6f" + net_short_profit, file = outputFile)
-    print("The net results for Long are: %.6f" + net_long_profit, file = outputFile)
-    print("Gross Results in Dollars: %.6f" + gross_short_profit_in_dollars, file = outputFile)
-    print("Net Results in Dollars: %.6f" + net_profit_in_dollars, file = outputFile)
+    print("The net results for Short are: %.6f" %net_short_profit, file = outputFile)
+    print("The net results for Long are: %.6f" %net_long_profit, file = outputFile)
+    print("Gross Results in Dollars: %.6f" %gross_short_profit_in_dollars, file = outputFile)
+    print("Net Results in Dollars: %.6f" %net_profit_in_dollars, file = outputFile)
     print("Number of times Close buy trade happened: " + str(reasonForTrade['CloseBuyTradeHappened']), file = outputFile)
     print("Number of times open buy trade happened: " + str(reasonForTrade['OpenBuyTradeHappened']), file = outputFile)
     print("Assumed open sell trade did not happen since volume did not increase: " + str(reasonForTrade['VolumeDidNotIncreaseDuringSellAttemptShort']), file = outputFile)
@@ -557,6 +557,7 @@ def main():
         lIndexOfEntryOrExitCL = lIndexOfEntryOrExitCL + 1
     
 if __name__ == "__main__":
+   tStart = datetime.now()
    dirName = args.pd.replace('/ro/','/rs/')
    checkAllFilesAreExistOrNot = 'false'
 
@@ -579,6 +580,8 @@ if __name__ == "__main__":
        if checkAllFilesAreExistOrNot == 'true':
            print ("\nRunning the simulated trading program")
            main()
+       tEnd = datetime.now()
+       print("Time taken to for complete run " + str(tEnd - tStart))
    else:
        print(predictedBuyValuesFileName,predictedSellValuesFileName)
        print ("Predcition files not yet generated")
