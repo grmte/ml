@@ -66,7 +66,7 @@ else:
 buyExperimentName = os.path.basename(absPathOfBuyExperimentName)
 sellExperimentName = os.path.basename(absPathOfSellExperimentName)
 
-combinedExperimentName = "Buy_" + buyExperimentName + "_Sell_" + sellExperimentName
+combinedExperimentName = "Buy_" + buyExperimentName + "Sell_" + sellExperimentName
 
 gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
