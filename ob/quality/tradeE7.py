@@ -485,7 +485,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
     outputFile = open(fileName,"w")
     gross_short_profit = tradeStats['totalSellValueShort'] - tradeStats['totalBuyValueShort']
     gross_long_profit = tradeStats['totalSellValueLong'] - tradeStats['totalBuyValueLong']
-    gross_profit = gross_short_profit - gross_long_profit
+    gross_profit = gross_short_profit + gross_long_profit
     net_short_profit = gross_short_profit - ( transactionCost * ( tradeStats['totalSellValueShort'] +  tradeStats['totalBuyValueShort'] ) ) 
     net_long_profit = gross_long_profit - ( transactionCost * ( tradeStats['totalSellValueLong'] +  tradeStats['totalBuyValueLong'] ) )
     net_profit = net_short_profit + net_long_profit
