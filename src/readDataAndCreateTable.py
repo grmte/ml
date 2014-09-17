@@ -114,14 +114,14 @@ def createTableFromDataFile():
     global gRawDataFile, gConnectionObj, gCursor, gTableName , gAttributesOfFile , gSep , gTypeOfAttribute
     
     header = True
-    try:
-        stringOfAttributeOfFile = ''
-        for name , type in zip(gAttributesOfFile,gTypeOfAttribute):
-            stringOfAttributeOfFile = stringOfAttributeOfFile + name + " " + type + ","
-        stringOfAttributeOfFile = stringOfAttributeOfFile[:-1]
-        gCursor.execute('CREATE TABLE ' + gTableName + ' (' + stringOfAttributeOfFile + ')')
-    except:
-        print "\nTable is already created!"
+        
+    stringOfAttributeOfFile = ''
+    for name , type in zip(gAttributesOfFile,gTypeOfAttribute):
+        stringOfAttributeOfFile = stringOfAttributeOfFile + name + " " + type + ","
+    stringOfAttributeOfFile = stringOfAttributeOfFile[:-1]
+    print stringOfAttributeOfFile
+    gCursor.execute('DROP TABLE IF EXISTS ' + gTableName )
+    gCursor.execute('CREATE TABLE ' + gTableName + ' (' + stringOfAttributeOfFile + ')')
     
     print "\nImporting data from File %s into Table %s."%(gRawDataFile, gTableName)
     with open(gRawDataFile, 'rb') as lInputFilePointer:
@@ -225,7 +225,7 @@ def main():
     
     connectToDataBase()
     showVariables()
-#     createTableFromDataFile()            # <--------- Un-comment this function only if the table is not created or created but not populated with data
+    createTableFromDataFile()            # <--------- Un-comment this function only if the table is not created or created but not populated with data
     getTotalNumberOfRecords()
     lAllDataRows = getSelectedRows()
     printOutputFile(lAllDataRows,"Feature;EntryCL;ExitCL;AvgTotShortTrades;AvgShortGrossProfit;AvgShortNetProft;ShortNoOfPosGross;ShortNoOfPosNet;\
