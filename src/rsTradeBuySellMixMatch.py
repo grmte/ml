@@ -86,7 +86,7 @@ else:
     buyIndexList = range(buyListLength)
     if args.sequence == 'lp':
         # to run it in local parallel mode
-        pool = multiprocessing.Pool(2) # this will return the number of CPU's
+        pool = multiprocessing.Pool() # this will return the number of CPU's
         results = pool.map(scriptWrapper,buyIndexList)
     else:
         results = map(scriptWrapper,buyIndexList)
