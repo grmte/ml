@@ -30,7 +30,7 @@ args = parser.parse_args()
 
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 if args.skipT == None:
-    args.skipT = "no"
+    args.skipT = "yes"
 if args.dt == None:
     args.dt = "1"
 if args.targetClass == None:

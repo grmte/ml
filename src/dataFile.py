@@ -66,7 +66,7 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
       dataRow=dataRow.rstrip('\n')
       addDataRowToMatrix(dataRow)
 
-def getRevelantDataToBeUsedFileName(pDirName,pDirName):
+def getRevelantDataToBeUsedFileName(pDirName):
    pDirName = pDirName.replace('/ro/','/wf')
    pDirName = pDirName + "/tr/"
    command = "ls -1"
