@@ -15,7 +15,7 @@ parser.add_argument('-orderQty',required=True,help='Order Quantity with which we
 parser.add_argument("-skipT",required=False,help="Skip creating trade files if already generated")
 parser.add_argument('-td', required=True,help='Directory of the training data file')
 parser.add_argument('-pd', required=True,help='Directory of the prediction data file')
-parser.add_argument('-dt',required=False,help="Number of days it was trained")  
+parser.add_argument('-dt',required=True,help="Number of days it was trained")  
 parser.add_argument('-targetClass',required=False,help="For which model was used ; binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
@@ -31,8 +31,7 @@ import attribute
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 if args.skipT == None:
     args.skipT = "no"
-if args.dt == None:
-    args.dt = "1"
+
 if args.targetClass == None:
     args.targetClass = "binomial"
 if args.wt == None:
