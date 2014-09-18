@@ -137,14 +137,7 @@ lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basena
 
 print ("filename---", lInitialFileName)
 outputfile = open(lInitialFileName, 'wb') 
-# featureFpList = []
-# featureNames = []
-# experimnetList = args.e.split(";")
-# predFpList = []
-# predNames = []
-# targetFpList = []
-# targetNames = []
-# tradeFpList = []
+
 startIndex = 0
 while True:
     allFeatureData = ''
