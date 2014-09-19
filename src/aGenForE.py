@@ -78,7 +78,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     """
     paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
     # Getting the moduleName from the attributeName
-    if "Col" in pUserFriendlyAttributeName:
+    while "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
         # There are 2 types of columns. real or synthetic. The following if block finds what type of column do we have.
         if "_" == pUserFriendlyAttributeName[startPos]:
@@ -111,14 +111,14 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             paramList.append("-cType")
             paramList.append("primary") 
 
-    if "Order" in pUserFriendlyAttributeName:
+    while "Order" in pUserFriendlyAttributeName:
             startPos = pUserFriendlyAttributeName.find("Order") + 5
             endPos = pUserFriendlyAttributeName.find("In",startPos + 1)
             colName = pUserFriendlyAttributeName[startPos:endPos]
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"O")
             paramList.append("-o")
             paramList.append(colName)
-    if "Diff" in pUserFriendlyAttributeName:
+    while "Diff" in pUserFriendlyAttributeName:
             startPos = pUserFriendlyAttributeName.find("Diff") + 4
             endPos = pUserFriendlyAttributeName.find("Pip",startPos + 1)
             colName = pUserFriendlyAttributeName[startPos:endPos]
@@ -126,7 +126,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             paramList.append("-m")
             paramList.append(colName) 
 
-    if "Last" in pUserFriendlyAttributeName:
+    while "Last" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.rfind("Last") + 4
         endPos = pUserFriendlyAttributeName.rfind("Rows")
         if endPos == -1:
@@ -141,7 +141,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         paramList.append("-n")
         paramList.append(N)
 
-    if "Future" in pUserFriendlyAttributeName:
+    while "Future" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Future") + 6
         endPos = pUserFriendlyAttributeName.find("Rows")
         if endPos == -1:
