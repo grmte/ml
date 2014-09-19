@@ -36,8 +36,7 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
                 try:
                     float(firstAttributeName)
                 except:
-                    if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
-                    and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName:
+                    if  "[DivideBy]" not in firstAttributeName and "[MultiplyBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName:
                         commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))
             if secondAttributeName=='E':
                 pass
@@ -45,8 +44,7 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
                 try:
                     float(secondAttributeName)
                 except:
-                    if  "[DivideBy]" not in secondAttributeName and "[Add]" not in secondAttributeName and "[Subtract]" not in secondAttributeName and "[Exp]" not in secondAttributeName \
-                    and "[Pow]" not in secondAttributeName and "[Log]" not in firstAttributeName:
+                    if  "[DivideBy]" not in secondAttributeName and "[MultiplyBy]" not in firstAttributeName and "[Add]" not in secondAttributeName and "[Subtract]" not in secondAttributeName and "[Exp]" not in secondAttributeName and "[Pow]" not in secondAttributeName and "[Log]" not in firstAttributeName:
                         commandLine.append(getCommandLineForSingleAttribute(secondAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig)) 
                 
             operatorName = token.name
@@ -67,8 +65,7 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
             postfixStackEvaulation.append(firstAttributeName + operatorName + secondAttributeName)
     while len(postfixStackEvaulation)!=0:
             firstAttributeName = postfixStackEvaulation.pop()
-            if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
-                and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName : 
+            if  "[DivideBy]" not in firstAttributeName and "[MultiplyBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName : 
                 commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))        
     return commandLine                     
 
@@ -78,7 +75,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     """
     paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
     # Getting the moduleName from the attributeName
-    while "Col" in pUserFriendlyAttributeName:
+    if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
         # There are 2 types of columns. real or synthetic. The following if block finds what type of column do we have.
         if "_" == pUserFriendlyAttributeName[startPos]:
@@ -111,14 +108,14 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             paramList.append("-cType")
             paramList.append("primary") 
 
-    while "Order" in pUserFriendlyAttributeName:
+    if "Order" in pUserFriendlyAttributeName:
             startPos = pUserFriendlyAttributeName.find("Order") + 5
             endPos = pUserFriendlyAttributeName.find("In",startPos + 1)
             colName = pUserFriendlyAttributeName[startPos:endPos]
             pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"O")
             paramList.append("-o")
             paramList.append(colName)
-    while "Diff" in pUserFriendlyAttributeName:
+    if "Diff" in pUserFriendlyAttributeName:
             startPos = pUserFriendlyAttributeName.find("Diff") + 4
             endPos = pUserFriendlyAttributeName.find("Pip",startPos + 1)
             colName = pUserFriendlyAttributeName[startPos:endPos]
@@ -126,7 +123,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             paramList.append("-m")
             paramList.append(colName) 
 
-    while "Last" in pUserFriendlyAttributeName:
+    if "Last" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.rfind("Last") + 4
         endPos = pUserFriendlyAttributeName.rfind("Rows")
         if endPos == -1:
@@ -141,7 +138,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         paramList.append("-n")
         paramList.append(N)
 
-    while "Future" in pUserFriendlyAttributeName:
+    if "Future" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Future") + 6
         endPos = pUserFriendlyAttributeName.find("Rows")
         if endPos == -1:
