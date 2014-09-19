@@ -152,13 +152,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
         pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(N,"N")
         paramList.append("-n")
         paramList.append(N)
-    if "Diff" in pUserFriendlyAttributeName:
-            startPos = pUserFriendlyAttributeName.find("Diff") + 4
-            endPos = pUserFriendlyAttributeName.find("Pip",startPos + 1)
-            colName = pUserFriendlyAttributeName[startPos:endPos]
-            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"M")
-            paramList.append("-m")
-            paramList.append(colName) 
+
     paramList.append("-g")
     paramList.append(generatorsFolder+pUserFriendlyAttributeName)
 
@@ -228,6 +222,7 @@ def getCommandList(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     for f in target:
         attributeName = target[f]
         print "\nGenerating for " + attributeName
+
         command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,config)
         commandList.extend(command)
         featureConfig = config["features-" + f]
