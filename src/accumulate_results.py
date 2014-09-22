@@ -103,14 +103,14 @@ for dirN in allPredictionDataDirectories:
                 except:
                     dayAfterTraining = ""
                 break
-        print noOfDaysForTraining , lastDayOfTraining , dayAfterTraining , dirN
+#        print noOfDaysForTraining , lastDayOfTraining , dayAfterTraining , dirN
         if lastDayOfTraining == dirN:
             lLastDayOrDayAfter = "LastDayOfTraining"
         
         if dayAfterTraining == dirN:
             lLastDayOrDayAfter = "DayAfterTraining"
-        
-        print "Filename " , file_name
+
+#        print "Filename " , file_name
         '''
         glmnet-td.20140128-dt.1-targetClass.binomial-f.1-wt.default-l.55-45-tq.300-te.7.result
         glmnet-td.20140128-dt.1-targetClass.binomial-f.ABC-wt.default-iT.RELIANCE-oT.0-sP.-1-l.60-50-tq.500-te.7.result
@@ -128,12 +128,15 @@ for dirN in allPredictionDataDirectories:
                 continue
         else:
             weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-l.")]
-        entryCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][:(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")]   
-        exitCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")+1:]  
-        orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
-        tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")]        
-        temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
-        line_list = temp_read_file_object.readlines()
+        try:
+            entryCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][:(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")]   
+            exitCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")+1:]  
+            orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
+            tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")]        
+            temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
+            line_list = temp_read_file_object.readlines()
+        except:
+            continue
         if len(line_list) == 0 :
             print (file_name,"is empty")
 #            os.system('rm -rf ' + tradeFileNameDirectory + "/" + file_name)
@@ -217,6 +220,8 @@ for dirN in allPredictionDataDirectories:
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
                                   str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]
             l_list_of_all_results.append(l_list_to_printed)
+            if len(l_list_of_all_results)%10000==0:
+                print "Completed 10000 files accumulation"
         index = index + 1
 
 sorted_list = sorted(l_list_of_all_results, key = lambda x: float(x[-2]))
