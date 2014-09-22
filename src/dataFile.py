@@ -21,7 +21,9 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
       pDirName = pDirName.replace("ro","wf") + "/f/" 
       list_of_files = os.listdir(pDirName) #list of files in the directory                                                            
       lSyntheticColName = pSyntheticColName
-      if(attribute.instType!=''):
+
+      print "Check Null:-",attribute.instType,"hello"
+      if(attribute.instType!=None):
          lSyntheticColName = pSyntheticColName + "-iT."+ attribute.instType + "-oT."+attribute.optionsType + "-sP."+attribute.strikePrice
       for each_file in list_of_files:
           if lSyntheticColName+".feature" == each_file:
