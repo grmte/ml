@@ -54,7 +54,7 @@ def main():
           attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.i,args.o,args.m,args.d)
       else:
           attribute.checkIfAttributeOutputFileExists(os.path.basename(moduleName),args.n,args.c,args.o,args.m,args.d)
-      if args.rev.lower()=="yes":
+      if args.rev!= None and args.rev.lower()=="yes":
           dataFile.getSelectedDataIntoMatrix(args.d)
       else:
           if(args.cType == "synthetic"):
