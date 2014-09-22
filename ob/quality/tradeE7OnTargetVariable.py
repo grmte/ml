@@ -468,7 +468,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
                               'CurTargetValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurTargetValueLong','EnterTradeLong',\
                               'ReasonForTradingOrNotTradingLong','Exchange_TS','totalBuyShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0',\
                               'DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-#    attribute.writeToFile(fileName , lHeaderColumnNamesList)
+   attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
    tradeResultMainDirName = dirName+"/r/"
    if not os.path.exists(tradeResultMainDirName):
