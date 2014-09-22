@@ -69,7 +69,7 @@ print "List of Sub Experiments " , buyListLength
 
 def scriptWrapper(index):
 
-     utility.runCommand(["./ob/quality/tradeE7Optimized.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+     utility.runCommand(["./ob/quality/tradeE7BuySellMixMatchOptimized.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         
 
 if(args.sequence == "dp"):
@@ -78,7 +78,7 @@ if(args.sequence == "dp"):
     lTradingCommandList= []
 
     for index in range(buyListLength):
-        lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+        lTradingCommandList.append(["./ob/quality/tradeE7BuySellMixMatchOptimized.py","-es",sellExperimentList[index],"-eb",buyExperimentList[index],"-skipT",args.skipT,"-a",args.a,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
 
     utility.runCommandList(lTradingCommandList,args)
     print dp.printGroupStatus()
