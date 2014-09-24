@@ -534,6 +534,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
     print("P/L for Long trading 10 lots is: " + str(pLPerLotLong * 10), file = outputFile)
 
 
+
 def main():
     dataFile.getDataIntoMatrix(args.d)
     targetValuesDict = dict()

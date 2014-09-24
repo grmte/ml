@@ -25,7 +25,7 @@ def extractAttributeFromDataMatrix(args):
       print "-m has not been specified"
       os._exit(-1)
    colNumberOfAttribute = eval("colNumberOfData."+ args.c )
-      
+   print args.m
    lDiffPip = float(args.m)
    lPipSize = int(args.tickSize)
 

@@ -7,8 +7,7 @@ from itertools import islice
 from datetime import datetime
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
  An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-eb', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
-parser.add_argument('-es', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABd')
+parser.add_argument('-e', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-entryCL', required=True,help='Percentage of the confidence level used to enter the trades')
 parser.add_argument('-exitCL', required=True,help='Percentage of the confidence level used to exit the trades')
@@ -40,20 +39,20 @@ if args.targetClass == None:
 if args.wt == None:
     args.wt = "default"
                     
-absPathOfBuyExperimentName = os.path.abspath(args.eb)
-absPathOfSellExperimentName = os.path.abspath(args.es)
-if 'nsecur' in absPathOfBuyExperimentName:
-    pathAfterE = absPathOfBuyExperimentName[absPathOfBuyExperimentName.index("/nsecur/")+8:]
+absPathOfExperimentName = os.path.abspath(args.e)
+
+if 'nsecur' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
     if args.t ==None:
         transactionCost = 0.000015
         currencyDivisor = 10000
-elif 'nsefut' in absPathOfBuyExperimentName:
-    pathAfterE = absPathOfBuyExperimentName[absPathOfBuyExperimentName.index("/nsefut/")+8:]
+elif 'nsefut' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
     if args.t == None:
         transactionCost = 0.00015
         currencyDivisor = 100
-elif 'nseopt' in absPathOfBuyExperimentName:
-    pathAfterE = absPathOfBuyExperimentName[absPathOfBuyExperimentName.index("/nseopt/")+8:]
+elif 'nseopt' in absPathOfExperimentName:
+    pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
     transactionCost = args.t
     currencyDivisor = 0
     print("Please specify the transaction cost and currency divisor for options and remove os.exit(-1) and rerun it")
@@ -63,11 +62,7 @@ if "/" in pathAfterE:
 else:
     mainExperimentName = pathAfterE
     
-buyExperimentName = os.path.basename(absPathOfBuyExperimentName)
-sellExperimentName = os.path.basename(absPathOfSellExperimentName)
-
-combinedExperimentName = "Buy_" + buyExperimentName + "Sell_" + sellExperimentName
-
+experimentName = os.path.basename(absPathOfExperimentName)
 gTickSize = int(args.tickSize)
 gMaxQty = int(args.orderQty)
 gNoOfLineReadPerChunk = 10000
@@ -121,10 +116,10 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
                 headerSkipped = 1 
                 continue
             lDataRow = lDataFileRowsList[currentRowIndex].rstrip().split(dataFileSep)
-            lAskP = float(lDataRow[colNumberOfData.AskP0])
-            lBidP = float(lDataRow[colNumberOfData.BidP0])
-            lAskQ = int(lDataRow[colNumberOfData.AskQ0])
-            lBidQ = int(lDataRow[colNumberOfData.BidQ0])
+            lAskP = float(lDataRow[colNumberOfData.BestAskP])
+            lBidP = float(lDataRow[colNumberOfData.BestBidP])
+            lAskQ = int(lDataRow[colNumberOfData.BestAskQ])
+            lBidQ = int(lDataRow[colNumberOfData.BestBidQ])
             lTTQ = int(lDataRow[colNumberOfData.TTQ])
             lLTP = float(lDataRow[colNumberOfData.LTP]) 
             lCurrentDataRowTimeStamp = common.convertTimeStampFromStringToFloat(lDataRow[colNumberOfData.TimeStamp])
@@ -165,8 +160,8 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
                             if lPrevObj.AskP not in lListOfAskP:
                                 lListOfAskP.append(lPrevObj.AskP)
                 lPrevObj = lObj
-            #if lCurrentDataRowCount%50000 ==0:
-            #    print("Completed reading ",lCurrentDataRowCount)
+            if lCurrentDataRowCount%50000 ==0:
+                print("Completed reading ",lCurrentDataRowCount)
             lCurrentDataRowCount = lCurrentDataRowCount + 1 
     return lObjectList
 
@@ -535,10 +530,10 @@ if __name__ == "__main__":
     
     lWFDirName = args.pd.replace('/ro/','/wf/')
     predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
-    args.dt + '-targetClass.' + args.targetClass + '-f.' + buyExperimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
+    args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
     
     predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
-    args.dt + '-targetClass.' + args.targetClass + '-f.' + sellExperimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
+    args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
 
     lEntryClList = args.entryCL.split(";")
     lExitClList = args.exitCL.split(";")
@@ -554,7 +549,7 @@ if __name__ == "__main__":
     lengthOfFinalList = 0
     for indexOfCL in range(lengthOfList):
         lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                       '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + combinedExperimentName + "-wt." + args.wt+ attribute.generateExtension() + \
+                       '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
                        '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.7" 
         fileName = dirName + "/r/" + mainExperimentName + "/" + lInitialFileName+".result"
         if os.path.isfile(fileName) and args.skipT.lower() == "yes":

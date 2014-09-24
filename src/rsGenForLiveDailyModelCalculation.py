@@ -32,12 +32,23 @@ parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Futur
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 parser.add_argument('-instrGroups',required=True,help="instruments groups used in live file")
 parser.add_argument('-nF',required=True,help="number of features")
-parser.add_argument('-entryCL',required=True,help="Trade open position entry point separated by semicolon")
-parser.add_argument('-exitCL',required=True,help="Trade close position point separated by semicolon")
+parser.add_argument('-entryCL',required=False,help="Trade open position entry point separated by semicolon")
+parser.add_argument('-exitCL',required=False,help="Trade close position point separated by semicolon")
 parser.add_argument('-orderQty',required=True,help="Qty with which you want to trade")
 args = parser.parse_args()
+entrylist = ""
+exitlist = ""
+for i in range(55,70,1):
+    for j in range(max(50,i-10),i+1,1):
+        exitlist = exitlist + str(j) + ";"
+        entrylist = entrylist + str(i) + ";"
+exitlist = exitlist[:-1]
+entrylist = entrylist[:-1]
 
-
+if args.entryCL ==None:
+    args.entryCL = entrylist
+if args.exitCL == None:
+    args.exitCL = exitlist
 current_number_of_features_used = int(args.nF)
 if args.skipM == None:
     args.skipM = "yes"
@@ -71,7 +82,7 @@ utility.runCommand(["rGenForE.py","-e",args.e,"-a",algo,"-sequence",args.sequenc
                     '-dt',args.dt,'-pd',args.pd,"-td",trainingDirectory,"-skipP",args.skipP, '-wt' , args.wt],args.run,args.sequence)
 utility.runCommand(["runAllRScriptsForE.py","-td",trainingDirectory,"-pd",args.pd,"-dt",args.dt,"-e",args.e,"-a",algo,"-run",args.run,\
                      '-wt' , args.wt,"-sequence",args.sequence],args.run,args.sequence)
-utility.runCommand(["./ob/quality/tradeE7.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,\
+utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",trainingDirectory , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt],args.run,args.sequence)
 
 instrGroupList = args.instrGroups.split(";")
