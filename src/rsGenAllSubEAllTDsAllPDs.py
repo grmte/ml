@@ -62,7 +62,7 @@ else:
 config = ConfigObj(args.e+"/design.ini")
 targetAttributes = attribute.getTargetVariableKeys(config)
 one_feature_attributes = attribute.getFeatureVariableKeys(config , targetAttributes.keys()[0])
-indexOfFeatures = len(one_feature_attributes)
+lengthOfFeatures = len(one_feature_attributes)
 
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
 dataFolder = args.td
@@ -82,14 +82,15 @@ for chunkNum in range(0,len(commandList),int(args.nComputers)):
 
 entrylist = ""
 exitlist = ""
-for i in range(55,60,1):
+for i in range(55,70,1):
     for j in range(50,i,1):
         exitlist = exitlist + str(j) + ";"
         entrylist = entrylist + str(i) + ";"
 exitlist = exitlist[:-1]
 entrylist = entrylist[:-1]          
+indexOfFeatures = 2
 for algo in allAlgos:
-    while indexOfFeatures >= 2:
+    while indexOfFeatures <= lengthOfFeatures:
         lSubCombinationFolder = args.e+"/s/"+str(indexOfFeatures)+"c"
         designFiles = utility.list_files(lSubCombinationFolder)
         for designFile in designFiles:
@@ -131,7 +132,7 @@ for algo in allAlgos:
                                  os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
-                    lTradingCommandList.append(["./ob/quality/tradeE7.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
+                    lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","500",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
 
                 totalModelsWhichCanBeScheduled = int(args.nComputers)
                 for chunkNum in range(0,len(lRCodeGenCommandList),totalModelsWhichCanBeScheduled):
@@ -153,12 +154,12 @@ for algo in allAlgos:
                     utility.runCommandList(lSubModelList,args)
                     print dp.printGroupStatus()                
 
-                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"NSEFUT RELIANCE with AB features" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-        indexOfFeatures = indexOfFeatures - 1
+                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"LiveExperimentTestingInCurrentMonthsData" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        indexOfFeatures = indexOfFeatures + 1
     for i in range(len(allDataDirectories)-int(args.dt)):
         args.td = allDataDirectories[i]
         predictionDirLastTD = allDataDirectories[i + int(args.dt) - 1]
         predictionDirAfterLastTD = allDataDirectories[i + int(args.dt)]
-#        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", '55;55;55;55;58;58;58;58;60;60;60;60;61;61;61;61;62;62;62;62',"-exitCL",'50;52;54;55;52;54;55;56;56;58;59;60;58;59;60;61;58;59;60;61',"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", entrylist ,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
         print dp.printGroupStatus()
-#    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"HISTORICAL_WA_TAKEN_WITH_BUY_SELL_MIX_MATCH" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"LiveExperimentTestingInCurrentMonthsData" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
