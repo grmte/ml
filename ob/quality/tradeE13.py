@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 import os, sys, argparse
 from configobj import ConfigObj
+import pdb
 
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
  An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
@@ -21,6 +22,7 @@ parser.add_argument('-wt',required=False,help="default/exp , weight type to be g
 parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
+parser.add_argument('-t',required=False,help='Transaction Cost')
 args = parser.parse_args()
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
@@ -38,11 +40,21 @@ absPathOfExperimentName = os.path.abspath(args.e)
 
 if 'nsecur' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
+    if args.t ==None:
+        transactionCost = 0.000015
+        currencyDivisor = 10000
 elif 'nsefut' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
+    if args.t ==None:
+        transactionCost = 0.00015
+        currencyDivisor = 1000
 elif 'nseopt' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
-    
+    transactionCost = args.t
+    currencyDivisor = 0
+    print("Please specify the transaction cost and currency divisor for options and remove os.exit(-1) and rerun it")
+    os._exit(-1)
+        
 if "/" in pathAfterE:
     mainExperimentName = pathAfterE[:pathAfterE.index("/")]
 else:
@@ -246,7 +258,6 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
-    print(pPriceAtWhichOrderIsToBeKept)
     if (g_bestqty_list_for_buy != {} and pPriceAtWhichOrderIsToBeKept != g_bestqty_list_for_buy['price']) or (g_bestqty_list_for_buy == {}):
         g_bestqty_list_for_buy = {} 
         g_bestqty_list_for_buy['price'] = pPriceAtWhichOrderIsToBeKept
@@ -260,15 +271,13 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
                     l_qty = l_qty + qty
             
         g_bestqty_list_for_buy['qty'] = l_qty
-        
+        lReasonForTradingOrNotTrading = 'AtBestBidStartingToStand'
     else:
         if (l_dummy_TTQChange_For_Buy <= 0):
-            lReasonForTradingOrNotTrading = 'StandingAtBid(NextTickTTQDidNotIncrease)'
+            lReasonForTradingOrNotTrading = 'AtBestBid(NoTTQChange)'
         elif ("OpenBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingShort) or ("CloseBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingLong):
-            lReasonForTradingOrNotTrading = 'AtBestBidTTQChangeBecauseOfOurOrder'
+            lReasonForTradingOrNotTrading = 'AtBestBid(TTQDidntIncreaseBySufficientAmount_'
         elif (l_dummy_TTQChange_For_Buy > 0 ):
-            import pdb
-            pdb.set_trace()
             if (currentLTP == g_bestqty_list_for_buy['price']):
                 if (g_bestqty_list_for_buy['qty'] > l_dummy_TTQChange_For_Buy):
                     l_qty_for_buy_fill_possible = 0
@@ -276,7 +285,6 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
                 else:
                     l_qty_for_buy_fill_possible = l_dummy_TTQChange_For_Buy - g_bestqty_list_for_buy['qty']
                     g_bestqty_list_for_buy['qty'] = 0
-                    g_bestqty_list_for_buy = {}
                     
                 if (l_qty_for_buy_fill_possible > 0):
                     lQtyForWhichWeTrade = min(pQtyForWhichFillCanBeGiven, l_qty_for_buy_fill_possible)
@@ -285,7 +293,7 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
                     lTradedQty = lQtyForWhichWeTrade
                     lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'BuyBest(Standing)'
                 else:
-                    lReasonForTradingOrNotTrading = 'AtBestBid2(NextTickTTQDidNotIncrease)'
+                    lReasonForTradingOrNotTrading = 'AtBestBid(NextTickTTQDidNotIncrease)'
             elif (currentLTP < g_bestqty_list_for_buy['price']):
                 lQtyForWhichWeTrade = pQtyForWhichFillCanBeGiven
                 l_dummy_TTQChange_For_Buy -= lQtyForWhichWeTrade
@@ -293,6 +301,8 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
                 lTradedQty = lQtyForWhichWeTrade
                 lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'BuyBest(Standing)' 
                 g_bestqty_list_for_buy = {}
+            else:
+                lReasonForTradingOrNotTrading = 'AtBestBid(NoTTQChangeNoLTPLessThanOurPrice)'
                        
     return l_dummy_TTQChange_For_Buy, lReasonForTradingOrNotTrading, lTradedQty , lTradedPrice 
 
@@ -314,10 +324,10 @@ def fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , pQty
                     l_qty = l_qty + qty
             
         g_bestqty_list_for_sell['qty'] = l_qty
-        
+        lReasonForTradingOrNotTrading = 'AtBestAskStartingToStand'
     else:
         if (l_dummy_TTQChange_For_Sell <= 0):
-            lReasonForTradingOrNotTrading = 'StandingAtAsk(NextTickTTQDidNotIncrease)'
+            lReasonForTradingOrNotTrading = 'AtBestAsk(NoTTQChange)'
         elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingShort) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingLong):
             lReasonForTradingOrNotTrading = 'AtBestAskTTQChangeBecauseOfOurOrder'
         elif (l_dummy_TTQChange_For_Sell > 0 ):
@@ -328,7 +338,6 @@ def fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , pQty
                 else:
                     l_qty_for_sell_fill_possible = l_dummy_TTQChange_For_Sell - g_bestqty_list_for_sell['qty']
                     g_bestqty_list_for_sell['qty'] = 0
-                    g_bestqty_list_for_sell = {}
                     
                 if (l_qty_for_sell_fill_possible > 0):
                     lQtyForWhichWeTrade = min(pQtyForWhichFillCanBeGiven, l_qty_for_sell_fill_possible)
@@ -337,14 +346,16 @@ def fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , pQty
                     lTradedQty = lQtyForWhichWeTrade
                     lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'SellBest(Standing)'
                 else:
-                    lReasonForTradingOrNotTrading = 'AtBestAsk2(NextTickTTQDidNotIncrease)'
-            elif (currentLTP < g_bestqty_list_for_sell['price']):
+                    lReasonForTradingOrNotTrading = 'AtBestAsk(TTQDidntIncreaseBySufficientAmount)'
+            elif (currentLTP > g_bestqty_list_for_sell['price']):
                 lQtyForWhichWeTrade = pQtyForWhichFillCanBeGiven
                 l_dummy_TTQChange_For_Sell -= lQtyForWhichWeTrade
                 lTradedPrice = g_bestqty_list_for_sell['price']
                 lTradedQty = lQtyForWhichWeTrade
                 lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'SellBest(Standing)' 
                 g_bestqty_list_for_sell = {}
+            else:
+                lReasonForTradingOrNotTrading = 'AtBestAsk(NoTTQChangeNoLTPLessThanOurPrice)'
                        
     return l_dummy_TTQChange_For_Sell, lReasonForTradingOrNotTrading, lTradedQty , lTradedPrice 
 
@@ -387,7 +398,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
         lOpenOrCloseSide = 'Close'
         lPriceAtWhichOrderIsToBeKept = 0
         if pPrevObj.EnterTradeShort == -2: #Standing at bid +1 
-            lPriceAtWhichOrderIsToBeKept = max( pPrevObj.AskP[0] - ( 2 * gTickSize) , pPrevObj.BidP[0] + ( 1 * gTickSize) )
+            lPriceAtWhichOrderIsToBeKept = min( pPrevObj.AskP[0] - ( 2 * gTickSize) , pPrevObj.BidP[0] + ( 1 * gTickSize) )
 
         if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.BidP[0] + ( 1 * gTickSize) ) or pPrevObj.EnterTradeShort == -1:
             g_bestqty_list_for_buy = {}
@@ -488,6 +499,7 @@ def update_obj_list(pCurrentDataRow):
 
 def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
     global g_bestqty_list_for_sell, g_bestqty_list_for_buy
+    global transactionCost , currencyDivisor
     attribute.initList()
     tradeStats = dict()
     tradeStats['totalSellAmountShort'] = 0
@@ -539,7 +551,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
                 attribute.aList[currentIndex-1][0] = l_obj.currentTimeStamp
                 attribute.aList[currentIndex-1][1] = tradeStats['currentPositionLong']
                 attribute.aList[currentIndex-1][2] = tradeStats['currentPositionShort']
-                listOfStringsToPrint = [ str(l_previous_obj.BidQ[0]) , str(l_previous_obj.BidP[0]),str(l_previous_obj.BidQ[1]) , str(l_previous_obj.BidP[1]),str(l_previous_obj.BidQ[2]) , str(l_previous_obj.BidP[2]),str(l_previous_obj.BidQ[3]) ,\
+                listOfStringsToPrint = [ str(l_previous_obj.BidQ[0]) , str(l_previous_obj.BidP[0]),str(l_previous_obj.BidQ[1]) , str(l_previous_obj.BidP[1]),str(l_previous_obj.BidQ[2]) , str(l_previous_obj.BidP[2]),str(l_previous_obj.BidQ[3]) ,str(l_previous_obj.BidP[3]),\
                                          str(l_previous_obj.BidP[4]),str(l_previous_obj.BidQ[4]) , str(l_previous_obj.AskQ[0]) , str(l_previous_obj.AskP[0]) , str(l_previous_obj.AskQ[1]) , str(l_previous_obj.AskP[1]) ,str(l_previous_obj.AskQ[2]) , str(l_previous_obj.AskP[2]) ,\
                                          str(l_previous_obj.AskQ[3]) , str(l_previous_obj.AskP[3]) ,str(l_previous_obj.AskQ[4]) , str(l_previous_obj.AskP[4]) ,\
                                          str(l_previous_obj.TTQ) , str(l_previous_obj.LTP) ,\
@@ -566,7 +578,6 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
                 g_bestqty_list_for_buy = {}
                 l_obj.EnterTradeShort = -1       #For close by hitting
             elif(tradeStats['currentPositionShort'] > 0):
-                g_bestqty_list_for_buy = {}
                 l_obj.EnterTradeShort = -2  
             else:
                 l_obj.EnterTradeShort = 0
@@ -578,8 +589,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
             elif(currentSellPredictedValue >= exitCL and tradeStats['currentPositionLong'] > 0):
                 g_bestqty_list_for_sell = {}
                 l_obj.EnterTradeLong = -1       #For close by hitting
-            elif():
-                g_bestqty_list_for_sell = {}
+            elif(tradeStats['currentPositionLong'] > 0):
                 l_obj.EnterTradeLong = -2       #For close by hitting               
             else:
                 l_obj.EnterTradeLong = 0        
@@ -616,7 +626,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
     else:
         l_best_askq = 0
         l_best_askp = 0
-    listOfStringsToPrint = [ str(l_previous_obj.BidQ[0]) , str(l_previous_obj.BidP[0]),str(l_previous_obj.BidQ[1]) , str(l_previous_obj.BidP[1]),str(l_previous_obj.BidQ[2]) , str(l_previous_obj.BidP[2]),str(l_previous_obj.BidQ[3]) ,\
+    listOfStringsToPrint = [ str(l_previous_obj.BidQ[0]) , str(l_previous_obj.BidP[0]),str(l_previous_obj.BidQ[1]) , str(l_previous_obj.BidP[1]),str(l_previous_obj.BidQ[2]) , str(l_previous_obj.BidP[2]),str(l_previous_obj.BidQ[3]) ,str(l_previous_obj.BidP[3]),\
                              str(l_previous_obj.BidP[4]),str(l_previous_obj.BidQ[4]) , str(l_previous_obj.AskQ[0]) , str(l_previous_obj.AskP[0]) , str(l_previous_obj.AskQ[1]) , str(l_previous_obj.AskP[1]) ,str(l_previous_obj.AskQ[2]) , str(l_previous_obj.AskP[2]) ,\
                              str(l_previous_obj.AskQ[3]) , str(l_previous_obj.AskP[3]) ,str(l_previous_obj.AskQ[4]) , str(l_previous_obj.AskP[4]) ,\
                              str(l_previous_obj.TTQ) , str(l_previous_obj.LTP) ,\
@@ -652,29 +662,50 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
         os.mkdir(tradeResultSubDirectoryName)
     fileName = tradeResultSubDirectoryName+pFileName+".result" 
     outputFile = open(fileName,"w")
+    gross_short_profit = tradeStats['totalSellAmountShort'] - tradeStats['totalBuyAmountShort']
+    gross_long_profit = tradeStats['totalSellAmountLong'] - tradeStats['totalBuyAmountLong']
+    gross_profit = gross_short_profit + gross_long_profit
+    net_short_profit = gross_short_profit - ( transactionCost * ( tradeStats['totalSellAmountShort'] + tradeStats['totalBuyAmountShort'] ) ) 
+    net_long_profit = gross_long_profit - ( transactionCost * (tradeStats['totalSellAmountLong'] + tradeStats['totalBuyAmountLong'] ) )
+    net_profit = net_short_profit + net_long_profit
     
+    gross_short_profit_in_dollars = gross_profit / (currencyDivisor * 60)
+    net_profit_in_dollars = net_profit / (currencyDivisor * 60 )
     #changed file write to modify it to Short Long version
-    print("Starting to write: "+fileName)
-    print("The gross profit for Short are: " + str(tradeStats['totalSellAmountShort'] - tradeStats['totalBuyAmountShort']), file = outputFile)
-    print("The gross profit for Long are: " + str(tradeStats['totalSellAmountLong'] - tradeStats['totalBuyAmountLong']), file = outputFile)
-    print("The total open sell amount is: " + str(tradeStats['totalSellAmountShort']), file = outputFile)
-    print("The total close sell amount is: " + str(tradeStats['totalSellAmountLong']), file = outputFile)
-    print("The total close buy amount is: " + str(tradeStats['totalBuyAmountShort']), file = outputFile)
-    print("The total open buy amount is: " + str(tradeStats['totalBuyAmountLong']), file = outputFile)
-    print("Number open sell trade happened: " + str(tradeStats['NumberOfOpenSell']), file = outputFile)
-    print("Number close sell trade happened: " + str(tradeStats['NumberOfCloseSell']), file = outputFile)
-    print("Number close buy trade happened: " + str(tradeStats['NumberOfCloseBuy']), file = outputFile)
-    print("Number open buy trade happened: " + str(tradeStats['NumberOfOpenBuy']), file = outputFile)
-       
+    print("Starting to write: "+pFileName)
+    print("The gross results for Short are: %.6f" %gross_short_profit, file = outputFile)
+    print("The gross results for Long are: %.6f" %gross_long_profit, file = outputFile)
+    print("Number of rows for which there is no prediction: " + str(0), file = outputFile)    
+    print("Number of times asked to enter trade Short: " + str(0), file = outputFile)    
+    print("Number of times asked to enter trade Long: " + str(0), file = outputFile)    
+    print("Number of times asked to exit trade Short: " + str(0), file = outputFile)
+    print("Number of times asked to exit trade Long: " + str(0), file = outputFile)
+    print("The net results for Short are: %.6f" %net_short_profit, file = outputFile)
+    print("The net results for Long are: %.6f" %net_long_profit, file = outputFile)
+    print("Gross Results in Dollars: %.6f" %gross_short_profit_in_dollars, file = outputFile)
+    print("Net Results in Dollars: %.6f" %net_profit_in_dollars, file = outputFile)
+    print("Number of times Close buy trade happened: " + str(tradeStats['NumberOfCloseBuy']), file = outputFile)
+    print("Number of times open buy trade happened: " + str(tradeStats['NumberOfOpenBuy']), file = outputFile)
+    print("Assumed open sell trade did not happen since volume did not increase: " + str(0), file = outputFile)
+    print("Assumed close sell trade did not happen since volume did not increase: " + str(0), file = outputFile)
+    print("Assumed open sell trade did not happen since bidP0 not same as LTP: " + str(0), file = outputFile)
+    print("Assumed close sell trade did not happen since bidP0 not same as LTP: " + str(0), file = outputFile)
+    print("Number of Open sell trade happened: " + str(tradeStats['NumberOfOpenSell']), file = outputFile)
+    print("Number of Close sell trade happened: " + str(tradeStats['NumberOfCloseSell']), file = outputFile)
+    print("The total open sell value is: " + str(tradeStats['totalSellAmountShort']), file = outputFile)
+    print("The total close sell value is: " + str(tradeStats['totalSellAmountLong']), file = outputFile)
+    print("The total close buy value is: " + str(tradeStats['totalBuyAmountShort']), file = outputFile)
+    print("The total open buy value is: " + str(tradeStats['totalBuyAmountLong']), file = outputFile)
+
     try:
-        averageOpenSellPrice = tradeStats['totalSellAmountShort']/tradeStats['NumberOfOpenSell']
-        averageCloseBuyPrice = tradeStats['totalBuyAmountShort']/tradeStats['NumberOfCloseBuy']
+        averageOpenSellPrice = tradeStats['totalSellValueShort']/reasonForTrade['OpenSellTradeHappened']
+        averageCloseBuyPrice = tradeStats['totalBuyValueShort']/reasonForTrade['CloseBuyTradeHappened']
     except:
         averageOpenSellPrice = 0 
         averageCloseBuyPrice = 0
     try:
-        averageCloseSellPrice = tradeStats['totalSellAmountLong']/tradeStats['NumberOfCloseSell']
-        averageOpenBuyPrice = tradeStats['totalBuyAmountLong']/tradeStats['NumberOfOpenBuy']
+        averageCloseSellPrice = tradeStats['totalSellValueLong']/reasonForTrade['CloseSellTradeHappened']
+        averageOpenBuyPrice = tradeStats['totalBuyValueLong']/reasonForTrade['OpenBuyTradeHappened']
     except:
         averageCloseSellPrice = 0
         averageOpenBuyPrice = 0 
@@ -693,6 +724,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
     print("1 lot has 1000 qty's so P/L Long per lot is: " + str(pLPerLotLong), file = outputFile)
     print("P/L for Short trading 10 lots is: " + str(pLPerLotShort * 10), file = outputFile)
     print("P/L for Long trading 10 lots is: " + str(pLPerLotLong * 10), file = outputFile)
+
 
 
 def main():
