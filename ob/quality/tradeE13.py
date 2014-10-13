@@ -698,14 +698,14 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
     print("The total open buy value is: " + str(tradeStats['totalBuyAmountLong']), file = outputFile)
 
     try:
-        averageOpenSellPrice = tradeStats['totalSellValueShort']/reasonForTrade['OpenSellTradeHappened']
-        averageCloseBuyPrice = tradeStats['totalBuyValueShort']/reasonForTrade['CloseBuyTradeHappened']
+        averageOpenSellPrice = tradeStats['totalSellAmountShort']/tradeStats['NumberOfOpenSell'] 
+        averageCloseBuyPrice = tradeStats['totalBuyAmountShort']/tradeStats['NumberOfCloseBuy'] 
     except:
         averageOpenSellPrice = 0 
         averageCloseBuyPrice = 0
     try:
-        averageCloseSellPrice = tradeStats['totalSellValueLong']/reasonForTrade['CloseSellTradeHappened']
-        averageOpenBuyPrice = tradeStats['totalBuyValueLong']/reasonForTrade['OpenBuyTradeHappened']
+        averageCloseSellPrice = tradeStats['totalSellAmountLong']/tradeStats['NumberOfCloseSell'] 
+        averageOpenBuyPrice = tradeStats['totalBuyAmountLong']/tradeStats['NumberOfOpenBuy'] 
     except:
         averageCloseSellPrice = 0
         averageOpenBuyPrice = 0 
