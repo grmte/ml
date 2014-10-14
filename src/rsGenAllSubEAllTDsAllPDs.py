@@ -29,6 +29,7 @@ parser.add_argument('-t',required=True,help="TransactionCost")
 parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
+parser.add_argument('-double',required=False,help='Double training of in model')
 args = parser.parse_args()
 
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
@@ -77,8 +78,8 @@ for directories in allDataDirectories:
         
 for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-    utility.runCommandList(lSubGenList,args)
-    print dp.printGroupStatus() 
+    #utility.runCommandList(lSubGenList,args)
+    #print dp.printGroupStatus() 
 
 entrylist = ""
 exitlist = ""
@@ -88,6 +89,40 @@ for i in range(55,70,1):
         entrylist = entrylist + str(i) + ";"
 exitlist = exitlist[:-1]
 entrylist = entrylist[:-1]          
+'''
+
+entrylist4 = ""
+exitlist4 = ""
+entrylist3 = ""
+exitlist3 = ""
+entrylist2 = ""
+exitlist2 = ""
+entrylist1 = ""
+exitlist1 = ""
+
+for entryCL2 in range(55,70,2):
+    for entryCL1 in range(40,entryCL2,2):
+        for exitCL2 in range(50,entryCL2,2):
+            for exitCL1 in range(40,exitCL2,2):
+                exitlist4 = exitlist4 + str(99) + ";"
+                entrylist4 = entrylist4 + str(99) + ";"
+                exitlist3 = exitlist3 + str(99) + ";"
+                entrylist3 = entrylist3 + str(99) + ";"
+                exitlist2 = exitlist2 + str(exitCL2) + ";"
+                entrylist2 = entrylist2 + str(entryCL2) + ";"
+                exitlist1 = exitlist1 + str(exitCL1) + ";"
+                entrylist1 = entrylist1 + str(entryCL1) + ";"
+
+exitlist4 = exitlist4[:-1]
+entrylist4 = entrylist4[:-1]          
+exitlist3 = exitlist3[:-1]
+entrylist3 = entrylist3[:-1]          
+exitlist2 = exitlist2[:-1]
+entrylist2 = entrylist2[:-1]          
+exitlist1 = exitlist1[:-1]
+entrylist1 = entrylist1[:-1]          
+
+'''
 indexOfFeatures = 2
 for algo in allAlgos:
     while indexOfFeatures <= lengthOfFeatures:
@@ -108,14 +143,17 @@ for algo in allAlgos:
                     predictionDirAfterLastTD = allDataDirectories[i + int(args.dt)]
 
                     lRCodeGenCommandList.append(["mRGenForE.py","-e",lExperimentFolderName,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , \
-                                                 args.dt , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-                    lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirLastTD , \
-                                                 "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+                                                 args.dt , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP ,'-double', args.double])
+#                     lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirLastTD , \
+#                                                  "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double])
                     lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD ,\
-                                                  "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+                                                  "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double])
 
                     dirName = args.td.replace('/ro/','/wf/')
-                    scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
+                    if args.double:
+                        scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +"double.r"
+                    else:
+                        scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
                     trainingDataList = [] #";".join(allDataDirectories[i:i+ int(args.dt) ])
                     for trainDirs in allDataDirectories[i:i+ int(args.dt)]:
                         trainingDataList.append(trainDirs.replace('/ro/','/wf/'))
@@ -128,11 +166,18 @@ for algo in allAlgos:
 #                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
                     dirName = predictionDirAfterLastTD.replace('/ro/','/wf/') 
-                    scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
-                                 os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"
+                    if args.double:
+                        scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
+                                 os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +"double.r"
+                    else:
+                        scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
+                                 os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"                         
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
-                    lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","500",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
+                    lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",\
+                                                exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+                                                '-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double]) 
+#                    lTradingCommandList.append(["./ob/quality/tradeE12.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL1",entrylist1,"-exitCL1",exitlist1,"-entryCL2",entrylist2,"-exitCL2",exitlist2,"-entryCL3",entrylist3,"-exitCL3",exitlist3,"-entryCL4",entrylist4,"-exitCL4",exitlist4,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
 
                 totalModelsWhichCanBeScheduled = int(args.nComputers)
                 for chunkNum in range(0,len(lRCodeGenCommandList),totalModelsWhichCanBeScheduled):
@@ -149,17 +194,16 @@ for algo in allAlgos:
                     
                 utility.runCommandList(lPGenRCodeList,args)
                 print dp.printGroupStatus()
-                for chunkNum in range(0,len(lTradingCommandList),totalModelsWhichCanBeScheduled):
-                    lSubModelList = lTradingCommandList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
-                    utility.runCommandList(lSubModelList,args)
-                    print dp.printGroupStatus()                
+                
+                utility.runCommandList(lTradingCommandList,args)
+                print dp.printGroupStatus()                
 
-                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"LiveExperimentTestingInCurrentMonthsData" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"NewTradeEngineResult" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         indexOfFeatures = indexOfFeatures + 1
     for i in range(len(allDataDirectories)-int(args.dt)):
         args.td = allDataDirectories[i]
         predictionDirLastTD = allDataDirectories[i + int(args.dt) - 1]
         predictionDirAfterLastTD = allDataDirectories[i + int(args.dt)]
-        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", entrylist ,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
-        print dp.printGroupStatus()
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"LiveExperimentTestingInCurrentMonthsData" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+#        utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL", entrylist ,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+#        print dp.printGroupStatus()
+#    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"LiveExperimentTestingInCurrentMonthsData" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)

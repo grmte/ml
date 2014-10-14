@@ -175,6 +175,14 @@ def ToCreateDataFrameForTraining(rScript,config,pTargetVariableKey):
         rScript.write(','+userFriendlyName+'='+feature+pTargetVariableKey+'[,2]')
     rScript.write(")\n\n")
 
+def forPreparingWtVectorForDoubleTraining(rScript,args,pTargetVariableKey):
+    rScript.write('Prob <- predict (fit, newx = X , s = "lambda.min",type = "response")')
+    rScript.write("\n\n")  
+    rScript.write('weightVector = ifelse(' + pTargetVariableKey + '[,2] == 1, Prob, 1 - Prob)\n')  
+    lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(' + pTargetVariableKey + '[,2]),family=\''+args.targetClass+'\',alpha=1,maxit=200000,weights=weightVector) \n'
+    rScript.write(lStringToRunGlmnet) # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
+
+        
 def ForTraining(rScript,args,config,pTargetVariableKey):
     features = config["features-"+pTargetVariableKey]
     if(args.a == 'glmnet'):
@@ -229,12 +237,18 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
     
 
 
-def saveTrainingModel(rScript,args,path,pTargetVariableKey):
+def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble=""):
     algo = getAlgoName(args)    
-    outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                     args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
-    modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                     args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.coef'
+    if len(pDouble)==0:
+        outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
+        modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.coef'
+    else:
+        outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.model'
+        modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.coef'        
     rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
     rScript.write('save(fit, file = "'+ outputFileName+'")\n')
     rScript.write('l = coef(fit, s = "lambda.min")\n')
@@ -246,12 +260,16 @@ def saveTrainingModel(rScript,args,path,pTargetVariableKey):
     rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
     rScript.write('cat(string_intercept,file="'+ modelValueFileName + '",sep="",append=TRUE)\n')
 
-def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2):
+def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2,pDouble=""):
     features = config["features-"+pTargetVariableKey]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
     algo = getAlgoName(args)
-    predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
-                        "-wt." + args.wt+ attribute.generateExtension()  + '.model'
+    if len(pDouble)==0:
+        predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
+                            "-wt." + args.wt+ attribute.generateExtension()  + '.model'
+    else:
+        predictionModel = algo + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
+                            "-wt." + args.wt+ attribute.generateExtension()  + 'double.model'       
     rScript.write('\nprint ("Section6: Read in prediction model'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'") \n')
     rScript.write('load("'+os.path.dirname(pathToDesignFile)+'/'+predictionModel+'")')
 
@@ -335,17 +353,33 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
     
     rScript.write('\nprint ("Section10: Putting the probabilities in the data frame") \n')
     rScript.write('dfForFile <- cbind(dfForFile,Prob) \n')
-    
-    rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/' + args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+   
+    if len(pDouble)==0: 
+        rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/' + args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                  '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) + \
                                  "-wt." + args.wt+ attribute.generateExtension()  +'.predictions") \n')
-    if pUseWhichArgumentForData == 4:
-        rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ \
-                                 "-wt." + args.wt+ attribute.generateExtension()  +'.predictions",sep="") \n')
     else:
-        rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +\
-                                 "-wt." + args.wt+ attribute.generateExtension()  + '.predictions",sep="") \n')
+        rScript.write('\nprint ("Section11: Saving the predictions in file /p/'+ os.path.basename(os.path.dirname(args.e))+'/' + args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) + \
+                                 "-wt." + args.wt+ attribute.generateExtension()  +'double.predictions") \n')
+    if pUseWhichArgumentForData == 4:
+        if len(pDouble)==0:
+            rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                     '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ \
+                                     "-wt." + args.wt+ attribute.generateExtension()  +'.predictions",sep="") \n')
+        else:
+            rScript.write('fileName = paste(args[4],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                     '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile))+ \
+                                     "-wt." + args.wt+ attribute.generateExtension()  +'double.predictions",sep="") \n')            
+    else:
+        if len(pDouble)==0:
+            rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                     '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +\
+                                     "-wt." + args.wt+ attribute.generateExtension()  + '.predictions",sep="") \n')
+        else:
+            rScript.write('fileName = paste(args[2],"/p/","' +os.path.basename(os.path.dirname(args.e))+'/'+ args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                     '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(pathToDesignFile)) +\
+                                     "-wt." + args.wt+ attribute.generateExtension()  + 'double.predictions",sep="") \n')
+            
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)\n')
