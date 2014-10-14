@@ -182,10 +182,23 @@ def forPreparingWtVectorForDoubleTraining(rScript,args,pTargetVariableKey):
     lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(' + pTargetVariableKey + '[,2]),family=\''+args.targetClass+'\',alpha=1,maxit=200000,weights=weightVector) \n'
     rScript.write(lStringToRunGlmnet) # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
 
-def ForLoadingModel(rScript,args,path,pTargetVariableKey):
+def ForLoadingModel(rScript,args,path,pTargetVariableKey,config):
+    features = config["features-"+pTargetVariableKey]
+    if(args.a == 'glmnet'):
+        rScript.write('print ("Section7: Running glmnet") \n')
+        rScript.write('X <- cbind(')
+        currentFeatureNumber=0
+        for feature in features:
+            rScript.write(features.keys()[currentFeatureNumber]+pTargetVariableKey+'[,2]')
+            currentFeatureNumber = currentFeatureNumber+1
+            if(len(features) > currentFeatureNumber):
+                rScript.write(',')
+        rScript.write(')\n')
+
     predictionModel = args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
                         "-wt." + args.wt+ attribute.generateExtension()  + '.model'   
-    rScript.write('load("'+os.path.dirname(path)+'/'+predictionModel+'")')  
+
+    rScript.write('load("'+os.path.dirname(path)+'/'+predictionModel+'")\n')  
            
 def ForTraining(rScript,args,config,pTargetVariableKey):
     features = config["features-"+pTargetVariableKey]

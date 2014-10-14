@@ -32,7 +32,7 @@ def main():
     print "The config parameters that I am working with are"
     print config
 
-    dirName=os.path.dirname(args.e)
+    dirName=os.path.dirname(args.e)+"/"
 
     algo = rCodeGen.getAlgoName(args)
     if args.double:
@@ -83,7 +83,7 @@ def main():
                 rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
                 if args.double:
                     if os.path.isfile(lTempModelName):
-                        rCodeGen.ForLoadingModel(rScript,args,dirName,target)
+                        rCodeGen.ForLoadingModel(rScript,args,dirName,target,config)
                     else:
                         rCodeGen.ForTraining(rScript,args,config,target)
                     rCodeGen.forPreparingWtVectorForDoubleTraining(rScript,args,target)
