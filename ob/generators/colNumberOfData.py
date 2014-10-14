@@ -37,4 +37,8 @@ NewP = 37
 OldQ = 38
 OldP = 39
 ExchangeTS = 40
+BestBidQ = 41
+BestBidP = 42
+BestAskQ = 43
+BestAskP = 44
 

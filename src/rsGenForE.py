@@ -127,3 +127,4 @@ if((args.e).find("nsefut") >= 0):
     print "NSEFUT"
 else:
     utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140602/", "-dt" , str(args.dt) ,"-nD", "26", "-m" , "NSE FUT RELIANCE RESULTS FOR AmbandRate" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+

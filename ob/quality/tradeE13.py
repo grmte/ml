@@ -71,7 +71,8 @@ initialFileName = []
 for indexOfCL in range(0,len(gEntryCLList)):
     lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
-                   '-l.'+gEntryCLList[indexOfCL]+"_"+gExitCLList[indexOfCL] + "-tq." + args.orderQty + "-te.13" 
+                   '-l.'+gEntryCLList[indexOfCL]+"-"+gExitCLList[indexOfCL]  + "-tq." + args.orderQty + "-te.13"
+
     initialFileName.append(lInitialFileName)
     
 g_quantity_adjustment_list_for_sell = {}
@@ -651,7 +652,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
                                'totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy' \
                                ,'BestBidQ','BestBidP','BestAskP','BestAskQ','BuyTradedPrcie','BuyTradedQty','SellTradedPrice','SellTradedQty']
     
-    attribute.writeToFile(fileName , lHeaderColumnNamesList)
+    #attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
     
     tradeResultMainDirName = dirName+"/r/"

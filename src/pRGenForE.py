@@ -20,6 +20,7 @@ def main():
     parser.add_argument('-iT',required=False,help='Instrument name')
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
     parser.add_argument('-oT',required=False,help='Options Type')
+    parser.add_argument('-double',required=False,help='Double training of in model')
     args = parser.parse_args()
 
     attribute.initializeInstDetails(args.iT,args.sP,args.oT)
@@ -41,9 +42,13 @@ def main():
         algo ='glmnet'
     else:
         algo =args.a
-
-    rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
-                + "-wt." + args.wt+ attribute.generateExtension()   + ".r"
+    
+    if args.double:
+        rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
+                    + "-wt." + args.wt+ attribute.generateExtension()   + "double.r"
+    else:
+        rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
+                    + "-wt." + args.wt+ attribute.generateExtension()   + ".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
 
@@ -59,9 +64,14 @@ def main():
     rCodeGen.ForSetUpChecks(rScript)
     lAllFilePresent = True
     for target in config['target']:
-        predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
-        + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
-        "-wt." + args.wt+ attribute.generateExtension()  +".predictions"
+        if args.double:
+            predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
+            + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
+            "-wt." + args.wt+ attribute.generateExtension()  +"double.predictions"
+        else:
+            predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
+            + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
+            "-wt." + args.wt+ attribute.generateExtension()  +".predictions"           
         if os.path.isfile(predictionFileName) and ( args.skipP.lower() == "yes" ):
             continue
         else:
@@ -71,13 +81,23 @@ def main():
         for target in config['target']:
             rCodeGen.ToReadFeatureFiles(rScript,config,target)
             rCodeGen.ForSanityChecks(rScript,config,target)
-            predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
-            + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
-            "-wt." + args.wt+ attribute.generateExtension()  +".predictions"
+            if args.double:
+                predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
+                + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
+                "-wt." + args.wt+ attribute.generateExtension()  +"double.predictions"
+            else:
+                predictionFileName = predictDataDirectoryName + "/" + args.a + target +'-td.' + os.path.basename(os.path.abspath(args.td)) \
+                + '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + os.path.basename(os.path.dirname(args.s)) + \
+                "-wt." + args.wt+ attribute.generateExtension()  +".predictions"   
+                            
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
-                lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model'
+                if args.double:
+                    lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + 'double.model'
+                    rCodeGen.ForPredictions(rScript,config,args,args.s,target,"double")
+                else:
+                    lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model' 
+                    rCodeGen.ForPredictions(rScript,config,args,args.s,target)
                 print lModelGeneratedAfterTraining
-                rCodeGen.ForPredictions(rScript,config,args,args.s,target)
             else:
                 print predictionFileName + "Already exists , not generating it again . If you want to generate it again then rerun it with -skipP no "
     rScript.close()

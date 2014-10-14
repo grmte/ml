@@ -52,5 +52,4 @@ else:
         utility.runCommandList(lSubGenList,args)
         print dp.printGroupStatus() 
 
-utility.runCommand(["src/accumulate_results_for_target_testing.py","-e",args.e,"-t",args.t,"-d",args.d, '-nD' , str(args.nDays) , "-m" , \
-                    "ResultOfNewTargetVariableWhereWeForBuyWeCheckGreaterThanAskAndSellLessThanBid" , "-f" , "1"],args.run,args.sequence)
+utility.runCommand(["src/accumulate_results_for_target_testing.py","-e",args.e,"-t",args.t,"-d",args.d, '-nD' , str(args.nDays) , "-m" , "ResultOfNewTargetVariableWhereWeForBuyWeCheckGreaterThanAskAndSellLessThanBid" , "-f" , "1"],args.run,args.sequence)

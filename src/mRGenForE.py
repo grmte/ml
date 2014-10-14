@@ -18,6 +18,7 @@ def main():
     parser.add_argument('-iT',required=False,help='Instrument name')
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
     parser.add_argument('-oT',required=False,help='Options Type')
+    parser.add_argument('-double',required=False,help='Double training of in model')
     args = parser.parse_args()
 
     attribute.initializeInstDetails(args.iT,args.sP,args.oT)
@@ -34,8 +35,10 @@ def main():
     dirName=os.path.dirname(args.e)
 
     algo = rCodeGen.getAlgoName(args)
-
-    rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +".r"
+    if args.double:
+        rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +"double.r"
+    else:
+        rProgName = "train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
     rScript.write('#!/usr/bin/Rscript \n')
@@ -48,8 +51,12 @@ def main():
     rCodeGen.ForSetUpChecks(rScript)
     lAllFilePresent = True
     for target in config['target']:
-        lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
-                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
+        if args.double:
+            lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.model'
+        else:
+            lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                             + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'           
         if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
             continue
         else:
@@ -62,14 +69,22 @@ def main():
         for target in config['target']:
             rCodeGen.ToReadFeatureFiles(rScript,config,target)
             rCodeGen.ForSanityChecks(rScript,config,target)
-            lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
-                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
+            if args.double:
+                lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.model'
+            else:
+                lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model' 
             if os.path.isfile(lModelGeneratedAfterTraining) and ( args.skipM.lower() == "yes" ):
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:
                 rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
                 rCodeGen.ForTraining(rScript,args,config,target)
-                rCodeGen.saveTrainingModel(rScript,args,dirName,target)
+                if args.double:
+                    rCodeGen.forPreparingWtVectorForDoubleTraining(rScript,args,target)
+                    rCodeGen.saveTrainingModel(rScript,args,dirName,target,"double")
+                else:
+                    rCodeGen.saveTrainingModel(rScript,args,dirName,target)
 
 
     rScript.close()
