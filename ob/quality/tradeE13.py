@@ -571,28 +571,39 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
             except:
                 noPredictionForThisRow += 1
 
+            l_flag = 0
             #Open sell and Close Buy
-            if(currentSellPredictedValue >= entryCL and tradeStats['currentPositionLong'] == 0):
-                g_bestqty_list_for_sell = {}
-                l_obj.EnterTradeShort = 1       #For open buy
-            elif(currentBuyPredictedValue >= exitCL and tradeStats['currentPositionShort'] > 0):
+            if(currentBuyPredictedValue >= exitCL and tradeStats['currentPositionShort'] > 0):
                 g_bestqty_list_for_buy = {}
                 l_obj.EnterTradeShort = -1       #For close by hitting
-            elif(tradeStats['currentPositionShort'] > 0):
-                l_obj.EnterTradeShort = -2  
-            else:
-                l_obj.EnterTradeShort = 0
+                l_flag =1
 
+            if(currentSellPredictedValue >= entryCL and tradeStats['currentPositionLong'] == 0) and (l_flag==0):
+                g_bestqty_list_for_sell = {}
+                l_obj.EnterTradeShort = 1
+                #For open buy
+                l_flag = 1
+            if(tradeStats['currentPositionShort'] > 0) and (l_flag==0):
+                l_obj.EnterTradeShort = -2  
+                l_flag = 1
+            if l_flag==0:
+                l_obj.EnterTradeShort = 0
+            
+            l_flag = 0
             #Open Buy
-            if(currentBuyPredictedValue >= entryCL and tradeStats['currentPositionShort'] == 0):
-                g_bestqty_list_for_buy = {}
-                l_obj.EnterTradeLong = 1       #For close by hitting
-            elif(currentSellPredictedValue >= exitCL and tradeStats['currentPositionLong'] > 0):
+
+            if(currentSellPredictedValue >= exitCL and tradeStats['currentPositionLong'] > 0):
                 g_bestqty_list_for_sell = {}
                 l_obj.EnterTradeLong = -1       #For close by hitting
-            elif(tradeStats['currentPositionLong'] > 0):
+                l_flag = 1
+            if(currentBuyPredictedValue >= entryCL and tradeStats['currentPositionShort'] == 0) and (l_flag==0):
+                g_bestqty_list_for_buy = {}
+                l_obj.EnterTradeLong = 1       #For close by hitting
+                l_flag = 1 
+            if(tradeStats['currentPositionLong'] > 0) and (l_flag==0):
                 l_obj.EnterTradeLong = -2       #For close by hitting               
-            else:
+                l_flag = 1
+            if l_flag == 0 :
                 l_obj.EnterTradeLong = 0        
             
 
@@ -652,7 +663,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
                                'totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy' \
                                ,'BestBidQ','BestBidP','BestAskP','BestAskQ','BuyTradedPrcie','BuyTradedQty','SellTradedPrice','SellTradedQty']
     
-    #attribute.writeToFile(fileName , lHeaderColumnNamesList)
+    attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
     
     tradeResultMainDirName = dirName+"/r/"
