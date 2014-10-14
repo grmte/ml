@@ -27,7 +27,7 @@ if args.startTime == None:
 if args.endTime == None:
     args.endTime = "17h00"
 if args.targetType == None:
-    args.targetType= "500_1.5;1000_1.5;1500_1.5;2000_1.5;2500_1.5;3000_1.5;3500_1.5;4000_1.5;4500_1.5;5000_1.5;5500_1.5;6000_1.5;6500_1.5;7000_1.5;7500_1.5;8000_1.5;8500_1.5;9000_1.5;9500_1.5;10000_1.5;500_2.0;1000_2.0;1500_2.0;2000_2.0;2500_2.0;3000_2.0;3500_2.0;4000_2.0;4500_2.0;5000_2.0;5500_2.0;6000_2.0;6500_2.0;7000_2.0;7500_2.0;8000_2.0;8500_2.0;9000_2.0;9500_2.0;10000_2.0;500_2.5;1000_2.5;1500_2.5;2000_2.5;2500_2.5;3000_2.5;3500_2.5;4000_2.5;4500_2.5;5000_2.5;5500_2.5;6000_2.5;6500_2.5;7000_2.5;7500_2.5;8000_2.5;8500_2.5;9000_2.5;9500_2.5;10000_2.5"
+    args.targetType= "500;1000;1500;2000;2500;3000;3500;4000;4500;5000;5500;6000;6500;7000"
 def scriptWrapperForTradeGeneration(TargetNumber):
     utility.runCommand(["./ob/quality/tradeE7OnTargetVariable.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
                         "-targetType",TargetNumber,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-e",args.e],args.run,args.sequence)
