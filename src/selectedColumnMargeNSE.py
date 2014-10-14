@@ -82,13 +82,13 @@ for experiment in  experimnetList:
             
     dirName = args.pd.replace('/ro/','/wf/')
     targetSet = config['target']
-    for target in targetSet.keys():
-        predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                     '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + attribute.generateExtension()+ ".predictions"
-        predFp = open(predictedValuesFileName, "rb")
-        predFpList.append(predFp)
-        predNames.append(mainExperimentName+"_"+target)
-        print (predictedValuesFileName)                             
+#    for target in targetSet.keys():
+#        predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+#                                     '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + attribute.generateExtension()+ ".predictions"
+#        predFp = open(predictedValuesFileName, "rb")
+#        predFpList.append(predFp)
+#        predNames.append(mainExperimentName+"_"+target)
+#        print (predictedValuesFileName)                             
     
     for target in targetSet:
         lName = targetSet[target] +attribute.generateExtension() +".target"
@@ -212,6 +212,8 @@ while True:
     startIndex = startIndex + 1   
     lineToWrite = str(allFeatureData) + "\n"
     outputfile.write(lineToWrite)
+
+
 
 
 

@@ -27,8 +27,13 @@ parser.add_argument('-wt',required=False,help="default/exp , weight type to be g
 parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
+parser.add_argument('-nD',required=False,help='for mix match probability to run')
+parser.add_argument('-cpu',required=False,help='number of trade engine to be scheduled')
+parser.add_argument('-t',required=True,help="Transaction cost ")
 args = parser.parse_args()
 
+if args.nD == None:
+    args.nD = "26"
 if args.skipM == None:
     args.skipM = "yes"
 if args.skipP == None:
@@ -43,7 +48,9 @@ if args.wt == None:
     args.wt = "default"
 if args.targetClass == None:
     args.targetClass = "binomial"
-                    
+if args.cpu == None:
+    args.cpu = 4
+
 if(args.sequence == "dp"):
     import dp
 
@@ -94,7 +101,7 @@ if(args.sequence == "dp"):
 
 else:
     utility.runCommand(["runAllRScriptsForAllSubE.py","-td",args.td,"-pd",args.pd,"-e",args.e,"-a",algo, '-wt' , args.wt,\
-                        "-dt",args.dt ,"-sequence",args.sequence,"-run",args.run,"-mpMearge",args.mpMearge,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+                        "-dt",args.dt ,"-sequence","serial","-run",args.run,"-mpMearge",args.mpMearge,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     pass
 
 dirName=os.path.dirname(args.e)
@@ -109,7 +116,7 @@ for designFile in designFiles:
 entrylist = ""
 exitlist = ""
 for i in range(55,70,1):
-    for j in range(max(50,i-10),i+1,1):
+    for j in range(max(50,i-6),i+1,1):
         exitlist = exitlist + str(j) + ";"
         entrylist = entrylist + str(i) + ";"
 exitlist = exitlist[:-1]
@@ -120,22 +127,21 @@ def scriptWrapper(experimentName):
         utility.runCommand(["./ob/quality/tradeE5.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;90;60;50","-exitCL","45;50;40;25","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE7.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",\
-                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",                            '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        pass
         
 if args.sequence == 'lp':
     # to run it in local parallel mode
-    pool = multiprocessing.Pool(2) # this will return the number of CPU's
+    pool = multiprocessing.Pool() # this will return the number of CPU's
     results = pool.map(scriptWrapper,experimentNames)
 else:
     results = map(scriptWrapper,experimentNames)
 
-utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nD) , "-m" ,"NsecurWithABCDEAllSubCombinationoforCompletionOf"+args.pd+"\n" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140602", "-dt" , str(args.dt) , '-nD' , str(args.nD) , "-m" ,"Nsecur With AmBmCmDandE\n" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 if(args.sequence == "dp"):
     print dp.printGroupStatus()
 
-utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,\
-                    "-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
+#utility.runCommand(["src/rsTradeBuySellMixMatch.py","-e",args.e,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-run",args.run,"-sequence",args.sequence],args.run,args.sequence)
 
 
-utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nD) , "-m" ,"NsecurWithABCDEAllSubCombinationforCompletionOf"+args.pd+"\n", "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+#utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nD) , "-m" ,"NsecurWithABCDEAllSubCombinationforCompletionOf"+args.pd+"\n", "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)

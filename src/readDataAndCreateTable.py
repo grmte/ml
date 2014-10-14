@@ -16,6 +16,7 @@ gRawDataFile = gDataFilePath + commands.getoutput(command).split('\n')[-1]
 header = commands.getoutput('head -2 '+ gRawDataFile)
 gSep = ";"
 gAttributesOfFile = header.split('\n')[0].strip().split(gSep)[:-1]
+print header
 lSecondLine = header.split('\n')[1].strip().split(gSep)
 gTypeOfAttribute = []
 gPythonTypeAttribute = []
@@ -176,12 +177,8 @@ def getSelectedRows():
     global gCursor, gTableName
     print "\nExecuting query ..."
 
-    gCursor.execute("SELECT FeatureCombination , EntryCL , ExitCL , AVG(TotalOpenSellQty) , AVG(AvgShortGrossProfit) , AVG(AvgShortNetProfit) , \
-    SUM((CASE WHEN (AvgShortGrossProfit>0) THEN 1 ELSE 0 END) ) , SUM((CASE WHEN (AvgShortNetProfit>0) THEN 1 ELSE 0 END)) , AVG(TotalOpenBuyQty) ,AVG(AvgLongGrossProfit) , \
-    AVG(AvgLongNetProfit) , SUM((CASE WHEN (AvgLongGrossProfit>0) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (AvgLongNetProfit>0) THEN 1 ELSE 0 END)) ,\
-    AVG(AvgShortGrossProfit+AvgLongGrossProfit) , AVG(TotalNetProfitInDollars),SUM((CASE WHEN (AvgShortGrossProfit+AvgLongGrossProfit > 0 ) THEN 1 ELSE 0 END)) \
-    ,SUM((CASE WHEN (TotalNetProfitInDollars>0) THEN 1 ELSE 0 END))  FROM AccmulatedResultsForExperimentSmartPrice WHERE LastDayOfTrainingORActuallyPredictedDayAfterTraining='DayAfterTraining' \
-     GROUP BY FeatureCombination , EntryCL , ExitCL HAVING count(PredictionDirectory)>15 ORDER BY AVG(TotalNetProfitInDollars) DESC;")
+    gCursor.execute("SELECT FeatureCombination , EntryCL , ExitCL , AVG(TotalOpenSellQty) , AVG(AvgShortGrossProfit) , AVG(AvgShortNetProfit) , SUM((CASE WHEN (AvgShortGrossProfit>0) THEN 1 ELSE 0 END) ) , SUM((CASE WHEN (AvgShortNetProfit>0) THEN 1 ELSE 0 END)) , AVG(TotalOpenBuyQty) ,AVG(AvgLongGrossProfit) , AVG(AvgLongNetProfit) , SUM((CASE WHEN (AvgLongGrossProfit>0) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (AvgLongNetProfit>0) THEN 1 ELSE 0 END)) ,    AVG(AvgShortGrossProfit+AvgLongGrossProfit) , AVG(TotalNetProfitInDollars),SUM((CASE WHEN (AvgShortGrossProfit+AvgLongGrossProfit > 0 ) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (TotalNetProfitInDollars>0) THEN 1 ELSE 0 END))  FROM " + gTableName  + " WHERE LastDayOfTrainingORActuallyPredictedDayAfterTraining='DayAfterTraining' GROUP BY FeatureCombination , EntryCL , ExitCL HAVING count(PredictionDirectory)>15 ORDER BY AVG(TotalNetProfitInDollars) DESC;")
+ 
     lAllDataRows = gCursor.fetchall()
     return lAllDataRows
 
@@ -228,6 +225,7 @@ def main():
     createTableFromDataFile()            # <--------- Un-comment this function only if the table is not created or created but not populated with data
     getTotalNumberOfRecords()
     lAllDataRows = getSelectedRows()
+    print lAllDataRows
     printOutputFile(lAllDataRows,"Feature;EntryCL;ExitCL;AvgTotShortTrades;AvgShortGrossProfit;AvgShortNetProft;ShortNoOfPosGross;ShortNoOfPosNet;\
     AvgTotLongTrades;AvgLongGrossProfit;AvgLongNetProft;LongNoOfPosGross;LongNoOfPosNet;AvgGross;AvgNet;NoOfGrossPos;NoOfNetPos")
     reduceOutputFileSize()

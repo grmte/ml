@@ -11,6 +11,7 @@ gDataFilePath = args.e.split("/")[0]+"/"
 mainExperimentName = args.e.split("/")[1].split(".")[0]
 gNameOfDataBase = "AccumulatedResultsForOB.db"
 gTableName = "ARFor_" + mainExperimentName
+print gTableName , gDataFilePath
 gRawDataFile = args.e
 header = commands.getoutput('head -2 '+ gRawDataFile)
 def replace(ele):
@@ -179,25 +180,27 @@ def fetchAllDataFromTable():
 
 def getSelectedRows():
     global gCursor, gTableName
-    print "\nExecuting query ..."
-
+    print "\nExecuting query ..." + gTableName + "check"
+    import pdb
+    pdb.set_trace()
     gCursor.execute('DROP TABLE IF EXISTS sorted_data')
     gCursor.execute('CREATE TABLE sorted_data ( best_depth1price REAL , ask_bid REAL , StopLoss REAL , Qty INT , ProfitMargin REAL , AvgGrossProfit REAL , \
     AvgNetProfit REAL , NoDaysGrossPos INT , NoDaysGrossNeg INT , NoDaysNetPos INT , NoDaysNetNeg INT , CountOfDays INT, MaxOfGross REAL, MinOfGross REAL, MaxOfNet REAL, MinOfNet REAL);')
+    print "QUERYING ON " + gTableName + "\n\n"
     gCursor.execute('INSERT INTO sorted_data SELECT best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin , avg(grossProfit) , avg(NetProfit) , SUM(CASE WHEN (grossProfit>0) \
     THEN 1 ELSE 0 END) ,  SUM(CASE WHEN (grossProfit<0) THEN 1 ELSE 0 END) ,  SUM(CASE WHEN (NetProfit>0) THEN 1 ELSE 0 END) , SUM(CASE WHEN (NetProfit<0) THEN 1 ELSE 0 END) ,\
-     count(NetProfit) , MAX(grossProfit) , MIN(grossProfit) , MAX(NetProfit) , MIN(NetProfit)  FROM ARFor_first_expiry_results_for_BHEL GROUP BY best_depth1price , ask_bid , \
+     count(NetProfit) , MAX(grossProfit) , MIN(grossProfit) , MAX(NetProfit) , MIN(NetProfit)  FROM '+ gTableName +' BY best_depth1price , ask_bid , \
      StopLoss , Qty , ProfitMargin ORDER BY avg(NetProfit) DESC;')
     
     gCursor.execute('DROP TABLE IF EXISTS sorted_data_gross_count')
     gCursor.execute('CREATE TABLE sorted_data_gross_count ( best_depth1price REAL , ask_bid REAL , StopLoss REAL , Qty INT , ProfitMargin REAL , NoOfDaysGrossGraterThanAvgGross INT);')
-    gCursor.execute('INSERT INTO sorted_data_gross_count SELECT best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin , count(Instrument) FROM ARFor_first_expiry_results_for_BHEL A WHERE \
+    gCursor.execute('INSERT INTO sorted_data_gross_count SELECT best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin , count(Instrument) FROM '+ gTableName +' A WHERE \
     ( SELECT AvgGrossProfit FROM sorted_data B WHERE B.best_depth1price = A.best_depth1price AND B.ask_bid = A.ask_bid AND B.StopLoss = A.StopLoss AND B.Qty = A.Qty AND B.ProfitMargin=A.ProfitMargin ) < A.grossProfit\
      GROUP BY best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin ;')
     
     gCursor.execute('DROP TABLE IF EXISTS sorted_data_net_count')
     gCursor.execute('CREATE TABLE sorted_data_net_count ( best_depth1price REAL , ask_bid REAL , StopLoss REAL , Qty INT , ProfitMargin REAL , NoOfDaysNetGraterThanAvgNet INT);')
-    gCursor.execute('insert into sorted_data_net_count SELECT best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin , count(Instrument) FROM ARFor_first_expiry_results_for_BHEL A \
+    gCursor.execute('insert into sorted_data_net_count SELECT best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin , count(Instrument) FROM '+ gTableName + ' A \
     WHERE ( SELECT AvgNetProfit FROM sorted_data B WHERE B.best_depth1price = A.best_depth1price AND B.ask_bid = A.ask_bid AND B.StopLoss = A.StopLoss AND B.Qty = A.Qty AND \
     B.ProfitMargin=A.ProfitMargin ) < A.NetProfit GROUP BY best_depth1price , ask_bid , StopLoss , Qty , ProfitMargin ;')
 
@@ -211,7 +214,7 @@ def getSelectedRows():
 def printOutputFile(pAllDataRows,header):
     global gDataFilePath, gDateToken
     print "\nPrinting output file ..."
-
+    print gDataFilePath + "ARFor_" + mainExperimentName + ".csv"
     lFilePointerWrite = open(gDataFilePath + "ARFor_" + mainExperimentName + ".csv", "w")
     lFilePointerWrite.write(header+"\n")
     for lRow in pAllDataRows:
