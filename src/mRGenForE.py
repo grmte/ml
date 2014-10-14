@@ -72,6 +72,8 @@ def main():
             if args.double:
                 lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
                                  + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.model'
+                lTempModelName = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
+                                 + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
             else:
                 lModelGeneratedAfterTraining = dirName + '/' + algo + target + '-td.' + os.path.basename(os.path.abspath(args.td))\
                                  + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model' 
@@ -79,11 +81,15 @@ def main():
                 print "Model File " + lModelGeneratedAfterTraining + " already exists . So it will not be formed again . So it will not be formed again . If you want to re-generate model then re-run with -skipM=No"
             else:
                 rCodeGen.ToCreateDataFrameForTraining(rScript,config,target)
-                rCodeGen.ForTraining(rScript,args,config,target)
                 if args.double:
+                    if os.path.isfile(lTempModelName):
+                        rCodeGen.ForLoadingModel(rScript,args,dirName,target)
+                    else:
+                        rCodeGen.ForTraining(rScript,args,config,target)
                     rCodeGen.forPreparingWtVectorForDoubleTraining(rScript,args,target)
                     rCodeGen.saveTrainingModel(rScript,args,dirName,target,"double")
                 else:
+                    rCodeGen.ForTraining(rScript,args,config,target)
                     rCodeGen.saveTrainingModel(rScript,args,dirName,target)
 
 

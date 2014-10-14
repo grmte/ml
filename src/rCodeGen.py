@@ -182,7 +182,11 @@ def forPreparingWtVectorForDoubleTraining(rScript,args,pTargetVariableKey):
     lStringToRunGlmnet = 'fit = cv.glmnet(x =X, y = as.factor(' + pTargetVariableKey + '[,2]),family=\''+args.targetClass+'\',alpha=1,maxit=200000,weights=weightVector) \n'
     rScript.write(lStringToRunGlmnet) # ref: http://www.stanford.edu/~hastie/glmnet/glmnet_alpha.html
 
-        
+def ForLoadingModel(rScript,args,path,pTargetVariableKey):
+    predictionModel = args.a + pTargetVariableKey + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass +\
+                        "-wt." + args.wt+ attribute.generateExtension()  + '.model'   
+    rScript.write('load("'+os.path.dirname(path)+'/'+predictionModel+'")')  
+           
 def ForTraining(rScript,args,config,pTargetVariableKey):
     features = config["features-"+pTargetVariableKey]
     if(args.a == 'glmnet'):
