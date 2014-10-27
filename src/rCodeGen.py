@@ -154,7 +154,8 @@ def ForSanityChecks(rScript,config,targetVariable):
     features = config["features-"+targetVariable]
     currentFeatureNumber = 0
     while currentFeatureNumber  <  (len(features) - 1) :
-        rScript.write('if (all(' + features.keys()[currentFeatureNumber] + targetVariable + '[,1] == ' + features.keys()[currentFeatureNumber+1] + targetVariable + '[,1]) != TRUE) { \n')
+        rScript.write('if (all(sprintf("%.6f",as.numeric(' + features.keys()[currentFeatureNumber] + targetVariable + '[,1])) == sprintf("%.6f",as.numeric(' + features.keys()[currentFeatureNumber+1] + targetVariable + '[,1]))) != TRUE) { \n')
+        #rScript.write('if (all(' + features.keys()[currentFeatureNumber] + targetVariable + '[,1] == ' + features.keys()[currentFeatureNumber+1] + targetVariable + '[,1]) != TRUE) { \n')
         rScript.write('print ("The feature timestamps do not match for ' + features.keys()[currentFeatureNumber]+targetVariable + '=' + features.values()[currentFeatureNumber] +' and '+features.keys()[currentFeatureNumber+1]+targetVariable + '=' + features.values()[currentFeatureNumber+1]+'") \n')
         rScript.write("quit('no',-1) \n")
         rScript.write('}else{ \n')
