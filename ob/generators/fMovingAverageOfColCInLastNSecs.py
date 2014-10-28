@@ -35,7 +35,8 @@ def extractAttributeFromDataMatrix(args):
             totalOfRowsInLastNSecs += cellValue
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp],args.cType)
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs/(numberOfRowsInLastNSecs+1) # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs) + ";" + str(numberOfRowsInLastNSecs) + ";" + str(timeElapsed) + ";" + str(timeOfCurrentRow)
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs)
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(numberOfRowsInLastNSecs) + ";" + str(timeElapsed) + ";" + str(timeOfCurrentRow)
             queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
             numberOfRowsInLastNSecs += 1   # Every append gets a +1 
             currentRowNumberForWhichFeatureValueIsBeingCalculated += 1
