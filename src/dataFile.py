@@ -61,6 +61,7 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
    fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
    fileHasHeader = 1
    headerSkipped = 0
+   print "READ FILE", fileName
    for dataRow in open(fileName):
       if(fileHasHeader == 1 and headerSkipped != 1):
          headerSkipped = 1 

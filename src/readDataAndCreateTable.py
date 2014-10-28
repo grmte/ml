@@ -1,10 +1,15 @@
-#============================================================[ Import Modules ]============================================================
+import pdb
+pdb.set_trace()
+import sys
+import os, csv
+import sqlite3
+import argparse
+import commands
 
-import sys,os, csv, sqlite3 , argparse , commands
 #===========================================================[ Global Declarations ]========================================================
-
-parser = argparse.ArgumentParser(description='This program will store accumulated results in sql tables ')
+parser = argparse.ArgumentParser(description='T')
 parser.add_argument('-e',required=True,help="Experiment Directory")
+parser.add_argument('-f',required=True,help="File Name")
 args = parser.parse_args()
 gDataFilePath = args.e
 
@@ -12,7 +17,9 @@ mainExperimentName = args.e.split("/")[-2]
 gNameOfDataBase = "AccumulatedResults.db"
 gTableName = "AccmulatedResultsForExperiment" + mainExperimentName
 command = "ls -1rt " +  args.e
-gRawDataFile = gDataFilePath + commands.getoutput(command).split('\n')[-1]
+gRawDataFile = gDataFilePath + args.f
+print "File Picked up is " , gRawDataFile
+
 header = commands.getoutput('head -2 '+ gRawDataFile)
 gSep = ";"
 gAttributesOfFile = header.split('\n')[0].strip().split(gSep)[:-1]
@@ -25,6 +32,10 @@ def add_quotes(string):
     return "\"" + string + "\""
 
 for type in lSecondLine:
+    if type=='7':
+        gTypeOfAttribute.append('TEXT')
+        gPythonTypeAttribute.append('str')
+        continue       
     try:
         temp = int(type)
         gTypeOfAttribute.append('INT')
@@ -177,7 +188,7 @@ def getSelectedRows():
     global gCursor, gTableName
     print "\nExecuting query ..."
 
-    gCursor.execute("SELECT FeatureCombination , EntryCL , ExitCL , AVG(TotalOpenSellQty) , AVG(AvgShortGrossProfit) , AVG(AvgShortNetProfit) , SUM((CASE WHEN (AvgShortGrossProfit>0) THEN 1 ELSE 0 END) ) , SUM((CASE WHEN (AvgShortNetProfit>0) THEN 1 ELSE 0 END)) , AVG(TotalOpenBuyQty) ,AVG(AvgLongGrossProfit) , AVG(AvgLongNetProfit) , SUM((CASE WHEN (AvgLongGrossProfit>0) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (AvgLongNetProfit>0) THEN 1 ELSE 0 END)) ,    AVG(AvgShortGrossProfit+AvgLongGrossProfit) , AVG(TotalNetProfitInDollars),SUM((CASE WHEN (AvgShortGrossProfit+AvgLongGrossProfit > 0 ) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (TotalNetProfitInDollars>0) THEN 1 ELSE 0 END))  FROM " + gTableName  + " WHERE LastDayOfTrainingORActuallyPredictedDayAfterTraining='DayAfterTraining' GROUP BY FeatureCombination , EntryCL , ExitCL HAVING count(PredictionDirectory)>15 ORDER BY AVG(TotalNetProfitInDollars) DESC;")
+    gCursor.execute("SELECT FeatureCombination , EntryCL , ExitCL , OrderQty , TradeEngine , WeightType , AVG(TotalOpenSellQty) , AVG(AvgShortGrossProfit) , AVG(AvgShortNetProfit) , SUM((CASE WHEN (AvgShortGrossProfit>0) THEN 1 ELSE 0 END) ) , SUM((CASE WHEN (AvgShortNetProfit>0) THEN 1 ELSE 0 END)) , AVG(TotalOpenBuyQty) ,AVG(AvgLongGrossProfit) , AVG(AvgLongNetProfit) , SUM((CASE WHEN (AvgLongGrossProfit>0) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (AvgLongNetProfit>0) THEN 1 ELSE 0 END)) ,    AVG(AvgShortGrossProfit+AvgLongGrossProfit) , AVG(TotalNetProfitInDollars),SUM((CASE WHEN (AvgShortGrossProfit+AvgLongGrossProfit > 0 ) THEN 1 ELSE 0 END)) ,SUM((CASE WHEN (TotalNetProfitInDollars>0) THEN 1 ELSE 0 END))  FROM " + gTableName  + " WHERE LastDayOfTrainingORActuallyPredictedDayAfterTraining='DayAfterTraining' GROUP BY FeatureCombination , EntryCL ,  ExitCL , OrderQty , TradeEngine , WeightType HAVING count(PredictionDirectory)>14 ORDER BY AVG(TotalNetProfitInDollars) DESC;")
  
     lAllDataRows = gCursor.fetchall()
     return lAllDataRows
@@ -226,7 +237,7 @@ def main():
     getTotalNumberOfRecords()
     lAllDataRows = getSelectedRows()
     print lAllDataRows
-    printOutputFile(lAllDataRows,"Feature;EntryCL;ExitCL;AvgTotShortTrades;AvgShortGrossProfit;AvgShortNetProft;ShortNoOfPosGross;ShortNoOfPosNet;\
+    printOutputFile(lAllDataRows,"Feature;EntryCL;ExitCL;TradeQty;TradeEngine;WtTaken;AvgTotShortTrades;AvgShortGrossProfit;AvgShortNetProft;ShortNoOfPosGross;ShortNoOfPosNet;\
     AvgTotLongTrades;AvgLongGrossProfit;AvgLongNetProft;LongNoOfPosGross;LongNoOfPosNet;AvgGross;AvgNet;NoOfGrossPos;NoOfNetPos")
     reduceOutputFileSize()
     closeConnection()
@@ -238,3 +249,4 @@ main()
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
+

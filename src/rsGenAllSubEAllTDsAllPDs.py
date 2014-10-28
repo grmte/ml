@@ -78,8 +78,8 @@ for directories in allDataDirectories:
         
 for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-    #utility.runCommandList(lSubGenList,args)
-    #print dp.printGroupStatus() 
+    utility.runCommandList(lSubGenList,args)
+    print dp.printGroupStatus() 
 
 entrylist = ""
 exitlist = ""
@@ -180,27 +180,23 @@ for algo in allAlgos:
 
 #                    lTradingCommandList.append(["./ob/quality/tradeE12.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL1",entrylist1,"-exitCL1",exitlist1,"-entryCL2",entrylist2,"-exitCL2",exitlist2,"-entryCL3",entrylist3,"-exitCL3",exitlist3,"-entryCL4",entrylist4,"-exitCL4",exitlist4,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
 
-                totalModelsWhichCanBeScheduled = int(args.nComputers)
-                for chunkNum in range(0,len(lRCodeGenCommandList),totalModelsWhichCanBeScheduled):
-                    lSubModelList = lRCodeGenCommandList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
-                    utility.runCommandList(lSubModelList,args)
-                    print dp.printGroupStatus()
-
-                noOfModelsToBeScheduledToOneComputer = 60 / ( indexOfFeatures * int(args.dt) )
+                utility.runCommandList(lRCodeGenCommandList,args)
+                print dp.printGroupStatus()
                 totalModelsWhichCanBeScheduled = int(args.nComputers)
                 for chunkNum in range(0,len(lMGenRCodeList),totalModelsWhichCanBeScheduled):
                     lSubModelList = lMGenRCodeList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
                     utility.runCommandList(lSubModelList,args)
                     print dp.printGroupStatus()
-                    
+                           
                 utility.runCommandList(lPGenRCodeList,args)
                 print dp.printGroupStatus()
+
                 
                 utility.runCommandList(lTradingCommandList,args)
-                print dp.printGroupStatus()                
+                print dp.printGroupStatus()
+                     
 
-
-                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"NewTradeEngineResult" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"AmB,RateOFAmBAndAvgerageOfAmBOver60Secs" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         indexOfFeatures = indexOfFeatures + 1
     for i in range(len(allDataDirectories)-int(args.dt)):
         args.td = allDataDirectories[i]

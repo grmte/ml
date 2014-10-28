@@ -27,15 +27,23 @@ if args.startTime == None:
 if args.endTime == None:
     args.endTime = "17h00"
 if args.targetType == None:
-    args.targetType= "500;1000;1500;2000;2500;3000;3500;4000;4500;5000;5500;6000;6500;7000"
+    if((args.e).find("nsefut") >= 0):
+        args.targetType= "12500_1.5;15000_1.5;17500_1.5;20000_1.5;12500_2.0;15000_2.0;17500_2.0;20000_2.0;12500_2.5;15000_2.5;17500_2.5;20000_2.5"
+    else:
+        args.targetType= "500;1000;1500;2000;2500;3000;3500;4000;4500;5000;5500;6000;6500;7000"
 def scriptWrapperForTradeGeneration(TargetNumber):
-    utility.runCommand(["./ob/quality/tradeE7OnTargetVariable.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
+    if((args.e).find("nsefut") >= 0):
+        utility.runCommand(["./ob/quality/tradeE7OnTargetVariableNseFut.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
                         "-targetType",TargetNumber,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-e",args.e],args.run,args.sequence)
-        
+    else:
+        utility.runCommand(["./ob/quality/tradeE7OnTargetVariable.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
+                        "-targetType",TargetNumber,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-e",args.e],args.run,args.sequence)
+print("number of targets ",len(args.targetType.split(";")))        
 if args.sequence == 'lp':
     # to run it in local parallel mode
     print "reached"
     pool = multiprocessing.Pool() # this will return the number of CPU's
+    print("number of targets ",len(args.targetType.split(";")))
     results = map(scriptWrapperForTradeGeneration,args.targetType.split(";"))
     print "reached"
 else:
