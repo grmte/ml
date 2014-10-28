@@ -39,9 +39,15 @@ parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 
 if args.orderQty == None:
-    args.orderQty = "300"
+    if((args.e).find("nsefut") >=0):
+        args.orderQty = "500"
+    else:
+        args.orderQty = "300"
 if args.t == None:
-    args.t = "0.000015"
+    if((args.e).find("nsefut") >=0):
+        args.t = "0.00015"
+    else:
+        args.t = "0.000015"
 if args.skipM == None:
     args.skipM = "yes"
 if args.skipP == None:
@@ -123,8 +129,8 @@ else:
     pass
   
 if((args.e).find("nsefut") >= 0):
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsefut/20140528/", "-dt" , str(args.dt) ,"-nD", "22", "-m" , "NSE FUT RELIANCE RESULTS FOR AmbandRate" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsefut/20140724/", "-dt" , str(args.dt) ,"-nD", "22", "-m" , "NSE FUT ICICI RESULTS " , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     print "NSEFUT"
 else:
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140602/", "-dt" , str(args.dt) ,"-nD", "26", "-m" , "NSE FUT RELIANCE RESULTS FOR AmbandRate" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140903/", "-dt" , str(args.dt) ,"-nD", "26", "-m" , "NSE CURRENCY RESULTS FOR AmbandAvg_Rate" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 

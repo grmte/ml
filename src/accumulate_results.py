@@ -6,7 +6,7 @@ from configobj import ConfigObj
 import time
 import email_accumulated_results
 import attribute
-
+import pdb
 parser = argparse.ArgumentParser(description='This program reads trade results directory\'s all file and accumulates them to single file.\n\
 An e.g. command line is \n\
 python src/accumulate_results.py -d ob/data/rs/20140205/t/ -e ob/e/9/ -a glmnet -t 0.000015 -m \"Taking tarde engine 4 \" -f 1',formatter_class=argparse.RawTextHelpFormatter)
@@ -84,6 +84,7 @@ lLastDayOrDayAfter = ""
 index = 0
 lastDayOfTraining = ""
 dayAfterTraining = ""
+
 for dirN in allPredictionDataDirectories:
     dirName = dirN.replace('/ro/','/rs/')
     tradeFileNameDirectory = dirName+"/r/"+os.path.basename(os.path.abspath(args.e))+"/"
@@ -95,6 +96,7 @@ for dirN in allPredictionDataDirectories:
 
         trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-dt.")]
         noOfDaysForTraining = file_name[file_name.index("-dt.") + 4:file_name.index("-targetClass.")]
+       
         for directory in allDataDirectories:
             if trainingDirectory in directory:
                 lastDayOfTraining = allDataDirectories[allDataDirectories.index(directory)+int(noOfDaysForTraining)-1]
@@ -106,10 +108,13 @@ for dirN in allPredictionDataDirectories:
 #        print noOfDaysForTraining , lastDayOfTraining , dayAfterTraining , dirN
         if lastDayOfTraining == dirN:
             lLastDayOrDayAfter = "LastDayOfTraining"
-        
-        if dayAfterTraining == dirN:
+          
+        elif dayAfterTraining == dirN:
             lLastDayOrDayAfter = "DayAfterTraining"
-
+          
+        
+        else:
+            lLastDayOrDayAfter = ""
 #        print "Filename " , file_name
         '''
         glmnet-td.20140128-dt.1-targetClass.binomial-f.1-wt.default-l.55-45-tq.300-te.7.result
@@ -125,6 +130,7 @@ for dirN in allPredictionDataDirectories:
                 optionsType = file_name[file_name.index("-oT.")+4:file_name.index("-sP.")]
                 strikePrice = file_name[file_name.index("-sP.")+4:file_name.index("-l.")]
             except:
+                print "Except"
                 continue
         else:
             weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-l.")]
@@ -136,6 +142,7 @@ for dirN in allPredictionDataDirectories:
             temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
             line_list = temp_read_file_object.readlines()
         except:
+            print "Except"
             continue
         if len(line_list) == 0 :
             print (file_name,"is empty")

@@ -43,6 +43,8 @@ def main():
     else:
         algo =args.a
     
+    import pdb
+    #pdb.set_trace()
     if args.double:
         rProgName = "predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-pd." + os.path.basename(os.path.abspath(args.pd)) \
                     + "-wt." + args.wt+ attribute.generateExtension()   + "double.r"
@@ -93,7 +95,7 @@ def main():
             if not os.path.isfile(predictionFileName) or ( args.skipP.lower() == "no" ):
                 if args.double:
                     lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + 'double.model'
-                    rCodeGen.ForPredictions(rScript,config,args,args.s,target,"double")
+                    rCodeGen.ForPredictions(rScript,config,args,args.s,target,2,"double")
                 else:
                     lModelGeneratedAfterTraining = args.s + '/' + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + args.targetClass + "-wt." + args.wt + '.model' 
                     rCodeGen.ForPredictions(rScript,config,args,args.s,target)

@@ -5,6 +5,7 @@ import os, sys, argparse
 from configobj import ConfigObj
 from itertools import islice
 from datetime import datetime
+from math import exp
 parser = argparse.ArgumentParser(description='This program will do trades to measure the quality of the experiment.\n\
  An e.g. command line is tradeE5.py -d ob/data/20140207/ -e ob/e/1 -a logitr -entryCL 0.90 -exitCL .55 -orderQty 500', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-e', required=True,help='Directory of the experiment or sub experiment e/10/s/3c/ABC')
@@ -41,7 +42,8 @@ if args.wt == None:
     args.wt = "default"
                     
 absPathOfExperimentName = os.path.abspath(args.e)
-
+transactionCost = 0
+currencyDivisor = 0
 if 'nsecur' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
     if args.t ==None:
@@ -86,7 +88,7 @@ class Tick():
         self.bidPChangedInBetweenLastTickAndCurrentTick = 0
         self.askPChangedInBetweenLastTickAndCurrentTick = 0
 
-def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,sellPredictFileObject,lMinOfExitCl):
+def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFeatureAObj,pFeatureBObj,lMinOfExitCl):
     global gNoOfLineReadPerChunk,gTickSize
     lObjectList = []
     lCurrentDataRowCount = 0
@@ -94,22 +96,22 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
     fileHasHeader = 1
     headerSkipped = 0
     dataFileSep = ";"
-    predictFileSep = ","
+    featureFileSep = ";"
     lListOfBidP = []
     lListOfAskP = []
     while True:
         lDataFileRowsList = list(islice(dataFileObject,gNoOfLineReadPerChunk))
-        lBuyPredictedFileRowList = list(islice(buyPredictFileObject,gNoOfLineReadPerChunk))
-        lSellPredictedFileRowList = list(islice( sellPredictFileObject,gNoOfLineReadPerChunk ))
+        lFeatureAFileRowList = list(islice(pFeatureAObj,gNoOfLineReadPerChunk))
+        lFeatureBFileRowList = list(islice( pFeatureBObj,gNoOfLineReadPerChunk ))
         if not lDataFileRowsList :
             print("Finished reading file")
             lObjectList.append(lPrevObj)    
             lPrevObj = None          
             break
         lengthOfDataList = len(lDataFileRowsList)
-        lengthOfBuyPredList = len(lBuyPredictedFileRowList)
-        lengthOfSellPredList = len(lSellPredictedFileRowList)
-        if lengthOfDataList!=lengthOfBuyPredList or lengthOfBuyPredList!=lengthOfSellPredList:
+        lengthOfFeatureAList = len(lFeatureAFileRowList)
+        lengthOfFeatureBList = len(lFeatureBFileRowList)
+        if lengthOfDataList!=lengthOfFeatureAList or lengthOfFeatureAList!=lengthOfFeatureBList:
             print("Length of data file and predicted buy and sell values file are not same ")
             os._exit(-1)
         for currentRowIndex in range(lengthOfDataList):
@@ -117,29 +119,30 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
                 headerSkipped = 1 
                 continue
             lDataRow = lDataFileRowsList[currentRowIndex].rstrip().split(dataFileSep)
-            if((args.e).find("nsefut") >= 0):
-                lAskP = float(lDataRow[colNumberOfData.BestAskP])
-                lBidP = float(lDataRow[colNumberOfData.BestBidP])
-                lAskQ = int(lDataRow[colNumberOfData.BestAskQ])
-                lBidQ = int(lDataRow[colNumberOfData.BestBidQ])
-            else:
-                lAskP = float(lDataRow[colNumberOfData.AskP0])
-                lBidP = float(lDataRow[colNumberOfData.BidP0])
-                lAskQ = int(lDataRow[colNumberOfData.AskQ0])
-                lBidQ = int(lDataRow[colNumberOfData.BidQ0])
+            lAskP = float(lDataRow[colNumberOfData.AskP0])
+            lBidP = float(lDataRow[colNumberOfData.BidP0])
+            lAskQ = int(lDataRow[colNumberOfData.AskQ0])
+            lBidQ = int(lDataRow[colNumberOfData.BidQ0])
             lTTQ = int(lDataRow[colNumberOfData.TTQ])
             lLTP = float(lDataRow[colNumberOfData.LTP]) 
             lCurrentDataRowTimeStamp = common.convertTimeStampFromStringToFloat(lDataRow[colNumberOfData.TimeStamp])
-            lBuyPredictedRow = lBuyPredictedFileRowList[currentRowIndex].rstrip().split(predictFileSep)
-            lBuyPredictedTimeStamp = float(lBuyPredictedRow[1])
-            lBuyPredictedValue = float(lBuyPredictedRow[2])
-            lSellPredictedRow = lSellPredictedFileRowList[currentRowIndex].rstrip().split(predictFileSep)
-            lSellPredictedTimeStamp = float(lSellPredictedRow[1])
-            lSellPredictedValue = float(lSellPredictedRow[2])
+            lFeatureARow = lFeatureAFileRowList[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureATimeStamp = float(lFeatureARow[0])
+            lFeatureA = float(lFeatureARow[1])
             
-            if lCurrentDataRowTimeStamp != lBuyPredictedTimeStamp or lBuyPredictedTimeStamp!=lSellPredictedTimeStamp:
-                print('Time stamp of data row with predicted value is not matching .\n Data row time stamp :- ' , lCurrentDataRowTimeStamp,'BuyPredicted Time Stamp :- ' , lBuyPredictedTimeStamp\
-                      ,"SellPredicted Time Stamp :- ",lSellPredictedTimeStamp)
+            lFeatureBRow = lFeatureBFileRowList[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureBTimeStamp = float(lFeatureBRow[0])
+            lFeatureB = float(lFeatureBRow[1])
+            
+            l_buy_SOP_of_alphas = exp ( ((-1725.825398 * lFeatureA ) + ( -7520.636198 * lFeatureB) + 9246.130399) )
+            l_sell_SOP_of_alphas = exp( (( 1547.373969 * lFeatureA  ) + ( 7238.602068 * lFeatureB ) - 8786.322882) )
+            
+            
+            lBuyPredictedValue = l_buy_SOP_of_alphas / ( 1 + l_buy_SOP_of_alphas )
+            lSellPredictedValue = l_sell_SOP_of_alphas / ( 1 + l_sell_SOP_of_alphas )
+            if lCurrentDataRowTimeStamp != lFeatureATimeStamp or lFeatureATimeStamp!=lFeatureBTimeStamp:
+                print('Time stamp of data row with predicted value is not matching .\n Data row time stamp :- ' , lCurrentDataRowTimeStamp,'BuyPredicted Time Stamp :- ' , lFeatureATimeStamp\
+                      ,"SellPredicted Time Stamp :- ",lFeatureBTimeStamp)
                 os._exit(-1)
             else:
                 lObj = Tick(lCurrentDataRowTimeStamp,lAskP,lBidP,lAskQ,lBidQ,lLTP,lTTQ,lBuyPredictedValue,lSellPredictedValue)
@@ -348,6 +351,7 @@ def checkIfDecisionToEnterOrExitTradeIsSuccessful(pObject, pEnterTradeShort, pEn
     return lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong,l_dummy_BidQ0 , l_dummy_AskQ0 , l_dummy_TTQChange_For_Buy , l_dummy_TTQChange_For_Sell
 
 def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
+    global transactionCost
     enterTradeShort = 0
     enterTradeLong = 0
     tradeStats = dict()
@@ -536,18 +540,9 @@ if __name__ == "__main__":
     checkAllFilesAreExistOrNot = 'false'
     
     lWFDirName = args.pd.replace('/ro/','/wf/')
-    if args.double:
-        predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
-        args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + "double.predictions"
-        
-        predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
-        args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + "double.predictions"
-    else:
-        predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
-        args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
-        
-        predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
-        args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"        
+    featureAFileName = lWFDirName+"/f/fCol_FeatureAmB_InCurrentRow.feature"
+    
+    featureBFileName = lWFDirName+'/f/fCol_FeatureAmB_InCurrentRow[DivideBy]fMovingAverageOfCol_FeatureAmB_InLast1000Rows.feature'       
 
     lEntryClList = args.entryCL.split(";")
     lExitClList = args.exitCL.split(";")
@@ -569,7 +564,7 @@ if __name__ == "__main__":
         else:
             lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                            '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
-                           '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.7" 
+                           '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.7temp" 
         fileName = dirName + "/r/" + mainExperimentName + "/" + lInitialFileName+".result"
         if os.path.isfile(fileName) and args.skipT.lower() == "yes":
             print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")
@@ -587,7 +582,7 @@ if __name__ == "__main__":
 
     print("Number of File to be run for ",lengthOfFinalList)
     if checkAllFilesAreExistOrNot == 'true':
-        if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
+        if os.path.isfile(featureAFileName) and os.path.isfile(featureBFileName):
             print ("\nRunning the simulated trading program")
             g_quantity_adjustment_list_for_sell = {}
             g_quantity_adjustment_list_for_buy = {}
@@ -595,13 +590,13 @@ if __name__ == "__main__":
             dataFileName = dataFile.getFileNameFromCommandLineParam(args.pd)
             
             dataFileObject =  open(dataFileName,"r")
-            buyPredictFileObject = open(predictedBuyValuesFileName,"r")
-            sellPredictFileObject = open(predictedSellValuesFileName,"r")
+            featureAFileObject = open(featureAFileName,"r")
+            featureBFileObject = open(featureBFileName,"r")
             
             print("Data file Used :- " ,dataFileName)
-            print("Buy Predict file Used :- ",predictedBuyValuesFileName)
-            print("Sell Predict file used :- ", predictedSellValuesFileName)
-            lObjectList = getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,sellPredictFileObject,lMinOfExitCl)
+            print("FeatureA file Used :- ",featureAFileName)
+            print("FeatureB file used :- ", featureBFileName)
+            lObjectList = getDataFileAndPredictionsIntoObjectList(dataFileObject,featureAFileObject,featureBFileObject,lMinOfExitCl)
             
             print("Length of list formed " , len(lObjectList) , " Min of predictions taken :- ", lMinOfExitCl)
             tEnd = datetime.now()
@@ -615,7 +610,7 @@ if __name__ == "__main__":
             tEnd = datetime.now()
             print("Time taken to for complete run " + str(tEnd - tStart))
         else:
-            print (predictedBuyValuesFileName,predictedSellValuesFileName)
-            print ("Prediction files not yet generated")
+            print (featureAFileName,",",featureBFileName)
+            print ("FeatureA and FeatureB not generated")
 
 
