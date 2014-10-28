@@ -411,7 +411,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
             noPredictionForThisRow += 1
     
         #short decisions
-        if(currentSellPredictedValue >= entryCL):
+        if(currentSellPredictedValue >= entryCL and tradeStats['currentPositionLong'] == 0):
             enterTradeShort = 1
             numberOfTimesAskedToEnterTradeShort += 1
         elif(currentBuyPredictedValue >= exitCL and tradeStats['currentPositionShort'] > 0):
@@ -428,7 +428,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
     #               enterTrade = 0
                 
         #long decisions
-        if(currentBuyPredictedValue >= entryCL):
+        if(currentBuyPredictedValue >= entryCL and tradeStats['currentPositionShort'] == 0):
             enterTradeLong = 1
             numberOfTimesAskedToEnterTradeLong += 1
         elif(currentSellPredictedValue >= exitCL and tradeStats['currentPositionLong'] > 0):

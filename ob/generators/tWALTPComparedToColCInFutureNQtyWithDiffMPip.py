@@ -25,6 +25,7 @@ def extractAttributeFromDataMatrix(args):
       print "-m has not been specified"
       os._exit(-1)
    colNumberOfAttribute = eval("colNumberOfData."+ args.c )
+   print "attribute column number " , colNumberOfAttribute ,  args.c
    print args.m
    lDiffPip = float(args.m)
    lPipSize = int(args.tickSize)
@@ -124,7 +125,7 @@ def extractAttributeFromDataMatrix(args):
       else:
           tTranCost = 0.00015 * 2
       l_margin_ticks = ceil((lDiffPip*tTranCost*currentPrice)/lPipSize)
-      if args.c == "BidP0":
+      if args.c == "BidP0" or args.c == "BestBidP":
           if WALTPOfFutureNQty >= (currentPrice + l_margin_ticks* lPipSize):
               lClassOfTargetVariable = 1
           else:

@@ -23,6 +23,7 @@ parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 parser.add_argument('-t',required=False,help='Transaction Cost')
+parser.add_argument('-pipTaken',required=False,help='Pips at which profit orders are kept')
 args = parser.parse_args()
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
@@ -67,10 +68,19 @@ gMaxQty = int(args.orderQty)
 gEntryCLList = args.entryCL.split(";")
 gExitCLList = args.exitCL.split(";")
 
+gStandingAtAskPMinusOneTickInCloseSell = 0
+gStandingAtBidPPlusOneTickInCloseBuy = 0
+
+gPipsTaken = int(args.pipTaken)
+
+
+gOpenBuyFillPrice = 0
+gOpenSellFillPrice = 0
+
 initialFileName = []
 for indexOfCL in range(0,len(gEntryCLList)):
     lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ "-pipTaken." + args.pipTaken+ attribute.generateExtension() + \
                    '-l.'+gEntryCLList[indexOfCL]+"-"+gExitCLList[indexOfCL]  + "-tq." + args.orderQty + "-te.13"
 
     initialFileName.append(lInitialFileName)
@@ -94,14 +104,18 @@ class ticks_values_to_be_stored(object):
         self.LTP = 0.0
         self.TTQ  = 0
         self.currentTimeStamp = 0.0
-        self.EnterTradeShort = 0
-        self.EnterTradeLong = 0
+        self.OpenBuy = 0
+        self.OpenSell = 0
+        self.CloseBuy = 0
+        self.CloseSell = 0
         self.CloseBuyTradeHappened= 0
         self.OpenBuyTradeHappened = 0
         self.OpenSellTradeHappened = 0
         self.CloseSellTradeHappened= 0
-        self.ReasonForTradingOrNotTradingShort = ""
-        self.ReasonForTradingOrNotTradingLong = ""
+        self.ReasonForTradingOrNotTradingOpenSell = ""
+        self.ReasonForTradingOrNotTradingCloseBuy = ""
+        self.ReasonForTradingOrNotTradingOpenBuy = ""
+        self.ReasonForTradingOrNotTradingCloseSell = ""
         self.currentBuyPredictedValue = 0
         self.currentSellPredictedValue = 0
     
@@ -163,7 +177,7 @@ def getPredictedValuesIntoDict(pPredictedValuesDict):
         pPredictedValuesDict[elements]['sell'] = lPredictedSellValuesDict[elements] 
 
 def fillsForHittingAtAsk(pPrevObj, p_dummy_AskQ0 , pQtyForWhichFillCanBeGiven, pOpenOrCloseSide):
-    global g_quantity_adjustment_list_for_buy
+    global g_quantity_adjustment_list_for_buy , gOpenBuyFillPrice
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
@@ -177,6 +191,8 @@ def fillsForHittingAtAsk(pPrevObj, p_dummy_AskQ0 , pQtyForWhichFillCanBeGiven, p
     
     if l_buy_qty > 0:
         lTradedPrice = pPrevObj.AskP[0]
+        if pOpenOrCloseSide == "Open":
+            gOpenBuyFillPrice = lTradedPrice
         lTradedQty = l_buy_qty
         p_dummy_AskQ0 -= l_buy_qty
         lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'Buy(Hitting)'
@@ -185,7 +201,7 @@ def fillsForHittingAtAsk(pPrevObj, p_dummy_AskQ0 , pQtyForWhichFillCanBeGiven, p
     return p_dummy_AskQ0, lReasonForTradingOrNotTrading, lTradedQty, lTradedPrice
 
 def fillsForHittingAtBid(pPrevObj, p_dummy_BidQ0, pQtyForWhichFillCanBeGiven, pOpenOrCloseSide ):
-    global g_quantity_adjustment_list_for_sell
+    global g_quantity_adjustment_list_for_sell , gOpenSellFillPrice
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
@@ -198,6 +214,8 @@ def fillsForHittingAtBid(pPrevObj, p_dummy_BidQ0, pQtyForWhichFillCanBeGiven, pO
     
     if p_dummy_BidQ0 > 0:
         lTradedPrice = pPrevObj.BidP[0]
+        if pOpenOrCloseSide == "Open":
+            gOpenSellFillPrice = lTradedPrice
         lTradedQty = lQtyForWhichWeTrade
         p_dummy_BidQ0 -= lQtyForWhichWeTrade
         lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'Sell(Hitting)'
@@ -206,7 +224,7 @@ def fillsForHittingAtBid(pPrevObj, p_dummy_BidQ0, pQtyForWhichFillCanBeGiven, pO
     return p_dummy_BidQ0 , lReasonForTradingOrNotTrading, lTradedQty, lTradedPrice
 
 def fillForStandingAtBidPlus1Pip(pPrevObj, p_dummy_AskQ0, spreadAtTimeOfPreviousDataRow, currentLTP, l_dummy_TTQChange_For_Buy, pQtyForWhichFillCanBeGiven , pOpenOrCloseSide):
-    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy , g_bestqty_list_for_sell, g_bestqty_list_for_buy
+    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy , g_bestqty_list_for_sell, g_bestqty_list_for_buy , gOpenBuyFillPrice
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
@@ -216,13 +234,16 @@ def fillForStandingAtBidPlus1Pip(pPrevObj, p_dummy_AskQ0, spreadAtTimeOfPrevious
             lReasonForTradingOrNotTrading = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
         elif (currentLTP != pPrevObj.BidP[0]):
             lReasonForTradingOrNotTrading = '(Spread>Pip)&&(LTP!=Bid)'
-        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingShort) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingLong):
+        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenSell) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseSell)\
+            or("OpenBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenBuy) or ("CloseBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseBuy):
             lReasonForTradingOrNotTrading = 'TTQChangeBecauseOfOurOrder'
         else:
             
             lTradedQty = min(pQtyForWhichFillCanBeGiven,l_dummy_TTQChange_For_Buy)
             l_dummy_TTQChange_For_Buy -= lTradedQty
             lTradedPrice = (pPrevObj.BidP[0] + gTickSize)
+            if pOpenOrCloseSide == "Open":
+                gOpenBuyFillPrice = lTradedPrice
             lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'Buy(Standing)'
     #hitting
     else:
@@ -230,7 +251,7 @@ def fillForStandingAtBidPlus1Pip(pPrevObj, p_dummy_AskQ0, spreadAtTimeOfPrevious
     return l_dummy_TTQChange_For_Buy, p_dummy_AskQ0 , lReasonForTradingOrNotTrading, lTradedQty , lTradedPrice
 
 def fillForStandingAtAskMinus1Pip(pPrevObj, p_dummy_BidQ0, spreadAtTimeOfPreviousDataRow, currentLTP, l_dummy_TTQChange_For_Sell, pQtyForWhichFillCanBeGiven , pOpenOrCloseSide):
-    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy , g_bestqty_list_for_sell, g_bestqty_list_for_buy
+    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy , g_bestqty_list_for_sell, g_bestqty_list_for_buy , gOpenSellFillPrice 
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
@@ -240,12 +261,15 @@ def fillForStandingAtAskMinus1Pip(pPrevObj, p_dummy_BidQ0, spreadAtTimeOfPreviou
             lReasonForTradingOrNotTrading = '(Spread>Pip)&&(NextTickTTQDidNotIncrease)'
         elif (currentLTP != pPrevObj.AskP[0]):
             lReasonForTradingOrNotTrading = '(Spread>Pip)&&(NextTickLTP!=Ask)'
-        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingShort) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingLong):
+        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenSell) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseSell)\
+            or("OpenBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenBuy) or ("CloseBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseBuy):
             lReasonForTradingOrNotTrading = 'TTQChangeBecauseOfOurOrder'
         else:
             
             lQtyForWhichWeTrade = min(pQtyForWhichFillCanBeGiven, l_dummy_TTQChange_For_Sell)
             lTradedPrice = pPrevObj.AskP[0] - gTickSize
+            if pOpenOrCloseSide == "Open":
+                gOpenSellFillPrice = lTradedPrice
             lTradedQty = lQtyForWhichWeTrade
             l_dummy_TTQChange_For_Sell -= lQtyForWhichWeTrade
             lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'Sell(Standing)'
@@ -255,7 +279,7 @@ def fillForStandingAtAskMinus1Pip(pPrevObj, p_dummy_BidQ0, spreadAtTimeOfPreviou
     return l_dummy_TTQChange_For_Sell , p_dummy_BidQ0 , lReasonForTradingOrNotTrading , lTradedQty , lTradedPrice
 
 def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyForWhichFillCanBeGiven, pOpenOrCloseSide , pPriceAtWhichOrderIsToBeKept):
-    global g_bestqty_list_for_buy 
+    global g_bestqty_list_for_buy ,gStandingAtAskPMinusOneTickInCloseSell ,gStandingAtBidPPlusOneTickInCloseBuy
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
@@ -263,20 +287,22 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
         g_bestqty_list_for_buy = {} 
         g_bestqty_list_for_buy['price'] = pPriceAtWhichOrderIsToBeKept
         l_qty = 0
-        try:
-            indexAtWhichPriceIsFound = pPrevObj.BidP.index(pPriceAtWhichOrderIsToBeKept)
-            l_qty = pPrevObj.BidQ[ indexAtWhichPriceIsFound ]
-        except:
-            for price,qty in zip(pPrevObj.BidP,pPrevObj.BidQ):
-                if price > pPriceAtWhichOrderIsToBeKept:
-                    l_qty = l_qty + qty
+        if g_bestqty_list_for_buy['price'] == gStandingAtBidPPlusOneTickInCloseBuy:
+            l_qty = 0
+        else:
+            try:
+                indexAtWhichPriceIsFound = pPrevObj.BidP.index(pPriceAtWhichOrderIsToBeKept)
+                l_qty = pPrevObj.BidQ[ indexAtWhichPriceIsFound ]
+            except:
+                l_qty = 0
             
         g_bestqty_list_for_buy['qty'] = l_qty
         lReasonForTradingOrNotTrading = 'AtBestBidStartingToStand'
     else:
         if (l_dummy_TTQChange_For_Buy <= 0):
             lReasonForTradingOrNotTrading = 'AtBestBid(NoTTQChange)'
-        elif ("OpenBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingShort) or ("CloseBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingLong):
+        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenSell) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseSell)\
+            or("OpenBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenBuy) or ("CloseBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseBuy):
             lReasonForTradingOrNotTrading = 'AtBestBid(TTQDidntIncreaseBySufficientAmount_'
         elif (l_dummy_TTQChange_For_Buy > 0 ):
             if (currentLTP == g_bestqty_list_for_buy['price']):
@@ -308,7 +334,7 @@ def fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , pQtyF
     return l_dummy_TTQChange_For_Buy, lReasonForTradingOrNotTrading, lTradedQty , lTradedPrice 
 
 def fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , pQtyForWhichFillCanBeGiven, pOpenOrCloseSide , pPriceAtWhichOrderIsToBeKept):
-    global g_bestqty_list_for_sell 
+    global g_bestqty_list_for_sell , gStandingAtAskPMinusOneTickInCloseSell ,gStandingAtBidPPlusOneTickInCloseBuy
     lTradedPrice = 0
     lTradedQty = 0
     lReasonForTradingOrNotTrading = ''
@@ -316,20 +342,21 @@ def fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , pQty
         g_bestqty_list_for_sell = {} 
         g_bestqty_list_for_sell['price'] = pPriceAtWhichOrderIsToBeKept
         l_qty = 0
-        try:
-            indexAtWhichPriceIsFound = pPrevObj.AskP.index(pPriceAtWhichOrderIsToBeKept)
-            l_qty = pPrevObj.AskQ[ indexAtWhichPriceIsFound ]
-        except:
-            for price,qty in zip(pPrevObj.AskP,pPrevObj.AskQ):
-                if price < pPriceAtWhichOrderIsToBeKept:
-                    l_qty = l_qty + qty
-            
+        if g_bestqty_list_for_sell['price'] == gStandingAtAskPMinusOneTickInCloseSell:
+            l_qty = 0
+        else:
+            try:
+                indexAtWhichPriceIsFound = pPrevObj.AskP.index(pPriceAtWhichOrderIsToBeKept)
+                l_qty = pPrevObj.AskQ[ indexAtWhichPriceIsFound ]
+            except:
+                l_qty = 0
         g_bestqty_list_for_sell['qty'] = l_qty
         lReasonForTradingOrNotTrading = 'AtBestAskStartingToStand'
     else:
         if (l_dummy_TTQChange_For_Sell <= 0):
             lReasonForTradingOrNotTrading = 'AtBestAsk(NoTTQChange)'
-        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingShort) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingLong):
+        elif ("OpenSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenSell) or ("CloseSell(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseSell)\
+            or("OpenBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingOpenBuy) or ("CloseBuy(Hitting)" in pPrevObj.ReasonForTradingOrNotTradingCloseBuy):
             lReasonForTradingOrNotTrading = 'AtBestAskTTQChangeBecauseOfOurOrder'
         elif (l_dummy_TTQChange_For_Sell > 0 ):
             if (currentLTP == g_bestqty_list_for_sell['price']):
@@ -361,15 +388,19 @@ def fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , pQty
     return l_dummy_TTQChange_For_Sell, lReasonForTradingOrNotTrading, lTradedQty , lTradedPrice 
 
 def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj , pTradeStats):
-    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy , g_bestqty_list_for_sell, g_bestqty_list_for_buy
+    global gTickSize , gMaxQty , g_quantity_adjustment_list_for_sell , g_quantity_adjustment_list_for_buy , g_bestqty_list_for_sell, g_bestqty_list_for_buy 
+    global gStandingAtAskPMinusOneTickInCloseSell ,gStandingAtBidPPlusOneTickInCloseBuy , gOpenBuyFillPrice , gOpenSellFillPrice , gPipsTaken
+
     lBuyTradedPrice = 0 
     lBuyTradedQty = 0
     lSellTradedPrice = 0
     lSellTradedQty = 0
     spreadAtTimeOfPreviousDataRow = pPrevObj.AskP[0] - pPrevObj.BidP[0]
-    lReasonForTradingOrNotTradingShort = ""
-    lReasonForTradingOrNotTradingLong = ""
-        
+    lReasonForTradingOrNotTradingOpenSell = ""
+    lReasonForTradingOrNotTradingOpenBuy = ""
+    lReasonForTradingOrNotTradingCloseSell = ""
+    lReasonForTradingOrNotTradingCloseBuy = ""
+            
     if pPrevObj.BidP[0] in g_quantity_adjustment_list_for_sell:
         pPrevObj.BidQ[0] = max( 0 , pPrevObj.BidQ[0] - g_quantity_adjustment_list_for_sell[pPrevObj.BidP[0]])
     else:
@@ -380,9 +411,13 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
     else:
         g_quantity_adjustment_list_for_buy = {}    
         
-    if(pPrevObj.EnterTradeShort == 0 and pPrevObj.EnterTradeLong == 0):
+    if(pPrevObj.OpenBuy == 0 and pPrevObj.CloseBuy == 0 and pPrevObj.OpenSell == 0 and pPrevObj.CloseSell == 0):
         g_bestqty_list_for_buy = {}
         g_bestqty_list_for_sell = {}
+        if pPrevObj.CloseBuy == 0:
+            gStandingAtBidPPlusOneTickInCloseBuy  = 0
+        if pPrevObj.CloseSell == 0:
+            gStandingAtAskPMinusOneTickInCloseSell = 0
         return [ pPrevObj.BidQ[0] , pPrevObj.AskQ[0] , 0 , 0 , 0 ,0 ,0, 0]
 
 
@@ -392,34 +427,40 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
     l_dummy_AskQ0 = pPrevObj.AskQ[0]
     l_dummy_TTQChange_For_Buy = currentTTQ - pPrevObj.TTQ
     #close buy
-    if(pPrevObj.EnterTradeShort < 0 ): # Need to buy we come here only if currentPosition is greater than 0 so no need to check again.
+    if(pPrevObj.CloseBuy < 0 ): # Need to buy we come here only if currentPosition is greater than 0 so no need to check again.
         lBuyTradedPrice = 0
         lBuyTradedQty = 0
         lQtyForWhichFillsCanBeGiven = pTradeStats['currentPositionShort']
         lOpenOrCloseSide = 'Close'
         lPriceAtWhichOrderIsToBeKept = 0
-        if pPrevObj.EnterTradeShort == -2: #Standing at bid +1 
-            lPriceAtWhichOrderIsToBeKept = min( pPrevObj.AskP[0] - ( 2 * gTickSize) , pPrevObj.BidP[0] + ( 1 * gTickSize) )
-
-        if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.BidP[0] + ( 1 * gTickSize) ) or pPrevObj.EnterTradeShort == -1:
-            g_bestqty_list_for_buy = {}
-            l_dummy_TTQChange_For_Buy, l_dummy_AskQ0 , lReasonForTradingOrNotTradingShort, lBuyTradedQty,lBuyTradedPrice = fillForStandingAtBidPlus1Pip(pPrevObj, l_dummy_AskQ0,spreadAtTimeOfPreviousDataRow,\
-                                                                                                                             currentLTP, l_dummy_TTQChange_For_Buy , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
-        else:  #Standing at Bid
-            l_dummy_TTQChange_For_Buy, lReasonForTradingOrNotTradingShort, lBuyTradedQty,lBuyTradedPrice = fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , lQtyForWhichFillsCanBeGiven , lOpenOrCloseSide , lPriceAtWhichOrderIsToBeKept)
-        
-        
-        pTradeStats['totalBuyAmountShort'] += lBuyTradedQty * lBuyTradedPrice
-        pTradeStats['currentPositionShort'] -= lBuyTradedQty
-        pTradeStats['NumberOfCloseBuy'] += lBuyTradedQty
-    
+        if pPrevObj.CloseBuy == -2 :  
+            lPriceAtWhichOrderIsToBeKept = min( pPrevObj.AskP[0] - ( gPipsTaken * gTickSize) , pPrevObj.BidP[0] + ( 1 * gTickSize) )
+            if lPriceAtWhichOrderIsToBeKept > gOpenSellFillPrice:
+                pPrevObj.CloseBuy = 0
+                gStandingAtBidPPlusOneTickInCloseBuy  = 0
+                g_bestqty_list_for_buy = {}
+        if pPrevObj.CloseBuy < 0:
+            if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.BidP[0] + ( 1 * gTickSize) ) or pPrevObj.CloseBuy == -1:
+                g_bestqty_list_for_buy = {}
+                l_dummy_TTQChange_For_Buy, l_dummy_AskQ0 , lReasonForTradingOrNotTradingCloseBuy, lBuyTradedQty,lBuyTradedPrice = fillForStandingAtBidPlus1Pip(pPrevObj, l_dummy_AskQ0,spreadAtTimeOfPreviousDataRow,\
+                                                                                                                                 currentLTP, l_dummy_TTQChange_For_Buy , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
+                gStandingAtBidPPlusOneTickInCloseBuy  = pPrevObj.BidP[0] + gTickSize 
+            else:  #Standing at Bid
+                l_dummy_TTQChange_For_Buy, lReasonForTradingOrNotTradingCloseBuy, lBuyTradedQty,lBuyTradedPrice = fillForStandingAtBid(pPrevObj, currentLTP, l_dummy_TTQChange_For_Buy , lQtyForWhichFillsCanBeGiven , lOpenOrCloseSide , lPriceAtWhichOrderIsToBeKept)
+                gStandingAtBidPPlusOneTickInCloseBuy = 0
+            
+            pTradeStats['totalBuyAmountShort'] += lBuyTradedQty * lBuyTradedPrice
+            pTradeStats['currentPositionShort'] -= lBuyTradedQty
+            pTradeStats['NumberOfCloseBuy'] += lBuyTradedQty
+    else:
+        gStandingAtBidPPlusOneTickInCloseBuy  = 0
     #open buy
-    if(pPrevObj.EnterTradeLong > 0 and ( gMaxQty - pTradeStats['currentPositionLong'] ) > 0):
+    if(pPrevObj.OpenBuy > 0 and ( gMaxQty - pTradeStats['currentPositionLong'] ) > 0):
         lBuyTradedPrice = 0
         lBuyTradedQty = 0
         lQtyForWhichFillsCanBeGiven = gMaxQty - pTradeStats['currentPositionLong'] 
         lOpenOrCloseSide = 'Open'
-        l_dummy_TTQChange_For_Buy, l_dummy_AskQ0 , lReasonForTradingOrNotTradingLong, lBuyTradedQty,lBuyTradedPrice = fillForStandingAtBidPlus1Pip(pPrevObj, l_dummy_AskQ0,spreadAtTimeOfPreviousDataRow,\
+        l_dummy_TTQChange_For_Buy, l_dummy_AskQ0 , lReasonForTradingOrNotTradingOpenBuy, lBuyTradedQty,lBuyTradedPrice = fillForStandingAtBidPlus1Pip(pPrevObj, l_dummy_AskQ0,spreadAtTimeOfPreviousDataRow,\
                                                                                                                      currentLTP, l_dummy_TTQChange_For_Buy , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
         pTradeStats['totalBuyAmountLong'] += lBuyTradedQty * lBuyTradedPrice
         pTradeStats['currentPositionLong'] += lBuyTradedQty
@@ -428,38 +469,50 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
     l_dummy_BidQ0 = pPrevObj.BidQ[0]
     l_dummy_TTQChange_For_Sell = currentTTQ - pPrevObj.TTQ
     #Close Sell
-    if(pPrevObj.EnterTradeLong < 0):
+    if(pPrevObj.CloseSell < 0):
         lSellTradedPrice = 0
         lSellTradedQty = 0
         lQtyForWhichFillsCanBeGiven = pTradeStats['currentPositionLong'] 
         lOpenOrCloseSide = 'Close'         
         lPriceAtWhichOrderIsToBeKept = 0 
-        if pPrevObj.EnterTradeLong == -2: #Hitting Fills
-            lPriceAtWhichOrderIsToBeKept = max( pPrevObj.BidP[0] + ( 2 * gTickSize) , pPrevObj.AskP[0] - ( 1 * gTickSize) )
-        if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.AskP[0] - ( 1 * gTickSize) ) or pPrevObj.EnterTradeLong == -1:
-            g_bestqty_list_for_sell = {} #Standing at Ask +1 
-            l_dummy_TTQChange_For_Sell,l_dummy_BidQ0,lReasonForTradingOrNotTradingLong,lSellTradedQty,lSellTradedPrice = fillForStandingAtAskMinus1Pip(pPrevObj, l_dummy_BidQ0,spreadAtTimeOfPreviousDataRow,\
-                                                                                                                             currentLTP, l_dummy_TTQChange_For_Sell , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
-        else: #Standing at Ask
-            l_dummy_TTQChange_For_Sell,lReasonForTradingOrNotTradingLong,lSellTradedQty,lSellTradedPrice = fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , lQtyForWhichFillsCanBeGiven , lOpenOrCloseSide , lPriceAtWhichOrderIsToBeKept)
-        pTradeStats['totalSellAmountLong'] += lSellTradedQty * lSellTradedPrice
-        pTradeStats['currentPositionLong'] -= lSellTradedQty
-        pTradeStats['NumberOfCloseSell'] += lSellTradedQty
+        if pPrevObj.CloseSell == -2: 
+            lPriceAtWhichOrderIsToBeKept = max( pPrevObj.BidP[0] + ( gPipsTaken * gTickSize) , pPrevObj.AskP[0] - ( 1 * gTickSize) )
+            if lPriceAtWhichOrderIsToBeKept < gOpenBuyFillPrice:
+                pPrevObj.CloseSell = 0
+                gStandingAtAskPMinusOneTickInCloseSell = 0
+                g_bestqty_list_for_sell = {} 
+        if  pPrevObj.CloseSell < 0 :       
+            if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.AskP[0] - ( 1 * gTickSize) ) or pPrevObj.CloseSell == -1:
+                g_bestqty_list_for_sell = {} #Standing at Ask +1 
+                l_dummy_TTQChange_For_Sell,l_dummy_BidQ0,lReasonForTradingOrNotTradingCloseSell,lSellTradedQty,lSellTradedPrice = fillForStandingAtAskMinus1Pip(pPrevObj, l_dummy_BidQ0,spreadAtTimeOfPreviousDataRow,\
+                                                                                                                                 currentLTP, l_dummy_TTQChange_For_Sell , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
+                gStandingAtAskPMinusOneTickInCloseSell = pPrevObj.AskP[0] - gTickSize
+            else: #Standing at Ask
+                l_dummy_TTQChange_For_Sell,lReasonForTradingOrNotTradingCloseSell,lSellTradedQty,lSellTradedPrice = fillForStandingAtAsk(pPrevObj, currentLTP, l_dummy_TTQChange_For_Sell , lQtyForWhichFillsCanBeGiven , lOpenOrCloseSide , lPriceAtWhichOrderIsToBeKept)
+                gStandingAtAskPMinusOneTickInCloseSell = 0
+                
+            pTradeStats['totalSellAmountLong'] += lSellTradedQty * lSellTradedPrice
+            pTradeStats['currentPositionLong'] -= lSellTradedQty
+            pTradeStats['NumberOfCloseSell'] += lSellTradedQty
+    else:
+        gStandingAtAskPMinusOneTickInCloseSell = 0
     
     #Open Sell
-    if pPrevObj.EnterTradeShort > 0 and (gMaxQty - pTradeStats['currentPositionShort'] ) > 0 :
+    if pPrevObj.OpenSell > 0 and (gMaxQty - pTradeStats['currentPositionShort'] ) > 0 :
         lSellTradedPrice = 0
         lSellTradedQty = 0
         lQtyForWhichFillsCanBeGiven = ( gMaxQty - pTradeStats['currentPositionShort'] )
         lOpenOrCloseSide = 'Open'
-        l_dummy_TTQChange_For_Sell,l_dummy_BidQ0,lReasonForTradingOrNotTradingShort,lSellTradedQty,lSellTradedPrice = fillForStandingAtAskMinus1Pip(pPrevObj, l_dummy_BidQ0,spreadAtTimeOfPreviousDataRow,\
+        l_dummy_TTQChange_For_Sell,l_dummy_BidQ0,lReasonForTradingOrNotTradingOpenSell,lSellTradedQty,lSellTradedPrice = fillForStandingAtAskMinus1Pip(pPrevObj, l_dummy_BidQ0,spreadAtTimeOfPreviousDataRow,\
                                                                                                                              currentLTP, l_dummy_TTQChange_For_Sell , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
         pTradeStats['totalSellAmountShort'] += lSellTradedQty * lSellTradedPrice
         pTradeStats['currentPositionShort'] += lSellTradedQty
         pTradeStats['NumberOfOpenSell'] += lSellTradedQty
                                       
-    pPrevObj.ReasonForTradingOrNotTradingShort = lReasonForTradingOrNotTradingShort
-    pPrevObj.ReasonForTradingOrNotTradingLong = lReasonForTradingOrNotTradingLong
+    pPrevObj.ReasonForTradingOrNotTradingOpenSell = lReasonForTradingOrNotTradingOpenSell
+    pPrevObj.ReasonForTradingOrNotTradingOpenBuy = lReasonForTradingOrNotTradingOpenBuy
+    pPrevObj.ReasonForTradingOrNotTradingCloseSell = lReasonForTradingOrNotTradingCloseSell
+    pPrevObj.ReasonForTradingOrNotTradingCloseBuy = lReasonForTradingOrNotTradingCloseBuy
     return [  l_dummy_BidQ0 , l_dummy_AskQ0 , l_dummy_TTQChange_For_Buy , l_dummy_TTQChange_For_Sell , lBuyTradedPrice , lBuyTradedQty,lSellTradedPrice,lSellTradedQty ]
 
 def update_obj_list(pCurrentDataRow):
@@ -499,7 +552,7 @@ def update_obj_list(pCurrentDataRow):
     
 
 def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
-    global g_bestqty_list_for_sell, g_bestqty_list_for_buy
+    global g_bestqty_list_for_sell, g_bestqty_list_for_buy 
     global transactionCost , currencyDivisor
     attribute.initList()
     tradeStats = dict()
@@ -556,10 +609,11 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
                                          str(l_previous_obj.BidP[4]),str(l_previous_obj.BidQ[4]) , str(l_previous_obj.AskQ[0]) , str(l_previous_obj.AskP[0]) , str(l_previous_obj.AskQ[1]) , str(l_previous_obj.AskP[1]) ,str(l_previous_obj.AskQ[2]) , str(l_previous_obj.AskP[2]) ,\
                                          str(l_previous_obj.AskQ[3]) , str(l_previous_obj.AskP[3]) ,str(l_previous_obj.AskQ[4]) , str(l_previous_obj.AskP[4]) ,\
                                          str(l_previous_obj.TTQ) , str(l_previous_obj.LTP) ,\
-                                        str(currentSellPredictedValue) , str(l_previous_obj.EnterTradeShort) ,l_previous_obj.ReasonForTradingOrNotTradingShort , str(currentBuyPredictedValue) ,\
-                                        str(l_previous_obj.EnterTradeLong) ,l_previous_obj.ReasonForTradingOrNotTradingLong , str(tradeStats['NumberOfCloseBuy']),\
-                                        str(tradeStats['NumberOfOpenBuy']),str(tradeStats['NumberOfOpenSell']),\
-                                        str(tradeStats['NumberOfCloseBuy']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                                        str(currentBuyPredictedValue) , str(currentSellPredictedValue) , str(l_previous_obj.OpenBuy) ,l_previous_obj.ReasonForTradingOrNotTradingOpenBuy ,str(l_previous_obj.CloseBuy) ,l_previous_obj.ReasonForTradingOrNotTradingCloseBuy , \
+                                        str(l_previous_obj.OpenSell) ,l_previous_obj.ReasonForTradingOrNotTradingOpenSell ,str(l_previous_obj.CloseSell) ,l_previous_obj.ReasonForTradingOrNotTradingCloseSell  , \
+                                        str(tradeStats['NumberOfOpenBuy']),\
+                                        str(tradeStats['NumberOfCloseBuy']),str(tradeStats['NumberOfOpenSell']),\
+                                        str(tradeStats['NumberOfCloseSell']),str(lDummyBidQ0),str(lDummyAskQ0),\
                                         str(lDummyTTQForBuy),str(lDummyTTQForSell),str(l_best_bidq),str(l_best_bidp),str(l_best_askp),\
                                         str(l_best_askq) ,str(lBuyTradedPrice), str(lBuyTradedQty), str(lSellTradedPrice),str(lSellTradedQty)]
                 attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint)
@@ -571,42 +625,36 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
             except:
                 noPredictionForThisRow += 1
 
-            l_flag = 0
-            #Open sell and Close Buy
+            
+            #Open Sell and Close Buy
             if(currentBuyPredictedValue >= exitCL and tradeStats['currentPositionShort'] > 0):
                 g_bestqty_list_for_buy = {}
-                l_obj.EnterTradeShort = -1       #For close by hitting
-                l_flag =1
+                l_obj.CloseBuy = -1       #For close by hitting
+                
 
-            if(currentSellPredictedValue >= entryCL and tradeStats['currentPositionLong'] == 0) and (l_flag==0):
+            if(currentSellPredictedValue >= entryCL and tradeStats['currentPositionLong'] == 0):
                 g_bestqty_list_for_sell = {}
-                l_obj.EnterTradeShort = 1
-                #For open buy
-                l_flag = 1
-            if(tradeStats['currentPositionShort'] > 0) and (l_flag==0):
-                l_obj.EnterTradeShort = -2  
-                l_flag = 1
-            if l_flag==0:
-                l_obj.EnterTradeShort = 0
+                l_obj.OpenSell = 1	#For open buy
+                
+            if(tradeStats['currentPositionShort'] > 0) and (l_obj.CloseBuy != -1) :
+                l_obj.CloseBuy = -2
+                
             
-            l_flag = 0
-            #Open Buy
+            
+            
+            #Open Buy and Close Sell
 
             if(currentSellPredictedValue >= exitCL and tradeStats['currentPositionLong'] > 0):
                 g_bestqty_list_for_sell = {}
-                l_obj.EnterTradeLong = -1       #For close by hitting
-                l_flag = 1
-            if(currentBuyPredictedValue >= entryCL and tradeStats['currentPositionShort'] == 0) and (l_flag==0):
+                l_obj.CloseSell = -1       #For close by hitting
+                
+            if(currentBuyPredictedValue >= entryCL and tradeStats['currentPositionShort'] == 0) :
                 g_bestqty_list_for_buy = {}
-                l_obj.EnterTradeLong = 1       #For close by hitting
-                l_flag = 1 
-            if(tradeStats['currentPositionLong'] > 0) and (l_flag==0):
-                l_obj.EnterTradeLong = -2       #For close by hitting               
-                l_flag = 1
-            if l_flag == 0 :
-                l_obj.EnterTradeLong = 0        
-            
-
+                l_obj.OpenBuy = 1       #For close by hitting
+                 
+            if(tradeStats['currentPositionLong'] > 0) and (l_obj.CloseSell != -1)  :
+                l_obj.CloseSell = -2              
+                
         
         l_previous_obj = l_obj
         currentIndex = currentIndex + 1
@@ -616,12 +664,12 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
         tradeStats['NumberOfCloseSell'] += tradeStats['currentPositionLong']
         tradeStats['totalSellAmountLong'] += tradeStats['currentPositionLong'] * (l_previous_obj.BidP[0])
         tradeStats['currentPositionLong'] = 0
-        l_obj.ReasonForTradingOrNotTradingLong = 'CloseSell(Hitting)'
+        l_obj.ReasonForTradingOrNotTradingCloseSell = 'CloseSell(Hitting)'
     if tradeStats['currentPositionShort'] > 0:
         tradeStats['NumberOfCloseBuy'] += tradeStats['currentPositionShort']
         tradeStats['totalBuyAmountShort'] += tradeStats['currentPositionShort'] * (l_previous_obj.AskP[0])
         tradeStats['currentPositionShort'] = 0
-        l_obj.ReasonForTradingOrNotTradingLong = 'CloseBuy(Hitting)'
+        l_obj.ReasonForTradingOrNotTradingCloseBuy = 'CloseBuy(Hitting)'
     
     attribute.aList[currentIndex-1][0] = currentTimeStamp
     attribute.aList[currentIndex-1][1] = tradeStats['currentPositionLong']
@@ -638,15 +686,16 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
     else:
         l_best_askq = 0
         l_best_askp = 0
-    listOfStringsToPrint = [ str(l_previous_obj.BidQ[0]) , str(l_previous_obj.BidP[0]),str(l_previous_obj.BidQ[1]) , str(l_previous_obj.BidP[1]),str(l_previous_obj.BidQ[2]) , str(l_previous_obj.BidP[2]),str(l_previous_obj.BidQ[3]) ,str(l_previous_obj.BidP[3]),\
-                             str(l_previous_obj.BidP[4]),str(l_previous_obj.BidQ[4]) , str(l_previous_obj.AskQ[0]) , str(l_previous_obj.AskP[0]) , str(l_previous_obj.AskQ[1]) , str(l_previous_obj.AskP[1]) ,str(l_previous_obj.AskQ[2]) , str(l_previous_obj.AskP[2]) ,\
-                             str(l_previous_obj.AskQ[3]) , str(l_previous_obj.AskP[3]) ,str(l_previous_obj.AskQ[4]) , str(l_previous_obj.AskP[4]) ,\
-                             str(l_previous_obj.TTQ) , str(l_previous_obj.LTP) ,\
-                            str(currentSellPredictedValue) , str(l_previous_obj.EnterTradeShort) ,l_previous_obj.ReasonForTradingOrNotTradingShort , str(currentBuyPredictedValue) ,\
-                            str(l_previous_obj.EnterTradeLong) ,l_previous_obj.ReasonForTradingOrNotTradingLong , str(tradeStats['NumberOfCloseBuy']),\
-                            str(tradeStats['NumberOfOpenBuy']),str(tradeStats['NumberOfOpenSell']),\
-                            str(tradeStats['NumberOfCloseBuy']),str(lDummyBidQ0),str(lDummyAskQ0),\
-                            str(lDummyTTQForBuy),str(lDummyTTQForSell),str(l_best_bidq),str(l_best_bidp),str(l_best_askp), str(l_best_askq) , "0;0;0;0"]
+    listOfStringsToPrint = [  str(l_previous_obj.BidQ[0]) , str(l_previous_obj.BidP[0]),str(l_previous_obj.BidQ[1]) , str(l_previous_obj.BidP[1]),str(l_previous_obj.BidQ[2]) , str(l_previous_obj.BidP[2]),str(l_previous_obj.BidQ[3]) ,str(l_previous_obj.BidP[3]),\
+                                        str(l_previous_obj.BidP[4]),str(l_previous_obj.BidQ[4]) , str(l_previous_obj.AskQ[0]) , str(l_previous_obj.AskP[0]) , str(l_previous_obj.AskQ[1]) , str(l_previous_obj.AskP[1]) ,str(l_previous_obj.AskQ[2]) , str(l_previous_obj.AskP[2]) ,\
+                                        str(l_previous_obj.AskQ[3]) , str(l_previous_obj.AskP[3]) ,str(l_previous_obj.AskQ[4]) , str(l_previous_obj.AskP[4]) ,\
+                                        str(l_previous_obj.TTQ) , str(l_previous_obj.LTP) ,\
+                                        str(currentBuyPredictedValue) , str(currentSellPredictedValue) , str(l_previous_obj.OpenBuy) ,l_previous_obj.ReasonForTradingOrNotTradingOpenBuy ,str(l_previous_obj.CloseBuy) ,l_previous_obj.ReasonForTradingOrNotTradingCloseBuy , \
+                                        str(l_previous_obj.OpenSell) ,l_previous_obj.ReasonForTradingOrNotTradingOpenSell ,str(l_previous_obj.CloseSell) ,l_previous_obj.ReasonForTradingOrNotTradingCloseSell  , str(tradeStats['NumberOfCloseBuy']),\
+                                       str(tradeStats['NumberOfOpenBuy']),\
+                                        str(tradeStats['NumberOfCloseBuy']),str(tradeStats['NumberOfOpenSell']),\
+                                        str(tradeStats['NumberOfCloseSell']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                                        str(lDummyTTQForBuy),str(lDummyTTQForSell),str(l_best_bidq),str(l_best_bidp),str(l_best_askp), str(l_best_askq) , "0;0;0;0"]
     attribute.aList[currentIndex-1][3] =  ";".join(listOfStringsToPrint) 
     
     dirName = args.pd.replace('/ro/','/rs/')
@@ -658,12 +707,12 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesDict):
         os.mkdir(tradeLogSubDirectoryName)
     
     fileName = tradeLogSubDirectoryName + pFileName + ".trade" 
-    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0;BidP0;BidQ1;BidP1;BidQ2;BidP2;BidQ3;BidP3;BidQ4;BidP4','AskQ0;AskP0;AskQ1;AskP1;AskQ2;AskP2;AskQ3;AskP3;AskQ4;AskP4','TTQ','LTP','CurPredValueShort',\
-                               'EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong',\
-                               'totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy' \
+    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0;BidP0;BidQ1;BidP1;BidQ2;BidP2;BidQ3;BidP3;BidQ4;BidP4','AskQ0;AskP0;AskQ1;AskP1;AskQ2;AskP2;AskQ3;AskP3;AskQ4;AskP4','TTQ','LTP','CurBuyPredValue','CurrentSellPredValue',\
+                               'EnterTradeOpenBuy','ReasonForTradingOrNotTradingOpenBuy','EnterTradeCloseBuy','ReasonForTradingOrNotTradingCloseBuy','EnterTradeOpenSell','ReasonForTradingOrNotTradingOpenSell','EnterTradeCloseSell','ReasonForTradingOrNotTradingCloseSell',\
+                               'NumberOfOpenBuy','NumOfCloseBuy','NumberOfOpenSell','NumberOfCloseSell','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy' \
                                ,'BestBidQ','BestBidP','BestAskP','BestAskQ','BuyTradedPrcie','BuyTradedQty','SellTradedPrice','SellTradedQty']
     
-    attribute.writeToFile(fileName , lHeaderColumnNamesList)
+#     attribute.writeToFile(fileName , lHeaderColumnNamesList)
 
     
     tradeResultMainDirName = dirName+"/r/"
