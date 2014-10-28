@@ -70,5 +70,5 @@ def extractAttributeFromDataMatrix(args):
         print "Processed row number " + str(currentRowNumberForWhichFeatureValueIsBeingCalculated)
     
     lNameOfFeaturePrinted = "fMovingAverageOfCol" + args.c + "InLast" + str(args.n) + "Secs"
-    return [ "TimeStamp", lNameOfFeaturePrinted , "TotalOfRowsInLastNSecs" , "NumberOfRowsInLastNSecs" , "TimeElapsed"]
+    return [ "TimeStamp", lNameOfFeaturePrinted , "TotalOfRowsInLastNSecs" , "NumberOfRowsInLastNSecs" , "TimeElapsed" ,"ExTimeStamp"]
     
