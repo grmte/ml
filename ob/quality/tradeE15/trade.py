@@ -352,18 +352,17 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
             enterTradeLong = 0  # Implies make no change
         
         lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong, lDummyBidQ0 , lDummyAskQ0 , lDummyTTQForBuy , lDummyTTQForSell= checkIfDecisionToEnterOrExitTradeIsSuccessful(lObject, enterTradeShort,enterTradeLong,tradeStats,reasonForTrade,lReasonForTradingOrNotTradingLong,lReasonForTradingOrNotTradingShort )
-#         if args.pT.lower()=="yes":
-#             attribute.aList[currentIndex][0] = lObject.currentTimeStamp
-#             attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
-#             attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
-#             listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
-#                                     str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
-#                                     str(lObject.currentSellPredictedValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(lObject.currentBuyPredictedValue) ,\
-#                                     str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
-#                                     str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
-#                                     str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
-#                                     str(lDummyTTQForBuy),str(lDummyTTQForSell)]
-#             attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
+        attribute.aList[currentIndex][0] = lObject.currentTimeStamp
+        attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
+        attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
+        listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
+                                str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
+                                str(SA) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(sellProb) ,\
+                                str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
+                                str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                                str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                                str(lDummyTTQForBuy),str(lDummyTTQForSell)]
+        attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
         currentIndex = currentIndex + 1
     
     lObject = pObjectList[-1]
@@ -381,29 +380,28 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
 
     dirName = predictionDir.replace('/ro/','/rs/')
     
-#     if args.pT.lower()=="yes":
-#         attribute.aList[currentIndex][0] = lObject.currentTimeStamp
-#         attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
-#         attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
-#         listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
-#                                 str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
-#                                 str(lObject.currentSellPredictedValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(lObject.currentBuyPredictedValue) ,\
-#                                 str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
-#                                 str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
-#                                 str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
-#                                 str(lDummyTTQForBuy),str(lDummyTTQForSell)]
-#         attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)        
-#     
-#         tradeLogMainDirName = dirName+"/t/"
-#         if not os.path.exists(tradeLogMainDirName):
-#             os.mkdir(tradeLogMainDirName)
-#         tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
-#         if not os.path.exists(tradeLogSubDirectoryName):
-#             os.mkdir(tradeLogSubDirectoryName)
-#         
-#         fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
-#         lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-#         attribute.writeToFile(fileName , lHeaderColumnNamesList)
+    attribute.aList[currentIndex][0] = lObject.currentTimeStamp
+    attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
+    attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
+    listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
+                            str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
+                            str("lObject.currentSellPredictedValue") , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str("lObject.currentBuyPredictedValue") ,\
+                            str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
+                            str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                            str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                            str(lDummyTTQForBuy),str(lDummyTTQForSell)]
+    attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)        
+ 
+    tradeLogMainDirName = dirName+"/t/"
+    if not os.path.exists(tradeLogMainDirName):
+        os.mkdir(tradeLogMainDirName)
+    tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
+    if not os.path.exists(tradeLogSubDirectoryName):
+        os.mkdir(tradeLogSubDirectoryName)
+     
+    fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
+    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','SA','EnterTradeShort','ReasonForTradingOrNotTradingShort','sellProb','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
+    attribute.writeToFile(fileName , lHeaderColumnNamesList)
         
     tradeResultMainDirName = dirName+"/r/"
     if not os.path.exists(tradeResultMainDirName):
