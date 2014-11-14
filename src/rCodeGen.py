@@ -148,8 +148,11 @@ def ToReadPredictionFiles(rScript,config,targetVariable,configInit):
     for prob in probs:
         ident = probs[prob][:probs[prob].find("Prob")]
         rScript.write('lFlag=FALSE\n')
-        rScript.write('for (file in cbind(lDirectorySet[[1]], lTDirectorySet[[1]])){\n')
-        rScript.write('    fileName = paste("glmnet","' + ident + '","-td.",as.character(file[2]),"-dt.10-targetClass.binomial-f.live_experiment-wt.default.predictions",sep="")\n')
+        rScript.write('len = length(lDirectorySet[[1]])')
+        rScript.write('for (i in c(1:len)){\n')
+        rScript.write('    file = lDirectorySet[[1]][i,1]')
+        rScript.write('    pfile = lTDirectorySet[[1]][i,1]')
+        rScript.write('    fileName = paste("glmnet","' + ident + '","-td.",pfile,"-dt.10-targetClass.binomial-f.live_experiment-wt.default.predictions",sep="")\n')
         rScript.write('    if (!lFlag){\n')
         rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",filename,".bin",sep=""))\n')
         rScript.write('        ' + prob + ' = temp[,2]\n')
