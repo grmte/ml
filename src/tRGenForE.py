@@ -72,6 +72,7 @@ def main():
             else:
                 rCodeGen.ToRenameDataBeforeTraining(rScript,config,target)
                 rCodeGen.ForTrainingTree(rScript,args,config,target, args.treeType)
+                print lTreeFileName
                 rCodeGen.saveTrainingTree(rScript,args,dirName,target, lTreeFileName)
 
 
