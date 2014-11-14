@@ -108,13 +108,14 @@ for dirN in allPredictionDataDirectories:
 #        print noOfDaysForTraining , lastDayOfTraining , dayAfterTraining , dirN
         if lastDayOfTraining == dirN:
             lLastDayOrDayAfter = "LastDayOfTraining"
-          
+            #continue
         elif dayAfterTraining == dirN:
             lLastDayOrDayAfter = "DayAfterTraining"
-          
+            #continue
         
         else:
             lLastDayOrDayAfter = ""
+            #continue
 #        print "Filename " , file_name
         '''
         glmnet-td.20140128-dt.1-targetClass.binomial-f.1-wt.default-l.55-45-tq.300-te.7.result

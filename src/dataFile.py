@@ -1,8 +1,11 @@
 import os, sys
 import commands
+import pdb
+
 matrix = []
 import attribute
-sys.path.append("../ob/generators/")
+sys.path.append("./ob/generators/")
+
 import colNumberOfData
 
 def addDataRowToMatrix(pDataRow):
@@ -24,7 +27,6 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
         list_of_files = os.listdir(pDirName) #list of files in the directory                                                            
         lSyntheticColName = pSyntheticColName
         
-        print "Check Null:-",attribute.instType,"hello"
         if(attribute.instType!=None):
             lSyntheticColName = pSyntheticColName + "-iT."+ attribute.instType + "-oT."+attribute.optionsType + "-sP."+attribute.strikePrice
         for each_file in list_of_files:
@@ -60,7 +62,7 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
         return fileName
 
 def getDataIntoMatrix(pDirName,pSyntheticColName=""):
-    if pSyntheticColName != "":
+    if len(pSyntheticColName) == 0:
         fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
         fileHasHeader = 1
         headerSkipped = 0
@@ -73,6 +75,7 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
     else:
         fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
         dataFileName = getFileNameFromCommandLineParam(pDirName)
+        print "File Name = " , fileName , "Data File Name = " , dataFileName
         fileHasHeader = 1
         headerSkipped = 0
         for dataFileDataRow,exchangeDataRow in zip(open(fileName),open(dataFileName)):

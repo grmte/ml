@@ -60,7 +60,7 @@ def matrixUpdate(pPredictedProb,pActualValue):
     state[actualState][predictedState] = state[actualState][predictedState] + 1
     """
     
-    for i in xrange (1,10,1):
+    for i in [ 5.0 , 5.5 , 6.5 , 7.0  ]:
         thresold = float(i)/10
 
         if(pPredictedProb > thresold):
@@ -73,7 +73,7 @@ def matrixUpdate(pPredictedProb,pActualValue):
 targetSet = eDesignConfigObj["target"]
 for target in targetSet.keys():
     predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                                 '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
+                                 '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + ".predictions"
     print "Reading predicted values from: "+ predictedValuesFileName
     predictedValuesFile = open(predictedValuesFileName)
     
@@ -132,14 +132,15 @@ for target in targetSet.keys():
      
     print "\nPredicted event not found in actual event = " + str(predictedValueNotFoundInActualValue)
     
-    cMatrixDirName = args.td.replace('/ro/','/rs/')
+    cMatrixDirName = args.pd.replace('/ro/','/rs/')
     cMatrixDataDirectoryName = cMatrixDirName+"/c/"
     if not os.path.exists(cMatrixDataDirectoryName):
         os.mkdir(cMatrixDataDirectoryName)
     cMatrixDataDirectoryName = cMatrixDataDirectoryName+mainExperimentName+"/"
     if not os.path.exists(cMatrixDataDirectoryName):
         os.mkdir(cMatrixDataDirectoryName)    
-    fileName = cMatrixDataDirectoryName+experimentName+args.a+"-"+ target+".cmatrix"
+    fileName = cMatrixDataDirectoryName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+                                 '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt +".cmatrix"
     outputFile = open(fileName,"w")
     print "Starting to write: "+fileName
     
@@ -147,7 +148,7 @@ for target in targetSet.keys():
     outputFile.write(formatString% ("%TS","FN A=1 P=0","TN A=0 P=0","FP A=0 P=1","TP A=1 P=1","N","Accuracy","TPR","TNR","PPV","NPV","FPR","FDR","FNR","ACC","F1"))
     
     import cmath
-    for i in xrange (1,10,1):
+    for i in [ 5.5 , 6.0 , 6.5 , 7.0 ,7.5  ]:
         FN = state[i][1][0]
         TN = state[i][0][0]
         FP = state[i][0][1]
