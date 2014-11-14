@@ -1,3 +1,8 @@
+#!/usr/bin/python
+
+from __future__ import division
+from __future__ import print_function
+
 import sys
 sys.path.append("./ob/quality/tradeE15/")
 import dd
@@ -97,7 +102,7 @@ def traverse_tree(treeIndex,pTreeType,pAccuracy,pTree,pFinalCondition):
     
     if pTree[ left(treeIndex) ] != 0 :
         pFinalCondition = traverse_tree( left(treeIndex) ,pTreeType,pAccuracy,pTree,pFinalCondition)
-#     print str(treeIndex) + ";"
+#     print(str(treeIndex) , ";")
     
     lObj = pTree[ treeIndex]
     lCondition = ''
@@ -133,4 +138,4 @@ if __name__=='__main__':
 #     else:
 #         nodes = p_nodes.split(";")
 #         traverse_nodes("1",nodes,lTree)
-    print lCondition
+    print(lCondition)

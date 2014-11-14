@@ -1,6 +1,14 @@
-import sys
+#!/usr/bin/python
+from __future__ import division
+from __future__ import print_function
+import os,sys
+sys.path.append("./src/")
+sys.path.append("./ob/generators/")
 sys.path.append("./ob/quality/tradeE15/")
-import dd 
+import dataFile, colNumberOfData, common
+import  attribute , dd
+
+from itertools import islice
 
 def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFileObjectList,lMinOfExitCl):
     lObjectList = []
@@ -12,13 +20,18 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFileObjectList,lMinO
     predictFileSep = ","
     lListOfBidP = []
     lListOfAskP = []
+    l_data_row_list =  list(islice(dataFileObject,10000)) 
+    lFeatureFileRowList = {}
+    for index in xrange(len(pFileObjectList)):
+        if dd.gTreeVariablesPresent[index].lower() != "buyprob" and dd.gTreeVariablesPresent[index].lower() != "sellprob":  
+            lFeatureFileRowList[ dd.gTreeVariablesPresent[index] ] = (list(islice(pFileObjectList[index],10000)))
     while True:
-        lDataFileRowsList = list(islice(dataFileObject,dd.dd.gNoOfLineReadPerChunk))
+        lDataFileRowsList = list(islice(dataFileObject,dd.gNoOfLineReadPerChunk))
         lFeatureFileRowList = []
         index = 0
         lFeatureFileRowList = {}
-        for index in len(pFileObjectList):
-            lFeatureFileRowList[ gTreeVariablesPresent[index] ] = (list(islice(pFileObjectList[index],dd.dd.gNoOfLineReadPerChunk)))
+        for index in xrange(len(pFileObjectList)):
+            lFeatureFileRowList[ dd.gTreeVariablesPresent[index] ] = (list(islice(pFileObjectList[index],dd.gNoOfLineReadPerChunk)))
         if not lDataFileRowsList:
             print("Finished reading file")
             lObjectList.append(lPrevObj)    
@@ -34,22 +47,24 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFileObjectList,lMinO
                 headerSkipped = 1 
                 continue
             lDataRow = lDataFileRowsList[currentRowIndex].rstrip().split(dataFileSep)
+            '''
             if((args.e).find("nsefut") >= 0):
                 lAskP = float(lDataRow[colNumberOfData.BestAskP])
                 lBidP = float(lDataRow[colNumberOfData.BestBidP])
                 lAskQ = int(lDataRow[colNumberOfData.BestAskQ])
                 lBidQ = int(lDataRow[colNumberOfData.BestBidQ])
             else:
-                lAskP = float(lDataRow[colNumberOfData.AskP0])
-                lBidP = float(lDataRow[colNumberOfData.BidP0])
-                lAskQ = int(lDataRow[colNumberOfData.AskQ0])
-                lBidQ = int(lDataRow[colNumberOfData.BidQ0])
+            '''
+            lAskP = float(lDataRow[colNumberOfData.AskP0])
+            lBidP = float(lDataRow[colNumberOfData.BidP0])
+            lAskQ = int(lDataRow[colNumberOfData.AskQ0])
+            lBidQ = int(lDataRow[colNumberOfData.BidQ0])
             lTTQ = int(lDataRow[colNumberOfData.TTQ])
             lLTP = float(lDataRow[colNumberOfData.LTP]) 
             lCurrentDataRowTimeStamp = common.convertTimeStampFromStringToFloat(lDataRow[colNumberOfData.TimeStamp])
             lFeatureValueDict = {}
             for feature in lFeatureFileRowList:
-                if feature.lower() == "buyporb" or feature.lower() == "sellporb":
+                if feature.lower() == "buyprob" or feature.lower() == "sellprob":
                     lSep = ","
                     lTimeStampIndex = 1
                     lFeatureIndex = 2
@@ -57,6 +72,7 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFileObjectList,lMinO
                     lSep = ";"
                     lTimeStampIndex = 0
                     lFeatureIndex = 1
+                #print("Varible name" , feature)
                 lFeatureFileRow = lFeatureFileRowList[feature][currentRowIndex].rstrip().split(lSep)
                 lFeatureFileTimeStamp = float(lFeatureFileRow[lTimeStampIndex])
                 lFeatureFileValue = float(lFeatureFileRow[lFeatureIndex])
@@ -64,7 +80,7 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFileObjectList,lMinO
                     print('Time stamp of data row with feature value is not matching .\n Data row time stamp :- ' , lCurrentDataRowTimeStamp,'Feature value Time Stamp :- ' , lFeatureFileTimeStamp)
                     os._exit(-1)
                 lFeatureValueDict[feature]=lFeatureFileValue
-            lObj = Tick(lCurrentDataRowTimeStamp,lAskP,lBidP,lAskQ,lBidQ,lLTP,lTTQ,lFeatureValueDict)
+            lObj = dd.Tick(lCurrentDataRowTimeStamp,lAskP,lBidP,lAskQ,lBidQ,lLTP,lTTQ,lFeatureValueDict)
             if lPrevObj!=None:
                 lPrevObj.TTQChange  = lObj.TTQ - lPrevObj.TTQ
                 lPrevObj.NextLTP = lObj.LTP
@@ -267,7 +283,7 @@ def checkIfDecisionToEnterOrExitTradeIsSuccessful(pObject, pEnterTradeShort, pEn
                 lReasonForTradingOrNotTradingShort = 'DummyBidQZero'
     return lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong,l_dummy_BidQ0 , l_dummy_AskQ0 , l_dummy_TTQChange_For_Buy , l_dummy_TTQChange_For_Sell
 
-def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
+def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperimentName):
     enterTradeShort = 0
     enterTradeLong = 0
     tradeStats = dict()
@@ -301,14 +317,20 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
     currentIndex = 0
     print("Processing the data file for trades :")
     #         if args.pT.lower()=="yes":
-    #              attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
-    lFormulaForOpenBuy = gFinalCondition['buy'][str(pEntryCL)[1:]]
-    lFormulaForCloseBuy = gFinalCondition['buy'][str(pExitCL)[1:]]
-    lFormulaForOpenSell = gFinalCondition['sell'][str(pEntryCL)[1:]]
-    lFormulaForCloseSell = gFinalCondition['sell'][str(pExitCL)[1:]]
+    attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
+    lFormulaForOpenBuy = dd.gFinalCondition['buy'][pEntryCL]
+    lFormulaForCloseBuy = dd.gFinalCondition['buy'][pExitCL]
+    lFormulaForOpenSell = dd.gFinalCondition['sell'][pEntryCL]
+    lFormulaForCloseSell = dd.gFinalCondition['sell'][pExitCL]
+    print("OpenBuy Formula" , lFormulaForOpenBuy)
+    print("CloseBuy Formula" , lFormulaForCloseBuy)
+    print("OpenSell Formula" , lFormulaForOpenSell)
+    print("CloseSell Formula" , lFormulaForCloseSell)
     for lObject in pObjectList[:-1]:
-        for variable in gTreeVariablesPresent:
-            exec('%s = lObject.featureDict[%s]' %variable)
+        for variable in dd.gTreeVariablesPresent:
+            #print('%s = lObject.featureDict["%s"]' %(variable,variable))
+            exec('%s = lObject.featureDict["%s"]' %(variable,variable))
+            
         #short decisions
         if(eval(lFormulaForOpenSell)):
             enterTradeShort = 1
@@ -330,18 +352,19 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
             enterTradeLong = 0  # Implies make no change
         
         lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong, lDummyBidQ0 , lDummyAskQ0 , lDummyTTQForBuy , lDummyTTQForSell= checkIfDecisionToEnterOrExitTradeIsSuccessful(lObject, enterTradeShort,enterTradeLong,tradeStats,reasonForTrade,lReasonForTradingOrNotTradingLong,lReasonForTradingOrNotTradingShort )
-#         if args.pT.lower()=="yes":
-#             attribute.aList[currentIndex][0] = lObject.currentTimeStamp
-#             attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
-#             attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
-#             listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
-#                                     str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
-#                                     str(lObject.currentSellPredictedValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(lObject.currentBuyPredictedValue) ,\
-#                                     str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
-#                                     str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
-#                                     str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
-#                                     str(lDummyTTQForBuy),str(lDummyTTQForSell)]
-#             attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
+        '''
+        attribute.aList[currentIndex][0] = lObject.currentTimeStamp
+        attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
+        attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
+        listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
+                                str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
+                                str(SA) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(sellProb) ,\
+                                str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
+                                str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                                str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                                str(lDummyTTQForBuy),str(lDummyTTQForSell)]
+        attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
+        '''
         currentIndex = currentIndex + 1
     
     lObject = pObjectList[-1]
@@ -357,32 +380,31 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
         tradeStats['currentPositionShort'] = 0
         lReasonForTradingOrNotTradingLong = 'CloseBuy(Hitting)'
 
-    dirName = args.pd.replace('/ro/','/rs/')
-    
-#     if args.pT.lower()=="yes":
-#         attribute.aList[currentIndex][0] = lObject.currentTimeStamp
-#         attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
-#         attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
-#         listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
-#                                 str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
-#                                 str(lObject.currentSellPredictedValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(lObject.currentBuyPredictedValue) ,\
-#                                 str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
-#                                 str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
-#                                 str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
-#                                 str(lDummyTTQForBuy),str(lDummyTTQForSell)]
-#         attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)        
-#     
-#         tradeLogMainDirName = dirName+"/t/"
-#         if not os.path.exists(tradeLogMainDirName):
-#             os.mkdir(tradeLogMainDirName)
-#         tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
-#         if not os.path.exists(tradeLogSubDirectoryName):
-#             os.mkdir(tradeLogSubDirectoryName)
-#         
-#         fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
-#         lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-#         attribute.writeToFile(fileName , lHeaderColumnNamesList)
-        
+    dirName = predictionDir.replace('/ro/','/rs/')
+    '''
+    attribute.aList[currentIndex][0] = lObject.currentTimeStamp
+    attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
+    attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
+    listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
+                            str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
+                            str("lObject.currentSellPredictedValue") , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str("lObject.currentBuyPredictedValue") ,\
+                            str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
+                            str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                            str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                            str(lDummyTTQForBuy),str(lDummyTTQForSell)]
+    attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)        
+ 
+    tradeLogMainDirName = dirName+"/t/"
+    if not os.path.exists(tradeLogMainDirName):
+        os.mkdir(tradeLogMainDirName)
+    tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
+    if not os.path.exists(tradeLogSubDirectoryName):
+        os.mkdir(tradeLogSubDirectoryName)
+     
+    fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
+    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','SA','EnterTradeShort','ReasonForTradingOrNotTradingShort','sellProb','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
+    attribute.writeToFile(fileName , lHeaderColumnNamesList)
+    '''    
     tradeResultMainDirName = dirName+"/r/"
     if not os.path.exists(tradeResultMainDirName):
         os.mkdir(tradeResultMainDirName)

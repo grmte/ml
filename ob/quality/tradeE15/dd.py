@@ -17,7 +17,7 @@ class Tick():
 gTreeVariablesPresent = []
 gFileObjectsOfVariablesPresent = []
 gGlobalTree ={'buy':[],'sell':[]} 
-gFinalCondition = {'buy':'','sell':''}
+gFinalCondition = {'buy':{},'sell':{}}
 gNoOfLineReadPerChunk = 10000
 gTickSize = 25000
 gMaxQty = 300
