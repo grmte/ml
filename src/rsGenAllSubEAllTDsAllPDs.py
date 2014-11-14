@@ -172,11 +172,12 @@ for algo in allAlgos:
                             trainingDataCorrespondingDateList.append(allDataDirectories[lCount-int(args.dt)][-10:-1])
                         lCount = lCount + 1
                     trainingDataListString = ";".join(trainingDataList)
-                    treeDataLsitString = ";".join(trainingDataCorrespondingDateList)
+                    treeDataListString = ";".join(trainingDataCorrespondingDateList)
                     lMGenRCodeList.append([scriptName,"-d",trainingDataListString])
                     if args.treeUsed.lower() == "yes":
                         scriptName = lExperimentFolderName+"/tree" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
-                        lTreeTrainingList.append([scriptName,'-d',trainingDataListString,'-p',treeDataLsitString])
+                        if len(trainingDataList)== len(trainingDataCorrespondingDateList):
+                            lTreeTrainingList.append([scriptName,'-d',trainingDataListString,'-p',treeDataListString])
 
 #                     dirName = predictionDirLastTD.replace('/ro/','/wf/')    
 #                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + \
