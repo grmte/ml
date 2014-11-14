@@ -154,7 +154,7 @@ def ToReadPredictionFiles(rScript,config,targetVariable,configInit):
         rScript.write('    pfile = lTDirectorySet[[1]][i]\n')
         rScript.write('    fileName = paste("glmnet","' + ident + '","-td.",pfile,"-dt.10-targetClass.binomial-f.live_experiment-wt.default.predictions",sep="")\n')
         rScript.write('    if (!lFlag){\n')
-        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",filename,".bin",sep=""))\n')
+        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",fileName,sep=""))\n')
         rScript.write('        ' + prob + ' = temp[,2]\n')
         rScript.write('        rm(temp)\n')
         rScript.write('        lFlag=TRUE\n')
