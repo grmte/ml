@@ -93,9 +93,11 @@ if len(args.nodes) == 0:
         dd.gTreeVariablesPresent = dd.gTreeVariablesPresent + lVariable
         for entry,exit in zip(lEntryClList,lExitClList):
             if entry not in dd.gFinalCondition[target]:
-                dd.gFinalCondition[target][entry] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target],dd.gGlobalTree[target])
+                dd.gGlobalTree[target][entry] = ''
+                dd.gFinalCondition[target][entry] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target],dd.gGlobalTree[target][entry])
             if exit not in dd.gFinalCondition[target]:
-                dd.gFinalCondition[target][exit] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target],dd.gGlobalTree[target])
+                dd.gGlobalTree[target][exit] = ''
+                dd.gFinalCondition[target][exit] = reading_tree.traverse_tree(1,args.treeType,float(exit),dd.gGlobalTree[target],dd.gGlobalTree[target][exit])
 else:
     for target in ['buy','sell']:
         lTreeFileName = args.e+"/"+args.a+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
