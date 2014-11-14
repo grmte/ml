@@ -26,10 +26,8 @@ parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 parser.add_argument('-t',required=False,help='Transaction Cost')
 parser.add_argument('-double',required=False,help='Double training of in model')
-parser.add_argument('-treeType',reuired=False,help="Tree read for trade engine")
-parser.add_argument('-entryCL',reuired=False,help='EntryCL')
-parser.add_argument('-exitCL',reuired=False,help='ExitCL')
-parser.add_argumnet('-nodes',required=False,help='Nodes specified')
+parser.add_argument('-treeType',required=False,help="Tree read for trade engine")
+parser.add_argument('-nodes',required=False,help='Nodes specified')
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -90,37 +88,37 @@ if len(lEntryClList)!= len(lExitClList):
 lengthOfList = len(lEntryClList)
 if len(args.nodes) == 0:
     for target in ['buy','sell']:
-        lTreeFileName = args.e+"/"+algo+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
+        lTreeFileName = args.e+"/"+args.a+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
         dd.gGlobalTree[target],lVariable = reading_tree.reading_tree(lTreeFileName,args.treeType)
         dd.gTreeVariablesPresent = dd.gTreeVariablesPresent + lVariable
         for entry,exit in zip(lEntryClList,lExitClList):
-            if entry not in gFinalCondition[target]:
-                gFinalCondition[target][entry] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target])
-            if exit not in gFinalCondition[target]:
-                gFinalCondition[target][exit] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target])
+            if entry not in dd.gFinalCondition[target]:
+                dd.gFinalCondition[target][entry] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target],dd.gGlobalTree[target])
+            if exit not in dd.gFinalCondition[target]:
+                dd.gFinalCondition[target][exit] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target],dd.gGlobalTree[target])
 else:
     for target in ['buy','sell']:
-        lTreeFileName = args.e+"/"+algo+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
+        lTreeFileName = args.e+"/"+args.a+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
         dd.gGlobalTree[target],lVariable = reading_tree.reading_tree(lTreeFileName,args.treeType)
         dd.gTreeVariablesPresent = dd.gTreeVariablesPresent + lVariable
         nodes = args.nodes.split(";")
-        gFinalCondition[target]['nodes'] = reading_tree.traverse_nodes(args.treeType,nodes,dd.gGlobalTree[target])
+        dd.gFinalCondition[target]['nodes'] = reading_tree.traverse_nodes(args.treeType,nodes,dd.gGlobalTree[target])
     
 config = ConfigObj(args.e+"/design1.ini")
     
 for variable in dd.gTreeVariablesPresent:
     if variable.lower()=="buyprob":
         predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
-                                args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + "double.predictions"
+                                args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
         dd.gFileObjectsOfVariablesPresent.append(open(predictedBuyValuesFileName,'r'))
     elif variable.lower()=="sellprob":
         predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
-                                    args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + "double.predictions"
+                                    args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
         dd.gFileObjectsOfVariablesPresent.append(open(predictedSellValuesFileName,'r'))
     elif variable in config['features-buy']:
         lFaetureFileName = lWFDirName+"/f/"+config['features-buy'][variable]+".feature"
         dd.gFileObjectsOfVariablesPresent.append(open(lFaetureFileName,'r'))
-    elif variable in config['feature-sell']:
+    elif variable in config['features-sell']:
         lFaetureFileName = lWFDirName+"/f/"+config['features-sell'][variable]+".feature"
         dd.gFileObjectsOfVariablesPresent.append(open(lFaetureFileName,'r'))       
     else:
@@ -157,7 +155,8 @@ for indexOfCL in range(lengthOfList):
 
 print("Number of File to be run for ",lengthOfFinalList)
 if checkAllFilesAreExistOrNot == 'true':
-    if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
+    
+#    if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
         print ("\nRunning the simulated trading program")
         dd.g_quantity_adjustment_list_for_sell = {}
         dd.g_quantity_adjustment_list_for_buy = {}
@@ -167,8 +166,8 @@ if checkAllFilesAreExistOrNot == 'true':
         dataFileObject =  open(dataFileName,"r")
         
         print("Data file Used :- " ,dataFileName)
-        print("Buy Predict file Used :- ",predictedBuyValuesFileName)
-        print("Sell Predict file used :- ", predictedSellValuesFileName)
+        #print("Buy Predict file Used :- ",predictedBuyValuesFileName)
+        #print("Sell Predict file used :- ", predictedSellValuesFileName)
         lObjectList = trade.getDataFileAndPredictionsIntoObjectList(dataFileObject,dd.gFileObjectsOfVariablesPresent,lMinOfExitCl)
         
         print("Length of list formed " , len(lObjectList) , " Min of predictions taken :- ", lMinOfExitCl)
@@ -182,8 +181,9 @@ if checkAllFilesAreExistOrNot == 'true':
         
         tEnd = datetime.now()
         print("Time taken to for complete run " + str(tEnd - tStart))
+        '''
     else:
         print (predictedBuyValuesFileName,predictedSellValuesFileName)
-        print ("Prediction files not yet generated")
-
+        print ("Features or prediction file are not yet generated")
+        '''
 
