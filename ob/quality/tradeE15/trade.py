@@ -317,7 +317,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
     currentIndex = 0
     print("Processing the data file for trades :")
     #         if args.pT.lower()=="yes":
-    #              attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
+    attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
     lFormulaForOpenBuy = dd.gFinalCondition['buy'][pEntryCL]
     lFormulaForCloseBuy = dd.gFinalCondition['buy'][pExitCL]
     lFormulaForOpenSell = dd.gFinalCondition['sell'][pEntryCL]
@@ -352,6 +352,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
             enterTradeLong = 0  # Implies make no change
         
         lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong, lDummyBidQ0 , lDummyAskQ0 , lDummyTTQForBuy , lDummyTTQForSell= checkIfDecisionToEnterOrExitTradeIsSuccessful(lObject, enterTradeShort,enterTradeLong,tradeStats,reasonForTrade,lReasonForTradingOrNotTradingLong,lReasonForTradingOrNotTradingShort )
+        '''
         attribute.aList[currentIndex][0] = lObject.currentTimeStamp
         attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
         attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
@@ -363,6 +364,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
                                 str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
                                 str(lDummyTTQForBuy),str(lDummyTTQForSell)]
         attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
+        '''
         currentIndex = currentIndex + 1
     
     lObject = pObjectList[-1]
@@ -379,7 +381,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
         lReasonForTradingOrNotTradingLong = 'CloseBuy(Hitting)'
 
     dirName = predictionDir.replace('/ro/','/rs/')
-    
+    '''
     attribute.aList[currentIndex][0] = lObject.currentTimeStamp
     attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
     attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
@@ -402,7 +404,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperime
     fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
     lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','SA','EnterTradeShort','ReasonForTradingOrNotTradingShort','sellProb','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
     attribute.writeToFile(fileName , lHeaderColumnNamesList)
-        
+    '''    
     tradeResultMainDirName = dirName+"/r/"
     if not os.path.exists(tradeResultMainDirName):
         os.mkdir(tradeResultMainDirName)
