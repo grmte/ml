@@ -22,7 +22,7 @@ def extractAttributeFromDataMatrix(args):
     currentRowCount = 0
     for dataRow in dataFile.matrix:
         
-        ttq, ltp = (dataRow[colNumberOfTTQ], dataRow[colNumberOfLTP])
+        ttq, ltp = map(int, (dataRow[colNumberOfTTQ], dataRow[colNumberOfLTP]))
         
         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
         if ttq > prev_ttq:
