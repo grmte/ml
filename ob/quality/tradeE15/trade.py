@@ -6,7 +6,7 @@ sys.path.append("./src/")
 sys.path.append("./ob/generators/")
 sys.path.append("./ob/quality/tradeE15/")
 import dataFile, colNumberOfData, common
-import attribute , dd
+import  attribute , dd
 
 from itertools import islice
 
@@ -283,7 +283,7 @@ def checkIfDecisionToEnterOrExitTradeIsSuccessful(pObject, pEnterTradeShort, pEn
                 lReasonForTradingOrNotTradingShort = 'DummyBidQZero'
     return lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong,l_dummy_BidQ0 , l_dummy_AskQ0 , l_dummy_TTQChange_For_Buy , l_dummy_TTQChange_For_Sell
 
-def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
+def doTrade(pFileName, pEntryCL, pExitCL, pObjectList,predictionDir,mainExperimentName):
     enterTradeShort = 0
     enterTradeLong = 0
     tradeStats = dict()
@@ -318,17 +318,19 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
     print("Processing the data file for trades :")
     #         if args.pT.lower()=="yes":
     #              attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
-    lFormulaForOpenBuy = dd.gFinalCondition['buy'][str(pEntryCL)[2:]]
-    lFormulaForCloseBuy = dd.gFinalCondition['buy'][str(pExitCL)[2:]]
-    lFormulaForOpenSell = dd.gFinalCondition['sell'][str(pEntryCL)[2:]]
-    lFormulaForCloseSell = dd.gFinalCondition['sell'][str(pExitCL)[2:]]
+    lFormulaForOpenBuy = dd.gFinalCondition['buy'][pEntryCL]
+    lFormulaForCloseBuy = dd.gFinalCondition['buy'][pExitCL]
+    lFormulaForOpenSell = dd.gFinalCondition['sell'][pEntryCL]
+    lFormulaForCloseSell = dd.gFinalCondition['sell'][pExitCL]
     print("OpenBuy Formula" , lFormulaForOpenBuy)
     print("CloseBuy Formula" , lFormulaForCloseBuy)
     print("OpenSell Formula" , lFormulaForOpenSell)
     print("CloseSell Formula" , lFormulaForCloseSell)
     for lObject in pObjectList[:-1]:
         for variable in dd.gTreeVariablesPresent:
-            exec('%s = lObject.featureDict[%s]' %(variable,variable))
+            #print('%s = lObject.featureDict["%s"]' %(variable,variable))
+            exec('%s = lObject.featureDict["%s"]' %(variable,variable))
+            
         #short decisions
         if(eval(lFormulaForOpenSell)):
             enterTradeShort = 1
@@ -377,7 +379,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
         tradeStats['currentPositionShort'] = 0
         lReasonForTradingOrNotTradingLong = 'CloseBuy(Hitting)'
 
-    dirName = args.pd.replace('/ro/','/rs/')
+    dirName = predictionDir.replace('/ro/','/rs/')
     
 #     if args.pT.lower()=="yes":
 #         attribute.aList[currentIndex][0] = lObject.currentTimeStamp

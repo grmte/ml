@@ -93,11 +93,13 @@ if len(args.nodes) == 0:
         dd.gTreeVariablesPresent = dd.gTreeVariablesPresent + lVariable
         for entry,exit in zip(lEntryClList,lExitClList):
             if entry not in dd.gFinalCondition[target]:
-                dd.gGlobalTree[target][entry] = ''
-                dd.gFinalCondition[target][entry] = reading_tree.traverse_tree(1,args.treeType,float(entry),dd.gGlobalTree[target],dd.gGlobalTree[target][entry])
+                dd.gFinalCondition[target][entry] = ''
+                dd.gFinalCondition[target][entry] = reading_tree.traverse_tree(1,args.treeType,float("."+entry),dd.gGlobalTree[target],dd.gFinalCondition[target][entry])
+                print("Calling tree traversal ",dd.gFinalCondition[target][entry])
             if exit not in dd.gFinalCondition[target]:
-                dd.gGlobalTree[target][exit] = ''
-                dd.gFinalCondition[target][exit] = reading_tree.traverse_tree(1,args.treeType,float(exit),dd.gGlobalTree[target],dd.gGlobalTree[target][exit])
+                dd.gFinalCondition[target][exit] = ''
+                dd.gFinalCondition[target][exit] = reading_tree.traverse_tree(1,args.treeType,float("."+exit),dd.gGlobalTree[target],dd.gFinalCondition[target][exit])
+                print("Calling tree traversal " ,dd.gFinalCondition[target][exit])
 else:
     for target in ['buy','sell']:
         lTreeFileName = args.e+"/"+args.a+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
@@ -147,8 +149,8 @@ for indexOfCL in range(lengthOfList):
         checkAllFilesAreExistOrNot = 'true'
         print("Trade results file " + fileName + " Does not exist.")
         fileNameList.append(fileName)
-        lEntryCL = float("." + lEntryClList[indexOfCL])
-        lExitCL = float("." + lExitClList[indexOfCL])
+        lEntryCL = lEntryClList[indexOfCL]
+        lExitCL = lExitClList[indexOfCL]
         if lExitCL < lMinOfExitCl :
             lMinOfExitCl = lExitCL
         finalEntryClList.append(lEntryCL)
@@ -177,7 +179,7 @@ if checkAllFilesAreExistOrNot == 'true':
         print("Time taken to read data and prediction file is " + str(tEnd - tStart))
         
         for lIndexOfFiles in range(lengthOfFinalList):
-            trade.doTrade(fileNameList[lIndexOfFiles], finalEntryClList[lIndexOfFiles], finalExitClList[lIndexOfFiles], lObjectList)
+            trade.doTrade(fileNameList[lIndexOfFiles], finalEntryClList[lIndexOfFiles], finalExitClList[lIndexOfFiles], lObjectList , args.pd,mainExperimentName)
 #                 if args.pT.lower() == "yes":
 #                     print("Need to print logs")
         
