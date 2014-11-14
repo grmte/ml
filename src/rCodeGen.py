@@ -160,11 +160,11 @@ def ToReadPredictionFiles(rScript,config,targetVariable,configInit):
         rScript.write('        lFlag=TRUE\n')
         rScript.write('    }\n')
         rScript.write('    else {\n')  
-        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",filename,".bin",sep=""))\n')
+        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",fileName,sep=""))\n')
         rScript.write('        '+ prob +'<-c(' + prob + ',temp[,2])\n')
         rScript.write('        rm(temp)\n')
         rScript.write('    }\n')
-        rScript.write('    print (paste("Reading ",filename,".feature",sep="")) \n')
+        rScript.write('    print (paste("Reading ",paste(file,"/p/live_experiment/",fileName,sep=""),sep="")) \n')
         rScript.write('}\n')
 
 def ForSanityChecks(rScript,config,targetVariable):
