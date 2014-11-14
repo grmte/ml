@@ -4,6 +4,10 @@ import os
 import argparse
 from configobj import ConfigObj
 import attribute
+
+skipRows = 10000
+skipRowCode = "" if skipRows == 0 else "[-c(1:" + str(skipRows) + "),]"
+
 def getAlgoName(args):
     if args.a is None:
         algo = 'glmnet'
@@ -65,14 +69,14 @@ def ToReadTargetFile(rScript,config):
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
         rScript.write('        load(paste(file,"/t/'+fileToRead+'.bin",sep=""))\n')
-        rScript.write('        ' + target+'<- ' + userFriendlyName + '\n')
+        rScript.write('        ' + target+'<- ' + userFriendlyName + skipRowCode + '\n')
         rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(' + target + '))\n')
         rScript.write('        lFlag=TRUE\n')   
         rScript.write('    }\n')
         rScript.write('    else{\n')
         rScript.write('        load(paste(file,"/t/'+fileToRead+'.bin",sep=""))\n')
-        rScript.write('        temp<-' + userFriendlyName + '\n')
+        rScript.write('        temp<-' + userFriendlyName + skipRowCode + '\n')
         rScript.write('        rm(' + userFriendlyName + ')\n')
         rScript.write('        lengthOfEachDay = c(lengthOfEachDay,nrow(temp))\n')
         rScript.write('        '+target+'<-rbind('+target+',temp)\n')
@@ -122,13 +126,13 @@ def ToReadFeatureFiles(rScript,config,targetVariable,pUseWhichArgumentForData=2)
         rScript.write('for (file in lDirectorySet[[1]]){\n')
         rScript.write('    if (!lFlag){\n')
         rScript.write('        load(paste(file,"/f/'+featureNameWithoutBrackets+'.bin",sep=""))\n')
-        rScript.write('        '+feature+targetVariable+'<-get("'+userFriendlyName+'") \n')
+        rScript.write('        '+feature+targetVariable+'<-get("'+userFriendlyName+'")' + skipRowCode + ' \n')
         rScript.write('        rm("' + userFriendlyName + '")\n')
         rScript.write('        lFlag=TRUE\n')
         rScript.write('    }\n')
         rScript.write('    else {\n')  
         rScript.write('        load(paste(file,"/f/'+featureNameWithoutBrackets+'.bin",sep=""))\n')
-        rScript.write('        temp<-get("'+userFriendlyName+ '")\n')  
+        rScript.write('        temp<-get("'+userFriendlyName+ '")' + skipRowCode + '\n')  
         rScript.write('        rm("' + userFriendlyName + '")\n')
         rScript.write('        '+feature+targetVariable+'<-rbind('+feature+targetVariable+',temp)\n')    
         rScript.write('        rm(temp)\n')
