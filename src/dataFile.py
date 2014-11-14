@@ -2,7 +2,7 @@ import os, sys
 import commands
 matrix = []
 import attribute
-sys.path.append("../ob/generators/")
+sys.path.append("./ob/generators/")
 import colNumberOfData
 
 def addDataRowToMatrix(pDataRow):

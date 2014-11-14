@@ -136,6 +136,30 @@ def ToReadFeatureFiles(rScript,config,targetVariable,pUseWhichArgumentForData=2)
         rScript.write('    print ("Reading '+ featureNameWithoutBrackets +'.feature' + '") \n')
         rScript.write('}\n')
 
+def ToReadPredictionFiles(rScript,config,targetVariable,configInit):
+    probs = config["predictions-"+targetVariable]
+    rScript.write('\nprint ("Section: Read prediction files") \n')
+    rScript.write('lDirectorySet<-strsplit(args[2],";",fixed=TRUE,useBytes=FALSE)\n')
+    rScript.write('lTDirectorySet<-strsplit(args[4],";",fixed=TRUE,useBytes=FALSE)\n')
+    for prob in probs:
+        ident = probs[prob][:probs[prob].find("Prob")]
+        rScript.write('lFlag=FALSE\n')
+        rScript.write('for (file in cbind(lDirectorySet[[1]], lTDirectorySet[[1]])){\n')
+        rScript.write('    fileName = paste("glmnet","' + ident + '","-td.",as.character(file[2]),"-dt.10-targetClass.binomial-f.live_experiment-wt.default.predictions",sep="")\n')
+        rScript.write('    if (!lFlag){\n')
+        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",filename,".bin",sep=""))\n')
+        rScript.write('        ' + prob + ' = temp[,2]\n')
+        rScript.write('        rm(temp)\n')
+        rScript.write('        lFlag=TRUE\n')
+        rScript.write('    }\n')
+        rScript.write('    else {\n')  
+        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",filename,".bin",sep=""))\n')
+        rScript.write('        '+ prob +'<-c(' + prob + ',temp[,2])\n')
+        rScript.write('        rm(temp)\n')
+        rScript.write('    }\n')
+        rScript.write('    print (paste("Reading ",filename,".feature",sep="")) \n')
+        rScript.write('}\n')
+
 def ForSanityChecks(rScript,config,targetVariable):
     features = config["features-"+targetVariable]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
@@ -175,6 +199,15 @@ def ToCreateDataFrameForTraining(rScript,config,pTargetVariableKey):
         userFriendlyName = userFriendlyName.replace(')','')
         rScript.write(','+userFriendlyName+'='+feature+pTargetVariableKey+'[,2]')
     rScript.write(")\n\n")
+
+def ToRenameDataBeforeTraining(rScript,config,pTargetVariableKey):
+    features = config["features-"+pTargetVariableKey]
+    rScript.write('\nprint ("Section6: Renaming the variables") \n')
+    rScript.write(pTargetVariableKey+'='+pTargetVariableKey+'[,2]\n')
+    for feature in features:
+        rScript.write(feature+'='+feature+pTargetVariableKey+'[,2]\n')
+    rScript.write("\n")
+        
 
 def forPreparingWtVectorForDoubleTraining(rScript,args,pTargetVariableKey):
     rScript.write('Prob <- predict (fit, newx = X , s = "lambda.min",type = "response")')
@@ -252,10 +285,34 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
                 rScript.write(',')    
         rScript.write(')\n')
         rScript.write('fit = mda(x =X, y = ' + pTargetVariableKey + '[,2]) \n') 
+        
+def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
+    features = config["features-"+pTargetVariableKey]
+    probs = config["predictions-"+pTargetVariableKey]
+    rScript.write('\nprint ("Section7: Running decision tree") \n')
+    rScript.write('len = length(' + pTargetVariableKey + ')\n')
+    rScript.write('minsp = len * 0.005\n')
+    rScript.write('minb = minsp / 3.0\n')
+    rScript.write('dep = 6\n')
+    rScript.write('tree_' + pTargetVariableKey + ' <- rpart(formula = ')
+    rScript.write(pTargetVariableKey + ' ~ ')
+    plusFlag = True
+    for feature in features:
+        if plusFlag == False:
+            rScript.write(' + ' + feature)  
+        else:
+            rScript.write(feature)
+            plusFlag = False
+    for prob in probs:
+        rScript.write(' + ' + prob)
+    if treeType == '1':
+        rScript.write(', method = "class", ')
+    else:
+        rScript.write(', method = "anova", ')
+    rScript.write('parms = list(split = "information"), control = rpart.control( minsplit = minsp, ')
+    rScript.write('minbucket = minb, maxdepth = dep, cp = 0.00001, usesurrogate = 0, maxsurrogate = 0))\n')
     
-
-
-def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble=""):
+def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble="", treeOrNot = "", treeFileName = ""):
     algo = getAlgoName(args)    
     if len(pDouble)==0:
         outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
@@ -277,7 +334,13 @@ def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble=""):
     rScript.write('}\n')         
     rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
     rScript.write('cat(string_intercept,file="'+ modelValueFileName + '",sep="",append=TRUE)\n')
-
+        
+def saveTrainingTree(rScript,args,path,pTargetVariableKey, treeFileName = ""):
+    rScript.write('\nprint ("Section8 : Saving the tree file in ' + treeFileName + '")\n')
+    rScript.write('sink("' + treeFileName + '", append = FALSE)\n')
+    rScript.write('tree_' + pTargetVariableKey + '\n')
+    rScript.write('sink()\n\n')
+    
 def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseWhichArgumentForData=2,pDouble=""):
     features = config["features-"+pTargetVariableKey]
     #Renaming all features if model and predictions are done simultaneously , so that training and prediction data set do not conflict
@@ -401,3 +464,6 @@ def ForPredictions(rScript,config,args,pathToDesignFile,pTargetVariableKey,pUseW
             
     rScript.write('print (fileName) \n')
     rScript.write('write.table(format(dfForFile,digits=16), file = fileName,sep=",",quote=FALSE)\n')
+    
+
+    
