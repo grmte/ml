@@ -47,7 +47,7 @@ def extractAttributeFromDataMatrix(args):
         wtd_ltp = prod_sum / (max(sum_ltq,1))
         prev_ttq = ttq
         
-        attribute.aList[currentRowCount][1] = wtd_ltp
+        attribute.aList[currentRowCount][1] = max(wtd_ltp, 1)
         currentRowCount = currentRowCount + 1
         if(currentRowCount % 1000 == 0):
            print "Processed row number " + str(currentRowCount) 
