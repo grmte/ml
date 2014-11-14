@@ -30,8 +30,7 @@ def getFeatureVariableKeys(pConfig , pTargetKey):
     return attributes
     
 def getIntermediateAttributesForExperiment(experimentFolder):
-    config = ConfigObj(experimentFolder+"/design.ini")
-    attributes = {} 
+    config = ConfigObj(experimentFolder)
     if "intermediate-features" in config:
         attributes = config["intermediate-features"]
     return attributes , config

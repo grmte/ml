@@ -214,7 +214,7 @@ def getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generators
 
 def getCommandList(experimentFolder,dataFolder,generatorsFolder,pTickSize):
     commandList = list()
-    config = ConfigObj(experimentFolder+"/design.ini")
+    config = ConfigObj(experimentFolder)
     target = config['target']
     for f in target:
         attributeName = target[f]
@@ -227,18 +227,28 @@ def getCommandList(experimentFolder,dataFolder,generatorsFolder,pTickSize):
             attributeName = featureConfig[featureAttribute]
             print "\nGenerating for " + attributeName
             command = genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,config)
-            commandList.extend(command)            
+            commandList.extend(command)     
     return commandList    
 
 def main():
     args = parseCommandLine()
-    experimentFolder = args.e
     dataFolder = args.d
     generatorsFolder = args.g
 
     attribute.initializeInstDetails(args.iT,args.sP,args.oT,args.rev) 
-    
     args.sequence = "lp"
+    
+    experimentFolder = args.e + "/design.ini"
+    insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
+    utility.runCommandList(insideFeatureCommandList,args)
+    
+    intermediateFeatureCommandList = getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
+    utility.runCommandList(intermediateFeatureCommandList,args)
+    
+    commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
+    utility.runCommandList(commandList,args)
+
+    experimentFolder = args.e + "/design1.ini"
     insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
     utility.runCommandList(insideFeatureCommandList,args)
     

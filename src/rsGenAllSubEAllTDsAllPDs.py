@@ -21,6 +21,7 @@ parser.add_argument('-targetClass',required=False,help="binomial(target takes on
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No.  Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No.  Defaults to yes")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
+parser.add_argument('-skipTr',required=False,help="yes or no , If you want to regenerated tree then make this value no.  Defaults to yes")
 parser.add_argument('-mpMearge',required=False,help="yes or no , If you want to separate model and prediction files then make this no .  Defaults to yes") 
 parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Future Options = 5")
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
@@ -30,6 +31,7 @@ parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 parser.add_argument('-double',required=False,help='Double training of in model')
+parser.add_argument('-treeUsed',required=False,help="To use tree in training")
 args = parser.parse_args()
 
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
@@ -48,10 +50,12 @@ if args.mpMearge == None:
     args.mpMearge = "yes"
 if args.dt == None:
     args.dt = "1"
-                    
+if args.treeUsed == None:
+    args.treeUsed = "no"                   
 if(args.sequence == "dp"):
     import dp
-
+if args.skipTr == None:
+    args.skipTr = "yes" 
 
 algo = rCodeGen.getAlgoName(args)
 
@@ -137,6 +141,7 @@ for algo in allAlgos:
                 lMGenRCodeList = []
                 lPGenRCodeList = []
                 lTradingCommandList = [] 
+                lTreeTrainingList = []
                 for i in range(len(allDataDirectories)-int(args.dt)):
                     args.td = allDataDirectories[i]
                     predictionDirLastTD = allDataDirectories[i + int(args.dt) - 1]
@@ -149,16 +154,29 @@ for algo in allAlgos:
                     lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD ,\
                                                   "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double])
 
+                    if args.treeUsed.lower() == "yes":
+                        lRCodeGenCommandList.append(["tRGenForE.py","-e",lExperimentFolderName,"-a",algo,"-targetClass",args.targetClass,"-skipT",args.skipTr,"-td",args.td, "-dt" , \
+                                                     args.dt , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP ])                        
                     dirName = args.td.replace('/ro/','/wf/')
                     if args.double:
                         scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +"double.r"
                     else:
                         scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
+                    
+                    trainingDataCorrespondingDateList = []    
                     trainingDataList = [] #";".join(allDataDirectories[i:i+ int(args.dt) ])
+                    lCount = i
                     for trainDirs in allDataDirectories[i:i+ int(args.dt)]:
                         trainingDataList.append(trainDirs.replace('/ro/','/wf/'))
+                        if lCount-int(args.dt) > 0:
+                            trainingDataCorrespondingDateList.append(allDataDirectories[lCount-int(args.dt)][-10:-1])
+                        lCount = lCount + 1
                     trainingDataListString = ";".join(trainingDataList)
+                    treeDataLsitString = ";".join(trainingDataCorrespondingDateList)
                     lMGenRCodeList.append([scriptName,"-d",trainingDataListString])
+                    if args.treeUsed.lower() == "yes":
+                        scriptName = lExperimentFolderName+"/tree" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
+                        lTreeTrainingList.append([scriptName,'-d',trainingDataListString,'-p',treeDataLsitString])
 
 #                     dirName = predictionDirLastTD.replace('/ro/','/wf/')    
 #                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + \
@@ -174,9 +192,14 @@ for algo in allAlgos:
                                  os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + wt  + attribute.generateExtension() +".r"                         
                     lPGenRCodeList.append([scriptName,"-d",dirName])
 
-                    lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",\
-                                                exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
-                                                '-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double]) 
+                    if args.treeUsed.lower() == "no":
+                        lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",\
+                                                    exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+                                                    '-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double]) 
+                    else:
+                        lTradingCommandList.append(["./ob/quality/tradeE15/main.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","60","-exitCL",\
+                                                    "50","-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+                                                    '-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-treeType","1"]) 
 
 #                    lTradingCommandList.append(["./ob/quality/tradeE12.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL1",entrylist1,"-exitCL1",exitlist1,"-entryCL2",entrylist2,"-exitCL2",exitlist2,"-entryCL3",entrylist3,"-exitCL3",exitlist3,"-entryCL4",entrylist4,"-exitCL4",exitlist4,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
 
