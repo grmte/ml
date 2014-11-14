@@ -211,11 +211,16 @@ for algo in allAlgos:
                     lSubModelList = lMGenRCodeList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
                     utility.runCommandList(lSubModelList,args)
                     print dp.printGroupStatus()
-                           
+                
                 utility.runCommandList(lPGenRCodeList,args)
                 print dp.printGroupStatus()
 
-                
+                if args.treeUsed.lower() == "yes":
+                    for chunkNum in range(0,len(lTreeTrainingList),totalModelsWhichCanBeScheduled):
+                        lSubTreeList = lTreeTrainingList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
+                        utility.runCommandList(lSubTreeList,args)
+                        print dp.printGroupStatus()
+                    
                 utility.runCommandList(lTradingCommandList,args)
                 print dp.printGroupStatus()
                      
