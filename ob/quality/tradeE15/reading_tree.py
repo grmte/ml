@@ -6,6 +6,7 @@ from __future__ import print_function
 import sys
 sys.path.append("./ob/quality/tradeE15/")
 import dd
+from math import log
 operators = ["<", ">", "="]
 
 def add_node(pLine,pTree,pTreeVariablesPresent,pTreeType):
@@ -116,24 +117,97 @@ def traverse_tree(treeIndex,pTreeType,pAccuracy,pTree,pFinalCondition):
     if lCondition != '':
         if pFinalCondition=='':
             pFinalCondition = lCondition
+            lObj.finalCondition = pFinalCondition
         else:
             pFinalCondition = pFinalCondition + ' or ' +  lCondition   
     
     if pTree[ right(treeIndex) ] != 0 :
         pFinalCondition = traverse_tree( right(treeIndex) ,pTreeType,pAccuracy,pTree,pFinalCondition)
     return pFinalCondition
+
+def breadth_first_traversal(pInputTree,pOutputTree,lTargetVariable,lFeatureValueDict):
+    from collections import deque
+    queueOfTreeNodes = deque()
+    
+    queueOfTreeNodes.append(1)
+    
+    while(len(queueOfTreeNodes)!=0):
+        lInputTreeObject = pInputTree[queueOfTreeNodes.popleft()]
         
+        for variable in pInputTree:
+            #print('%s = lObject.featureDict["%s"]' %(variable,variable))
+            exec('%s = lFeatureValueDict["%s"]' %(variable,variable))
+            
+        #short decisions
+        if(lInputTreeObject.index==1 or eval(lInputTreeObject.condition) ):
+            if pOutputTree[lInputTreeObject.index] == 0:
+                pOutputTree[lInputTreeObject.index] = dd.Tree() 
+            if lTargetVariable == 1:
+                pOutputTree[lInputTreeObject.index].numberOfOnes += 1
+            else:
+                pOutputTree[lInputTreeObject.index].numberOfZeroes += 1
+            pOutputTree[lInputTreeObject.index].condition = lInputTreeObject.condition
+            pOutputTree[lInputTreeObject.index].index = lInputTreeObject.index  
+            pOutputTree[lInputTreeObject.index].totalPopulation += 1
+            pOutputTree[lInputTreeObject.index].leaf = lInputTreeObject.leaf
+            if pInputTree[ right(lInputTreeObject.index) ] != 0 :
+                queueOfTreeNodes.append(right(lInputTreeObject.index))
+            if pInputTree[ left(lInputTreeObject.index) ] != 0 :
+                queueOfTreeNodes.append(left(lInputTreeObject.index))         
+
+    queueOfTreeNodes = None
+    return pOutputTree   
+                    
 def traverse_nodes(pTreeType,pNodes,pTree):
     lFinalCondition = ''
     
     for n in pNodes:
-       lCondition = findFinalCondition(int(n),pTree) 
-       if lCondition != '':
+        lCondition = findFinalCondition(int(n),pTree) 
+        if lCondition != '':
             if lFinalCondition=='':
                 lFinalCondition = lCondition
             else:
                 lFinalCondition = lFinalCondition + ' or ' +  lCondition  
     return lFinalCondition 
+
+def print_ouput_tree(pOutputTree , lOutputFileObject):
+    from collections import deque
+    queueOfTreeNodes = deque()
+    
+    queueOfTreeNodes.append(1)
+    
+    while(len(queueOfTreeNodes)!=0):
+        lNodePoped = queueOfTreeNodes.popleft()
+        numberOfTabs = log(lNodePoped)
+        stringToPrint = ['    ' for tab in range(numberOfTabs+1)]
+        stringToPrint += str(lNodePoped) + ") "
+        stringToPrint += pOutputTree[lNodePoped].condition + "  "
+        stringToPrint += str(pOutputTree[lNodePoped].totalPopulation) + "  "
+        
+        if pOutputTree[lNodePoped].numberOfZeroes < pOutputTree[lNodePoped].numberOfOnes :
+            pOutputTree[lNodePoped].tag = '1'
+            pOutputTree[lNodePoped].loss =  pOutputTree[lNodePoped].numberOfZeroes
+        else:
+            pOutputTree[lNodePoped].tag = '0'
+            pOutputTree[lNodePoped].loss =  pOutputTree[lNodePoped].numberOfOnes
+            
+        stringToPrint += str(pOutputTree[lNodePoped].loss) + "  "
+        stringToPrint += str(pOutputTree[lNodePoped].tag) + "  ("
+        pOutputTree[lNodePoped].probability = ( pOutputTree[lNodePoped].numberOfZeroes/pOutputTree[lNodePoped].totalPopulation ,\
+                                                 pOutputTree[lNodePoped].numberOfOnes /pOutputTree[lNodePoped].totalPopulation   )
+        stringToPrint += str(pOutputTree[lNodePoped].probability[0]) + "  " + str(pOutputTree[lNodePoped].probability[1])
+        if pOutputTree[lNodePoped].leaf == 'y':
+            stringToPrint +=  "* \n"
+        else:
+            stringToPrint +=  "\n"
+        lOutputFileObject.write(stringToPrint)
+        if pOutputTree[ right(lNodePoped) ] != 0 :
+            queueOfTreeNodes.append(right(lNodePoped))
+        if pOutputTree[ left(lNodePoped) ] != 0 :
+            queueOfTreeNodes.append(left(lNodePoped))         
+
+    queueOfTreeNodes = None
+    return pOutputTree       
                      
 if __name__=='__main__':     
     lTree,lTreeVariablesPresent = reading_tree('/home/ml/tree2.txt',"2")

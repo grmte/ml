@@ -16,7 +16,8 @@ class Tick():
 
 gTreeVariablesPresent = []
 gFileObjectsOfVariablesPresent = []
-gGlobalTree ={'buy':[],'sell':[]} 
+gGlobalTree = {'buy':[],'sell':[]} 
+gOutputGlobalTree = {'buy':[],'sell':[]}
 gFinalCondition = {'buy':{},'sell':{}}
 gNoOfLineReadPerChunk = 10000
 gTickSize = 25000
@@ -36,4 +37,6 @@ class Tree(object):
         self.probability = (0.0,0.0)
         self.index = ''
         self.leaf = 'n'
+        self.numberOfZeroes = 0
+        self.numberOfOnes = 0
         self.finalCondition = ''
