@@ -300,7 +300,7 @@ def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
     rScript.write('len = length(' + pTargetVariableKey + ')\n')
     rScript.write('minsp = len * 0.005\n')
     rScript.write('minb = minsp / 3.0\n')
-    rScript.write('dep = 6\n')
+    rScript.write('dep = 10\n')
     rScript.write('tree_' + pTargetVariableKey + ' <- rpart(formula = ')
     rScript.write(pTargetVariableKey + ' ~ ')
     plusFlag = True
