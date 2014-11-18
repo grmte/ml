@@ -11,7 +11,12 @@ operators = ["<", ">", "="]
 def add_node(pLine,pTree,pTreeVariablesPresent,pTreeType):
     lObj = dd.Tree()
     indexOfBracket = pLine.find(')')
-    lObj.index = int(pLine[0:indexOfBracket])
+    if indexOfBracket == -1:
+        return pTree,pTreeVariablesPresent
+    try:
+        lObj.index = int(pLine[0:indexOfBracket])
+    except:
+        return pTree,pTreeVariablesPresent
     lIndex = indexOfBracket + 1
     variableName = ''
     indexOf1stDigit = 0
