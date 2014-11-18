@@ -14,7 +14,7 @@ def extractAttributeFromDataMatrix(args):
     if(args.cType == "synthetic"):
         colNumberOfAttribute = 1
         colNumberOfTimeStamp = 0
-        colNumberOfExchangeStamp = 2
+        colNumberOfExchangeStamp = -1
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
         colNumberOfTimeStamp = colNumberOfData.TimeStamp
