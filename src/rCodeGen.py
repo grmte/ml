@@ -280,7 +280,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE) \n') 
+        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 20000, sampsize = 10000) \n') 
     elif(args.a == 'mda'):
         rScript.write('print ("Section7: Running mda training") \n')
         rScript.write('X <- cbind(')
@@ -291,7 +291,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = mda(x =X, y = as.factor(' + pTargetVariableKey + '[,2])) \n') 
+        rScript.write('fit = mda(x =X, y = as.factor(' + pTargetVariableKey + '[,2])) \n')
         
 def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
     features = config["features-"+pTargetVariableKey]
