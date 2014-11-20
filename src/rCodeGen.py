@@ -281,6 +281,21 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
                 rScript.write(',')    
         rScript.write(')\n')
         rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 20000, sampsize = 10000) \n') 
+    elif(args.a == 'bigRandomForest'):
+        rScript.write('print("Section7: Running big random forest training") \n')
+        rScript.write('require(doParallel) \n')
+        rScript.write('registerDoParallel(cores = 8) \n')
+        rScript.write('require(bigrf) \n')
+        rScript.write('x = data.frame(')
+        currentFeatureNumber=0
+        for feature in features:
+            rScript.write(features.keys()[currentFeatureNumber]+pTargetVariableKey+'[,2]')
+            currentFeatureNumber = currentFeatureNumber+1
+            if(len(features) > currentFeatureNumber):
+                rScript.write(',')    
+        rScript.write(')\n')
+        rScript.write('y = as.factor(' + pTargetVariableKey + '[,2]) \n')
+        rScript.write('forest <- bigrfc(x, y, ntree = 10, maxndsize = 10000) \n')
     elif(args.a == 'mda'):
         rScript.write('print ("Section7: Running mda training") \n')
         rScript.write('X <- cbind(')
