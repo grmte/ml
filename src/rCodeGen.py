@@ -280,7 +280,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 1 , sampsize = 10000) \n') 
+        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 20000, sampsize = 10000) \n') 
     elif(args.a == 'bigRandomForest'):
         rScript.write('print("Section7: Running big random forest training") \n')
         rScript.write('require(doParallel) \n')
@@ -296,6 +296,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
         rScript.write(')\n')
         rScript.write('y = as.factor(' + pTargetVariableKey + '[,2]) \n')
         rScript.write('fit <- bigrfc(x, y, ntree = 100, maxndsize = 10000) \n')
+
     elif(args.a == 'mda'):
         rScript.write('print ("Section7: Running mda training") \n')
         rScript.write('X <- cbind(')
@@ -306,7 +307,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = mda(x =X, y = as.factor(' + pTargetVariableKey + '[,2])) \n') 
+        rScript.write('fit = mda(x =X, y = as.factor(' + pTargetVariableKey + '[,2])) \n')
         
 def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
     features = config["features-"+pTargetVariableKey]
