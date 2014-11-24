@@ -152,19 +152,19 @@ def ToReadPredictionFiles(rScript,config,targetVariable,configInit):
         rScript.write('for (i in c(1:len)){\n')
         rScript.write('    file = lDirectorySet[[1]][i]\n')
         rScript.write('    pfile = lTDirectorySet[[1]][i]\n')
-        rScript.write('    fileName = paste("glmnet","' + ident + '","-td.",pfile,"-dt.10-targetClass.binomial-f.live_experiment-wt.default.predictions",sep="")\n')
+        rScript.write('    fileName = paste("glmnet","' + ident + '","-td.",pfile,"-dt.10-targetClass.binomial-f.AmBRAmB-wt.default.predictions",sep="")\n')
         rScript.write('    if (!lFlag){\n')
-        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",fileName,sep=""))\n')
+        rScript.write('        temp <- read.csv(paste(file,"/p/ABAll_AmBRAmBAll/",fileName,sep=""))\n')
         rScript.write('        ' + prob + ' = temp[ ,2]\n')
         rScript.write('        rm(temp)\n')
         rScript.write('        lFlag=TRUE\n')
         rScript.write('    }\n')
         rScript.write('    else {\n')  
-        rScript.write('        temp <- read.csv(paste(file,"/p/live_experiment/",fileName,sep=""))\n')
+        rScript.write('        temp <- read.csv(paste(file,"/p/ABAll_AmBRAmBAll/",fileName,sep=""))\n')
         rScript.write('        '+ prob +'<-c(' + prob + ',temp[ ,2])\n')
         rScript.write('        rm(temp)\n')
         rScript.write('    }\n')
-        rScript.write('    print (paste("Reading ",paste(file,"/p/live_experiment/",fileName,sep=""),sep="")) \n')
+        rScript.write('    print (paste("Reading ",paste(file,"/p/ABAll_AmBRAmBAll/",fileName,sep=""),sep="")) \n')
         rScript.write('}\n')
 
 def ForSanityChecks(rScript,config,targetVariable):
@@ -280,7 +280,23 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE) \n') 
+        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 20000, sampsize = 10000) \n') 
+    elif(args.a == 'bigRandomForest'):
+        rScript.write('print("Section7: Running big random forest training") \n')
+        rScript.write('require(doParallel) \n')
+        rScript.write('registerDoParallel(cores = 8) \n')
+        rScript.write('require(bigrf) \n')
+        rScript.write('x = data.frame(')
+        currentFeatureNumber=0
+        for feature in features:
+            rScript.write(features.keys()[currentFeatureNumber]+pTargetVariableKey+'[,2]')
+            currentFeatureNumber = currentFeatureNumber+1
+            if(len(features) > currentFeatureNumber):
+                rScript.write(',')    
+        rScript.write(')\n')
+        rScript.write('y = as.factor(' + pTargetVariableKey + '[,2]) \n')
+        rScript.write('fit <- bigrfc(x, y, ntree = 100, maxndsize = 10000) \n')
+
     elif(args.a == 'mda'):
         rScript.write('print ("Section7: Running mda training") \n')
         rScript.write('X <- cbind(')
@@ -291,7 +307,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = mda(x =X, y = as.factor(' + pTargetVariableKey + '[,2])) \n') 
+        rScript.write('fit = mda(x =X, y = as.factor(' + pTargetVariableKey + '[,2])) \n')
         
 def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
     features = config["features-"+pTargetVariableKey]
@@ -300,7 +316,7 @@ def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
     rScript.write('len = length(' + pTargetVariableKey + ')\n')
     rScript.write('minsp = len * 0.005\n')
     rScript.write('minb = minsp / 3.0\n')
-    rScript.write('dep = 6\n')
+    rScript.write('dep = 10\n')
     rScript.write('tree_' + pTargetVariableKey + ' <- rpart(formula = ')
     rScript.write(pTargetVariableKey + ' ~ ')
     plusFlag = True
