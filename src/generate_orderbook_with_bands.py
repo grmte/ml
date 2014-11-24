@@ -16,7 +16,7 @@ parser.add_argument('-insType',required=False,help="Opt/Cur")
 parser.add_argument('-uGE',required=False,help="yes:-Expiry list given No:- expiry list taken automatically")
 parser.add_argument('-bGap',required=True,help="Band gap price = ceil(price*TC*2)")
 parser.add_argument('-td',required=True,help="Base directory Where output is to be moved")
-parser.add_argument('pD',required=False,help="Price depth order book required")
+parser.add_argument('-pD',required=False,help="Price depth order book required")
 args = parser.parse_args()
 
 if args.uGE == None:
@@ -501,14 +501,16 @@ Ans: It generates the folder name in yyyy-mm-dd format according to the date bei
      the name of the Raw-TBT data as NSE_M1-D12-Y14.txt, as the initial name of the raw file is not used.
 '''
 def get_current_date_folder(p_date):
+    import pdb
+    #pdb.set_trace()
     global g_file_token,g_ml_base_directory, g_NSE_filename , g_day , g_month , g_year
     l_current_month = 0 
     l_current_day = 0
     l_current_year= 0
         
-    l_current_day = int(p_date[6-8])
-    l_current_month = int(p_date[4-6])
-    l_current_year = int(p_date[0-4])
+    l_current_day = int(p_date[6:8])
+    l_current_month = int(p_date[4:6])
+    l_current_year = int(p_date[0:4])
 
     g_file_token = "M" + str(l_current_month) + "-" + "D" + str(l_current_day)
     
@@ -620,15 +622,15 @@ def main():
     l_instrument_ticker = l_symbol.strip() + "-" + l_strikeprice + "-" + l_option
     print l_instrument_ticker
     l_expirydate = return_expiry_string(l_expiry)
-    l_ouptut_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt"
-    if os.path.exists(g_file_location +l_ouptut_file_name):
+    l_output_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt"
+    if os.path.exists(g_file_location +l_output_file_name):
         print "File Exist , delete and rerun it ", g_file_location + g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt" 
         os.exit(1)
-    l_fp_output_orderbook_price_list = open(g_file_location + l_ouptut_file_name, 'w')
+    l_fp_output_orderbook_price_list = open(g_file_location + l_output_file_name, 'w')
     l_fp_output_orderbook_price_list.write(get_header() + "\n")
     
     l_input_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + "temp.txt"
-    l_symbol = "%10s" %l_symbol
+    l_symbol = "%-10s" %l_symbol
     print 'grep  \'' + l_symbol + ',' + l_expiry + ',' + l_strikeprice + ',' + l_option + '\' ' + g_file_location + g_NSE_filename + ' > ' + g_file_location + l_input_file_name
     os.system('grep  \'' + l_symbol + ',' + l_expiry + ',' + l_strikeprice + ',' + l_option + '\' ' + g_file_location + g_NSE_filename + ' > ' + g_file_location + l_input_file_name)
 
@@ -665,7 +667,7 @@ def main():
         l_value_list[0].close()
     
     os.system('rm -rf ' + g_file_location + l_input_file_name)
-    os.system('mv '+ g_file_location + l_ouptut_file_name + ' ' + g_ml_base_directory)
+    os.system('mv '+ g_file_location + l_output_file_name + ' ' + g_ml_base_directory)
     ml_working_file_directory = g_ml_base_directory.replace("/ro/",'/wf/')
     if not os.path.exists(ml_working_file_directory):
         os.mkdir(ml_working_file_directory)
@@ -694,6 +696,7 @@ def start():
     gc.enable()
     g_date_in_string = os.path.basename(os.path.abspath(args.td))
     print g_date_in_string
+    
     g_file_location = g_mother_directory + get_current_date_folder(g_date_in_string) + "/"
     main()
     

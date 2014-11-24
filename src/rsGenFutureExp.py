@@ -24,8 +24,7 @@ parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (D
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No.  Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No.  Defaults to yes")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
-parser.add_argument('-orderQty',required=True,hep="lot size of futures experiment")
-parser.add_argument('-bGap',required=False,help="Band gap price = ceil(price*TC*2)")
+parser.add_argument('-orderQty',required=True,help="lot size of futures experiment")
 parser.add_argument('-tQL',required=True,help='target qty in lots')
 parser.add_argument('-lSz',required=True,help='lot size in qty')
 parser.add_argument('-e',required=False,help='Experiment directory')
@@ -63,7 +62,7 @@ generatorsFolder = args.g
 commandList = []
 
 for directories in allDataDirectories:
-    commandList.append(["generate_orderbook_with_bands.py","-td",directories,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap])
+    commandList.append(["generate_orderbook_with_bands.py","-td",directories,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'])
         
 for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
@@ -74,8 +73,8 @@ def generate_target_exp_design_file():
     g_Diff_pip = [1.5,2.0,2.5]
     g_future_target_qty = []
     targetType = ""
-    os.system("mkdir "+ args.e + "/targetExperiment"+args.iT)
-    fp_for_design_file = open(args.e + "/targetExperiment"+args.iT+"/design.ini" , 'w')
+    os.system("mkdir "+ args.e + "/targetExperiment"+args.iT.strip())
+    fp_for_design_file = open(args.e + "/targetExperiment"+args.iT.strip()+"/design.ini" , 'w')
     fp_for_design_file.write("[target]\n")
     l_target_qty_in_lots = int(args.tQL)
     l_lot_size = int(args.lSz)
