@@ -1,13 +1,18 @@
-#!/usr/bin/python                                                                                                                                                                                                
-import itertools, os,argparse, subprocess, multiprocessing,sys
+#!/usr/bin/python
+
+import itertools, os,argparse, subprocess, multiprocessing
 from configobj import ConfigObj
 from datetime import datetime
-import utility
+import rCodeGen, utility
+import attribute
+import aGenForE
+import email_accumulated_results
+
 parser = argparse.ArgumentParser(description='Automate Target exp ',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
-parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
+parser.add_argument('-sequence', required=False,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
-parser.add_argument('-nComputers',required=False,help="Number of computers at which task has to be run present in the data set")
+parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
 parser.add_argument('-TargetParam',required=True,help="list of qty and pip eg 10000_1.5")
 parser.add_argument('-orderQty',required=True,help="qty for whcih it is to be traded")
 parser.add_argument('-iT',required=True,help='Instrument name')
@@ -15,9 +20,31 @@ parser.add_argument('-sP',required=True,help='Strike price of instrument')
 parser.add_argument('-oT',required=True,help='Options Type')
 parser.add_argument('-lSz',required=True,help='lot size in qty') 
 parser.add_argument('-fQL',required=True,help='feature qty in lots')
+parser.add_argument('-td', required=True,help='Training directory')
+parser.add_argument('-g', required=False,help='Generators directory')
+parser.add_argument('-dt',required=True,help='Number of days after start training day specified . Defaults to 1 ')
+parser.add_argument('-e',required=False,help='Experiment directory')
 args = parser.parse_args()
 
 args.iT = (args.iT).strip()
+
+attribute.initializeInstDetails(args.iT,args.sP,args.oT)
+if(args.sequence == "dp"):
+    import dp
+if args.g == None:
+    args.g = "/home/vikas/ml/ob/generators/"
+if args.e == None:
+    args.e = "/home/vikas/ml/ob/e/nsefut/"
+        
+transactionCost = 0
+tickSize = 0
+if "/nsecur/" in args.td:
+    transactionCost = 0.000015
+    tickSize = 25000 
+elif "/nsefut/" in args.td:
+    transactionCost = 0.00015
+    tickSize = 5 
+    
 def prepare_design_file(pExpDirectory):
     g_Diff_pip = [1.5,2.0,2.5]
     g_feature_qty = []
@@ -40,7 +67,7 @@ def prepare_design_file(pExpDirectory):
         l_lower_qty = l_mean_qty - (5*l_count*l_lot_size)
         l_upper_qty = l_mean_qty + (5*l_count*l_lot_size)
         if(l_lower_qty > 0):
-           g_feature_qty.append(l_lower_qty)
+            g_feature_qty.append(l_lower_qty)
         if(l_upper_qty > 0):
             g_feature_qty.append(l_upper_qty)
         l_ltp_qty1 = int((l_LTP_coef-(l_count*0.25))*l_target_qty)
@@ -84,10 +111,47 @@ def prepare_design_file(pExpDirectory):
     fp_for_design_file.flush()
     fp_for_design_file.close()
 
-
+#===================Feature Design File=============================
 l_exp_dir = args.e + "/CorExp"+args.iT.strip()+"/"
 prepare_design_file(l_exp_dir)
     
+#===================Generation of those features =====================
+
+    
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
+dataFolder = args.td
+generatorsFolder = args.g
+commandList = []
+# Seperate into 2 different list one for aGen and another for operateOnAttribute
+for directories in allDataDirectories:
+    commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+        
+for chunkNum in range(0,len(commandList),int(args.nComputers)):
+    lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
+    utility.runCommandList(lSubGenList,args)
+    print dp.printGroupStatus() 
+
+#==========R Code formation to find correlation between faetures and atrget file ==============================
+utility.runCommand(["corrRGenForE.py","-e",l_exp_dir,"-td",args.td,"-dt",args.nDays,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+
+
+#========Running the correlation R program=========================
+lFileName = "corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
+allWorkingFileDirectories =  attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td.replace('/ro/','/wf/') )
+allWorkingFileDirectoriesString = ";".join(allWorkingFileDirectories)
+utility.runCommand([lFileName,'-d',allWorkingFileDirectoriesString],args.run,args.sequence)
+
+
+#=======MAiling the correlateion file==============================
+summary_file_name = l_exp_dir + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 
+l_files_to_be_mailed = [ summary_file_name , l_exp_dir + "design.ini" ]
+print "Files being mailed are = " , l_files_to_be_mailed
+email_accumulated_results.start_mail(l_files_to_be_mailed,os.path.basename(os.path.abspath(l_exp_dir)),"CoeffientOf"+args.iT.strip())
+
+
+
+    
+
 
 
 
