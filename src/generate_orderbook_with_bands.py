@@ -594,7 +594,7 @@ def main():
     global g_unique_instrument_identifier_dict, g_file_location, g_file_token, g_ml_base_directory ,g_price_distance, g_NSE_filename, g_mother_directory
     print "\nExecution started ..."
     
-    if os.path.exists(g_file_location + g_NSE_filename) == False:
+    if os.path.exists(g_file_location+"/" + g_NSE_filename) == False:
         print "\nThe file %s is not present.\n\nExecution is terminated ...\n"%(g_file_location + g_NSE_filename)
         return
     else:
@@ -623,9 +623,9 @@ def main():
     print l_instrument_ticker
     l_expirydate = return_expiry_string(l_expiry)
     l_output_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt"
-    if os.path.exists(g_file_location +l_output_file_name):
-        print "File Exist , delete and rerun it ", g_file_location + g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt" 
-        os.exit(1)
+    if os.path.exists(args.td +l_output_file_name):
+        print "File Exist , delete and rerun it ", args.td +l_output_file_name
+        return
     l_fp_output_orderbook_price_list = open(g_file_location + l_output_file_name, 'w')
     l_fp_output_orderbook_price_list.write(get_header() + "\n")
     
