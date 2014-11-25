@@ -97,6 +97,7 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
     predictFileSep = ","
     lListOfBidP = []
     lListOfAskP = []
+    l_data_row_list =  list(islice(dataFileObject,10000))
     while True:
         lDataFileRowsList = list(islice(dataFileObject,gNoOfLineReadPerChunk))
         lBuyPredictedFileRowList = list(islice(buyPredictFileObject,gNoOfLineReadPerChunk))
@@ -114,7 +115,7 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
             os._exit(-1)
         for currentRowIndex in range(lengthOfDataList):
             if(fileHasHeader == 1 and headerSkipped != 1):
-                headerSkipped = 1 
+                headerSkipped =1
                 continue
             lDataRow = lDataFileRowsList[currentRowIndex].rstrip().split(dataFileSep)
             if((args.e).find("nsefut") >= 0):
@@ -137,7 +138,8 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,buyPredictFileObject,
             lSellPredictedTimeStamp = float(lSellPredictedRow[1])
             lSellPredictedValue = float(lSellPredictedRow[2])
             
-            if lCurrentDataRowTimeStamp != lBuyPredictedTimeStamp or lBuyPredictedTimeStamp!=lSellPredictedTimeStamp:
+            if( lCurrentDataRowTimeStamp != lBuyPredictedTimeStamp or lBuyPredictedTimeStamp!=lSellPredictedTimeStamp):
+                lDataRow = lDataFileRowsList[currentRowIndex].rstrip().split(dataFileSep)
                 print('Time stamp of data row with predicted value is not matching .\n Data row time stamp :- ' , lCurrentDataRowTimeStamp,'BuyPredicted Time Stamp :- ' , lBuyPredictedTimeStamp\
                       ,"SellPredicted Time Stamp :- ",lSellPredictedTimeStamp)
                 os._exit(-1)
@@ -383,7 +385,7 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
     #         if args.pT.lower()=="yes":
     #              attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
     for lObject in pObjectList[:-1]:
-    
+         
         #short decisions
         if(lObject.currentSellPredictedValue >= pEntryCL):
             enterTradeShort = 1
