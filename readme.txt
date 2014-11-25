@@ -76,6 +76,9 @@ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.rabbitmq.plist
 sudo /usr/local/sbin/rabbitmq-server 
 linux:
 =====
+rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm 
+yum install erlang 
+empd -daemon 
 https://www.rabbitmq.com/install-rpm.html
 wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.3.4/rabbitmq-server-3.3.4-1.noarch.rpm
 yum install rabbitmq-server-3.3.4-1.noarch.rpm # This will install erlang since erlang is a dependency
