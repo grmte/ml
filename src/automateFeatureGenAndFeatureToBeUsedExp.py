@@ -133,14 +133,14 @@ commandList = []
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
 for directories in allDataDirectories:
     commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-        
+    pass    
 for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
     utility.runCommandList(lSubGenList,args)
     print dp.printGroupStatus() 
 
 #==========R Code formation to find correlation between faetures and atrget file ==============================
-utility.runCommand(["corrRGenForE.py","-e",l_exp_dir,"-td",args.td,"-dt",args.nDays,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+utility.runCommand([l_exp_dir+"/corrRGenForE.py","-e",l_exp_dir,"-td",args.td,"-dt",args.nDays,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 
 
 #========Running the correlation R program=========================
