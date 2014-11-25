@@ -186,6 +186,9 @@ def getCommandListForInsideFeatures(experimentFolder,dataFolder,generatorsFolder
         for features in listOfInsideFeatures:
             command = genAttribute(features,dataFolder,generatorsFolder,pTickSize,config)
             commandList.extend(command)
+
+    #import pdb
+    #pdb.set_trace()
     target = config['target']
     for f in target:
         attributeName = target[f]
@@ -248,15 +251,20 @@ def main():
     commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
     utility.runCommandList(commandList,args)
 
-    experimentFolder = args.e + "/design1.ini"
-    insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
-    utility.runCommandList(insideFeatureCommandList,args)
+    try:
+        experimentFolder = args.e + "/design1.ini"
     
-    intermediateFeatureCommandList = getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
-    utility.runCommandList(intermediateFeatureCommandList,args)
+        insideFeatureCommandList = getCommandListForInsideFeatures( experimentFolder,dataFolder,generatorsFolder,args.tickSize )
+        utility.runCommandList(insideFeatureCommandList,args)
     
-    commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
-    return utility.runCommandList(commandList,args)
+        intermediateFeatureCommandList = getCommandListForIntermediateFeatures(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
+        utility.runCommandList(intermediateFeatureCommandList,args)
+    
+        commandList = getCommandList(experimentFolder,dataFolder,generatorsFolder,args.tickSize)
+        return utility.runCommandList(commandList,args)
+
+    except:
+        return
 
 
 if __name__ == "__main__":
