@@ -422,11 +422,17 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, targetValuesDict):
         else:
             enterTradeLong = 0  # Implies make no change
         
-        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ]) 
-        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
-        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
-        askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskQ0])
-        bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidQ0])
+        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ])
+        if "/nsecur/" in args.e: 
+            askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
+            bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
+            askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskQ0])
+            bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidQ0])
+        elif "/nsefut/" in args.e:
+            askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestAskP])
+            bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestBidP])
+            askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestAskQ])
+            bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestBidQ])
         ltpAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.LTP])
         currentIndex = currentIndex + 1
         prevBuyTargetValue = currentBuyTargetValue

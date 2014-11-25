@@ -318,7 +318,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
             if(len(features) > currentFeatureNumber):
                 rScript.write(',')    
         rScript.write(')\n')
-        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 20000, sampsize = 10000) \n') 
+        rScript.write('fit = randomForest(x =X, y = ' + pTargetVariableKey + '[,2],importance = TRUE, ntree = 100, sampsize = length(' + pTargetVariableKey + '[,2])) \n') 
     elif(args.a == 'bigRandomForest'):
         rScript.write('print("Section7: Running big random forest training") \n')
         rScript.write('require(doParallel) \n')

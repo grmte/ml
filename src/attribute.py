@@ -31,6 +31,7 @@ def getFeatureVariableKeys(pConfig , pTargetKey):
     
 def getIntermediateAttributesForExperiment(experimentFolder):
     config = ConfigObj(experimentFolder)
+    attributes = {}
     if "intermediate-features" in config:
         attributes = config["intermediate-features"]
     return attributes , config

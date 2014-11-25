@@ -19,12 +19,14 @@ def main():
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
     parser.add_argument('-oT',required=False,help='Options Type')
     parser.add_argument('-treeType',required=False,help="Tree read for trade engine")
+    parser.add_argument('-tTD',required=False,help="Tree number of days to be used")
     args = parser.parse_args()
 
     attribute.initializeInstDetails(args.iT,args.sP,args.oT)
     if args.skipT == None:
         args.skipT = "yes"
-
+    if args.tTD == None:
+        args.tTD = args.dt
     print "Using the experiment folder " + args.e
 
     config = ConfigObj(args.e+"/design1.ini")
@@ -43,7 +45,8 @@ def main():
     dirName=os.path.dirname(args.e)+"/"
 
     algo = rCodeGen.getAlgoName(args)
-    rProgName = "traintree" +  "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +".r"
+    
+    rProgName = "traintree" +  "-td." + os.path.basename(os.path.abspath(args.td)) + "-tTD" + args.tTD + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
     rScript.write('#!/usr/bin/Rscript \n')
@@ -51,8 +54,9 @@ def main():
         
     rCodeGen.ForSetUpChecks(rScript)
     lAllFilePresent = True
+    
     for target in config['target']:
-        lTreeFileName = dirName+"/"+algo+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
+        lTreeFileName = dirName+"/"+algo+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + "-tTD" + args.tTD + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
         if os.path.isfile(lTreeFileName) and ( args.skipT.lower() == "yes" ):
             continue
         else:
@@ -66,7 +70,7 @@ def main():
             rCodeGen.ToReadFeatureFiles(rScript,config,target)
             rCodeGen.ToReadPredictionFiles(rScript,config,target,configInit)
             rCodeGen.ForSanityChecks(rScript,config,target)
-            lTreeFileName = dirName+"/"+algo+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
+            lTreeFileName = dirName+"/"+algo+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + "-tTD" + args.tTD +'-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
             if os.path.isfile(lTreeFileName) and ( args.skipT.lower() == "yes" ):
                 print "Model File " + lTreeFileName + " already exists . So it will not be formed again . If you want to re-generate model then re-run with -skipT=No"
             else:

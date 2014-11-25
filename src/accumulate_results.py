@@ -94,7 +94,11 @@ for dirN in allPredictionDataDirectories:
     for file_name in filtered_file_list:
         algoName = file_name[:file_name.index("-")]
 
-        trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-dt.")]
+        
+        if "-tTD." in file_name:
+            trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-tTD.")]
+        else:
+            trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-dt.")]
         noOfDaysForTraining = file_name[file_name.index("-dt.") + 4:file_name.index("-targetClass.")]
        
         for directory in allDataDirectories:
@@ -120,6 +124,7 @@ for dirN in allPredictionDataDirectories:
         '''
         glmnet-td.20140128-dt.1-targetClass.binomial-f.1-wt.default-l.55-45-tq.300-te.7.result
         glmnet-td.20140128-dt.1-targetClass.binomial-f.ABC-wt.default-iT.RELIANCE-oT.0-sP.-1-l.60-50-tq.500-te.7.result
+        glmnet-td.20140924-tTD30-dt.10-targetClass.binomial-f.AmBRAmB-wt.default-l.60-55-tq.300-te.15.result
         '''
         
         targetClass = file_name[file_name.index("-targetClass.") + 13:file_name.index("-f.")]
@@ -136,10 +141,20 @@ for dirN in allPredictionDataDirectories:
         else:
             weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-l.")]
         try:
-            entryCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][:(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")]   
-            exitCL = "."+file_name[file_name.index("-l.") + 3:file_name.index("-tq")][(file_name[file_name.index("-l.") + 3:file_name.index("-tq")]).index("-")+1:]  
+            l_levels = file_name[file_name.index("-l.") + 3:file_name.index("-tq")].split("-")
+            
+            entryCL = l_levels[0]
+            exitCL = l_levels[1]
+            try:
+                buy_cut_off = l_levels[2]
+                sell_cut_off = l_levels[3]
+                continue
+            except:
+                pass
             orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
-            tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")]        
+            tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")]
+#            if tradeEngine != "15":
+#                continue
             temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
             line_list = temp_read_file_object.readlines()
         except:
