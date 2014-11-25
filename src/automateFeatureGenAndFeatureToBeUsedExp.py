@@ -14,7 +14,6 @@ parser.add_argument('-sequence', required=False,help='lp (Local parallel) / dp (
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
 parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
 parser.add_argument('-TargetParam',required=True,help="list of qty and pip eg 10000_1.5")
-parser.add_argument('-orderQty',required=True,help="qty for whcih it is to be traded")
 parser.add_argument('-iT',required=True,help='Instrument name')
 parser.add_argument('-sP',required=True,help='Strike price of instrument')
 parser.add_argument('-oT',required=True,help='Options Type')
@@ -89,16 +88,25 @@ def prepare_design_file(pExpDirectory):
     for l_qty in g_feature_qty:   #500QtyWithDiff2.5Pip
         g_list_of_features.append("A"+str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
         g_list_of_features.append("B"+str(l_count) +"= fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
-        g_list_of_intermediate_features.append("featureA"+ str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
-        g_list_of_intermediate_features.append("featureB"+ str(l_count)+"= fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
+        g_list_of_intermediate_features.append("FeatureA"+ str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
+        g_list_of_intermediate_features.append("FeatureB"+ str(l_count)+"= fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
         g_list_of_features.append("C"+str(l_count)+"=(fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty)[DivideBy]fMovingAverageOfCol_FeatureA"+str(l_count)+"_InLast1000Rows")
         g_list_of_features.append("D"+str(l_count)+"=(fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty)[DivideBy]fMovingAverageOfCol_FeatureB"+str(l_count)+"_InLast1000Rows")
         g_list_of_features.append("E"+str(l_count)+"=(fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty)[MultiplyBy](fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty)")
-        g_list_of_intermediate_features.append("featureAmB"+ str(l_count)+"=fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty[MultiplyBy]fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
+        g_list_of_intermediate_features.append("FeatureAmB"+ str(l_count)+"=fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty[MultiplyBy]fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
         g_list_of_features.append("F"+str(l_count)+"=fCol_FeatureAmB"+str(l_count)+"_InCurrentRow[DivideBy]fMovingAverageOfCol_FeatureAmB"+str(l_count)+"_InLast1000Rows")
         g_list_of_features.append("G"+str(l_count)+"=fWALTPInLast"+str(g_Ltp_Feature_qty_list[l_count])+"Qty[DivideBy]fWALTPInLast"+str(2*g_Ltp_Feature_qty_list[l_count])+"Qty")
         l_count = l_count+1
-    g_list_of_features.append("H=fSmartPriceTransformOfCol_fInverseWAInLast2Levels_InCurrentRow")
+    g_list_of_intermediate_features.append('midPrice = (fColBidP0InCurrentRow[Add]fColAskP0InCurrentRow)[DivideBy]2')
+    g_list_of_features.append("H=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow")
+    g_list_of_features.append("I=fSmartPriceTransformOfCol_fInverseWAInLast2Levels_InCurrentRow")
+    g_list_of_features.append("J=fSmartPriceTransformOfCol_fInverseWAInLast3Levels_InCurrentRow")
+    g_list_of_features.append("K=fSmartPriceTransformOfCol_fInverseWAInLast4Levels_InCurrentRow")
+    g_list_of_features.append("L=fSmartPriceTransformOfCol_fInverseWAInLast5Levels_InCurrentRow")
+    index = 0
+    for volatility in [60,300,600]:
+        g_list_of_features.append("M"+str(index)+"= fVarianceOfCol_midPrice_InLast"+str(volatility)+"Secs[Pow].5") 
+        index += 1
     fp_for_design_file.write("\n\n[features-buy]\n\n")
     for l_feature in g_list_of_features:
         fp_for_design_file.write(l_feature+"\n")
@@ -114,7 +122,7 @@ def prepare_design_file(pExpDirectory):
 #===================Feature Design File=============================
 l_exp_dir = args.e + "/CorExp"+args.iT.strip()+"/"
 prepare_design_file(l_exp_dir)
-    
+
 #===================Generation of those features =====================
 
     
@@ -124,7 +132,7 @@ generatorsFolder = args.g
 commandList = []
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
 for directories in allDataDirectories:
-    commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+    commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
         
 for chunkNum in range(0,len(commandList),int(args.nComputers)):
     lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
