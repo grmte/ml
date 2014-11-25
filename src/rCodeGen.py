@@ -194,6 +194,44 @@ def ForSanityChecks(rScript,config,targetVariable):
         rScript.write('}\n')
         currentFeatureNumber = currentFeatureNumber + 1
 
+def ToFindCorrelationAndPrintingToFile(rScript,config,pTargetVariableKey,pFileName):
+    features = config["features-"+pTargetVariableKey]
+    rScript.write('\nprint ("Section6: To Find Correlation For "' +pTargetVariableKey  +') \n')
+    rScript.write('string_intercept = paste("' + pTargetVariableKey + '" , "-intercept-value = ",toString(l[1]),"\\n",sep="")\n')
+    rScript.write('df = data.frame('+config["target"][pTargetVariableKey]+'='+pTargetVariableKey+'[,2]')
+    for feature in features:
+        userFriendlyName = features[feature] 
+        userFriendlyName = userFriendlyName.replace('[','')
+        userFriendlyName = userFriendlyName.replace(']','')
+        userFriendlyName = userFriendlyName.replace('(','')
+        userFriendlyName = userFriendlyName.replace(')','')
+        rScript.write(','+userFriendlyName+'='+feature+pTargetVariableKey+'[,2]')
+    rScript.write(")\n\n")
+
+
+def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble="", treeOrNot = "", treeFileName = ""):
+    algo = getAlgoName(args)    
+    if len(pDouble)==0:
+        outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
+        modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.coef'
+    else:
+        outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.model'
+        modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
+                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.coef'        
+    rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
+    rScript.write('save(fit, file = "'+ outputFileName+'")\n')
+    rScript.write('l = coef(fit, s = "lambda.min")\n')
+    rScript.write('string_intercept = paste("' + pTargetVariableKey + '" , "-intercept-value = ",toString(l[1]),"\\n",sep="")\n')
+    rScript.write('string_intercept = paste(string_intercept,"vector-of-alphas-'+ pTargetVariableKey + ' = ",sep="")\n')
+    rScript.write('for(i in 2:length(l)){\n')
+    rScript.write('    string_intercept = paste(string_intercept,l[i],",",sep="")\n')
+    rScript.write('}\n')         
+    rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
+    rScript.write('cat(string_intercept,file="'+ modelValueFileName + '",sep="",append=TRUE)\n')
+            
 def ToCreateDataFrameForTraining(rScript,config,pTargetVariableKey):
     features = config["features-"+pTargetVariableKey]
     rScript.write('\nprint ("Section6: Creating the data frame") \n')
@@ -335,29 +373,6 @@ def ForTrainingTree(rScript,args,config,pTargetVariableKey, treeType = '1'):
     rScript.write('parms = list(split = "information"), control = rpart.control( minsplit = minsp, ')
     rScript.write('minbucket = minb, maxdepth = dep, cp = 0.00001, usesurrogate = 0, maxsurrogate = 0))\n')
     
-def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble="", treeOrNot = "", treeFileName = ""):
-    algo = getAlgoName(args)    
-    if len(pDouble)==0:
-        outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.model'
-        modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'.coef'
-    else:
-        outputFileName = path+'/'+algo+pTargetVariableKey+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.model'
-        modelValueFileName = path+'/'+algo+ '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + '-targetClass.' + \
-                         args.targetClass + "-wt." + args.wt+ attribute.generateExtension()  +'double.coef'        
-    rScript.write('\nprint (paste("Section8: Saving the model in file '+ outputFileName +'")) \n')
-    rScript.write('save(fit, file = "'+ outputFileName+'")\n')
-    rScript.write('l = coef(fit, s = "lambda.min")\n')
-    rScript.write('string_intercept = paste("' + pTargetVariableKey + '" , "-intercept-value = ",toString(l[1]),"\\n",sep="")\n')
-    rScript.write('string_intercept = paste(string_intercept,"vector-of-alphas-'+ pTargetVariableKey + ' = ",sep="")\n')
-    rScript.write('for(i in 2:length(l)){\n')
-    rScript.write('    string_intercept = paste(string_intercept,l[i],",",sep="")\n')
-    rScript.write('}\n')         
-    rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
-    rScript.write('cat(string_intercept,file="'+ modelValueFileName + '",sep="",append=TRUE)\n')
-        
 def saveTrainingTree(rScript,args,path,pTargetVariableKey, treeFileName = ""):
     rScript.write('\nprint ("Section8 : Saving the tree file in ' + treeFileName + '")\n')
     rScript.write('sink("' + treeFileName + '", append = FALSE)\n')
