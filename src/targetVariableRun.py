@@ -32,12 +32,9 @@ if args.targetType == None:
     else:
         args.targetType= "500;1000;1500;2000;2500;3000;3500;4000;4500;5000;5500;6000;6500;7000"
 def scriptWrapperForTradeGeneration(TargetNumber):
-    if((args.e).find("nsefut") >= 0):
-        utility.runCommand(["./ob/quality/tradeE7OnTargetVariableNseFut.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
+    utility.runCommand(["./ob/quality/tradeE7OnTargetVariable.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
                         "-targetType",TargetNumber,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-e",args.e],args.run,args.sequence)
-    else:
-        utility.runCommand(["./ob/quality/tradeE7OnTargetVariable.py", "-orderQty", args.orderQty, "-d", args.d,"-startTime", args.startTime ,"-endTime",args.endTime ,"-tickSize",args.tickSize,\
-                        "-targetType",TargetNumber,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-e",args.e],args.run,args.sequence)
+
 print("number of targets ",len(args.targetType.split(";")))        
 if args.sequence == 'lp':
     # to run it in local parallel mode
