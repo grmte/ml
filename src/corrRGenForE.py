@@ -33,8 +33,6 @@ def main():
     lCorrelationFileName = dirName + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 
     rCodeGen.ToReadTargetFile(rScript,config)
     for target in config['target']:
-        rCodeGen.ToReadFeatureFiles(rScript,config,target)
-        rCodeGen.ForSanityChecks(rScript,config,target)
         rCodeGen.ToFindCorrelationAndPrintingToFile(rScript,config,target,lCorrelationFileName)
 
     rScript.close()
