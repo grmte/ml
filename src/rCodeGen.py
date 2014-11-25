@@ -197,17 +197,14 @@ def ForSanityChecks(rScript,config,targetVariable):
 def ToFindCorrelationAndPrintingToFile(rScript,config,pTargetVariableKey,pFileName):
     features = config["features-"+pTargetVariableKey]
     rScript.write('\nprint ("Section6: To Find Correlation For "' +pTargetVariableKey  +') \n')
-    rScript.write('string_intercept = paste("' + pTargetVariableKey + '" , "-intercept-value = ",toString(l[1]),"\\n",sep="")\n')
-    rScript.write('df = data.frame('+config["target"][pTargetVariableKey]+'='+pTargetVariableKey+'[,2]')
+    rScript.write('string_intercept = paste("CorrelationCoeficient Of ",' + pTargetVariableKey + '" , ":- ","\\n",sep="")\n')
     for feature in features:
         userFriendlyName = features[feature] 
-        userFriendlyName = userFriendlyName.replace('[','')
-        userFriendlyName = userFriendlyName.replace(']','')
-        userFriendlyName = userFriendlyName.replace('(','')
-        userFriendlyName = userFriendlyName.replace(')','')
-        rScript.write(','+userFriendlyName+'='+feature+pTargetVariableKey+'[,2]')
-    rScript.write(")\n\n")
-
+        rScript.write('tempCor <- cor('+config["target"][pTargetVariableKey]+' , '+ feature+pTargetVariableKey+'[,2] )\n')
+        rScript.write('paste(string_intercept,'+ userFriendlyName +' ,"=",tempCor,"\\n",sep="")\n')
+        rScript.write('rm '+ feature+pTargetVariableKey + '\n')
+    rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
+    rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
 
 def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble="", treeOrNot = "", treeFileName = ""):
     algo = getAlgoName(args)    
