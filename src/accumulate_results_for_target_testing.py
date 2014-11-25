@@ -32,28 +32,6 @@ OBP = 25
 CSP = 24
 AvgGrossProfitLong = 30
 
-dictionaryOfType = {
-                    "1":"500",
-                    "2":"1000",
-                    "3":"1500",
-                    "4":"2000",
-                    "5":"2500",
-                    "6":"3000",
-                    "7":"3500",
-                    "8":"4000",
-                    "9":"4500",
-                    "10":"5000",
-                    "11":"5500",
-                    "20":"6000",
-                    "12":"6500",
-                    "13":"7000",
-                    "14":"7500",
-                    "15":"8000",
-                    "16":"8500",
-                    "17":"9000",
-                    "18":"9500",
-                    "19":"10000"
-                    }  
 desired_statistic_names = ["Directory","targetQtyUsed","StartEndTime","TradeQty",\
                                "TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\

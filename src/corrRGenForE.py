@@ -1,5 +1,4 @@
-#!/usr/bin/python                                                                                                                                                                                                                            
-
+#!/usr/bin/python                                                                                                                                                                                                                         
 import os
 import argparse
 from configobj import ConfigObj
@@ -9,7 +8,7 @@ import attribute
 def main():
     parser = argparse.ArgumentParser(description='Generates train.r. A sample command is mGenForE.py -e ob/e1/ ')
     parser.add_argument('-e', required=True,help='Experiement folder to use to find the features and targets')
-    parser.add_argument('-sd',required=True,help="Day on which it was trained")
+    parser.add_argument('-td',required=True,help="Day on which it was trained")
     parser.add_argument('-dt',required=True,help="Number of days it was trained")
     parser.add_argument('-iT',required=False,help='Instrument name')
     parser.add_argument('-sP',required=False,help='Strike price of instrument')
@@ -17,9 +16,6 @@ def main():
     args = parser.parse_args()
 
     attribute.initializeInstDetails(args.iT,args.sP,args.oT)
-    if args.skipM == None:
-        args.skipM = "yes"
-
     print "Using the experiment folder " + args.e
 
     config = ConfigObj(args.e+"/design.ini")
@@ -29,12 +25,12 @@ def main():
 
     dirName=os.path.dirname(args.e)+"/"
 
-    rProgName = "corr-sd." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
+    rProgName = "corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
     rProgLocation = dirName+'/'+rProgName
     rScript = open(rProgLocation,'w')
     rScript.write('#!/usr/bin/Rscript \n')
     rCodeGen.ForSetUpChecks(rScript)
-    lCorrelationFileName = dirName + '/' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension()  
+    lCorrelationFileName = dirName + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 
     rCodeGen.ToReadTargetFile(rScript,config)
     for target in config['target']:
         rCodeGen.ToReadFeatureFiles(rScript,config,target)

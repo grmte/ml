@@ -83,10 +83,12 @@ def generate_target_exp_design_file():
     g_future_target_qty.append(l_target_qty_in_lots*l_lot_size)
     l_mean_qty = l_target_qty_in_lots*l_lot_size
     while l_count < 10:
-        l_lower_qty = l_mean_qty - l_count*l_lot_size
-        l_upper_qty = l_mean_qty + l_count*l_lot_size
-        if(l_lower_qty > 0):
+        l_lower_qty = l_mean_qty - (5*l_count*l_lot_size)
+        l_upper_qty = l_mean_qty + (5*l_count*l_lot_size)
+        if(l_lower_qty > 10*l_lot_size):
            g_future_target_qty.append(l_lower_qty)
+        else:
+            break
         if(l_upper_qty > 0):
             g_future_target_qty.append(l_upper_qty)
         l_count = l_count +1

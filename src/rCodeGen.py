@@ -196,13 +196,13 @@ def ForSanityChecks(rScript,config,targetVariable):
 
 def ToFindCorrelationAndPrintingToFile(rScript,config,pTargetVariableKey,pFileName):
     features = config["features-"+pTargetVariableKey]
-    rScript.write('\nprint ("Section6: To Find Correlation For "' +pTargetVariableKey  +') \n')
-    rScript.write('string_intercept = paste("CorrelationCoeficient Of ",' + pTargetVariableKey + '" , ":- ","\\n",sep="")\n')
+    rScript.write('\nprint ("Section6: To Find Correlation For ' +pTargetVariableKey  +'") \n')
+    rScript.write('string_intercept = paste("CorrelationCoeficient Of ","' + pTargetVariableKey + '" , ":- ","\\n",sep="")\n')
     for feature in features:
         userFriendlyName = features[feature] 
-        rScript.write('tempCor <- cor('+config["target"][pTargetVariableKey]+' , '+ feature+pTargetVariableKey+'[,2] )\n')
-        rScript.write('paste(string_intercept,'+ userFriendlyName +' ,"=",tempCor,"\\n",sep="")\n')
-        rScript.write('rm '+ feature+pTargetVariableKey + '\n')
+        rScript.write('tempCor <- cor('+pTargetVariableKey+'[,2] , '+ feature+pTargetVariableKey+'[,2] )\n')
+        rScript.write('string_intercept = paste(string_intercept,"'+ userFriendlyName +'" ,"=",toString(tempCor),"\\n",sep="")\n')
+        #rScript.write('rm '+ feature+pTargetVariableKey + '\n')
     rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
     rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
 
