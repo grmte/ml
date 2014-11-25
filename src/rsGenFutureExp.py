@@ -73,8 +73,9 @@ def generate_target_exp_design_file():
     g_Diff_pip = [1.5,2.0,2.5]
     g_future_target_qty = []
     targetType = ""
-    os.system("mkdir "+ args.e + "/targetExperiment"+args.iT.strip())
-    fp_for_design_file = open(args.e + "/targetExperiment"+args.iT.strip()+"/design.ini" , 'w')
+    targetExp = args.e + "/targetExperiment" + args.iT.strip() + "/"
+    os.system("mkdir "+ targetExp)
+    fp_for_design_file = open(targetExp+"/design.ini" , 'w')
     fp_for_design_file.write("[target]\n")
     l_target_qty_in_lots = int(args.tQL)
     l_lot_size = int(args.lSz)
@@ -92,17 +93,18 @@ def generate_target_exp_design_file():
     g_future_target_qty.sort()
     for l_pip in g_Diff_pip:
         for l_qty in g_future_target_qty:   #500QtyWithDiff2.5Pip                                                                                                                                                                                                             
-            fp_for_design_file.write("buy"+str(l_qty)+"_"+str(l_pip) + "  =  tWALTPComparedToColBidP0InFuture"+str(l_qty)+"QtyWithDiff"+str(l_pip) +"Pip"+ "\n")
-            fp_for_design_file.write("sell"+str(l_qty)+"_"+str(l_pip) + "  =  tWALTPComparedToColAskP0InFuture"+str(l_qty)+"QtyWithDiff"+str(l_pip) +"Pip"+ "\n")
+            fp_for_design_file.write("buy"+str(l_qty)+"_"+str(l_pip) + "  =  tWALTPComparedToColBestBidPInFuture"+str(l_qty)+"QtyWithDiff"+str(l_pip) +"Pip"+ "\n")
+            fp_for_design_file.write("sell"+str(l_qty)+"_"+str(l_pip) + "  =  tWALTPComparedToColBestAskPInFuture"+str(l_qty)+"QtyWithDiff"+str(l_pip) +"Pip"+ "\n")
             targetType = targetType + (str(l_qty)+"_"+str(l_pip)+";")
     fp_for_design_file.flush()
     fp_for_design_file.close()
     targetType = targetType[:-1]
-    return targetType
+    return targetType , targetExp
 
 commandList = []
-targetType = generate_target_exp_design_file()
-utility.runCommand(['src/runningTargetExperimentAllTogather.py -e ',l_exp_dir, '-d', args.d , '-run' , args.run , '-sequence', args.sequence , '-tickSize' , tickSize,'-nDays',args.nDays,'-nComputers',args.nComputers,'-t',transactionCost,'-targetType',targetType, '-orderQty',args.orderQty,'-iT',args.iT,'-sP',args.sP,'-oT',args.oT])
+targetType,l_exp_dir = generate_target_exp_design_file()
+targetType = '\'' + targetType + '\''
+os.system(" ".join(['src/runningTargetExperimentAllTogather.py','-e',l_exp_dir, '-d', args.td , '-run' , args.run , '-sequence', args.sequence , '-tickSize' , str(tickSize),'-nDays',args.nDays,'-nComputers',args.nComputers,'-t',str(transactionCost),'-targetType',targetType, '-orderQty',args.orderQty,'-iT',args.iT,'-sP',args.sP,'-oT',args.oT]))
 
 
 
