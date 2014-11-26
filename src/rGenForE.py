@@ -38,5 +38,6 @@ for algo in allAlgos:
 
     utility.runCommand(["mRGenForE.py","-e",args.e,"-a",algo,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , args.dt ,\
                          '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-    utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , args.pd , "-dt" , args.dt ,\
+    if algo <> 'bigRandomForest':
+        utility.runCommand(["pRGenForE.py","-e",args.e,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , args.pd , "-dt" , args.dt ,\
                          "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
