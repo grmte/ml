@@ -353,7 +353,7 @@ def ForTraining(rScript,args,config,pTargetVariableKey):
                 rScript.write(',')    
         rScript.write(')\n')
         rScript.write('y = as.factor(' + pTargetVariableKey + '[,2]) \n')
-        rScript.write('fit <- bigrfc(x, y, ntree = 100, maxndsize = 10000) \n')
+        rScript.write('fit <- bigrfc(x, y, ntree = 10, maxndsize = 10000) \n')
 
     elif(args.a == 'mda'):
         rScript.write('print ("Section7: Running mda training") \n')
