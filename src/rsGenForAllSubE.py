@@ -61,7 +61,8 @@ algo = rCodeGen.getAlgoName(args)
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     pass
-lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td,args.iT) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 lListOfTrainPredictDirectories.append(args.pd)
 if(args.sequence == "dp"):

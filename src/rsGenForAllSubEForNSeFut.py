@@ -57,11 +57,11 @@ if(args.sequence == "dp"):
 config = ConfigObj(args.e+"/design.ini")
 
 algo = rCodeGen.getAlgoName(args)
-
+attribute.initializeInstDetails(args.iT,args.sP,args.oT) 
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     #utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     pass
-lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td,args.iT) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 lListOfTrainPredictDirectories.append(args.pd)
 if(args.sequence == "dp"):
@@ -127,7 +127,7 @@ def scriptWrapper(experimentName):
         utility.runCommand(["./ob/quality/tradeE5.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL","55;90;60;50","-exitCL","45;50;40;25","-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     else:
-        utility.runCommand(["./ob/quality/tradeE7NseFut.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","500",\
+        utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",experimentName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",exitlist,"-orderQty","500",\
                             '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",args.pd,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         
 if args.sequence == 'lp':
