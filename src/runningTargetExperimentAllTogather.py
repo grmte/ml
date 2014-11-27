@@ -29,7 +29,7 @@ if(args.sequence == "dp"):
     import dp
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)  
 commandList = []
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.d )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.d,args.iT )
 for directories in allDataDirectories:
     commandList.append(['src/aGenForEWithTargetOnly.py','-d',directories,'-g','ob/generators/','-run',args.run,'-sequence',args.sequence,'-tickSize',args.tickSize,'-e',args.e  ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
 if(args.sequence != "dp"):

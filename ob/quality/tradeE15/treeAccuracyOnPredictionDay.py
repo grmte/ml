@@ -24,8 +24,8 @@ def getDataFileAndPredictionsIntoObjectList(targetFileObject,pFileObjectList,pOl
     lFeatureFileRowList = {}
 
     for index in xrange(len(pFileObjectList)):
-        if config['prediction-buy'].get(dd.gTreeVariablesPresent[index],"f").lower()!="buyprob" and config['prediction-sell'].get(dd.gTreeVariablesPresent[index],"f").lower()!="sellprob" \
-        and config['prediction-sell'].get(dd.gTreeVariablesPresent[index],"f").lower()!="buyprob" and config['prediction-buy'].get(dd.gTreeVariablesPresent[index],"f").lower()!="sellprob":  
+        if config['predictions-buy'].get(dd.gTreeVariablesPresent[index],"f").lower()!="buyprob" and config['predictions-sell'].get(dd.gTreeVariablesPresent[index],"f").lower()!="sellprob" \
+        and config['predictions-sell'].get(dd.gTreeVariablesPresent[index],"f").lower()!="buyprob" and config['predictions-buy'].get(dd.gTreeVariablesPresent[index],"f").lower()!="sellprob":  
             lFeatureFileRowList[ dd.gTreeVariablesPresent[index] ] = (list(islice(pFileObjectList[index],10000)))
     while True:
         l_buy_data_row_list =  list(islice(targetFileObject['buy'],10000)) 
@@ -58,8 +58,8 @@ def getDataFileAndPredictionsIntoObjectList(targetFileObject,pFileObjectList,pOl
             
             lFeatureValueDict = {}
             for feature in lFeatureFileRowList:
-                if config['prediction-buy'].get(feature, "f").lower() == "buyprob" or config['prediction-sell'].get(feature, "f").lower()  == "sellprob"\
-                or  config['prediction-buy'].get(feature, "f").lower() == "sellprob" or config['prediction-sell'].get(feature, 'f').lower()  == "buyprob":
+                if config['predictions-buy'].get(feature, "f").lower() == "buyprob" or config['predictions-sell'].get(feature, "f").lower()  == "sellprob"\
+                or  config['predictions-buy'].get(feature, "f").lower() == "sellprob" or config['predictions-sell'].get(feature, 'f').lower()  == "buyprob":
                     lSep = ","
                     lTimeStampIndex = 1
                     lFeatureIndex = 2

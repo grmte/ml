@@ -28,7 +28,7 @@ def extractAttributeFromDataMatrix(args):
         lMidPrice = (lAskP0+lBidP0) / 2
         
         if lSmartFeatureValue > lMidPrice:
-            lSmartFeatureValueTransform = lSmartFeatureValue / lAskP0
+            lSmartFeatureValueTransform = -lSmartFeatureValue / lAskP0
         else:
             lSmartFeatureValueTransform = lBidP0 / lSmartFeatureValue
         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataRow[colNumberOfTimeStamp],args.cType)

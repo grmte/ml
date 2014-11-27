@@ -178,7 +178,8 @@ def print_ouput_tree(pOutputTree , lOutputFileObject):
     
     while(len(queueOfTreeNodes)!=0):
         lNodePoped = queueOfTreeNodes.popleft()
-        numberOfTabs = log(lNodePoped)
+        numberOfTabs = int(log(lNodePoped))
+        
         stringToPrint = ['    ' for tab in range(numberOfTabs+1)]
         stringToPrint += str(lNodePoped) + ") "
         stringToPrint += pOutputTree[lNodePoped].condition + "  "

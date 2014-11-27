@@ -62,13 +62,14 @@ def prepare_design_file(pExpDirectory):
     g_feature_qty.append(l_feature_qty_in_lots*l_lot_size)
     l_mean_qty = l_feature_qty_in_lots*l_lot_size
     l_LTP_coef = 1.0
-    while l_count < 3:
+    while l_count < 5:
         l_lower_qty = l_mean_qty - (5*l_count*l_lot_size)
         l_upper_qty = l_mean_qty + (5*l_count*l_lot_size)
         if(l_lower_qty > 0):
             g_feature_qty.append(l_lower_qty)
-        if(l_upper_qty > 0):
             g_feature_qty.append(l_upper_qty)
+        
+            
         l_ltp_qty1 = int((l_LTP_coef-(l_count*0.25))*l_target_qty)
         l_ltp_qty2 = int((l_LTP_coef+(l_count*0.25))*l_target_qty)
         if(l_ltp_qty1%l_lot_size != 0):
@@ -86,6 +87,7 @@ def prepare_design_file(pExpDirectory):
     g_list_of_intermediate_features = []
     l_count = 0
     for l_qty in g_feature_qty:   #500QtyWithDiff2.5Pip
+      try:
         g_list_of_features.append("A"+str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
         g_list_of_features.append("B"+str(l_count) +"= fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
         g_list_of_intermediate_features.append("FeatureA"+ str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
@@ -95,9 +97,15 @@ def prepare_design_file(pExpDirectory):
         g_list_of_features.append("E"+str(l_count)+"=(fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty)[MultiplyBy](fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty)")
         g_list_of_intermediate_features.append("FeatureAmB"+ str(l_count)+"=fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty[MultiplyBy]fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
         g_list_of_features.append("F"+str(l_count)+"=fCol_FeatureAmB"+str(l_count)+"_InCurrentRow[DivideBy]fMovingAverageOfCol_FeatureAmB"+str(l_count)+"_InLast1000Rows")
+      except:
+        pass
+      try:
         g_list_of_features.append("G"+str(l_count)+"=fWALTPInLast"+str(g_Ltp_Feature_qty_list[l_count])+"Qty[DivideBy]fWALTPInLast"+str(2*g_Ltp_Feature_qty_list[l_count])+"Qty")
-        l_count = l_count+1
+      except:
+        pass
+      l_count = l_count+1
     g_list_of_intermediate_features.append('midPrice = (fColBidP0InCurrentRow[Add]fColAskP0InCurrentRow)[DivideBy]2')
+    g_list_of_intermediate_features.append('midPriceBest = (fColBestBidPInCurrentRow[Add]fColBestAskPInCurrentRow)[DivideBy]2')
     g_list_of_features.append("H=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow")
     g_list_of_features.append("I=fSmartPriceTransformOfCol_fInverseWAInLast2Levels_InCurrentRow")
     g_list_of_features.append("J=fSmartPriceTransformOfCol_fInverseWAInLast3Levels_InCurrentRow")
@@ -106,6 +114,7 @@ def prepare_design_file(pExpDirectory):
     index = 0
     for volatility in [60,300,600]:
         g_list_of_features.append("M"+str(index)+"= fVarianceOfCol_midPrice_InLast"+str(volatility)+"Secs[Pow].5") 
+        g_list_of_features.append("N"+str(index)+"= fVarianceOfCol_midPriceBest_InLast"+str(volatility)+"Secs[Pow].5") 
         index += 1
     fp_for_design_file.write("\n\n[features-buy]\n\n")
     for l_feature in g_list_of_features:
@@ -126,29 +135,39 @@ prepare_design_file(l_exp_dir)
 #===================Generation of those features =====================
 
     
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td ,args.iT)
 dataFolder = args.td
 generatorsFolder = args.g
 commandList = []
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
-for directories in allDataDirectories:
-    commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-    pass    
-for chunkNum in range(0,len(commandList),int(args.nComputers)):
-    lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-    utility.runCommandList(lSubGenList,args)
-    print dp.printGroupStatus() 
+if args.sequence=="dp":
+    for directories in allDataDirectories:
+        commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+        pass    
+
+    for chunkNum in range(0,len(commandList),int(args.nComputers)):
+        lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
+        utility.runCommandList(lSubGenList,args)
+        print dp.printGroupStatus() 
+else:
+    def scriptWrapperForFeatureGeneration(trainingDirectory):
+        utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        pass
+    results = map(scriptWrapperForFeatureGeneration,allDataDirectories) 
+    pass
 
 #==========R Code formation to find correlation between faetures and atrget file ==============================
-utility.runCommand([l_exp_dir+"/corrRGenForE.py","-e",l_exp_dir,"-td",args.td,"-dt",args.nDays,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-
+utility.runCommand(["corrRGenForE.py","-e",l_exp_dir,"-td",args.td,"-dt",args.nDays,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+if args.sequence=="dp": 
+    print dp.printGroupStatus()
 
 #========Running the correlation R program=========================
-lFileName = "corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
-allWorkingFileDirectories =  attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td.replace('/ro/','/wf/') )
+lFileName = l_exp_dir + "/corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
+allWorkingFileDirectories =  attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td.replace('/ro/','/wf/') ,args.iT)
 allWorkingFileDirectoriesString = ";".join(allWorkingFileDirectories)
 utility.runCommand([lFileName,'-d',allWorkingFileDirectoriesString],args.run,args.sequence)
-
+if args.sequence=="dp":  
+    print dp.printGroupStatus()
 
 #=======MAiling the correlateion file==============================
 summary_file_name = l_exp_dir + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 

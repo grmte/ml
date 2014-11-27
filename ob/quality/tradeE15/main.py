@@ -28,6 +28,7 @@ parser.add_argument('-t',required=False,help='Transaction Cost')
 parser.add_argument('-double',required=False,help='Double training of in model')
 parser.add_argument('-treeType',required=False,help="Tree read for trade engine")
 parser.add_argument('-nodes',required=False,help='Nodes specified')
+parser.add_argument("-tTD",required=False,help="Number of days to be used for making tree")
 args = parser.parse_args()
 
 sys.path.append("./src/")
@@ -88,7 +89,7 @@ if len(lEntryClList)!= len(lExitClList):
 lengthOfList = len(lEntryClList)
 if len(args.nodes) == 0:
     for target in ['buy','sell']:
-        lTreeFileName = args.e+"/"+args.a+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
+        lTreeFileName = "/home/vikas/ml/ob/e/nsecur/ABAll_AmBRAmBAll//s/2c/AmBRAmB//glmnet" + target  + "-td.20140821-tTD30-dt.10.tree1"#args.e+"/"+args.a+ target+'-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + args.dt + attribute.generateExtension() +".tree" + args.treeType
         dd.gGlobalTree[target],lVariable = reading_tree.reading_tree(lTreeFileName,args.treeType)
         dd.gTreeVariablesPresent = dd.gTreeVariablesPresent + lVariable
         for entry,exit in zip(lEntryClList,lExitClList):
@@ -111,11 +112,11 @@ else:
 config = ConfigObj(args.e+"/design1.ini")
     
 for variable in dd.gTreeVariablesPresent:
-    if variable.lower()=="buyprob":
+    if variable.lower()=="j":
         predictedBuyValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'buy' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' + \
                                 args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
         dd.gFileObjectsOfVariablesPresent.append(open(predictedBuyValuesFileName,'r'))
-    elif variable.lower()=="sellprob":
+    elif variable.lower()=="k":
         predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
                                     args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
         dd.gFileObjectsOfVariablesPresent.append(open(predictedSellValuesFileName,'r'))
@@ -137,11 +138,11 @@ for indexOfCL in range(lengthOfList):
     if args.double:
         lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                        '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
-                       '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.7double" 
+                       '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.15double" 
     else:
-        lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
+        lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-tTD' + args.tTD + \
                        '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
-                       '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.7" 
+                       '-l.'+lEntryClList[indexOfCL]+"-"+lExitClList[indexOfCL] + "-tq." + args.orderQty + "-te.15" 
     fileName = dirName + "/r/" + mainExperimentName + "/" + lInitialFileName+".result"
     if os.path.isfile(fileName) and args.skipT.lower() == "yes":
         print("Trade results file " + fileName + "Already exist. Not regenerating it. If you want to rerun it by making -skipT = no ")

@@ -10,14 +10,13 @@ import aGenForE
 parser = argparse.ArgumentParser(description='This program will run order book preparation and target experimenta nd feature experiment to togather \n', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
 parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
-parser.add_argument('-t',required=True,help="TransactionCost")
 parser.add_argument('-iT',required=True,help='Instrument name')
 parser.add_argument('-sP',required=True,help='Strike price of instrument')
 parser.add_argument('-oT',required=True,help='Options Type')
 parser.add_argument('-bGap',required=True,help="Band gap price = ceil(price*TC*2)")
 parser.add_argument('-a', required=False,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
-parser.add_argument('-g', required=True,help='Generators directory')
+parser.add_argument('-g', required=False,help='Generators directory')
 parser.add_argument('-dt',required=False,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
@@ -56,18 +55,24 @@ elif "/nsefut/" in args.td:
     transactionCost = 0.00015
     tickSize = 5 
     
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td,"M" )
 dataFolder = args.td
 generatorsFolder = args.g
 commandList = []
 
-for directories in allDataDirectories:
-    commandList.append(["generate_orderbook_with_bands.py","-td",directories,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'])
         
-for chunkNum in range(0,len(commandList),int(args.nComputers)):
-    lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-    utility.runCommandList(lSubGenList,args)
-    print dp.printGroupStatus() 
+if args.sequence == "dp":
+    for directories in allDataDirectories:
+        commandList.append(["generate_orderbook_with_bands.py","-td",directories,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'])
+
+    for chunkNum in range(0,len(commandList),int(args.nComputers)):
+        lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
+        utility.runCommandList(lSubGenList,args)
+        print dp.printGroupStatus() 
+else:
+    def scriptWrapperForGeneratingOrderBook(trainingDirectory):
+        utility.runCommand(["generate_orderbook_with_bands.py","-td",trainingDirectory,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'],args.run,args.sequence)
+    results = map(scriptWrapperForGeneratingOrderBook,allDataDirectories)
 
 def generate_target_exp_design_file():
     g_Diff_pip = [1.5,2.0,2.5]
@@ -104,9 +109,9 @@ def generate_target_exp_design_file():
     return targetType , targetExp
 
 commandList = []
-targetType,l_exp_dir = generate_target_exp_design_file()
-targetType = '\'' + targetType + '\''
-os.system(" ".join(['src/runningTargetExperimentAllTogather.py','-e',l_exp_dir, '-d', args.td , '-run' , args.run , '-sequence', args.sequence , '-tickSize' , str(tickSize),'-nDays',args.nDays,'-nComputers',args.nComputers,'-t',str(transactionCost),'-targetType',targetType, '-orderQty',args.orderQty,'-iT',args.iT,'-sP',args.sP,'-oT',args.oT]))
+#targetType,l_exp_dir = generate_target_exp_design_file()
+#targetType = '\'' + targetType + '\''
+#os.system(" ".join(['src/runningTargetExperimentAllTogather.py','-e',l_exp_dir, '-d', args.td , '-run' , args.run , '-sequence', args.sequence , '-tickSize' , str(tickSize),'-nDays',args.nDays,'-nComputers',args.nComputers,'-t',str(transactionCost),'-targetType',targetType, '-orderQty',args.orderQty,'-iT',args.iT,'-sP',args.sP,'-oT',args.oT]))
 
 
 
