@@ -272,7 +272,7 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             lRoDir = lRoDir.replace('/rs/','/ro/')
             listOfFiles = commands.getoutput('ls -1 '+ lRoDir).split("\n")
             for file in listOfFiles:
-                print file
+                #print file
                 if pInstType.strip() in file:
                     lTrainingDirectoryList.append(l_training_date_full_path_name)
                     countOfDaysTaken += 1

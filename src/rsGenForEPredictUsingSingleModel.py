@@ -130,7 +130,7 @@ lengthOfFeatures = len(one_feature_attributes)
 
 #==========Finding Experiment(s) folder for which it is to be run
 
-experimentFoderDirectory = []
+experimentFolderDirectory = []
 if args.allSub == "yes":
     indexOfFeatures = 2
     while indexOfFeatures <= lengthOfFeatures:
@@ -138,13 +138,15 @@ if args.allSub == "yes":
         designFiles = utility.list_files(lSubCombinationFolder)
         for designFile in designFiles:
             lExperimentFolderName = os.path.dirname(designFile) + "/"
-            experimentFoderDirectory.append(lExperimentFolderName)
+            experimentFolderDirectory.append(lExperimentFolderName)
+        indexOfFeatures += 1
             
 else:
-    experimentFoderDirectory.apend(args.e)
+    experimentFolderDirectory.append(args.e)
 
+print "Experiment Folder Lsit " , experimentFolderDirectory
 #==========Running the model in serial mode and rest thing in serial , lp or dp mode as given                 
-for lExperimentFolderName in experimentFoderDirectory:
+for lExperimentFolderName in experimentFolderDirectory:
     utility.runCommand(["mRGenForE.py","-e",lExperimentFolderName,"-a",args.a,"-targetClass",args.targetClass,"-skipM",args.skipM,"-td",args.td, "-dt" , \
                                  args.dt , '-wt' , args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP ] , args.run , "serial")
     scriptName = lExperimentFolderName+"/train" + args.a + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + args.wt + attribute.generateExtension() +".r"
@@ -159,7 +161,7 @@ for lExperimentFolderName in experimentFoderDirectory:
         lTradingCommandList = []
         for i in range(len(predictionDaysDirectory)):
             predictionDirAfterLastTD = predictionDaysDirectory[i]
-            lRCodeGenCommandList.append((["pRGenForE.py","-e",args.e,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
+            lRCodeGenCommandList.append((["pRGenForE.py","-e",lExperimentFolderName,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
                              "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]))
             scriptName=lExperimentFolderName+"/predict" + args.a + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
                         os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + args.wt  + attribute.generateExtension() +".r"
@@ -182,19 +184,19 @@ for lExperimentFolderName in experimentFoderDirectory:
  
     else:
         def scriptWrapperForPredictRProgramGeneration(predictionDirAfterLastTD):
-            utility.runCommand(["pRGenForE.py","-e",args.e,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
-                                 "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.real,args.sequence)
+            utility.runCommand(["pRGenForE.py","-e",lExperimentFolderName,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
+                                 "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 
         def scriptWrapperForPredictProgramRun(predictionDirAfterLastTD):
             scriptName=lExperimentFolderName+"/predict" + args.a + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
                         os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + args.wt  + attribute.generateExtension() +".r"
             dirName = predictionDirAfterLastTD.replace('/ro/','/wf/')
-            utility.runCommand([scriptName,"-d",dirName],args.real,args.sequence)
+            utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
 
         def scripWrapperForTradingCommand(predictionDirAfterLastTD):
             utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",args.a,"-entryCL",entrylist,"-exitCL",\
                         exitlist,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
-                        '-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.real,args.sequence)
+                        '-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
             
         if args.sequence == "lp":
                 # to run it in local parallel mode
@@ -212,6 +214,6 @@ for lExperimentFolderName in experimentFoderDirectory:
     else:
         message = "ml_experiments"
         
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",args.a,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,message , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",args.a,"-t",args.t,"-td",args.td, "-dt" , "1" , '-nD' , str(args.nDays) , "-m" ,message , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     if args.sequence == "dp":
         print dp.printGroupStatus()
