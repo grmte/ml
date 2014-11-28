@@ -72,6 +72,7 @@ elif "/nsefut/" in args.td:
 
 entrylist = ""
 exitlist = ""
+lQtyList = args.orderQty.split(";")
 for i in range(50,60,1):
     for j in range(45,i,1):
         exitlist = exitlist + str(j) + ";"
@@ -113,8 +114,10 @@ if(args.sequence == "dp"):
     commandList = []
     for directories in allDataDirectories:
         commandList.append(["aGenForE.py","-e",experimentFolder,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-    utility.runCommandList( commandList ,args)
-    print dp.printGroupStatus() 
+    for chunkNum in range(0,len(commandList),totalCommandsToBeScheduledAtOneGo):
+        l_sub_aGenForECodeGenList = commandList[chunkNum:chunkNum+totalCommandsToBeScheduledAtOneGo]
+        utility.runCommandList( l_sub_aGenForECodeGenList ,args)
+        print dp.printGroupStatus() 
 
 else:
     def scriptWrapperForFeatureGeneration(trainingDirectory):
@@ -167,8 +170,10 @@ for lExperimentFolderName in experimentFolderDirectory:
                         os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + args.wt  + attribute.generateExtension() +".r"
             dirName = predictionDirAfterLastTD.replace('/ro/','/wf/')
             lPGenRCodeList.append([scriptName,"-d",dirName])
-            lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",args.a,"-entryCL",entrylist,"-exitCL",\
-                    exitlist,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+            
+            for lQty in lQtyList:
+                lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",args.a,"-entryCL",entrylist,"-exitCL",\
+                    exitlist,"-orderQty",lQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
                     '-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
         #=============Running all command in dp one by one=======        
         utility.runCommandList(lRCodeGenCommandList,args)
@@ -194,8 +199,10 @@ for lExperimentFolderName in experimentFolderDirectory:
             utility.runCommand([scriptName,"-d",dirName],args.run,args.sequence)
 
         def scripWrapperForTradingCommand(predictionDirAfterLastTD):
-            utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",args.a,"-entryCL",entrylist,"-exitCL",\
-                        exitlist,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+
+            for lQty in lQtyList:
+                utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",args.a,"-entryCL",entrylist,"-exitCL",\
+                        exitlist,"-orderQty",lQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
                         '-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
             
         if args.sequence == "lp":
