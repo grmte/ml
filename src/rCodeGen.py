@@ -198,6 +198,7 @@ def ToFindCorrelationAndPrintingToFile(rScript,config,pTargetVariableKey,pFileNa
     features = config["features-"+pTargetVariableKey]
     rScript.write('\nprint ("Section6: To Find Correlation For ' +pTargetVariableKey  +'") \n')
     rScript.write('string_intercept = paste("CorrelationCoeficient Of ","' + pTargetVariableKey + '" , ":- ","\\n",sep="")\n')
+    rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
     for feature in features:
         userFriendlyName = features[feature]
         userFriendlyName = userFriendlyName.replace('[','')
@@ -224,9 +225,10 @@ def ToFindCorrelationAndPrintingToFile(rScript,config,pTargetVariableKey,pFileNa
         rScript.write('}\n')
         userFriendlyName = features[feature] 
         rScript.write('tempCor <- cor('+pTargetVariableKey+'[,2] , '+ feature+pTargetVariableKey+'[,2] )\n')
-        rScript.write('string_intercept = paste(string_intercept,"'+ userFriendlyName +'" ,"=",toString(tempCor),"\\n",sep="")\n')
+        rScript.write('string_intercept = paste("'+ userFriendlyName +'" ,"=",toString(tempCor),"\\n",sep="")\n')
+        rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
         rScript.write('rm('+ feature+pTargetVariableKey + ')\n')
-    rScript.write('string_intercept = paste(string_intercept,"\\n",sep="")\n')
+    rScript.write('string_intercept = paste("\\n","\\n",sep="")\n')
     rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
 
 def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble="", treeOrNot = "", treeFileName = ""):
