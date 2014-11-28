@@ -164,7 +164,7 @@ for lExperimentFolderName in experimentFolderDirectory:
         lTradingCommandList = []
         for i in range(len(predictionDaysDirectory)):
             predictionDirAfterLastTD = predictionDaysDirectory[i]
-            lRCodeGenCommandList.append((["pRGenForE.py","-e",lExperimentFolderName,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
+            lRCodeGenCommandList.append((["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
                              "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]))
             scriptName=lExperimentFolderName+"/predict" + args.a + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  +\
                         os.path.basename(os.path.abspath(predictionDirAfterLastTD)) + "-wt." + args.wt  + attribute.generateExtension() +".r"
@@ -184,8 +184,10 @@ for lExperimentFolderName in experimentFolderDirectory:
             utility.runCommandList(l_sub_pGenRCodeGenList,args)
             print dp.printGroupStatus()
 
-        utility.runCommandList(lTradingCommandList,args)
-        print dp.printGroupStatus()
+        for chunkNum in range(0,len(lTradingCommandList),totalCommandsToBeScheduledAtOneGo):
+            l_sub_tradingRCodeGenList = lTradingCommandList[chunkNum:chunkNum+totalCommandsToBeScheduledAtOneGo]
+            utility.runCommandList(l_sub_tradingRCodeGenList,args)
+            print dp.printGroupStatus()
  
     else:
         def scriptWrapperForPredictRProgramGeneration(predictionDirAfterLastTD):
