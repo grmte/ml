@@ -105,7 +105,6 @@ if args.allSub == "yes" and not os.path.exists(args.e+"/s/"):
     sys.exit(1)
     
 #==========Generating Features for all required days =======================
-
 if(args.sequence == "dp"):
 
     experimentFolder = args.e
@@ -191,7 +190,7 @@ for lExperimentFolderName in experimentFolderDirectory:
  
     else:
         def scriptWrapperForPredictRProgramGeneration(predictionDirAfterLastTD):
-            utility.runCommand(["pRGenForE.py","-e",lExperimentFolderName,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
+            utility.runCommand(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",args.a,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD , "-dt" , args.dt ,\
                                  "-targetClass" , args.targetClass , '-wt' , args.wt ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 
         def scriptWrapperForPredictProgramRun(predictionDirAfterLastTD):
