@@ -23,6 +23,7 @@ parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-g', required=False,help='Generators directory')
 parser.add_argument('-dt',required=True,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-e',required=False,help='Experiment directory')
+parser.add_argumnet('-autoDesign',required=False,help='If autoDesign = yes , design file will be formed automatically , by default it is yes , Else it will not form the design file and use args.e\'s design file')
 args = parser.parse_args()
 
 args.iT = (args.iT).strip()
@@ -33,8 +34,13 @@ if(args.sequence == "dp"):
 if args.g == None:
     args.g = "/home/vikas/ml/ob/generators/"
 if args.e == None:
+    if args.autoDesign == "no":
+        print "Specify Experiment Folder or make args.autodesign = yes"
+        os._exit(1)
     args.e = "/home/vikas/ml/ob/e/nsefut/"
-        
+if args.autoDesign == None:
+    args.autoDesign = "yes"
+    
 transactionCost = 0
 tickSize = 0
 if "/nsecur/" in args.td:
@@ -129,8 +135,11 @@ def prepare_design_file(pExpDirectory):
     fp_for_design_file.close()
 
 #===================Feature Design File=============================
-l_exp_dir = args.e + "/CorExp"+args.iT.strip()+"/"
-prepare_design_file(l_exp_dir)
+if args.autoDesign.lower() == "yes":
+    l_exp_dir = args.e + "/CorExp"+args.iT.strip()+"/"
+    prepare_design_file(l_exp_dir)
+else:
+    l_exp_dir = args.e
 
 #===================Generation of those features =====================
 
@@ -151,7 +160,7 @@ if args.sequence=="dp":
         print dp.printGroupStatus() 
 else:
     def scriptWrapperForFeatureGeneration(trainingDirectory):
-        utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        utility.runCommand(["aGenForE.py","-e",l_exp_dir,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         pass
     results = map(scriptWrapperForFeatureGeneration,allDataDirectories) 
     pass
