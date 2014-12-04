@@ -12,12 +12,11 @@ def extractAttributeFromDataMatrix(args):
         print "Since -c has not been specified I cannot proceed"
         os._exit()
     if(args.cType == "synthetic"):
-        colNumberOfAttribute = 1
-        colNumberOfTimeStamp = 0
+        colNumberOfAttribute = colNumberOfData.SysFeature
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
-        colNumberOfTimeStamp = colNumberOfData.TimeStamp
     
+    colNumberOfTimeStamp = colNumberOfData.TimeStamp
     currentRowNumber = 0 
     for dataRow in dataFile.matrix:
         cellValue = float(dataRow[colNumberOfAttribute])

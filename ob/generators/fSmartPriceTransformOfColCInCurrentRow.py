@@ -12,19 +12,18 @@ def extractAttributeFromDataMatrix(args):
         os._exit()
         
     if(args.cType == "synthetic"):
-        colNumberOfAttribute = 1
-        colNumberOfTimeStamp = 0
-        colNumberOfExchangeStamp = -1
+        colNumberOfAttribute = colNumberOfData.SysFeature
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
-        colNumberOfTimeStamp = colNumberOfData.TimeStamp
-        colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
+
+    colNumberOfTimeStamp = colNumberOfData.TimeStamp
+    colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
         
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
     for dataRow in dataFile.matrix:
         lSmartFeatureValue = float(dataRow[colNumberOfAttribute])
-        lAskP0 = float(dataRow[-2])
-        lBidP0 = float(dataRow[-3])
+        lAskP0 = float(colNumberOfAttribute.AskP0)
+        lBidP0 = float(colNumberOfAttribute.BidP0)
         lMidPrice = (lAskP0+lBidP0) / 2
         
         if lSmartFeatureValue > lMidPrice:

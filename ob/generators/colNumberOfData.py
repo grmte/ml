@@ -42,3 +42,5 @@ BestBidP = 42
 BestAskQ = 43
 BestAskP = 44
 
+SysFeature = -1
+

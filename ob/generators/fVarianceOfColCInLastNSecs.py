@@ -12,14 +12,12 @@ def extractAttributeFromDataMatrix(args):
         print "Since -c has not been specified I cannot proceed"
         os._exit()
     if(args.cType == "synthetic"):
-        colNumberOfAttribute = 1
-        colNumberOfTimeStamp = 0
-        colNumberOfExchangeStamp = -1
+        colNumberOfAttribute = colNumberOfData.SysFeature
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
-        colNumberOfTimeStamp = colNumberOfData.TimeStamp
-        colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
     
+    colNumberOfTimeStamp = colNumberOfData.TimeStamp
+    colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
     numberOfRowsInLastNSecs = 0
     queueOfValuesInLastNSecs = deque()
     totalOfRowsInLastNSecs = 0.0
