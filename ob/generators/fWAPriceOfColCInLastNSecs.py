@@ -31,13 +31,14 @@ def extractAttributeFromDataMatrix(args):
     list_of_qty_array = [ eval('colNumberOfData.'+args.c+'Q0') , eval('colNumberOfData.'+args.c+'Q1') ,\
                             eval('colNumberOfData.'+args.c+'Q2') , eval('colNumberOfData.'+args.c+'Q3') , eval('colNumberOfData.'+args.c+'Q4')  ]
     currentRowCount = 0
-    qtyForCalculatingWeightedAverage = float(args.n)
+    
     levelOfDataAvailable = 4
     for dataRow in dataFile.matrix:
         qSum = 0
         totalPrice = 0
         totalPriceAtThisLevel = 0
         i = 0
+        qtyForCalculatingWeightedAverage = float(dataRow[colNumberOfAttribute])
         while(i <= levelOfDataAvailable and qSum < qtyForCalculatingWeightedAverage):
             priceAtThisLevel = float(dataFile.matrix[currentRowCount][list_of_price_array[i]])
             qtyAtThisLevel = float(dataFile.matrix[currentRowCount][list_of_qty_array[i]])
@@ -56,13 +57,15 @@ def extractAttributeFromDataMatrix(args):
             totalPriceAtThisLevel = qtyToUseAtThisLevel * priceAtThisLevel
             totalPrice += totalPriceAtThisLevel
     
-        attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
+        attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp)
         attribute.aList[currentRowCount][1] = float(totalPrice)/qtyForCalculatingWeightedAverage
+        attribute.aList[currentRowCount][2] = qtyForCalculatingWeightedAverage
+        attribute.aList[currentRowCount][3] = totalPrice
         
         currentRowCount += 1
         if (currentRowCount%10000==0):
             print "Processed row number " + str(currentRowCount)
     
     lNameOfFeaturePrinted = "fWAPriceOfCol" + args.c + "InLast" + str(args.n) + "Qty"
-    return ["TimeStamp",lNameOfFeaturePrinted,"Zero1","Zero2"]
+    return ["TimeStamp",lNameOfFeaturePrinted,"QtyUsedForCalWtAvg","TotalPriceCalculatedAtCurrRow"]
 
