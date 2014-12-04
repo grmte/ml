@@ -20,7 +20,7 @@ def extractAttributeFromDataMatrix(args):
     currentRowNumber = 0 
     for dataRow in dataFile.matrix:
         cellValue = float(dataRow[colNumberOfAttribute])
-        attribute.aList[currentRowNumber][0] = common.convertTimeStampFromStringToDecimal(dataRow[colNumberOfTimeStamp],args.cType)
+        attribute.aList[currentRowNumber][0] = common.convertTimeStampFromStringToDecimal(dataRow[colNumberOfTimeStamp])
         attribute.aList[currentRowNumber][1] = sqrt(cellValue) # in 1st iteration currentRowNumber = 0
         currentRowNumber += 1
         if currentRowNumber%10000 == 0:

@@ -43,7 +43,7 @@ def extractAttributeFromDataMatrix(args):
                 variance = 0
                 totalOfSquareOfRowsInLastNSecs = ( meanOfRows * meanOfRows ) * ( numberOfRowsInLastNSecs+1 )
                 
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp],args.cType)
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp])
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = variance # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(timeElapsed)
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(totalOfRowsInLastNSecs)+ ";"  + str(totalOfSquareOfRowsInLastNSecs) + ";" +  str(numberOfRowsInLastNSecs+1) 
