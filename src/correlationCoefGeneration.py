@@ -112,11 +112,15 @@ def prepare_design_file(pExpDirectory):
       l_count = l_count+1
     g_list_of_intermediate_features.append('midPrice = (fColBidP0InCurrentRow[Add]fColAskP0InCurrentRow)[DivideBy]2')
     g_list_of_intermediate_features.append('midPriceBest = (fColBestBidPInCurrentRow[Add]fColBestAskPInCurrentRow)[DivideBy]2')
+    g_list_of_features.append("T=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow[Pow]2")
     g_list_of_features.append("H=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow")
     g_list_of_features.append("I=fSmartPriceTransformOfCol_fInverseWAInLast2Levels_InCurrentRow")
     g_list_of_features.append("J=fSmartPriceTransformOfCol_fInverseWAInLast3Levels_InCurrentRow")
     g_list_of_features.append("K=fSmartPriceTransformOfCol_fInverseWAInLast4Levels_InCurrentRow")
     g_list_of_features.append("L=fSmartPriceTransformOfCol_fInverseWAInLast5Levels_InCurrentRow")
+    g_list_of_features.append("Q=fColBidP0InCurrentRow[DivideBy]fInverseWAInLast2Levels")
+    g_list_of_features.append("R=fColAskP0InCurrentRow[DivideBy]fInverseWAInLast2Levels")
+    g_list_of_features.append("O=fCol_midPriceBest_InCurrentRow[DivideBy]fInverseWAInLast2Levels")
     index = 0
     for volatility in [60,300,600]:
         g_list_of_features.append("M"+str(index)+"= fVarianceOfCol_midPrice_InLast"+str(volatility)+"Secs[Pow].5") 
