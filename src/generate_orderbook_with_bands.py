@@ -166,13 +166,13 @@ def generate_final_orderbook_records_and_print_into_file():
             l_all_prices_in_ask_band = sorted(l_best_ask_bandlist.items())
             l_bestAskP = str(l_all_prices_in_ask_band[0][0])
             l_bestAskQ = str(l_all_prices_in_ask_band[0][1])
-
-        if g_previous_ob_string <> l_current_ob_string:
+        l_temp_str = ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)
+        if g_previous_ob_string <> l_current_ob_string + l_temp_str:
             if l_flag_indicating_to_be_printed_or_not == 1 :
                 l_ob_string_to_be_printed = g_instrument_fullname + ";" + l_current_ob_string + ";0;0;0;0;0;0;0;0;0;" + g_timestamp + ";" + str(g_serial_no) + ";" + g_messagecode + ";" + g_ordertype + ";" + \
                                             g_quantity_1 + ";" + g_price_1 + ";" + g_quantity_2 + ";" + g_price_2 + ";" + g_exchange_timestamp + ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)      
                 g_fp_output_orderbook_price_list.write(l_ob_string_to_be_printed + "\n")
-                g_previous_ob_string = l_current_ob_string
+                g_previous_ob_string = l_current_ob_string + l_temp_str
                      
     except Exception, e:
         print "Exception @Print: ", e
