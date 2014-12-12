@@ -20,7 +20,7 @@ parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 args = parser.parse_args()
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)  
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nD) , args.d )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nD) , args.d ,args.iT)
 OSQ = 17
 CBQ = 11
 OSP = 23

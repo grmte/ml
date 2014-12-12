@@ -82,6 +82,7 @@ for experiment in  experimnetList:
             
     dirName = args.pd.replace('/ro/','/wf/')
     targetSet = config['target']
+    
     for target in targetSet.keys():
         predictedValuesFileName = dirName+"/p/"+mainExperimentName+"/" + args.a + target + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
                                      '-dt.' + str(args.dt) + '-targetClass.' + args.targetClass + '-f.' + experimentName +  "-wt." + args.wt + attribute.generateExtension()+ ".predictions"
@@ -105,7 +106,7 @@ for experiment in  experimnetList:
                    '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt + attribute.generateExtension() + '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-te.7.trade"
     lTradeFp = open(lInitialFileName, "rb")
     tradeFpList.append(lTradeFp)
-
+    
 fileName = ''
 try:   
    if(attribute.instType!=''):
@@ -131,9 +132,9 @@ dataFp = open(fileName,"rb")
 dirName = args.pd.replace('/ro/','/rs/')
 fileNamesForTradeDirectory = dirName + "/r/" 
 
-lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-               '-dt.' + args.dt + '-f.' + "_".join(mainExperimentNameList) + \
-               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + ".csv"
+lInitialFileName = fileNamesForTradeDirectory + args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) +'-pd.' + os.path.basename(os.path.abspath(args.pd)) + \
+               '-dt.' + args.dt +'-f.' + "_".join(mainExperimentNameList) + \
+               '-l.'+args.entryCL+"-"+args.exitCL + "-tq." + args.orderQty + "-iT." + args.iT + "-sP." + args.sP + "-oT." + args.oT +  ".csv"
 
 print ("filename---", lInitialFileName)
 outputfile = open(lInitialFileName, 'wb') 
@@ -141,18 +142,21 @@ outputfile = open(lInitialFileName, 'wb')
 startIndex = 0
 while True:
     allFeatureData = ''
+    
     line = dataFp.readline()
     if line == '' :
         exit(0)
     ls = line.strip().split(";")
+    #list_temp = [ls[21],ls[22],ls[41],ls[42],ls[43],ls[44]]
     list_temp = []
     list_temp.append(ls[33])
     list_temp.extend(ls[0:11])
-    #list_temp.extend([ls[41],ls[42]])
+    list_temp.extend([ls[41],ls[42]])
     list_temp.extend(ls[11:21])
-    #list_temp.extend([ls[43],ls[44]])
+    list_temp.extend([ls[43],ls[44]])
     list_temp.extend(ls[21:23])
     list_temp.extend(ls[34:41])
+    
     line = ";".join(list_temp)
     allFeatureData = allFeatureData + line + ";"
     

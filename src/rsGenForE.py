@@ -73,7 +73,7 @@ if(args.sequence == "dp"):
 entrylist = ""
 exitlist = ""
 for i in range(55,70,1):
-    for j in range(max(50,i-10),i+1,1):
+    for j in range(50,i+1,1):
         exitlist = exitlist + str(j) + ";"
         entrylist = entrylist + str(i) + ";"
 exitlist = exitlist[:-1]
@@ -87,10 +87,10 @@ if args.exitCL == None:
 def scriptWrapperForFeatureGeneration(trainingDirectory):
     utility.runCommand(["aGenForE.py","-e",args.e,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     pass
-lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td) 
+lListOfTrainingDirectories = attribute.getListOfTrainingDirectoriesNames(args.dt,args.td,args.iT) 
 lListOfTrainPredictDirectories = lListOfTrainingDirectories
 if args.pd is None:
-    predictionDirectory = attribute.getListOfTrainingDirectoriesNames(2,lListOfTrainPredictDirectories[-1])[-1]
+    predictionDirectory = attribute.getListOfTrainingDirectoriesNames(2,lListOfTrainPredictDirectories[-1],args.iT)[-1]
 else:
     predictionDirectory = args.pd
 lListOfTrainPredictDirectories.append(predictionDirectory)
@@ -122,15 +122,12 @@ if args.targetClass == "multinomial" :
     utility.runCommand(["./ob/quality/tradeE5.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,\
                                         '-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 else:
-    if((args.e).find("nsefut") >= 0):
-            utility.runCommand(["./ob/quality/tradeE7NseFut.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-    else:
-        utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     pass
-  
+'''  
 if((args.e).find("nsefut") >= 0):
     utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsefut/20140724/", "-dt" , str(args.dt) ,"-nD", "22", "-m" , "NSE FUT ICICI RESULTS " , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     print "NSEFUT"
 else:
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140903/", "-dt" , str(args.dt) ,"-nD", "26", "-m" , "NSE CURRENCY RESULTS FOR AmbandAvg_Rate" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140903/", "-dt" , str(args.dt) ,"-nD", "26", "-m" , "NSE_CURRENCY_RESULTS_FOR_AB_And_SmartPrice" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+'''

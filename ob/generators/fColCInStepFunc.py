@@ -36,12 +36,11 @@ def extractAttributeFromDataMatrix(args):
    currentRowCount = 0
 
    if(args.cType == "synthetic"):
-      colNumberOfAttribute = 1
-      colNumberOfTimeStamp = 0
+      colNumberOfAttribute = colNumberOfData.SysFeature
    else:
       colNumberOfAttribute = eval("colNumberOfData."+ args.c )
-      colNumberOfTimeStamp = colNumberOfData.TimeStamp
 
+   colNumberOfTimeStamp = colNumberOfData.TimeStamp
    for dataRow in dataFile.matrix:
       currentTickValue = float(dataFile.matrix[currentRowCount][colNumberOfAttribute])
       attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp,args.cType)

@@ -82,10 +82,9 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
             if(fileHasHeader == 1 and headerSkipped != 1):
                 headerSkipped = 1 
                 continue
-            exchangeDataList = exchangeDataRow.strip().split(";")
-            dataRow=dataFileDataRow.rstrip('\n') + ";" + exchangeDataList[colNumberOfData.BidP0]\
-                    + ";" + exchangeDataList[colNumberOfData.AskP0]\
-                    + ";" + exchangeDataList[colNumberOfData.ExchangeTS]
+            exchangeDataRow = exchangeDataRow.rstrip('\n')
+            dataFileDataList = dataFileDataRow.rstrip('\n').split(";")
+            dataRow= exchangeDataRow + ";" + dataFileDataList[1]
             addDataRowToMatrix(dataRow)  
 
 

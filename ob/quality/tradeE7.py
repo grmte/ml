@@ -378,7 +378,7 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
     currentIndex = 0
     print("Processing the data file for trades :")
     attribute.initList()
-    for currentDataRow in dataFile.matrix:
+    for currentDataRow in dataFile.matrix[10000:]:
         
         lReturnList = checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(currentDataRow,ttqAtTimeOfPreviousDataRow,askP0AtTimeOfPreviousDataRow,bidP0AtTimeOfPreviousDataRow,\
                                                                              askQ0AtTimeOfPreviousDataRow , bidQ0AtTimeOfPreviousDataRow , enterTradeShort,enterTradeLong,tradeStats,reasonForTrade,\
@@ -437,11 +437,17 @@ def readOnceAndWrite(pFileName, pIndexOfEntryOrExitCL, predictedValuesDict):
         else:
             enterTradeLong = 0  # Implies make no change
         
-        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ]) 
-        askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
-        bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
-        askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskQ0])
-        bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidQ0])
+        ttqAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.TTQ])
+        if((args.e).find("nsefut") >= 0):
+            askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestAskP])
+            bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestBidP])
+            askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestAskQ])
+            bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BestBidQ])
+        else:
+            askP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskP0])
+            bidP0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidP0])
+            askQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.AskQ0])
+            bidQ0AtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.BidQ0])
         ltpAtTimeOfPreviousDataRow = float(currentDataRow[colNumberOfData.LTP])
         currentIndex = currentIndex + 1
     

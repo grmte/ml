@@ -28,7 +28,7 @@ attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 
 if args.nD == None:
     args.nD = args.dt
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nD) , args.td )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nD) , args.td ,args.iT)
 if args.pd == None:
     allPredictionDataDirectories = allDataDirectories[int(args.dt)-1:]
 else:

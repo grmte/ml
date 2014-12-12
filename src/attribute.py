@@ -4,6 +4,7 @@ from datetime import timedelta
 from datetime import datetime
 from configobj import ConfigObj
 import math
+import commands
 aList = []
 instType = None
 optionsType = None
@@ -227,7 +228,9 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderTyp
        
     return attributeFile
 
-def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNextDayAfterLast ):
+def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNextDayAfterLast ,pInstType="data" ):
+    if pInstType == None:
+        pInstType = "data"
     lPredicionBaseFolderName = os.path.basename(os.path.abspath(pPredictDir))   
     lPredictionDateObject = datetime.strptime(lPredicionBaseFolderName, '%Y%m%d')
     pNumOfTrainingDays = int(pNumOfTrainingDays)
@@ -244,12 +247,21 @@ def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNext
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
         l_training_date_full_path_name = pPredictDir.replace(lPredicionBaseFolderName,l_training_date_in_string) 
         if (os.path.exists(l_training_date_full_path_name)):
-            countOfDaysTaken += 1
+            lRoDir = l_training_date_full_path_name.replace('/wf/','/ro/')
+            lRoDir = lRoDir.replace('/rs/','/ro/')
+            listOfFiles = commands.getoutput('ls -1 '+ lRoDir).split("\n")
+            for file in listOfFiles:
+                if pInstType.strip() in file:
+                    countOfDaysTaken += 1
+                    break
         if countOfDaysTaken == int(pNumOfTrainingDays):
             break            
     return l_training_date_full_path_name
 
-def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory):
+def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory,pInstType="data"):
+    global instType
+    if pInstType == None:
+        pInstType = "data"
     lTrainingDirectoryList = []
     l_training_day_folder_base_date = os.path.basename(os.path.abspath(pStartTrainingDirectory))
     l_start_training_date = datetime.strptime(l_training_day_folder_base_date, '%Y%m%d')
@@ -261,10 +273,19 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
         if( l_training_date.weekday() == 5 or l_training_date.weekday() == 6): # Day is monday
             continue
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
-        l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string) 
+        l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string)
+#        print l_training_date_full_path_name , l_training_date_full_path_name+"/*ICICI*"
         if (os.path.exists(l_training_date_full_path_name)):
-            lTrainingDirectoryList.append(l_training_date_full_path_name)
-            countOfDaysTaken += 1
+            lRoDir = l_training_date_full_path_name.replace('/wf/','/ro/')
+            lRoDir = lRoDir.replace('/rs/','/ro/')
+            listOfFiles = commands.getoutput('ls -1 '+ lRoDir).split("\n")
+            for file in listOfFiles:
+                #print file
+                if pInstType.strip() in file:
+                    lTrainingDirectoryList.append(l_training_date_full_path_name)
+                    countOfDaysTaken += 1
+                    break
+                    
         if countOfDaysTaken == int(pNumOfTrainingDays):
             break
     print lTrainingDirectoryList

@@ -14,7 +14,7 @@ parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=False,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-g', required=True,help='Generators directory')
-parser.add_argument('-dt',required=False,help='Number of days after start training day specified . Defaults to 1 ')
+parser.add_argument('-dt',required=True,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 parser.add_argument('-targetClass',required=False,help="binomial(target takes only true and false) / multinomial (target values takes more than 2 values)")
@@ -32,12 +32,15 @@ parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 parser.add_argument('-double',required=False,help='Double training of in model')
 parser.add_argument('-treeUsed',required=False,help="To use tree in training")
+parser.add_argument("-tTD",required=False,help="Number of days to be used for making tree")
+parser.add_argument("-orderQty",required=True,help="Order qty ")
 args = parser.parse_args()
 
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 if args.targetClass == None:
     args.targetClass = "binomial"
-
+if args.tTD == None:
+    args.tTD = args.dt
 if args.t == None:
     args.t = "0.000015"
 if args.skipM == None:
@@ -69,7 +72,7 @@ targetAttributes = attribute.getTargetVariableKeys(config)
 one_feature_attributes = attribute.getFeatureVariableKeys(config , targetAttributes.keys()[0])
 lengthOfFeatures = len(one_feature_attributes)
 
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td ,args.iT)
 dataFolder = args.td
 generatorsFolder = args.g
 commandList = []
@@ -154,9 +157,6 @@ for algo in allAlgos:
                     lRCodeGenCommandList.append(["pRGenForE.py","-e",args.e,"-s",lExperimentFolderName,"-a",algo,"-skipP",args.skipP,"-td",args.td , "-pd" , predictionDirAfterLastTD ,\
                                                   "-dt" , args.dt , "-targetClass" , args.targetClass , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double])
 
-                    if args.treeUsed.lower() == "yes":
-                        lRCodeGenCommandList.append(["tRGenForE.py","-e",lExperimentFolderName,"-a",algo,"-targetClass",args.targetClass,"-skipT",args.skipTr,"-td",args.td, "-dt" , \
-                                                     args.dt , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP ])                        
                     dirName = args.td.replace('/ro/','/wf/')
                     if args.double:
                         scriptName = lExperimentFolderName+"/train" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +"double.r"
@@ -166,18 +166,35 @@ for algo in allAlgos:
                     trainingDataCorrespondingDateList = []    
                     trainingDataList = [] #";".join(allDataDirectories[i:i+ int(args.dt) ])
                     lCount = i
+                    treeDataList = []
                     for trainDirs in allDataDirectories[i:i+ int(args.dt)]:
-                        trainingDataList.append(trainDirs.replace('/ro/','/wf/'))
-                        if lCount-int(args.dt) > 0:
-                            trainingDataCorrespondingDateList.append(allDataDirectories[lCount-int(args.dt)][-10:-1])
-                        lCount = lCount + 1
+                        trainingDataList.append(trainDirs.replace('/ro/','/wf/'))  
+                        
+                    
+                    try:
+                        allDataDirectories[i+ int(args.tTD)]
+
+                        for treeDirs in allDataDirectories[i:i+ int(args.tTD)]:
+                            treeDataList.append(treeDirs.replace('/ro/','/wf/'))
+                            if lCount-int(args.dt) > 0:
+                                trainingDataCorrespondingDateList.append(allDataDirectories[lCount-int(args.dt)][-9:-1])
+                            lCount = lCount + 1
+
+                    except:
+                        pass
+
                     trainingDataListString = ";".join(trainingDataList)
-                    treeDataListString = ";".join(trainingDataCorrespondingDateList)
+                    treeDataListString2 = ";".join(trainingDataCorrespondingDateList)
+                    treeDataListString1 = ";".join(treeDataList)
+
                     lMGenRCodeList.append([scriptName,"-d",trainingDataListString])
+
                     if args.treeUsed.lower() == "yes":
-                        scriptName = lExperimentFolderName+"/tree" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
-                        if len(trainingDataList)== len(trainingDataCorrespondingDateList):
-                            lTreeTrainingList.append([scriptName,'-d',trainingDataListString,'-p',treeDataListString])
+                        if len(treeDataList) == len(trainingDataCorrespondingDateList):
+                            lRCodeGenCommandList.append(["tRGenForE.py","-e",lExperimentFolderName,"-a",algo,"-targetClass",args.targetClass,"-skipT",args.skipTr,"-td",args.td, "-dt" , \
+                                                     args.dt , '-wt' , wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-tTD",args.tTD,'-treeType',"1" ])                     
+                            scriptName = lExperimentFolderName+"/traintree-td." + os.path.basename(os.path.abspath(args.td)) +"-tTD"+args.tTD+ "-dt." + args.dt + "-wt." + wt + attribute.generateExtension() +".r"
+                            lTreeTrainingList.append([scriptName,'-d',treeDataListString1,'-p',treeDataListString2])
 
 #                     dirName = predictionDirLastTD.replace('/ro/','/wf/')    
 #                     scriptName=lExperimentFolderName+"/predict" + algo + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt +"-pd."  + \
@@ -195,11 +212,11 @@ for algo in allAlgos:
 
                     if args.treeUsed.lower() == "no":
                         lTradingCommandList.append(["./ob/quality/tradeE7Optimized.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL",entrylist,"-exitCL",\
-                                                    exitlist,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+                                                    exitlist,"-orderQty",args.orderQty,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
                                                     '-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-double', args.double]) 
                     else:
                         lTradingCommandList.append(["./ob/quality/tradeE15/main.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL","60","-exitCL",\
-                                                    "50","-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,\
+                                                    "55","-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td ,"-tTD",args.tTD, "-pd",predictionDirAfterLastTD,\
                                                     '-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,"-treeType","1"]) 
 
 #                    lTradingCommandList.append(["./ob/quality/tradeE12.py","-e",lExperimentFolderName,"-skipT",args.skipT,"-a",algo,"-entryCL1",entrylist1,"-exitCL1",exitlist1,"-entryCL2",entrylist2,"-exitCL2",exitlist2,"-entryCL3",entrylist3,"-exitCL3",exitlist3,"-entryCL4",entrylist4,"-exitCL4",exitlist4,"-orderQty","300",'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirAfterLastTD,'-tickSize',args.tickSize,'-wt',wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP]) 
@@ -218,14 +235,19 @@ for algo in allAlgos:
                 if args.treeUsed.lower() == "yes":
                     for chunkNum in range(0,len(lTreeTrainingList),totalModelsWhichCanBeScheduled):
                         lSubTreeList = lTreeTrainingList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
-                        utility.runCommandList(lSubTreeList,args)
-                        print dp.printGroupStatus()
-                    
-                utility.runCommandList(lTradingCommandList,args)
-                print dp.printGroupStatus()
+                        #utility.runCommandList(lSubTreeList,args)
+                        #print dp.printGroupStatus()
+                if args.treeUsed.lower() == "yes":
+                    for chunkNum in range(0,len(lTradingCommandList),totalModelsWhichCanBeScheduled):
+                        lSubTradingList = lTradingCommandList[chunkNum:chunkNum+totalModelsWhichCanBeScheduled]
+                        utility.runCommandList(lSubTradingList,args)
+                        print dp.printGroupStatus() 
+                else:
+                    utility.runCommandList(lTradingCommandList,args)
+                    print dp.printGroupStatus()
                      
 
-                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"AmB,RateOFAmBAndAvgerageOfAmBOver60Secs" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+                utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",dataFolder, "-dt" , str(args.dt) , '-nD' , str(args.nDays) , "-m" ,"ICICI_BANK_experiments" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         indexOfFeatures = indexOfFeatures + 1
     for i in range(len(allDataDirectories)-int(args.dt)):
         args.td = allDataDirectories[i]
