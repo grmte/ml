@@ -43,12 +43,16 @@ if 'nsecur' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
     if args.t ==None:
         transactionCost = 0.000015
-        currencyDivisor = 10000
+    else:
+        transactionCost = float(args.t)
+    currencyDivisor = 10000
 elif 'nsefut' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
     if args.t ==None:
         transactionCost = 0.00015
-        currencyDivisor = 1000
+    else:
+        transactionCost = float(args.t)
+    currencyDivisor = 1000
 elif 'nseopt' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
     transactionCost = args.t
@@ -936,7 +940,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
         os.mkdir(tradeLogSubDirectoryName)
     
     fileName = tradeLogSubDirectoryName + pFileName + ".trade" 
-    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0;BidP0;BidQ1;BidP1;','AskQ0;AskP0;AskQ1;AskP1;','TTQ','LTP',\
+    lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0;BidP0;BidQ1;BidP1','AskQ0;AskP0;AskQ1;AskP1','TTQ','LTP',\
                                'f0;f1;f2;f3;f4;f5;f60;f61;f62;f63;f64;f65;'\
                                'CurBuyPredValue5Level','CurrentSellPredValue5Level','CurBuyPredValue6Level','CurrentSellPredValue6Level',\
                                'EnterTradeOpenBuy','ReasonForTradingOrNotTradingOpenBuy','EnterTradeCloseBuy','ReasonForTradingOrNotTradingCloseBuy','EnterTradeOpenSell','ReasonForTradingOrNotTradingOpenSell','EnterTradeCloseSell','ReasonForTradingOrNotTradingCloseSell',\
