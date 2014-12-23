@@ -24,7 +24,6 @@ parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
 parser.add_argument('-oT',required=False,help='Options Type')
 parser.add_argument('-t',required=False,help='Transaction Cost')
-parser.add_argument('-pipTaken',required=False,help='Pips at which profit orders are kept')
 args = parser.parse_args()
 sys.path.append("./src/")
 sys.path.append("./ob/generators/")
@@ -74,7 +73,6 @@ gStandingAtBidPPlusOneTickInCloseBuy = 0
 gStandingAtAskPMinusOneTickInOpenSell = 0
 gStandingAtBidPPlusOneTickInOpenBuy = 0
 
-gPipsTaken = int(args.pipTaken)
 gNoOfLineReadPerChunk = 10000
 
 gOpenBuyFillPrice = 0
@@ -83,8 +81,8 @@ gOpenSellFillPrice = 0
 initialFileName = []
 for indexOfCL in range(0,len(gEntryCLList)):
     lInitialFileName = args.a + '-td.' + os.path.basename(os.path.abspath(args.td)) + \
-                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ "-pipTaken." + args.pipTaken+ attribute.generateExtension() + \
-                   '-l.'+gEntryCLList[indexOfCL]+"-"+gExitCLList[indexOfCL]  + "-tq." + args.orderQty + "-te.13"
+                   '-dt.' + args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + \
+                   '-l.'+gEntryCLList[indexOfCL]+"-"+gExitCLList[indexOfCL]  + "-tq." + args.orderQty + "-te.7With2Prob"
 
     initialFileName.append(lInitialFileName)
     
