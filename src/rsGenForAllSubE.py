@@ -8,7 +8,7 @@ import attribute
 
 parser = argparse.ArgumentParser(description='This program will get results for all the subexperiments. \n\
 An e.g. command line is \n\
-src/rsGenForAllSubE.py -e ob/e/nsecur/24/ -a glmnet -td ob/data/ro/nsecur/20140203/ -dt 10 -pd ob/data/ro/nsecur/20140318/ -run real -sequence lp -targetClass binomial -tickSize 25000 -wt exp -g ob/generators/',formatter_class=argparse.RawTextHelpFormatter)
+src/rsGenForAllSubE.py -e ob/e/nsefut/ICICIBANK/ -a glmnet -td ob/data/ro/nsefut/20140801/ -pd ob/data/ro/nsefut/20140922/ -g ob/generators/ -dt 20 -run dry -sequence serial -tickSize 5 -iT ICICIBANK -sP -1 -oT 0 -t 0.00015\n')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name.')
 parser.add_argument('-td', required=True,help='Training directory')
