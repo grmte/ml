@@ -768,7 +768,7 @@ def update_obj_list(pCurrentDataRow,l_obj):
     
 
 def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
-    global g_bestqty_list_for_close_sell, g_bestqty_list_for_close_buy 
+    global g_bestqty_list_for_close_sell, g_bestqty_list_for_close_buy ,g_bestqty_list_for_open_sell, g_bestqty_list_for_open_buy 
     global transactionCost , currencyDivisor
     attribute.initList()
     tradeStats = dict()
