@@ -1056,7 +1056,7 @@ if __name__ == "__main__":
     predictedSellValuesFileName = lWFDirName+"/p/"+mainExperimentName+"/"+args.a + 'sell' + '-td.' + os.path.basename(os.path.abspath(args.td)) + '-dt.' +\
     args.dt + '-targetClass.' + args.targetClass + '-f.' + experimentName + "-wt." + args.wt+ attribute.generateExtension() + ".predictions"
       
-    if os.path.isfile(predictedBuyValuesFileName) and os.path.isfile(predictedSellValuesFileName):
+    if (1):
         for lFileName in initialFileName:
             fileName = dirName + "/r/" + mainExperimentName + "/" + lFileName+".result"
             if os.path.isfile(fileName) and args.skipT.lower() == "yes":
