@@ -228,7 +228,9 @@ def getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderTyp
        
     return attributeFile
 
-def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNextDayAfterLast ):
+def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNextDayAfterLast ,pInstType="data" ):
+    if pInstType == None:
+        pInstType = "data"
     lPredicionBaseFolderName = os.path.basename(os.path.abspath(pPredictDir))   
     lPredictionDateObject = datetime.strptime(lPredicionBaseFolderName, '%Y%m%d')
     pNumOfTrainingDays = int(pNumOfTrainingDays)
@@ -245,7 +247,13 @@ def getTrainDirFromPredictDir( pNumOfTrainingDays , pPredictDir , pLastDayOrNext
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
         l_training_date_full_path_name = pPredictDir.replace(lPredicionBaseFolderName,l_training_date_in_string) 
         if (os.path.exists(l_training_date_full_path_name)):
-            countOfDaysTaken += 1
+            lRoDir = l_training_date_full_path_name.replace('/wf/','/ro/')
+            lRoDir = lRoDir.replace('/rs/','/ro/')
+            listOfFiles = commands.getoutput('ls -1 '+ lRoDir).split("\n")
+            for file in listOfFiles:
+                if pInstType.strip() in file:
+                    countOfDaysTaken += 1
+                    break
         if countOfDaysTaken == int(pNumOfTrainingDays):
             break            
     return l_training_date_full_path_name

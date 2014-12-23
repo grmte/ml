@@ -13,17 +13,17 @@ parser.add_argument('-run', required=True,help='dry (only show dont execute) or 
 parser.add_argument('-sequence', required=False,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
 parser.add_argument('-nComputers',required=True,help="Number of computers at which task has to be run present in the data set")
-parser.add_argument('-TargetParam',required=True,help="list of qty and pip eg 10000_1.5")
+parser.add_argument('-TargetParam',required=False,help="list of qty and pip eg 10000_1.5")
 parser.add_argument('-iT',required=True,help='Instrument name')
 parser.add_argument('-sP',required=True,help='Strike price of instrument')
 parser.add_argument('-oT',required=True,help='Options Type')
-parser.add_argument('-lSz',required=True,help='lot size in qty') 
-parser.add_argument('-fQL',required=True,help='feature qty in lots')
+parser.add_argument('-lSz',required=False,help='lot size in qty') 
+parser.add_argument('-fQL',required=False,help='feature qty in lots')
 parser.add_argument('-td', required=True,help='Training directory')
 parser.add_argument('-g', required=False,help='Generators directory')
 parser.add_argument('-dt',required=True,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-e',required=False,help='Experiment directory')
-parser.add_argumnet('-autoDesign',required=False,help='If autoDesign = yes , design file will be formed automatically , by default it is yes , Else it will not form the design file and use args.e\'s design file')
+parser.add_argument('-autoDesign',required=False,help='If autoDesign = yes , design file will be formed automatically , by default it is yes , Else it will not form the design file and use args.e\'s design file')
 args = parser.parse_args()
 
 args.iT = (args.iT).strip()
@@ -178,9 +178,7 @@ if args.sequence=="dp":
 lFileName = l_exp_dir + "/corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
 allWorkingFileDirectories =  attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td.replace('/ro/','/wf/') ,args.iT)
 allWorkingFileDirectoriesString = ";".join(allWorkingFileDirectories)
-utility.runCommand([lFileName,'-d',allWorkingFileDirectoriesString],args.run,args.sequence)
-if args.sequence=="dp":  
-    print dp.printGroupStatus()
+utility.runCommand([lFileName,'-d',allWorkingFileDirectoriesString],args.run,"serial")
 
 #=======MAiling the correlateion file==============================
 summary_file_name = l_exp_dir + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 

@@ -25,11 +25,15 @@ def extractAttributeFromDataMatrix(args):
 
     colNumberOfTimeStamp = colNumberOfData.TimeStamp
     colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
-    
-    list_of_price_array = [ eval('colNumberOfData.'+args.c+'P0') , eval('colNumberOfData.'+args.c+'P1') ,\
-                            eval('colNumberOfData.'+args.c+'P2') , eval('colNumberOfData.'+args.c+'P3') , eval('colNumberOfData.'+args.c+'P4')  ]
-    list_of_qty_array = [ eval('colNumberOfData.'+args.c+'Q0') , eval('colNumberOfData.'+args.c+'Q1') ,\
-                            eval('colNumberOfData.'+args.c+'Q2') , eval('colNumberOfData.'+args.c+'Q3') , eval('colNumberOfData.'+args.c+'Q4')  ]
+
+    if "Bid" in args.c:
+        side = "Bid"
+    elif "Ask" in args.c:
+        side = "Ask"
+    list_of_price_array = [ eval('colNumberOfData.'+side+'P0') , eval('colNumberOfData.'+side+'P1') ,\
+                            eval('colNumberOfData.'+side+'P2') , eval('colNumberOfData.'+side+'P3') , eval('colNumberOfData.'+side+'P4')  ]
+    list_of_qty_array = [ eval('colNumberOfData.'+side+'Q0') , eval('colNumberOfData.'+side+'Q1') ,\
+                            eval('colNumberOfData.'+side+'Q2') , eval('colNumberOfData.'+side+'Q3') , eval('colNumberOfData.'+side+'Q4')  ]
     currentRowCount = 0
     
     levelOfDataAvailable = 4
@@ -66,6 +70,6 @@ def extractAttributeFromDataMatrix(args):
         if (currentRowCount%10000==0):
             print "Processed row number " + str(currentRowCount)
     
-    lNameOfFeaturePrinted = "fWAPriceOfCol" + args.c + "InLast" + str(args.n) + "Qty"
+    lNameOfFeaturePrinted = "fWAPriceOfCol" + side + "InLast" + str(args.n) + "Qty"
     return ["TimeStamp",lNameOfFeaturePrinted,"QtyUsedForCalWtAvg","TotalPriceCalculatedAtCurrRow"]
 

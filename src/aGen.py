@@ -13,7 +13,7 @@ import attribute
 
 
 def parseCommandLine():
-    parser = argparse.ArgumentParser(description='This program will run aGen.py given a generator. An e.g. command line is aGen.py -d ob/data/ro/20140204/ -g ob/generators/fColCInCurrentRow -c BidP0')
+    parser = argparse.ArgumentParser(description='This program will run aGen.py given a generator. An e.g. command line is:-\n src/aGen.py -d ob/data/ro/nsefut/20141017/ -g ob/generators/fMovingAverageOfColCInLastNSecs -c BidP0 -n 600 -iT DLF -sP -1 -oT 0')
     parser.add_argument('-d', required=True,help='Directory of data file')
     parser.add_argument('-g', required=True,help='Directory of geneartors')
     parser.add_argument('-c', required=False,help='Column name')
