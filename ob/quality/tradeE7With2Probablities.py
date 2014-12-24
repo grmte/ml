@@ -870,36 +870,36 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
             currentTimeStamp = common.convertTimeStampFromStringToFloat(currentDataRow[colNumberOfData.TimeStamp])
             
             #Open Sell and Close Buy
-            if((l_obj.currentBuyPredictedValue1 >= exitCL )and tradeStats['currentPositionShort'] > 0):
-                g_bestqty_list_for_close_buy = {}
-                l_obj.CloseBuy = -1       #For close by hitting
                 
-
             if(l_obj.currentSellPredictedValue1 >= entryCL and tradeStats['currentPositionLong'] == 0):
                 g_bestqty_list_for_open_sell = {}
                 l_obj.OpenSell = 1    #For open buy
                 
-            if(l_obj.currentBuyPredictedValue2 >= exitCL and tradeStats['currentPositionShort'] > 0) and (l_obj.CloseBuy != -1) :
-                l_obj.CloseBuy = -2
+            if((l_obj.currentBuyPredictedValue1 >= exitCL )and tradeStats['currentPositionShort'] > 0) and l_obj.OpenSell == 0:
+                g_bestqty_list_for_close_buy = {}
+                l_obj.CloseBuy = -1       #For close by hitting
+
             if(l_obj.currentSellPredictedValue2 >= entryCL and tradeStats['currentPositionLong'] == 0) and (l_obj.OpenSell != 1) :
                 l_obj.OpenSell = 2
+            if(l_obj.currentBuyPredictedValue2 >= exitCL and tradeStats['currentPositionShort'] > 0) and (l_obj.CloseBuy != -1) and l_obj.OpenSell == 0 :
+                l_obj.CloseBuy = -2
             
             
             
             #Open Buy and Close Sell
 
-            if(l_obj.currentSellPredictedValue1 >= exitCL and tradeStats['currentPositionLong'] > 0):
-                g_bestqty_list_for_close_sell = {}
-                l_obj.CloseSell = -1       #For close by hitting
-                
             if(l_obj.currentBuyPredictedValue1 >= entryCL and tradeStats['currentPositionShort'] == 0) :
                 g_bestqty_list_for_open_buy = {}
                 l_obj.OpenBuy = 1       #For close by hitting
                  
-            if(l_obj.currentSellPredictedValue2 >= exitCL and tradeStats['currentPositionLong'] > 0) and (l_obj.CloseSell != -1)  :
-                l_obj.CloseSell = -2   
+            if(l_obj.currentSellPredictedValue1 >= exitCL and tradeStats['currentPositionLong'] > 0) and l_obj.OpenBuy == 0:
+                g_bestqty_list_for_close_sell = {}
+                l_obj.CloseSell = -1       #For close by hitting
+                
             if  (l_obj.currentBuyPredictedValue2 >= entryCL and tradeStats['currentPositionShort'] == 0) and (l_obj.OpenBuy != 1):          
                 l_obj.OpenBuy = 2
+            if(l_obj.currentSellPredictedValue2 >= exitCL and tradeStats['currentPositionLong'] > 0) and (l_obj.CloseSell != -1) and l_obj.OpenBuy == 0 :
+                l_obj.CloseSell = -2   
         
         l_previous_obj = l_obj
         currentIndex = currentIndex + 1
