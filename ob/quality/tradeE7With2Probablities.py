@@ -123,8 +123,8 @@ class Tick():
         self.currentTimeStamp = pCurrentDataRowTimeStamp
         self.currentBuyPredictedValue1 = pBuyProb1
         self.currentSellPredictedValue1 = pSellProb1
-        self.currentBuyPredictedValue2 = pBuyProb2
-        self.currentSellPredictedValue2 = pSellProb2        
+        self.currentBuyPredictedValue2 = 0#pBuyProb2
+        self.currentSellPredictedValue2 = 0#pSellProb2        
         self.OpenBuy = 0
         self.OpenSell = 0
         self.CloseBuy = 0
@@ -879,9 +879,9 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
                 g_bestqty_list_for_open_sell = {}
                 l_obj.OpenSell = 1    #For open buy
                 
-            if(l_obj.currentBuyPredictedValue2 >= .40 and tradeStats['currentPositionShort'] > 0) and (l_obj.CloseBuy != -1) :
+            if(l_obj.currentBuyPredictedValue2 >= .50 and tradeStats['currentPositionShort'] > 0) and (l_obj.CloseBuy != -1) :
                 l_obj.CloseBuy = -2
-            if(l_obj.currentSellPredictedValue2 >= .45 and tradeStats['currentPositionLong'] == 0) and (l_obj.OpenSell != 1) :
+            if(l_obj.currentSellPredictedValue2 >= .55 and tradeStats['currentPositionLong'] == 0) and (l_obj.OpenSell != 1) :
                 l_obj.OpenSell = 2
             
             
@@ -896,9 +896,9 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
                 g_bestqty_list_for_open_buy = {}
                 l_obj.OpenBuy = 1       #For close by hitting
                  
-            if(l_obj.currentSellPredictedValue2 >= .40 and tradeStats['currentPositionLong'] > 0) and (l_obj.CloseSell != -1)  :
+            if(l_obj.currentSellPredictedValue2 >= .50 and tradeStats['currentPositionLong'] > 0) and (l_obj.CloseSell != -1)  :
                 l_obj.CloseSell = -2   
-            if  (l_obj.currentBuyPredictedValue2 >= .45 and tradeStats['currentPositionShort'] == 0) and (l_obj.OpenBuy != 1):          
+            if  (l_obj.currentBuyPredictedValue2 >= .55 and tradeStats['currentPositionShort'] == 0) and (l_obj.OpenBuy != 1):          
                 l_obj.OpenBuy = 2
         
         l_previous_obj = l_obj
