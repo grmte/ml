@@ -671,11 +671,11 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
         lQtyForWhichFillsCanBeGiven = gMaxQty - pTradeStats['currentPositionLong'] 
         lOpenOrCloseSide = 'Open'
         lPriceAtWhichOrderIsToBeKept = 0
-        if pPrevObj.OpenBuy == -2:
+        if pPrevObj.OpenBuy == 2:
             lPriceAtWhichOrderIsToBeKept = pPrevObj.BidP[1] + ( 1 * gTickSize) 
-        elif pPrevObj.OpenBuy == -1:
+        elif pPrevObj.OpenBuy == 1:
             lPriceAtWhichOrderIsToBeKept = pPrevObj.BidP[0] + ( 1 * gTickSize) 
-        if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.BidP[0] + ( 1 * gTickSize) ) or pPrevObj.OpenBuy == -1:
+        if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.BidP[0] + ( 1 * gTickSize) ) or pPrevObj.OpenBuy == 1:
             g_bestqty_list_for_open_buy = {}
             l_dummy_TTQChange_For_Buy, l_dummy_AskQ0 , lReasonForTradingOrNotTradingOpenBuy, lOpenBuyTradedQty,lOpenBuyTradedPrice = fillForStandingAtBidPlus1Pip(pPrevObj, l_dummy_AskQ0,spreadAtTimeOfPreviousDataRow,\
                                                                                                                      currentLTP, l_dummy_TTQChange_For_Buy , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
@@ -725,12 +725,12 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
         lQtyForWhichFillsCanBeGiven = ( gMaxQty - pTradeStats['currentPositionShort'] )
         lOpenOrCloseSide = 'Open'
         lPriceAtWhichOrderIsToBeKept = 0 
-        if pPrevObj.OpenSell == -2: 
+        if pPrevObj.OpenSell == 2: 
             lPriceAtWhichOrderIsToBeKept =  pPrevObj.AskP[1] - ( 1 * gTickSize) 
         else:
             lPriceAtWhichOrderIsToBeKept =  pPrevObj.AskP[0] - ( 1 * gTickSize) 
                     
-        if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.AskP[0] - ( 1 * gTickSize) ) or pPrevObj.OpenSell == -1: 
+        if  ( lPriceAtWhichOrderIsToBeKept == pPrevObj.AskP[0] - ( 1 * gTickSize) ) or pPrevObj.OpenSell == 1: 
             g_bestqty_list_for_open_sell = {} #Standing at Ask +1 
             l_dummy_TTQChange_For_Sell,l_dummy_BidQ0,lReasonForTradingOrNotTradingOpenSell,lOpenSellTradedQty,lOpenSellTradedPrice = fillForStandingAtAskMinus1Pip(pPrevObj, l_dummy_BidQ0,spreadAtTimeOfPreviousDataRow,\
                                                                                                         currentLTP, l_dummy_TTQChange_For_Sell , lQtyForWhichFillsCanBeGiven,lOpenOrCloseSide)
