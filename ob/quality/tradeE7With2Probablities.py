@@ -869,7 +869,7 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
                 
             if(l_obj.currentBuyPredictedValue2 >= exitCL and tradeStats['currentPositionShort'] > 0) and (l_obj.CloseBuy != -1) :
                 l_obj.CloseBuy = -2
-            if(l_obj.currentSellPredictedValue2 >= exitCL and tradeStats['currentPositionLong'] == 0) and (l_obj.OpenSell != 1) :
+            if(l_obj.currentSellPredictedValue2 >= entryCL and tradeStats['currentPositionLong'] == 0) and (l_obj.OpenSell != 1) :
                 l_obj.OpenSell = 2
             
             
