@@ -241,6 +241,7 @@ def getPredictionsIntoObjectList(fA5 , fB5 , fC5 , fD5 , fE5 , fA6 , fB6 , fC6 ,
             else:
                 lObj = Tick(lFeatureCTimeStamp,lBuyPredictedValueFor5Levels,lSellPredictedValueFor5Levels,lBuyPredictedValueFor6Levels,lSellPredictedValueFor6Levels,
                             lFeatureA,lFeatureB,lFeatureC,lFeatureD,lFeatureE,lFeatureA6,lFeatureB6,lFeatureC6,lFeatureD6,lFeatureE6)
+                #print(lObj.currentBuyPredictedValue2,lObj.currentSellPredictedValue2)
                 if lPrevObj!=None:
                     lPrevObj.TTQChange  = lObj.TTQ - lPrevObj.TTQ
                     lPrevObj.NextLTP = lObj.LTP
@@ -739,7 +740,7 @@ def checkIfPreviousDecisionToEnterOrExitTradeWasSuccessful(pCurrentObj,pPrevObj 
             lOpenBuyTradedPrice , lOpenBuyTradedQty,lOpenSellTradedPrice,lOpenSellTradedQty ]
 
 def update_obj_list(pCurrentDataRow,l_obj):
-
+    #print(l_obj.currentBuyPredictedValue2,l_obj.currentSellPredictedValue2)
     if 'nsefut' not in args.e:
         l_obj.AskP[0]  = float(pCurrentDataRow[colNumberOfData.AskP0])
         l_obj.BidP[0]  = float(pCurrentDataRow[colNumberOfData.BidP0])
@@ -941,10 +942,8 @@ def readOnceAndWrite(pFileName, entryCL , exitCL , predictedValuesList):
     
     fileName = tradeLogSubDirectoryName + pFileName + ".trade" 
     lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0;BidP0;BidQ1;BidP1','AskQ0;AskP0;AskQ1;AskP1','TTQ','LTP',\
-                               'f0;f1;f2;f3;f4;f5;f60;f61;f62;f63;f64;f65;'\
-                               'CurBuyPredValue5Level','CurrentSellPredValue5Level','CurBuyPredValue6Level','CurrentSellPredValue6Level',\
-                               'EnterTradeOpenBuy','ReasonForTradingOrNotTradingOpenBuy','EnterTradeCloseBuy','ReasonForTradingOrNotTradingCloseBuy','EnterTradeOpenSell','ReasonForTradingOrNotTradingOpenSell','EnterTradeCloseSell','ReasonForTradingOrNotTradingCloseSell',\
-                               'NumberOfOpenBuy','NumOfCloseBuy','NumberOfOpenSell','NumberOfCloseSell','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy' \
+                               'f0;f1;f2;f3;f4;f60;f61;f62;f63;f64', 'CurBuyPredValue5Level','CurrentSellPredValue5Level','CurBuyPredValue6Level','CurrentSellPredValue6Level',\
+                               'EnterTradeOpenBuy','ReasonForTradingOrNotTradingOpenBuy','EnterTradeCloseBuy','ReasonForTradingOrNotTradingCloseBuy','EnterTradeOpenSell','ReasonForTradingOrNotTradingOpenSell','EnterTradeCloseSell','ReasonForTradingOrNotTradingCloseSel'                                ,'NumberOfOpenBuy','NumOfCloseBuy','NumberOfOpenSell','NumberOfCloseSell','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy' \
                                ,'BestBidQClose','BestBidPClose','BestAskPClose','BestAskQClose','BestBidQOpen','BestBidPOpen','BestAskPOpen','BestAskQOpen','CloseBuyTradedPrcie','CloseBuyTradedQty','CloseSellTradedPrice','CloseSellTradedQty',
                                'OpenBuyTradedPrcie','OpenBuyTradedQty','OpenSellTradedPrice','OpenSellTradedQty']
     
