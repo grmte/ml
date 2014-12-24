@@ -404,12 +404,15 @@ def fillForStandingAtBidForCloseBuy(pPrevObj, currentLTP, l_dummy_TTQChange_For_
                 else:
                     lReasonForTradingOrNotTrading = 'AtBestBid(NextTickTTQDidNotIncrease)'
             elif (currentLTP < g_bestqty_list_for_close_buy['price']):
-                lQtyForWhichWeTrade = pQtyForWhichFillCanBeGiven
+                lQtyForWhichWeTrade = min(l_dummy_TTQChange_For_Buy,pQtyForWhichFillCanBeGiven)
                 l_dummy_TTQChange_For_Buy -= lQtyForWhichWeTrade
                 lTradedPrice = g_bestqty_list_for_close_buy['price']
                 lTradedQty = lQtyForWhichWeTrade
                 lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'BuyBest(Standing)' 
-                g_bestqty_list_for_close_buy = {}
+                if lQtyForWhichWeTrade >= g_bestqty_list_for_close_buy['qty']:
+                    g_bestqty_list_for_close_buy = {}
+                else:
+                    g_bestqty_list_for_close_buy['qty']-=lQtyForWhichWeTrade
             else:
                 lReasonForTradingOrNotTrading = 'AtBestBid(NoTTQChangeNoLTPLessThanOurPrice)'
                        
@@ -459,12 +462,15 @@ def fillForStandingAtBidForOpenBuy(pPrevObj, currentLTP, l_dummy_TTQChange_For_B
                 else:
                     lReasonForTradingOrNotTrading = 'AtBestBid(NextTickTTQDidNotIncrease)'
             elif (currentLTP < g_bestqty_list_for_open_buy['price']):
-                lQtyForWhichWeTrade = pQtyForWhichFillCanBeGiven
+                lQtyForWhichWeTrade = min(l_dummy_TTQChange_For_Buy,pQtyForWhichFillCanBeGiven)
                 l_dummy_TTQChange_For_Buy -= lQtyForWhichWeTrade
                 lTradedPrice = g_bestqty_list_for_open_buy['price']
                 lTradedQty = lQtyForWhichWeTrade
                 lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'BuyBest(Standing)' 
-                g_bestqty_list_for_open_buy = {}
+                if lQtyForWhichWeTrade >= g_bestqty_list_for_open_buy['qty']:
+                    g_bestqty_list_for_open_buy = {}
+                else:
+                    g_bestqty_list_for_open_buy['qty']-=lQtyForWhichWeTrade
             else:
                 lReasonForTradingOrNotTrading = 'AtBestBid(NoTTQChangeNoLTPLessThanOurPrice)'
                        
@@ -513,12 +519,15 @@ def fillForStandingAtAskForCloseSell(pPrevObj, currentLTP, l_dummy_TTQChange_For
                 else:
                     lReasonForTradingOrNotTrading = 'AtBestAsk(TTQDidntIncreaseBySufficientAmount)'
             elif (currentLTP > g_bestqty_list_for_close_sell['price']):
-                lQtyForWhichWeTrade = pQtyForWhichFillCanBeGiven
+                lQtyForWhichWeTrade = min(l_dummy_TTQChange_For_Sell,pQtyForWhichFillCanBeGiven)
                 l_dummy_TTQChange_For_Sell -= lQtyForWhichWeTrade
                 lTradedPrice = g_bestqty_list_for_close_sell['price']
                 lTradedQty = lQtyForWhichWeTrade
                 lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'SellBest(Standing)' 
-                g_bestqty_list_for_close_sell = {}
+                if lQtyForWhichWeTrade >= g_bestqty_list_for_close_sell['qty']:
+                    g_bestqty_list_for_close_sell = {}
+                else:
+                    g_bestqty_list_for_close_sell['qty'] -= lQtyForWhichWeTrade
             else:
                 lReasonForTradingOrNotTrading = 'AtBestAsk(NoTTQChangeNoLTPLessThanOurPrice)'
                        
@@ -567,12 +576,15 @@ def fillForStandingAtAskForOpenSell(pPrevObj, currentLTP, l_dummy_TTQChange_For_
                 else:
                     lReasonForTradingOrNotTrading = 'AtBestAsk(TTQDidntIncreaseBySufficientAmount)'
             elif (currentLTP > g_bestqty_list_for_open_sell['price']):
-                lQtyForWhichWeTrade = pQtyForWhichFillCanBeGiven
+                lQtyForWhichWeTrade = min(l_dummy_TTQChange_For_Sell,pQtyForWhichFillCanBeGiven)
                 l_dummy_TTQChange_For_Sell -= lQtyForWhichWeTrade
                 lTradedPrice = g_bestqty_list_for_open_sell['price']
                 lTradedQty = lQtyForWhichWeTrade
                 lReasonForTradingOrNotTrading = pOpenOrCloseSide + 'SellBest(Standing)' 
-                g_bestqty_list_for_open_sell = {}
+                if lQtyForWhichWeTrade>=g_bestqty_list_for_open_sell['qty']:
+                    g_bestqty_list_for_open_sell = {}
+                else:
+                    g_bestqty_list_for_open_sell['qty'] = g_bestqty_list_for_open_sell['qty'] - lQtyForWhichWeTrade
             else:
                 lReasonForTradingOrNotTrading = 'AtBestAsk(NoTTQChangeNoLTPLessThanOurPrice)'
                        
