@@ -146,7 +146,7 @@ else:
     def scriptWrapperForFeatureGeneration(trainingDirectory):
         utility.runCommand(["aGenForE.py","-e",l_exp_dir,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         pass
-    results = map(scriptWrapperForFeatureGeneration,allDataDirectories) 
+    #results = map(scriptWrapperForFeatureGeneration,allDataDirectories) 
     pass
 
 #==========R Code formation to find correlation between features and target file ==============================0
@@ -303,6 +303,8 @@ for key in lSellDict.keys():
     lCor = lCov / math.sqrt(lVarX * lVarY)
     lLine = key + " = " + str(lCor)
     wfo.write(lLine + "\n")
+
+wfo.close()
 
 l_files_to_be_mailed = [ summary_file_name , l_exp_dir + "design.ini" ]
 print "Files being mailed are = " , l_files_to_be_mailed
