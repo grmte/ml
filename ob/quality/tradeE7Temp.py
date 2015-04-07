@@ -22,6 +22,7 @@ parser.add_argument('-tickSize',required=True,help="Nse Currency = 25000 , Futur
 parser.add_argument('-wt',required=False,help="default/exp , weight type to be given to different days")
 parser.add_argument('-iT',required=False,help='Instrument name')
 parser.add_argument('-sP',required=False,help='Strike price of instrument')
+parser.add_argument('-pT',required=True,help='yes( for print trade file ) / no(log of trade file not required)')
 parser.add_argument('-oT',required=False,help='Options Type')
 parser.add_argument('-t',required=False,help='Transaction Cost')
 parser.add_argument('-double',required=False,help='Double training of in model')
@@ -48,12 +49,12 @@ if 'nsecur' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsecur/")+8:]
     if args.t ==None:
         transactionCost = 0.000015
-        currencyDivisor = 10000
+    currencyDivisor = 10000
 elif 'nsefut' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nsefut/")+8:]
     if args.t == None:
         transactionCost = 0.00015
-        currencyDivisor = 100
+    currencyDivisor = 100
 elif 'nseopt' in absPathOfExperimentName:
     pathAfterE = absPathOfExperimentName[absPathOfExperimentName.index("/nseopt/")+8:]
     transactionCost = args.t
@@ -73,22 +74,43 @@ g_quantity_adjustment_list_for_sell = {}
 g_quantity_adjustment_list_for_buy = {}
 
 class Tick():
-    def __init__(self,pCurrentDataRowTimeStamp,pAskP,pBidP,pAskQ,pBidQ,pLTP,pTTQ,pBuyPredictedValue,pSellPredictedValue):
+    def __init__(self,pCurrentDataRowTimeStamp,pAskP,pBidP,pAskQ,pBidQ,pAskP1,pBidP1,pAskQ1,pBidQ1,pLTP,pTTQ,pBuyProb1,pSellProb1,pBuyProb2,pSellProb2,
+                 lFeatureA,lFeatureB,lFeatureC,lFeatureD,lFeatureE,lFeatureA6,lFeatureB6,lFeatureC6,lFeatureD6,lFeatureE6):#pBuyPredictedValue,pSellPredictedValue):
         self.AskP = pAskP
         self.AskQ = pAskQ
         self.BidP = pBidP
         self.BidQ = pBidQ
+
+        self.AskP1 = pAskP1
+        self.AskQ1 = pAskQ1
+        self.BidP1 = pBidP1
+        self.BidQ1 = pBidQ1
+
+        self.fA = lFeatureA
+        self.fB = lFeatureB
+        self.fC = lFeatureC
+        self.fD = lFeatureD
+        self.fE = lFeatureE
+        
+        self.fA1 = lFeatureA6
+        self.fB1 = lFeatureB6
+        self.fC1 = lFeatureC6
+        self.fD1 = lFeatureD6
+        self.fE1 = lFeatureE6
+        
         self.LTP = pLTP
         self.TTQ  = pTTQ
         self.TTQChange = 0 
         self.NextLTP = 0
         self.currentTimeStamp = pCurrentDataRowTimeStamp
-        self.currentBuyPredictedValue = pBuyPredictedValue
-        self.currentSellPredictedValue = pSellPredictedValue
+        self.currentBuyPredictedValue1 = pBuyProb1
+        self.currentSellPredictedValue1 = pSellProb1
+        self.currentBuyPredictedValue2 = pBuyProb2
+        self.currentSellPredictedValue2 = pSellProb2        
         self.bidPChangedInBetweenLastTickAndCurrentTick = 0
         self.askPChangedInBetweenLastTickAndCurrentTick = 0
 
-def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFeatureAObj,pFeatureBObj,lMinOfExitCl):
+def getDataFileAndPredictionsIntoObjectList(dataFileObject, fA5 , fB5 , fC5 , fD5 , fE5 , fA6 , fB6 , fC6 , fD6 , fE6 ,lMinOfExitCl):
     global gNoOfLineReadPerChunk,gTickSize
     lObjectList = []
     lCurrentDataRowCount = 0
@@ -99,19 +121,42 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFeatureAObj,pFeature
     featureFileSep = ";"
     lListOfBidP = []
     lListOfAskP = []
+    lDataFileRowsList = list(islice(dataFileObject,10000))
+    lFeatureAFileRowListFor5Level = list(islice(fA5,10000))
+    lFeatureBFileRowListFor5Level = list(islice( fB5,10000 ))
+    lFeatureCFileRowListFor5Level = list(islice(fC5,10000))
+    lFeatureDFileRowListFor5Level = list(islice( fD5,10000 ))
+    lFeatureEFileRowListFor5Level = list(islice(fE5,10000))
+    
+    lFeatureAFileRowListFor6Level = list(islice( fA6,10000 ))
+    lFeatureBFileRowListFor6Level = list(islice(fB6,10000))
+    lFeatureCFileRowListFor6Level = list(islice( fC6,10000 ))
+    lFeatureDFileRowListFor6Level = list(islice(fD6,10000))
+    lFeatureEFileRowListFor6Level = list(islice( fE6,10000 ))
     while True:
         lDataFileRowsList = list(islice(dataFileObject,gNoOfLineReadPerChunk))
-        lFeatureAFileRowList = list(islice(pFeatureAObj,gNoOfLineReadPerChunk))
-        lFeatureBFileRowList = list(islice( pFeatureBObj,gNoOfLineReadPerChunk ))
+        lFeatureAFileRowListFor5Level = list(islice(fA5,gNoOfLineReadPerChunk))
+        lFeatureBFileRowListFor5Level = list(islice( fB5,gNoOfLineReadPerChunk ))
+        lFeatureCFileRowListFor5Level = list(islice(fC5,gNoOfLineReadPerChunk))
+        lFeatureDFileRowListFor5Level = list(islice( fD5,gNoOfLineReadPerChunk ))
+        lFeatureEFileRowListFor5Level = list(islice(fE5,gNoOfLineReadPerChunk))
+        
+        lFeatureAFileRowListFor6Level = list(islice( fA6,gNoOfLineReadPerChunk ))
+        lFeatureBFileRowListFor6Level = list(islice(fB6,gNoOfLineReadPerChunk))
+        lFeatureCFileRowListFor6Level = list(islice( fC6,gNoOfLineReadPerChunk ))
+        lFeatureDFileRowListFor6Level = list(islice(fD6,gNoOfLineReadPerChunk))
+        lFeatureEFileRowListFor6Level = list(islice( fE6,gNoOfLineReadPerChunk ))
+        
         if not lDataFileRowsList :
             print("Finished reading file")
             lObjectList.append(lPrevObj)    
             lPrevObj = None          
             break
         lengthOfDataList = len(lDataFileRowsList)
-        lengthOfFeatureAList = len(lFeatureAFileRowList)
-        lengthOfFeatureBList = len(lFeatureBFileRowList)
-        if lengthOfDataList!=lengthOfFeatureAList or lengthOfFeatureAList!=lengthOfFeatureBList:
+        lengthOfFeatureAListFor5Level = len(lFeatureAFileRowListFor5Level)
+        lengthOfFeatureBListFor5Level = len(lFeatureBFileRowListFor5Level)
+        
+        if lengthOfDataList!=lengthOfFeatureAListFor5Level or lengthOfFeatureAListFor5Level!=lengthOfFeatureBListFor5Level:
             print("Length of data file and predicted buy and sell values file are not same ")
             os._exit(-1)
         for currentRowIndex in range(lengthOfDataList):
@@ -119,33 +164,79 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFeatureAObj,pFeature
                 headerSkipped = 1 
                 continue
             lDataRow = lDataFileRowsList[currentRowIndex].rstrip().split(dataFileSep)
-            lAskP = float(lDataRow[colNumberOfData.AskP0])
-            lBidP = float(lDataRow[colNumberOfData.BidP0])
-            lAskQ = int(lDataRow[colNumberOfData.AskQ0])
-            lBidQ = int(lDataRow[colNumberOfData.BidQ0])
+            if 'nsefut' not in args.e:
+                lAskP = float(lDataRow[colNumberOfData.AskP0])
+                lBidP = float(lDataRow[colNumberOfData.BidP0])
+                lAskQ = int(lDataRow[colNumberOfData.AskQ0])
+                lBidQ = int(lDataRow[colNumberOfData.BidQ0])
+                lAskP1 = float(lDataRow[colNumberOfData.AskP1])
+                lBidP1 = float(lDataRow[colNumberOfData.BidP1])
+                lAskQ1 = int(lDataRow[colNumberOfData.AskQ1])
+                lBidQ1 = int(lDataRow[colNumberOfData.BidQ1])
+            else:
+                lAskP = float(lDataRow[colNumberOfData.BestAskP])
+                lBidP = float(lDataRow[colNumberOfData.BestBidP])
+                lAskQ = int(lDataRow[colNumberOfData.BestAskQ])
+                lBidQ = int(lDataRow[colNumberOfData.BestBidQ])
+                lAskP1 = float(lDataRow[colNumberOfData.BestAskP1])
+                lBidP1 = float(lDataRow[colNumberOfData.BestBidP1])
+                lAskQ1 = int(lDataRow[colNumberOfData.BestAskQ1])
+                lBidQ1 = int(lDataRow[colNumberOfData.BestBidQ1])            
             lTTQ = int(lDataRow[colNumberOfData.TTQ])
             lLTP = float(lDataRow[colNumberOfData.LTP]) 
             lCurrentDataRowTimeStamp = common.convertTimeStampFromStringToFloat(lDataRow[colNumberOfData.TimeStamp])
-            lFeatureARow = lFeatureAFileRowList[currentRowIndex].rstrip().split(featureFileSep)
+
+            lFeatureARow = lFeatureAFileRowListFor5Level[currentRowIndex].rstrip().split(featureFileSep)
             lFeatureATimeStamp = float(lFeatureARow[0])
             lFeatureA = float(lFeatureARow[1])
             
-            lFeatureBRow = lFeatureBFileRowList[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureBRow = lFeatureBFileRowListFor5Level[currentRowIndex].rstrip().split(featureFileSep)
             lFeatureBTimeStamp = float(lFeatureBRow[0])
             lFeatureB = float(lFeatureBRow[1])
+
+            lFeatureCRow = lFeatureCFileRowListFor5Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureC = float(lFeatureCRow[1])
             
-            l_buy_SOP_of_alphas = exp ( ((-1725.825398 * lFeatureA ) + ( -7520.636198 * lFeatureB) + 9246.130399) )
-            l_sell_SOP_of_alphas = exp( (( 1547.373969 * lFeatureA  ) + ( 7238.602068 * lFeatureB ) - 8786.322882) )
+            lFeatureDRow = lFeatureDFileRowListFor5Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureD = float(lFeatureDRow[1])
             
+            lFeatureERow = lFeatureEFileRowListFor5Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureE = float(lFeatureERow[1])
             
-            lBuyPredictedValue = l_buy_SOP_of_alphas / ( 1 + l_buy_SOP_of_alphas )
-            lSellPredictedValue = l_sell_SOP_of_alphas / ( 1 + l_sell_SOP_of_alphas )
+            lFeatureA6Row = lFeatureAFileRowListFor6Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureA6 = float(lFeatureA6Row[1])
+            
+            lFeatureB6Row = lFeatureBFileRowListFor6Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureB6 = float(lFeatureB6Row[1])
+
+            lFeatureC6Row = lFeatureCFileRowListFor6Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureC6 = float(lFeatureC6Row[1])
+            
+            lFeatureD6Row = lFeatureDFileRowListFor6Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureD6 = float(lFeatureD6Row[1])
+            
+            lFeatureE6Row = lFeatureEFileRowListFor6Level[currentRowIndex].rstrip().split(featureFileSep)
+            lFeatureE6 = float(lFeatureE6Row[1])
+                        
+            l_buy_SOP_of_alphas_for_5_level = exp ( ((813.280878130412 * lFeatureA ) + ( -546.820253147887 * lFeatureB) + ( -498.096438026184 * lFeatureC) + ( -1008.9535016807 * lFeatureD) + 1237.93033895547) )
+            l_sell_SOP_of_alphas_for_5_level = exp( (( 366.62364204055 * lFeatureA  ) + ( -881.958964774577 * lFeatureB ) + ( 619.51957804397 * lFeatureC ) + ( 1003.99686893559 * lFeatureE ) - 1110.76386909796) )
+
+            l_buy_SOP_of_alphas_for_6_level = exp ( ((813.280878130412 * lFeatureA6 ) + ( -546.820253147887 * lFeatureB6) + ( -498.096438026184 * lFeatureC6) + ( -1008.9535016807 * lFeatureD6) + 1237.93033895547) )
+            l_sell_SOP_of_alphas_for_6_level = exp( (( 366.62364204055 * lFeatureA6  ) + ( -881.958964774577 * lFeatureB6 ) + ( 619.51957804397 * lFeatureC6 ) + ( 1003.99686893559* lFeatureE6 ) - 1110.76386909796) )            
+            
+            lBuyPredictedValueFor5Levels = l_buy_SOP_of_alphas_for_5_level / ( 1 + l_buy_SOP_of_alphas_for_5_level )
+            lSellPredictedValueFor5Levels = l_sell_SOP_of_alphas_for_5_level / ( 1 + l_sell_SOP_of_alphas_for_5_level )
+            
+            lBuyPredictedValueFor6Levels = l_buy_SOP_of_alphas_for_6_level / ( 1 + l_buy_SOP_of_alphas_for_6_level )
+            lSellPredictedValueFor6Levels = l_sell_SOP_of_alphas_for_6_level / ( 1 + l_sell_SOP_of_alphas_for_6_level )
+                        
             if lCurrentDataRowTimeStamp != lFeatureATimeStamp or lFeatureATimeStamp!=lFeatureBTimeStamp:
                 print('Time stamp of data row with predicted value is not matching .\n Data row time stamp :- ' , lCurrentDataRowTimeStamp,'BuyPredicted Time Stamp :- ' , lFeatureATimeStamp\
                       ,"SellPredicted Time Stamp :- ",lFeatureBTimeStamp)
                 os._exit(-1)
             else:
-                lObj = Tick(lCurrentDataRowTimeStamp,lAskP,lBidP,lAskQ,lBidQ,lLTP,lTTQ,lBuyPredictedValue,lSellPredictedValue)
+                lObj = Tick(lCurrentDataRowTimeStamp,lAskP,lBidP,lAskQ,lBidQ,lAskP1,lBidP1,lAskQ1,lBidQ1,lLTP,lTTQ,lBuyPredictedValueFor5Levels,lSellPredictedValueFor5Levels,lBuyPredictedValueFor6Levels,lSellPredictedValueFor6Levels,
+                            lFeatureA,lFeatureB,lFeatureC,lFeatureD,lFeatureE,lFeatureA6,lFeatureB6,lFeatureC6,lFeatureD6,lFeatureE6)
                 if lPrevObj!=None:
                     lPrevObj.TTQChange  = lObj.TTQ - lPrevObj.TTQ
                     lPrevObj.NextLTP = lObj.LTP
@@ -156,7 +247,7 @@ def getDataFileAndPredictionsIntoObjectList(dataFileObject,pFeatureAObj,pFeature
                             lListOfAskP.append(lPrevObj.AskP)
                         pass
                     else:
-                        if lPrevObj.currentBuyPredictedValue >= lMinOfExitCl or lPrevObj.currentSellPredictedValue>=lMinOfExitCl:
+                        if lPrevObj.currentBuyPredictedValue1 >= lMinOfExitCl or lPrevObj.currentSellPredictedValue1>=lMinOfExitCl:
                             if len(lListOfBidP) > 1:
                                 lPrevObj.bidPChangedInBetweenLastTickAndCurrentTick = 1
                             if len(lListOfAskP) > 1:
@@ -384,43 +475,45 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
     lReasonForTradingOrNotTradingLong = ""
     currentIndex = 0
     print("Processing the data file for trades :")
-    #         if args.pT.lower()=="yes":
-    #              attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
+    if args.pT.lower()=="yes":
+        attribute.aList =  [[0 for x in xrange(4)] for x in xrange(len(pObjectList))]
     for lObject in pObjectList[:-1]:
     
         #short decisions
-        if(lObject.currentSellPredictedValue >= pEntryCL):
+        if (lObject.currentSellPredictedValue1 >= pEntryCL) or (lObject.currentSellPredictedValue2 >= pEntryCL):
             enterTradeShort = 1
             numberOfTimesAskedToEnterTradeShort += 1
-        elif(lObject.currentBuyPredictedValue >= pExitCL and tradeStats['currentPositionShort'] > 0):
+        elif (lObject.currentBuyPredictedValue1 >= pExitCL and tradeStats['currentPositionShort'] > 0) or ((lObject.currentBuyPredictedValue2 >= pExitCL and tradeStats['currentPositionShort'] > 0)):
             numberOfTimesAskedToExitTradeShort += 1
             enterTradeShort = -1  # Implies to exit the trade
         else:
             enterTradeShort = 0  # Implies make no change
             
         #long decisions
-        if(lObject.currentBuyPredictedValue >= pEntryCL):
+        if (lObject.currentBuyPredictedValue1 >= pEntryCL) or (lObject.currentBuyPredictedValue2 >= pEntryCL):
             enterTradeLong = 1
             numberOfTimesAskedToEnterTradeLong += 1
-        elif(lObject.currentSellPredictedValue >= pExitCL and tradeStats['currentPositionLong'] > 0):
+        elif (lObject.currentSellPredictedValue1 >= pExitCL and tradeStats['currentPositionLong'] > 0) or (lObject.currentSellPredictedValue2 >= pExitCL and tradeStats['currentPositionLong'] > 0):
             numberOfTimesAskedToExitTradeLong += 1
             enterTradeLong = -1  # Implies to exit the trade
         else:
             enterTradeLong = 0  # Implies make no change
         
         lReasonForTradingOrNotTradingShort, lReasonForTradingOrNotTradingLong, lDummyBidQ0 , lDummyAskQ0 , lDummyTTQForBuy , lDummyTTQForSell= checkIfDecisionToEnterOrExitTradeIsSuccessful(lObject, enterTradeShort,enterTradeLong,tradeStats,reasonForTrade,lReasonForTradingOrNotTradingLong,lReasonForTradingOrNotTradingShort )
-#         if args.pT.lower()=="yes":
-#             attribute.aList[currentIndex][0] = lObject.currentTimeStamp
-#             attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
-#             attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
-#             listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
-#                                     str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
-#                                     str(lObject.currentSellPredictedValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(lObject.currentBuyPredictedValue) ,\
-#                                     str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
-#                                     str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
-#                                     str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
-#                                     str(lDummyTTQForBuy),str(lDummyTTQForSell)]
-#             attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
+        if args.pT.lower()=="yes":
+            attribute.aList[currentIndex][0] = lObject.currentTimeStamp
+            attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
+            attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
+            listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
+                                str(lObject.AskQ) , str(lObject.BidQ1) , str(lObject.BidP1) , str(lObject.AskP1) , str(lObject.AskQ1) ,str(lObject.TTQ) , str(lObject.NextLTP) ,\
+                                str(lObject.fA),str(lObject.fB),str(lObject.fC),str(lObject.fD),str(lObject.fE),str(lObject.fA1),str(lObject.fB1),str(lObject.fC1),str(lObject.fD1),str(lObject.fE1),\
+                                str(lObject.currentBuyPredictedValue1) , str(lObject.currentSellPredictedValue1) , str(lObject.currentBuyPredictedValue2) , str(lObject.currentSellPredictedValue2) ,\
+                                lReasonForTradingOrNotTradingLong , lReasonForTradingOrNotTradingShort ,str(enterTradeLong) , str(enterTradeShort) ,\
+                                str(reasonForTrade['CloseBuyTradeHappened']),\
+                                str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                                str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                                str(lDummyTTQForBuy),str(lDummyTTQForSell)]
+            attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)    
         currentIndex = currentIndex + 1
     
     lObject = pObjectList[-1]
@@ -438,29 +531,35 @@ def doTrade(pFileName, pEntryCL, pExitCL, pObjectList):
 
     dirName = args.pd.replace('/ro/','/rs/')
     
-#     if args.pT.lower()=="yes":
-#         attribute.aList[currentIndex][0] = lObject.currentTimeStamp
-#         attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
-#         attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
-#         listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
-#                                 str(lObject.AskQ) , str(lObject.TTQ) , str(lObject.NextLTP) ,\
-#                                 str(lObject.currentSellPredictedValue) , str(enterTradeShort) ,lReasonForTradingOrNotTradingShort , str(lObject.currentBuyPredictedValue) ,\
-#                                 str(enterTradeLong) ,lReasonForTradingOrNotTradingLong , str(reasonForTrade['CloseBuyTradeHappened']),\
-#                                 str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
-#                                 str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
-#                                 str(lDummyTTQForBuy),str(lDummyTTQForSell)]
-#         attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)        
-#     
-#         tradeLogMainDirName = dirName+"/t/"
-#         if not os.path.exists(tradeLogMainDirName):
-#             os.mkdir(tradeLogMainDirName)
-#         tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
-#         if not os.path.exists(tradeLogSubDirectoryName):
-#             os.mkdir(tradeLogSubDirectoryName)
-#         
-#         fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
-#         lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','TTQ','LTP','CurPredValueShort','EnterTradeShort','ReasonForTradingOrNotTradingShort','CurPredValueLong','EnterTradeLong','ReasonForTradingOrNotTradingLong','totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
-#         attribute.writeToFile(fileName , lHeaderColumnNamesList)
+    if args.pT.lower()=="yes":
+        attribute.aList[currentIndex][0] = lObject.currentTimeStamp
+        attribute.aList[currentIndex][1] = tradeStats['currentPositionLong']
+        attribute.aList[currentIndex][2] = tradeStats['currentPositionShort']
+        listOfStringsToPrint = [ str(lObject.BidQ) , str(lObject.BidP) , str(lObject.AskP) , \
+                                str(lObject.AskQ) , str(lObject.BidQ1) , str(lObject.BidP1) , str(lObject.AskP1) , str(lObject.AskQ1) ,str(lObject.TTQ) , str(lObject.NextLTP) ,\
+                                str(lObject.fA),str(lObject.fB),str(lObject.fC),str(lObject.fD),str(lObject.fE),str(lObject.fA1),str(lObject.fB1),str(lObject.fC1),str(lObject.fD1),str(lObject.fE1),\
+                                str(lObject.currentBuyPredictedValue1) , str(lObject.currentSellPredictedValue1) , str(lObject.currentBuyPredictedValue2) , str(lObject.currentSellPredictedValue2) ,\
+                                lReasonForTradingOrNotTradingLong , lReasonForTradingOrNotTradingShort ,str(enterTradeLong) , str(enterTradeShort) ,\
+                                str(reasonForTrade['CloseBuyTradeHappened']),\
+                                str(reasonForTrade['OpenBuyTradeHappened']),str(reasonForTrade['OpenSellTradeHappened']),\
+                                str(reasonForTrade['CloseSellTradeHappened']),str(lDummyBidQ0),str(lDummyAskQ0),\
+                                str(lDummyTTQForBuy),str(lDummyTTQForSell)]
+        attribute.aList[currentIndex][3] =  ";".join(listOfStringsToPrint)        
+     
+        tradeLogMainDirName = dirName+"/t/"
+        if not os.path.exists(tradeLogMainDirName):
+            os.mkdir(tradeLogMainDirName)
+        tradeLogSubDirectoryName =  tradeLogMainDirName + mainExperimentName+"/"
+        if not os.path.exists(tradeLogSubDirectoryName):
+            os.mkdir(tradeLogSubDirectoryName)
+         
+        fileName = pFileName.replace(".result",".trade").replace("/r/","/t/") 
+        lHeaderColumnNamesList  = ['TimeStamp','CurrentPositionLong','CurrentPositionShort','BidQ0','BidP0','AskP0','AskQ0','BidQ1','BidP1','AskP1','AskQ1','TTQ','LTP','FeatureA5Level','FeatureB5Level','FeatureC5Level',\
+                                   'FeatureD5Level','FeatureE5Level','FeatureA6Level','FeatureB6Level','FeatureC6Level','FeatureD6Level','FeatureE6Level',\
+                                   'CurBuyPredValue5Level','CurSellPredValue5Level','CurBuyPredValue6Level','CurSellPredValue6Level','ReasonForTradingOrNotTradingLong','ReasonForTradingOrNotTradingShort',\
+                                   'EnterTradeLong','EnterTradeShort','LongTradedPrice','LongTradedQty','ShortTradedPrice','ShortTradedQty',\
+                                   'totalBuyTradeShort','totalBuyLong','totalSellShort','totalSellLong','DummyBidQ0','DummyAskQ0','DummyTTQChangeForSell','DummyTTQChangeForBuy']
+        attribute.writeToFile(fileName , lHeaderColumnNamesList)
         
     tradeResultMainDirName = dirName+"/r/"
     if not os.path.exists(tradeResultMainDirName):
@@ -582,7 +681,7 @@ if __name__ == "__main__":
 
     print("Number of File to be run for ",lengthOfFinalList)
     if checkAllFilesAreExistOrNot == 'true':
-        if os.path.isfile(featureAFileName) and os.path.isfile(featureBFileName):
+        if (1):
             print ("\nRunning the simulated trading program")
             g_quantity_adjustment_list_for_sell = {}
             g_quantity_adjustment_list_for_buy = {}
@@ -590,13 +689,24 @@ if __name__ == "__main__":
             dataFileName = dataFile.getFileNameFromCommandLineParam(args.pd)
             
             dataFileObject =  open(dataFileName,"r")
-            featureAFileObject = open(featureAFileName,"r")
-            featureBFileObject = open(featureBFileName,"r")
+            featureAFileObject5Levels = open(lWFDirName+'/f/fColBidP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureBQAvgFor600_InLast1.5Secs-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureBFileObject5Levels = open(lWFDirName+'/f/fColAskP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureAQAvgFor600_InLast1.5Secs-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureCFileObject5Levels = open(lWFDirName+'/f/fCol_Feature1.5AmB600_InCurrentRow[DivideBy]fMovingAverageOfCol_Feature1.5AmB600_InLast1000Rows-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureDFileObject5Levels = open(lWFDirName+'/f/fColBidP0InCurrentRow[DivideBy]fInverseWAInLast3Levels-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureEFileObject5Levels = open(lWFDirName+'/f/fColAskP0InCurrentRow[DivideBy]fInverseWAInLast3Levels-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+
+            featureAFileObject6Levels = open(lWFDirName+'/f/fColBidP1InCurrentRow[DivideBy]fWAPriceOfCol_FeatureBQAvgFor600For6Levels_InLast1.5SecsFor6Levels-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureBFileObject6Levels = open(lWFDirName+'/f/fColAskP1InCurrentRow[DivideBy]fWAPriceOfCol_FeatureAQAvgFor600For6Levels_InLast1.5SecsFor6Levels-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureCFileObject6Levels = open(lWFDirName+'/f/fCol_Feature1.5AmB600For6L_InCurrentRow[DivideBy]fMovingAverageOfCol_Feature1.5AmB600For6L_InLast1000Rows-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureDFileObject6Levels = open(lWFDirName+'/f/fColBidP1InCurrentRow[DivideBy]fInverseWAInLast3LevelsFor6-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
+            featureEFileObject6Levels = open(lWFDirName+'/f/fColAskP1InCurrentRow[DivideBy]fInverseWAInLast3LevelsFor6-iT.ICICIBANK-oT.0-sP.-1.feature',"r")
             
             print("Data file Used :- " ,dataFileName)
             print("FeatureA file Used :- ",featureAFileName)
             print("FeatureB file used :- ", featureBFileName)
-            lObjectList = getDataFileAndPredictionsIntoObjectList(dataFileObject,featureAFileObject,featureBFileObject,lMinOfExitCl)
+            lObjectList = getDataFileAndPredictionsIntoObjectList(dataFileObject,featureAFileObject5Levels,featureBFileObject5Levels,featureCFileObject5Levels,\
+                                                                  featureDFileObject5Levels,featureEFileObject5Levels,featureAFileObject6Levels,featureBFileObject6Levels,featureCFileObject6Levels,\
+                                                                  featureDFileObject6Levels,featureEFileObject6Levels,lMinOfExitCl)
             
             print("Length of list formed " , len(lObjectList) , " Min of predictions taken :- ", lMinOfExitCl)
             tEnd = datetime.now()
@@ -604,8 +714,8 @@ if __name__ == "__main__":
             
             for lIndexOfFiles in range(lengthOfFinalList):
                 doTrade(fileNameList[lIndexOfFiles], finalEntryClList[lIndexOfFiles], finalExitClList[lIndexOfFiles], lObjectList)
-#                 if args.pT.lower() == "yes":
-#                     print("Need to print logs")
+                if args.pT.lower() == "yes":
+                    print("Need to print logs")
             
             tEnd = datetime.now()
             print("Time taken to for complete run " + str(tEnd - tStart))

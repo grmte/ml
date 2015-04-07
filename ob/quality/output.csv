@@ -1,0 +1,2 @@
+g_sim_running_qty_long;g_sim_running_profit_long;g_total_sim_traded_price_long;g_sim_running_qty_short;g_sim_running_profit_short;g_total_sim_traded_price_short
+0;0.0;0;0.0;(Spread>Pip)&&(NextTickTTQDidNotIncrease);;0.0;0.0

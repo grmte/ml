@@ -1,0 +1,1 @@
+src/rsGenForEPredictUsingDepthModel.py -e ob/e/nsefut/HINDALCO_new_AmB/ -e1 ob/e/nsefut/HINDALCO_new_AmB_6level/ -td ob/data/ro/nsefut/20141203/ -orderQty 2000 -allSub no -run real -sequence dp -nDays 31 -dt 31 -iT HINDALCO -oT 0 -sP -1 -pdt 31 -g ob/generators/ -nComputers 14 

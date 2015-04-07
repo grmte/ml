@@ -26,7 +26,7 @@ import dataFile, colNumberOfData, common
 import attribute
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
 if args.skipT == None:
-    args.skipT = "no"
+    args.skipT = "yes"
                     
 absPathOfExperimentName = os.path.abspath(args.e)
 
@@ -64,7 +64,7 @@ def functionToReadTargetFileToDictionary(pTargetValuesFile,pTargetValuesDict,pFi
             pFileHeader = False
             continue
         line=line.rstrip('\n')
-        splitLine = line.split(';')
+        splitLine = line.split(';') 
         timeStamp = float(splitLine[0])
         try:#TODO: remove this and then run the code to identify errors.
             targetProb = float(splitLine[1])
@@ -547,7 +547,10 @@ def main():
     getTargetValuesIntoDict(targetValuesDict)
     lIndexOfEntryOrExitCL = 0
     for lFileName in initialFileName:
-        readOnceAndWrite(lFileName, lIndexOfEntryOrExitCL, targetValuesDict)
+        if os.path.isfile(fileName) and args.skipT.lower() == "yes":        
+            print("\nFile already exists")
+        else:
+            readOnceAndWrite(lFileName, lIndexOfEntryOrExitCL, targetValuesDict)
         lIndexOfEntryOrExitCL = lIndexOfEntryOrExitCL + 1
     
 if __name__ == "__main__":
