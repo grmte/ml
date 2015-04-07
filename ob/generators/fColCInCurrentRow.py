@@ -20,8 +20,8 @@ def extractAttributeFromDataMatrix(args):
     for dataRow in dataFile.matrix:
         
         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp)
-        
         attribute.aList[currentRowCount][1] = float(dataFile.matrix[currentRowCount][colNumberOfAttribute])
+        
         currentRowCount = currentRowCount + 1
         if(currentRowCount % 1000 == 0):
             print "Processed row number " + str(currentRowCount)

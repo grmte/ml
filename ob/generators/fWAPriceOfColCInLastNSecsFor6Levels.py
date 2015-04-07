@@ -32,14 +32,13 @@ def extractAttributeFromDataMatrix(args):
         side = "Bid"
     elif "Ask" in args.c:
         side = "Ask"
-    list_of_price_array = [ eval('colNumberOfData.'+side+'P0') , eval('colNumberOfData.'+side+'P1') ,\
-                            eval('colNumberOfData.'+side+'P2') , eval('colNumberOfData.'+side+'P3') , eval('colNumberOfData.'+side+'P4')  ]
-    list_of_qty_array = [ eval('colNumberOfData.'+side+'Q0') , eval('colNumberOfData.'+side+'Q1') ,\
-                            eval('colNumberOfData.'+side+'Q2') , eval('colNumberOfData.'+side+'Q3') , eval('colNumberOfData.'+side+'Q4')  ]
+    list_of_price_array = [ eval('colNumberOfData.'+side+'P1') , eval('colNumberOfData.'+side+'P2') ,\
+                            eval('colNumberOfData.'+side+'P3') , eval('colNumberOfData.'+side+'P4') , eval('colNumberOfData.'+side+'P5')  ]
+    list_of_qty_array = [ eval('colNumberOfData.'+side+'Q1') , eval('colNumberOfData.'+side+'Q2') ,\
+                            eval('colNumberOfData.'+side+'Q3') , eval('colNumberOfData.'+side+'Q4') , eval('colNumberOfData.'+side+'Q5')  ]
     currentRowCount = 0
     
     levelOfDataAvailable = 4
-    print "data File length"+ str(len(dataFile.matrix))
     for dataRow in dataFile.matrix:
         qSum = 0
         totalPrice = 0
@@ -48,7 +47,6 @@ def extractAttributeFromDataMatrix(args):
         try:
             qtyForCalculatingWeightedAverage = wt * float(dataRow[colNumberOfAttribute])
         except:
-            print "Error"
             print dataRow
             print dataRow[colNumberOfAttribute]
             os._exit(1)
@@ -71,7 +69,6 @@ def extractAttributeFromDataMatrix(args):
             totalPrice += totalPriceAtThisLevel
     
         attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfTimeStamp)
-#        print currentRowCount,qtyForCalculatingWeightedAverage
         attribute.aList[currentRowCount][1] = float(totalPrice)/qtyForCalculatingWeightedAverage
         attribute.aList[currentRowCount][2] = qtyForCalculatingWeightedAverage
         attribute.aList[currentRowCount][3] = totalPrice

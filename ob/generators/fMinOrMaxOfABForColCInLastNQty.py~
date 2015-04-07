@@ -1,0 +1,120 @@
+"""
+This can generate features like:
+1. fWAPriceOfColAskInLast100Qty
+2. fWAPriceOfColBidInLast10000Qty
+"""
+import dataFile, os, colNumberOfData, attribute, common
+
+class ticks_values_to_be_stored(object):
+    def __init__(self):
+        self.PriceList = [ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]
+        self.QtyList = [ 0 , 0 , 0 , 0 , 0 ]
+        self.NumeratorValue = 0.0
+
+def calculateWtAvgPrice( pPriceList , pQtyList ,qtyForCalculatingWeightedAverage):
+      qSum = 0
+      totalPrice = 0
+      totalPriceAtThisLevel = 0
+      i = 0
+      levelOfDataAvailable = 4
+      
+      while(i <= levelOfDataAvailable and qSum < qtyForCalculatingWeightedAverage):
+         priceAtThisLevel = float(pPriceList[i])
+         qtyAtThisLevel = float(pQtyList[i])
+         qSum += qtyAtThisLevel
+         if(qSum > qtyForCalculatingWeightedAverage):
+            qtyToUseAtThisLevel = qtyAtThisLevel - (qSum - qtyForCalculatingWeightedAverage)
+            totalPriceAtThisLevel = qtyToUseAtThisLevel * priceAtThisLevel
+         else:
+            totalPriceAtThisLevel = qtyAtThisLevel * priceAtThisLevel
+         
+         totalPrice += totalPriceAtThisLevel
+         i = i + 1
+         
+      if(qSum < qtyForCalculatingWeightedAverage): # This implies that the current row does not have enough qty to fill our requirement.
+         qtyToUseAtThisLevel =  qtyForCalculatingWeightedAverage - qSum
+         totalPriceAtThisLevel = qtyToUseAtThisLevel * priceAtThisLevel
+         totalPrice += totalPriceAtThisLevel
+     
+      return totalPrice
+         
+def extractAttributeFromDataMatrix(args):
+   try:
+      args.n
+   except:   
+      print "Since -n has not been specified I cannot proceed"
+      os._exit(-1)
+
+   try:
+      args.c
+   except:
+      print "Since -c has not been specified I cannot proceed"
+      os._exit(-1)
+   list_of_price_array = [ eval('colNumberOfData.'+args.c+'P0') , eval('colNumberOfData.'+args.c+'P1') ,\
+                           eval('colNumberOfData.'+args.c+'P2') , eval('colNumberOfData.'+args.c+'P3') , eval('colNumberOfData.'+args.c+'P4')  ]
+   list_of_qty_array = [ eval('colNumberOfData.'+args.c+'Q0') , eval('colNumberOfData.'+args.c+'Q1') ,\
+                           eval('colNumberOfData.'+args.c+'Q2') , eval('colNumberOfData.'+args.c+'Q3') , eval('colNumberOfData.'+args.c+'Q4')  ]
+   currentRowCount = 0
+   qtyForCalculatingWeightedAverage = float(args.n)
+   
+   l_obj  = None
+   l_previous_obj = None
+   totalPriceForPseudoDenominator= 0
+   totalPriceForNormalDenominator = 0
+   for dataRow in dataFile.matrix:
+
+      l_obj = ticks_values_to_be_stored() 
+      l_obj.PriceList = [ float(dataRow[list_of_price_array[0]]) , float(dataRow[list_of_price_array[1]]) , float(dataRow[list_of_price_array[2]]) ,\
+                         float(dataRow[list_of_price_array[3]]) , float(dataRow[list_of_price_array[4]])]
+      l_obj.QtyList = [ float(dataRow[list_of_qty_array[0]]) , float(dataRow[list_of_qty_array[1]]) , float(dataRow[list_of_qty_array[2]]) ,\
+                         float(dataRow[list_of_qty_array[3]]) , float(dataRow[list_of_qty_array[4]]) ]
+
+      totalPriceForNormalDenominator = calculateWtAvgPrice( l_obj.PriceList , l_obj.QtyList , qtyForCalculatingWeightedAverage )
+      if l_previous_obj != None: 
+          if l_previous_obj.PriceList[0] != l_obj.PriceList[0]:
+               lPriceList =  l_previous_obj.PriceList
+               lQtyList = l_previous_obj.QtyList
+               if "Bid" in args.c :
+                   if l_previous_obj.PriceList[0] < l_obj.PriceList[0] : # Case for new qty at best
+                      lQtyList[0] = lQtyList[0] + l_obj.QtyList[0]
+                      totalPriceForPseudoDenominator = calculateWtAvgPrice( lPriceList , lQtyList , qtyForCalculatingWeightedAverage )
+                   else:
+                      lQtyList[0] = 0
+                      totalPriceForPseudoDenominator = calculateWtAvgPrice( lPriceList , lQtyList , qtyForCalculatingWeightedAverage )
+               else:                    
+                   if l_previous_obj.PriceList[0] > l_obj.PriceList[0] : # Case for new qty at best
+                      lQtyList[0] = lQtyList[0] + l_obj.QtyList[0]
+                      totalPriceForPseudoDenominator = calculateWtAvgPrice( lPriceList , lQtyList , qtyForCalculatingWeightedAverage )
+                   else:
+                      lQtyList[0] = 0
+                      totalPriceForPseudoDenominator = calculateWtAvgPrice( lPriceList , lQtyList , qtyForCalculatingWeightedAverage )
+          else:
+              totalPriceForPseudoDenominator = 0
+          
+      if totalPriceForPseudoDenominator == 0:
+          if l_previous_obj == None:
+              l_obj.NumeratorValue = l_obj.PriceList[0]
+          else:
+              l_obj.NumeratorValue = l_previous_obj.NumeratorValue
+      else:
+          if l_previous_obj!= None and l_previous_obj.NumeratorValue != 0 :
+              l_obj.NumeratorValue = totalPriceForNormalDenominator / totalPriceForPseudoDenominator * l_previous_obj.NumeratorValue
+          else:
+              l_obj.NumeratorValue = totalPriceForNormalDenominator / totalPriceForPseudoDenominator * l_previous_obj.PriceList[0]
+              
+     
+      oldA = l_obj.PriceList[0] / (float(totalPriceForNormalDenominator)/qtyForCalculatingWeightedAverage)
+      newA = l_obj.NumeratorValue / (float(totalPriceForNormalDenominator)/qtyForCalculatingWeightedAverage)
+      attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
+      attribute.aList[currentRowCount][1] = l_obj.NumeratorValue
+      attribute.aList[currentRowCount][2] = totalPriceForNormalDenominator
+      attribute.aList[currentRowCount][3] = str(totalPriceForPseudoDenominator) + ";" +  ";".join(map(str,l_obj.QtyList)) + ";" + ";".join(map(str,l_obj.PriceList)) + ";" + str(oldA) + ";" + str(newA)
+      
+      currentRowCount += 1
+      if (currentRowCount%10000==0):
+         print "Processed row number " + str(currentRowCount)
+      l_previous_obj = l_obj
+   
+   lNameOfFeaturePrinted = "NewNumertor"
+   return ["TimeStamp",lNameOfFeaturePrinted,"totalPriceForNormalDenomiator","totalPriceForPseudoDenominator","Q0","Q1","Q2","Q3","Q4","P0","P1","P2","P3","P4","OldFeatureA","NewFeatureA"]
+

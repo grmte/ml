@@ -11,11 +11,8 @@ def extractAttributeFromDataMatrix(args):
     except:
         print "Since -c has not been specified I cannot proceed"
         os._exit()
-        
-    if(args.cType == "synthetic"):
-        colNumberOfAttribute = colNumberOfData.SysFeature
-    else:
-        colNumberOfAttribute = eval("colNumberOfData."+ args.c )
+    colNumberOfLTP = colNumberOfData.NiftyLTP
+    colNumberOfTTQ = colNumberOfData.NiftyTTQ
     
     colNumberOfTimeStamp = colNumberOfData.TimeStamp
     colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
@@ -24,20 +21,32 @@ def extractAttributeFromDataMatrix(args):
     totalOfRowsInLastNSecs = 0.0
     timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfExchangeStamp],"synthetic")
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
+    l_sum_LtQ = 0
+    prevTTQ = 0
     lengthOfDataMatrix = len(dataFile.matrix)
+    l_prev_feature_val = 0
     print "lengthOfDataMatrix",lengthOfDataMatrix
     while (currentRowNumberForWhichFeatureValueIsBeingCalculated < lengthOfDataMatrix):
         timeOfCurrentRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfExchangeStamp],"synthetic")
         timeElapsed = timeOfCurrentRow - timeOfOldestRow
+        TtqOfCurrentRow = int(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTTQ])
+        LtpCurrentRow = float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfLTP])
         if (timeElapsed < N):
-            cellValue = float(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfAttribute])
+            l_diff_TTQ = TtqOfCurrentRow-prevTTQ
+            cellValue = LtpCurrentRow * l_diff_TTQ
             totalOfRowsInLastNSecs += cellValue
+            l_sum_LtQ += l_diff_TTQ
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataFile.matrix[currentRowNumberForWhichFeatureValueIsBeingCalculated][colNumberOfTimeStamp])
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs/(numberOfRowsInLastNSecs+1) # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
+            if l_sum_LtQ != 0:
+                attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = totalOfRowsInLastNSecs/(l_sum_LtQ) # in 1st iteration currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
+                l_prev_feature_val =  totalOfRowsInLastNSecs/(l_sum_LtQ)
+            else:
+                attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = l_prev_feature_val
             attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = str(totalOfRowsInLastNSecs)
-            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(numberOfRowsInLastNSecs) + ";" + str(timeElapsed) + ";" + str(timeOfCurrentRow)
-            queueOfValuesInLastNSecs.append([cellValue,timeOfCurrentRow])
-            numberOfRowsInLastNSecs += 1   # Every append gets a +1 
+            attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(l_sum_LtQ) + ";" + str(TtqOfCurrentRow) + ";"+str(LtpCurrentRow) + ";" + str(timeElapsed) + ";" + str(timeOfCurrentRow)
+            queueOfValuesInLastNSecs.append([l_diff_TTQ,cellValue,timeOfCurrentRow])
+            prevTTQ = TtqOfCurrentRow
+            numberOfRowsInLastNSecs +=1
             currentRowNumberForWhichFeatureValueIsBeingCalculated += 1
             continue     # Since we are going back 1 row from current we cannot get data from current row
         else:
@@ -54,13 +63,15 @@ def extractAttributeFromDataMatrix(args):
                         sys.exit(-1)   
                 else:   
                     oldestElementInQueue = queueOfValuesInLastNSecs.popleft()
-                    colValueInOldestElementInQueue = oldestElementInQueue[0]
+                    LtqValueInOldRow =  oldestElementInQueue[0]
+                    colValueInOldestElementInQueue = oldestElementInQueue[1]
                     totalOfRowsInLastNSecs -= colValueInOldestElementInQueue
+                    l_sum_LtQ -= LtqValueInOldRow
                     if len(queueOfValuesInLastNSecs) == 0:
                         timeElapsed = 0
                         timeOfOldestRow = timeOfCurrentRow
                     else:
-                        timeOfOldestRow = queueOfValuesInLastNSecs[0][1]
+                        timeOfOldestRow = queueOfValuesInLastNSecs[0][2]
                     numberOfRowsInLastNSecs -= 1 # every pop from the queue gets a -1
                     timeElapsed = timeOfCurrentRow - timeOfOldestRow
                     if(len(queueOfValuesInLastNSecs) != numberOfRowsInLastNSecs):
@@ -69,6 +80,6 @@ def extractAttributeFromDataMatrix(args):
         
         print "Processed row number " + str(currentRowNumberForWhichFeatureValueIsBeingCalculated)
     
-    lNameOfFeaturePrinted = "fMovingAverageOfCol" + args.c + "InLast" + str(args.n) + "Secs"
-    return [ "TimeStamp", lNameOfFeaturePrinted , "TotalOfRowsInLastNSecs" , "NumberOfRowsInLastNSecs" , "TimeElapsed" ,"ExTimeStamp"]
+    lNameOfFeaturePrinted = "fWALTPInLast" + str(args.n) + "Secs"
+    return [ "TimeStamp", lNameOfFeaturePrinted , "totalValueOfRowsInLastNSecs" , "LtqSum" ,"TTQ", "LTP", "TimeElapsed" ,"ExTimeStamp"]
     

@@ -62,8 +62,12 @@ def extractAttributeFromDataMatrix(args):
       currentLTP = float(dataFile.matrix[currentRowCount][colNumberOfData.LTP])
       currentMsgCode = dataFile.matrix[currentRowCount][colNumberOfData.MsgCode]
       currentLTQ = int(dataFile.matrix[currentRowCount][colNumberOfData.NewQ])
+#      try:
       attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
-      
+  #    except:
+  #       print colNumberOfData.TimeStamp,currentRowCount,currentMsgCode
+  #       import pdb
+  #       pdb.set_trace()
       if (dataFile.matrix[currentRowCount][colNumberOfData.MsgCode].upper() == "T") :
           lZerothElementOfQueue = queueOfCellValueInFutureNLTQs.popleft()
           WeightedLTPSum = WeightedLTPSum - lZerothElementOfQueue[0]

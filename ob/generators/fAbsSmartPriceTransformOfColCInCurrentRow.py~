@@ -12,25 +12,26 @@ def extractAttributeFromDataMatrix(args):
         os._exit()
         
     if(args.cType == "synthetic"):
-        colNumberOfAttribute = colNumberOfData.SysFeature
+        colNumberOfAttribute = 1
+        colNumberOfTimeStamp = 0
+        colNumberOfExchangeStamp = -1
     else:
         colNumberOfAttribute = eval("colNumberOfData."+ args.c )
-
-    colNumberOfTimeStamp = colNumberOfData.TimeStamp
-    colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
+        colNumberOfTimeStamp = colNumberOfData.TimeStamp
+        colNumberOfExchangeStamp = colNumberOfData.ExchangeTS
         
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
     for dataRow in dataFile.matrix:
         lSmartFeatureValue = float(dataRow[colNumberOfAttribute])
-        lAskP0 = float(colNumberOfData.AskP0)
-        lBidP0 = float(colNumberOfData.BidP0)
+        lAskP0 = float(dataRow[-2])
+        lBidP0 = float(dataRow[-3])
         lMidPrice = (lAskP0+lBidP0) / 2
         
         if lSmartFeatureValue > lMidPrice:
             lSmartFeatureValueTransform = -lSmartFeatureValue / lAskP0
         else:
             lSmartFeatureValueTransform = lBidP0 / lSmartFeatureValue
-        attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataRow[colNumberOfTimeStamp])
+        attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][0] = common.convertTimeStampFromStringToDecimal(dataRow[colNumberOfTimeStamp],args.cType)
         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][1] = lSmartFeatureValueTransform
         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][2] = lAskP0
         attribute.aList[currentRowNumberForWhichFeatureValueIsBeingCalculated][3] = str(lBidP0) + ";" + str(lSmartFeatureValue)

@@ -10,17 +10,14 @@ import dataFile
 import colNumberOfData
 import attribute
 import common
-
+import sys
 
 def extractAttributeFromDataMatrix(args):
    currentRowCount = 0
-   list_of_array = [ eval('colNumberOfData.'+args.c+'0') , eval('colNumberOfData.'+args.c+'1') ,eval('colNumberOfData.'+args.c+'2') , eval('colNumberOfData.'+args.c+'3') , eval('colNumberOfData.'+args.c+'4')  ]
+   list_of_array = [ eval('colNumberOfData.'+args.c+'1') , eval('colNumberOfData.'+args.c+'2') ,eval('colNumberOfData.'+args.c+'3') , eval('colNumberOfData.'+args.c+'4') , eval('colNumberOfData.'+args.c+'5')  ]
    for dataRow in dataFile.matrix:
-      try:
-         qSum = float(dataRow[list_of_array[0]]) + float(dataRow[list_of_array[1]]) + \
+      qSum = float(dataRow[list_of_array[0]]) + float(dataRow[list_of_array[1]]) + \
                       float(dataRow[list_of_array[2]]) + float(dataRow[list_of_array[3]]) + float(dataRow[list_of_array[4]])
-      except:
-         print dataRow
       attribute.aList[currentRowCount][0] = common.getTimeStamp(dataFile.matrix[currentRowCount],colNumberOfData.TimeStamp)
       attribute.aList[currentRowCount][1] = qSum
       currentRowCount = currentRowCount + 1

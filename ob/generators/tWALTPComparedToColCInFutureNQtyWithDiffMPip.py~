@@ -1,7 +1,8 @@
 import os
-import colNumberOfData
+#import colNumberOfData
+import colNumberOfData10levels as colNumberOfData
 import dataFile
-
+from math  import ceil
 import attribute
 import common
 from collections import deque
@@ -19,9 +20,14 @@ def extractAttributeFromDataMatrix(args):
    except:   
       print "-c has not been specified"
       os._exit(-1)
-
+   try:
+      args.m
+   except:   
+      print "-m has not been specified"
+      os._exit(-1)
    colNumberOfAttribute = eval("colNumberOfData."+ args.c )
       
+   lDiffPip = float(args.m)
    lPipSize = int(args.tickSize)
 
    """ lets get the total of futureNrows"""
@@ -34,11 +40,6 @@ def extractAttributeFromDataMatrix(args):
    WeightedLTPSum = 0.0
    totalLTPQty = totalOfFutureLTQQty
    while(futureLTQSum < totalOfFutureLTQQty):
-      try:
-         dataFile.matrix[currentRowIndex][colNumberOfData.MsgCode].upper() == "T"
-      except:
-         print "Data Line = " , dataFile.matrix[currentRowIndex]
-         print "Current Row Index = " , currentRowIndex
       if dataFile.matrix[currentRowIndex][colNumberOfData.MsgCode].upper() == "T":
          currentLTPValue = float(dataFile.matrix[currentRowIndex][colNumberOfData.LTP])
          currentLTQValue = int(dataFile.matrix[currentRowIndex][colNumberOfData.NewQ])
@@ -48,7 +49,7 @@ def extractAttributeFromDataMatrix(args):
       lLastTradeIndex = currentRowIndex
       currentRowIndex = currentRowIndex + 1
    if futureLTQSum > totalOfFutureLTQQty :
-      currentLTQValueToBeUsed = currentLTQValue - ( futureLTQSum - totalOfFutureLTQQty )
+      currentLTQValueToBeUsed = currentLTQValue - ( futureLTQSum - totalOfFutureLTQQty ) 
       currentTickPriceToBeAdded  = currentLTPValue * currentLTQValueToBeUsed 
       LTQValueNotAdded = ( futureLTQSum - totalOfFutureLTQQty )
       WeightedLTPSum = WeightedLTPSum - queueOfCellValueInFutureNLTQs[-1][0] + currentTickPriceToBeAdded
@@ -84,7 +85,7 @@ def extractAttributeFromDataMatrix(args):
                   startIndexToFindNextTrade = lLastTradeIndex + 1
                   while( startIndexToFindNextTrade < len(dataFile.matrix)):
                      if dataFile.matrix[startIndexToFindNextTrade][colNumberOfData.MsgCode].upper() == "T":
-                        lLastTradeIndex = startIndexToFindNextTrade
+                        lLastTradeIndex = startIndexToFindNextTrade 
                         futureLTPValue = float(dataFile.matrix[startIndexToFindNextTrade][colNumberOfData.LTP])
                         futureLTQValue = int(dataFile.matrix[startIndexToFindNextTrade][colNumberOfData.NewQ])
                         queueOfCellValueInFutureNLTQs.append( [ (futureLTPValue * futureLTQValue) , futureLTQValue , futureLTPValue , 0 ]  )
@@ -119,14 +120,18 @@ def extractAttributeFromDataMatrix(args):
       if totalLTPQty != 0:
           WALTPOfFutureNQty = WeightedLTPSum / totalLTPQty
 
-
+      if lPipSize== 25000:
+          tTranCost = 0.000015 * 2
+      else:
+          tTranCost = 0.00015 * 2
+      l_margin_ticks = ceil((lDiffPip*tTranCost*currentPrice)/lPipSize)
       if args.c == "BidP0":
-          if WALTPOfFutureNQty >= (currentPrice + lPipSize):
+          if WALTPOfFutureNQty >= (currentPrice + l_margin_ticks* lPipSize):
               lClassOfTargetVariable = 1
           else:
               lClassOfTargetVariable = 0
       else:
-          if WALTPOfFutureNQty <= (currentPrice - lPipSize):
+          if WALTPOfFutureNQty <= (currentPrice - l_margin_ticks*lPipSize):
               lClassOfTargetVariable = 1
           else:
               lClassOfTargetVariable = 0

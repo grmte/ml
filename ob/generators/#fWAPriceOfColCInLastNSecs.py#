@@ -1,4 +1,4 @@
-#This program will take ColC qty to take wt avg of the prices ..C has be made keeping in mind that C would be synthetic feature name 
+x#This program will take ColC qty to take wt avg of the prices ..C has be made keeping in mind that C would be synthetic feature name 
 # C = fMovingAverageOfCol_fColCInCurrentRowAvg_InLastNSecs
 import dataFile, os, colNumberOfData, attribute, common
 

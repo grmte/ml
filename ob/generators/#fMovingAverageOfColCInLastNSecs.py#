@@ -22,7 +22,10 @@ def extractAttributeFromDataMatrix(args):
     numberOfRowsInLastNSecs = 0
     queueOfValuesInLastNSecs = deque()
     totalOfRowsInLastNSecs = 0.0
-    timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfExchangeStamp],"synthetic")
+    try:
+        timeOfOldestRow = common.convertTimeStampFromStringToFloat(dataFile.matrix[0][colNumberOfExchangeStamp],"synthetic")
+    except:
+        print 
     currentRowNumberForWhichFeatureValueIsBeingCalculated = 0
     lengthOfDataMatrix = len(dataFile.matrix)
     print "lengthOfDataMatrix",lengthOfDataMatrix
