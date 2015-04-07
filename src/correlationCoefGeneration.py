@@ -296,13 +296,13 @@ for key in lBuyDict.keys():
 wfo.write("\nCorrelationCoefficent of sell:-\n")
 for key in lSellDict.keys():
     lMeanX = (lSellDict[key]["X"]/lSellDict[key]["n"])
-    
-
-
-
-
-
-
+    lMeanY = (lSellDict[key]["Y"]/lSellDict[key]["n"])
+    lCov = (lSellDict[key]["XY"]/lSellDict[key]["n"]) - (lMeanX * lMeanY)
+    lVarX = (lSellDict[key]["X2"]/lSellDict[key]["n"]) - math.pow(lMeanX, 2)
+    lVarY = (lSellDict[key]["Y2"]/lSellDict[key]["n"]) - math.pow(lMeanY, 2)
+    lCor = lCov / math.sqrt(lVarX * lVarY)
+    lLine = key + " = " + str(lCor)
+    wfo.write(lLine + "\n")
 
 l_files_to_be_mailed = [ summary_file_name , l_exp_dir + "design.ini" ]
 print "Files being mailed are = " , l_files_to_be_mailed
