@@ -4,7 +4,7 @@ import os
 import sys
 
 import argparse
-parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is cMatrixGen.py -d ob/data/20140207/ -e e1 -a logitr')
+parser = argparse.ArgumentParser(description='This program will generate a confusion matrix to measure the quality of the experiment. An e.g. command line is :- \n src/cMatrixGen.py -e ob/e/nsefut/ICICIBANK/ -a glmnet -pd ob/data/ro/nsefut/20141017/ -dt 10 -td ob/data/ro/nsefut/20140926/ -targetClass binomial -wt default')
 parser.add_argument('-e', required=True,help='Directory of the experiment')
 parser.add_argument('-a', required=True,help='Algorithm name')
 parser.add_argument('-pd', required=True,help='Prediction directory')

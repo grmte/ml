@@ -34,7 +34,7 @@ if args.pd == None:
 else:
     allPredictionDataDirectories = args.pd.split(";")
 if args.f == None:
-    args.f = "1"    
+    args.f = "1"
 if args.f == "0":
     desired_statistic_line_numbers = [6,9,12,13,15]    # Line numbers for desired statistics 6: - Total Sell qty , 9 : Total Buy Qty , 15 :- Total Gross Profit
 elif args.f == "1":
@@ -48,6 +48,10 @@ elif args.f == "1":
     OBP = 25
     CSP = 24
     AvgGrossProfitLong = 30
+    LossMakingTrades = 35
+    LossMakingTradesBelowTol = 36
+    TotalLoss = 37
+    TotalProfit = 38
 else:
     print "\nNo valid -f argument given, -f 0 for old format and -f 1 for new format"
     sys.exit(-99)
@@ -56,16 +60,17 @@ if args.f == "0":
     desired_statistic_names = ["FeatureCombination","EntryCL","ExitCL","TotalSellQty","TotalBuyQty","AvgSellP","AvgBuyPrice","AvgGrossProfit","AvgNetProfit"]
 else:
     if args.iT is not None:
-        desired_statistic_names = ["AlgorithmUsed","InstrName-Ticker","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
+
+       desired_statistic_names = ["AlgorithmUsed","InstrName-Ticker","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
                                "EntryCL","ExitCL","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
-                               "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars"]
+                               "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars","Neg","TotalNoLoss","TotalLossBelow500","TotalProfit","TotalLoss"]
 
     else:
         desired_statistic_names = ["AlgorithmUsed","TrainingDirectory","NoOfDaysForTraining","PredictionDirectory","LastDayOfTrainingORActuallyPredictedDayAfterTraining","targetClass","WeightType","FeatureCombination",\
                                "EntryCL","ExitCL","OrderQty","TradeEngine","TotalOpenSellQty","TotalCloseBuyQty","AvgOpenSellP","AvgCloseBuyPrice","AvgShortGrossProfit",\
                                "AvgShortNetProfit","TotalOpenBuyQty","TotalCloseSellQty","AvgOpenBuyPrice","AvgCloseSellPrice","AvgLongGrossProfit",\
-                               "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars"]
+                               "AvgLongNetProfit","TotalNetProfit","TotalNetProfitInDollars","Neg","TotalNoLoss","TotalLossBelow500","TotalProfit","TotalLoss"]
 #os.chdir("")    # Directory name needed
 
 summary_file_name = args.e + "/Accumulated_Results_for_experiment_" + os.path.basename(os.path.abspath(args.e))+ "_on_date_" +time.strftime("%d_%m_%Y") + ".csv"
@@ -84,26 +89,28 @@ lLastDayOrDayAfter = ""
 index = 0
 lastDayOfTraining = ""
 dayAfterTraining = ""
-
+print allPredictionDataDirectories
 for dirN in allPredictionDataDirectories:
     dirName = dirN.replace('/ro/','/rs/')
     tradeFileNameDirectory = dirName+"/r/"+os.path.basename(os.path.abspath(args.e))+"/"
     command_output = commands.getoutput("ls -1 "+tradeFileNameDirectory)
     file_list = command_output.split("\n")
     filtered_file_list = [file_name for file_name in file_list if ((file_name[-7:] == ".result") and (args.a in file_name))]
+    #pdb.set_trace()
     for file_name in filtered_file_list:
+       
         algoName = file_name[:file_name.index("-")]
-
-        
+                
         if "-tTD." in file_name:
             trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-tTD.")]
         else:
             trainingDirectory = file_name[file_name.index("-td.") + 4:file_name.index("-dt.")]
         noOfDaysForTraining = file_name[file_name.index("-dt.") + 4:file_name.index("-targetClass.")]
-       
+        noOfDaysForTraining = 1
         for directory in allDataDirectories:
             if trainingDirectory in directory:
-                lastDayOfTraining = allDataDirectories[allDataDirectories.index(directory)+int(noOfDaysForTraining)-1]
+#                lastDayOfTraining = allDataDirectories[allDataDirectories.index(directory)+int(noOfDaysForTraining)-1]
+                lastDayOfTraining = "ob/data/ro/nsefut/20141017/"
                 try:
                     dayAfterTraining = allDataDirectories[allDataDirectories.index(directory)+int(noOfDaysForTraining)]
                 except:
@@ -129,6 +136,7 @@ for dirN in allPredictionDataDirectories:
         
         targetClass = file_name[file_name.index("-targetClass.") + 13:file_name.index("-f.")]
         feature = file_name[file_name.index("-f.") + 3:file_name.index("-wt.")]
+        
         if args.iT is not None:
             try:
                 weightTypeTaken = file_name[file_name.index("-wt.")+4:file_name.index("-iT.")]
@@ -143,16 +151,19 @@ for dirN in allPredictionDataDirectories:
         try:
             l_levels = file_name[file_name.index("-l.") + 3:file_name.index("-tq")].split("-")
             
-            entryCL = l_levels[0]
-            exitCL = l_levels[1]
+#            if len(l_levels) < 4:
+#                continue
+            entryCL = l_levels[0] + "-" + l_levels[2] if len(l_levels) > 2 else l_levels[0]
+            exitCL = l_levels[1] + "-" + l_levels[3] if len(l_levels) > 2 else l_levels[1]
             try:
                 buy_cut_off = l_levels[2]
                 sell_cut_off = l_levels[3]
-                continue
+#                continue
             except:
                 pass
             orderQty = file_name[file_name.index("-tq.")+4:file_name.index("-te")]
             tradeEngine = file_name[file_name.index("-te.")+4:file_name.index(".result")]
+            
 #            if tradeEngine != "15":
 #                continue
             temp_read_file_object = open(tradeFileNameDirectory + file_name, "r")
@@ -219,6 +230,18 @@ for dirN in allPredictionDataDirectories:
             except:
                 lAvgNetProfitLong = 0.0
             lNetProfitLongAndShort = ( lAvgNetProfitShort * lTotOpenSellQty ) + ( lAvgNetProfitLong * lTotOpenBuyQty )
+            try:
+                last_occurence_of_space = line_list[LossMakingTrades].rindex(": ")
+                lossMakingTrades = int(line_list[LossMakingTrades][last_occurence_of_space + 1:])
+                last_occurence_of_space = line_list[LossMakingTradesBelowTol].rindex(": ")
+                lossMakingTradesBelowTol = int(line_list[LossMakingTradesBelowTol][last_occurence_of_space + 1:])
+                last_occurence_of_space = line_list[TotalLoss].rindex(": ")
+                totalLoss = float(line_list[TotalLoss][last_occurence_of_space + 1:])
+                last_occurence_of_space = line_list[TotalProfit].rindex(": ")
+                totalProfit = float(line_list[TotalProfit][last_occurence_of_space + 1:])
+            except:
+                lossMakingTrades, lossMakingTradesBelowTol, totalLoss, totalProfit = ["", "", "", ""]
+                
             if "nsecur" in os.path.abspath(args.e):
                 lNetProfitLongAndShortInDollars = lNetProfitLongAndShort / ( 60 * 10000 )
             elif "nsefut" in os.path.abspath(args.e):
@@ -230,27 +253,33 @@ for dirN in allPredictionDataDirectories:
                 print "Error in experiment file complete path name "
             if args.iT is not None:
                 instrTicker = instrType +"-"+ strikePrice +"-"+ optionsType
-                l_list_to_printed = [algoName ,instrTicker, trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
+                neg = 0 if lNetProfitLongAndShortInDollars > 0 else 1
+                l_list_to_printed = [algoName ,instrTicker, trainingDirectory , str(noOfDaysForTraining) , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
                                   weightTypeTaken , feature , entryCL , exitCL , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
                                   str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
-                                  str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]
+                                  str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars), str(neg), str(lossMakingTrades), str(lossMakingTradesBelowTol), str(totalProfit), str(totalLoss)]
 
             else:
-                l_list_to_printed = [algoName , trainingDirectory , noOfDaysForTraining , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
+                neg = 0 if lNetProfitLongAndShortInDollars > 0 else 1
+                l_list_to_printed = [algoName , trainingDirectory , str(noOfDaysForTraining) , os.path.basename(os.path.abspath(dirN)) , lLastDayOrDayAfter , targetClass ,\
                                   weightTypeTaken , feature , entryCL , exitCL , orderQty , tradeEngine ,  str(lTotOpenSellQty) , str(lTotCloseBuyQty) ,str(lAvgOpenSellPrice), \
                                   str(lAvgCloseBuyPrice),str(lAvgGrossProfitShort),str(lAvgNetProfitShort),
                                   str(lTotOpenBuyQty) , str(lTotCloseSellQty) ,str(lAvgOpenBuyPrice), str(lAvgCloseSellPrice),str(lAvgGrossProfitLong),\
-                                  str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars)]
+                                  str(lAvgNetProfitLong),str(lNetProfitLongAndShort),str(lNetProfitLongAndShortInDollars), str(neg), str(lossMakingTrades), str(lossMakingTradesBelowTol), str(totalProfit), str(totalLoss)]
             l_list_of_all_results.append(l_list_to_printed)
             if len(l_list_of_all_results)%10000==0:
                 print "Completed 10000 files accumulation"
         index = index + 1
 
-sorted_list = sorted(l_list_of_all_results, key = lambda x: float(x[-2]))
+sorted_list = sorted(l_list_of_all_results, key = lambda x: float(x[-7]))
+
 for list_to_printed in sorted_list[::-1]:
-    l_line_to_be_printed = ";".join(list_to_printed)
-    write_file_object.write(l_line_to_be_printed+"\n")
+    try:
+        l_line_to_be_printed = ";".join(list_to_printed)
+        write_file_object.write(l_line_to_be_printed+"\n")
+    except:
+        print list_to_printed
 
 print "\nAll the files are summarized according to the statistic parameters given"
 write_file_object.close()

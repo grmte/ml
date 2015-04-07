@@ -7,8 +7,9 @@ import rCodeGen, utility
 import attribute
 import aGenForE
 import email_accumulated_results
+import math
 
-parser = argparse.ArgumentParser(description='Automate Target exp ',formatter_class=argparse.RawTextHelpFormatter)
+parser = argparse.ArgumentParser(description='Program to generate features and target , find correlation between features and target , and mail the correspong correaltion file  Example:-\n src/correlationCoefGeneration.py -run dry -sequence serial -nDays 26 -nComputers 12 -iT ICICIBANK -oT 0 -sP -1 -e ob/e/nsefut/ICICIBANK/ -dt 10 -autoDesign no -td ob/data/ro/nsefut/20140801/',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-run', required=True,help='dry (only show dont execute) or real (show and execute)')
 parser.add_argument('-sequence', required=False,help='lp (Local parallel) / dp (Distributed parallel) / serial')
 parser.add_argument('-nDays',required=True,help="Number of days present in the data set")
@@ -24,11 +25,18 @@ parser.add_argument('-g', required=False,help='Generators directory')
 parser.add_argument('-dt',required=True,help='Number of days after start training day specified . Defaults to 1 ')
 parser.add_argument('-e',required=False,help='Experiment directory')
 parser.add_argument('-autoDesign',required=False,help='If autoDesign = yes , design file will be formed automatically , by default it is yes , Else it will not form the design file and use args.e\'s design file')
+parser.add_argument('-dayWise',required=False,help='whether to generate daywise correlations as well')
 args = parser.parse_args()
 
 args.iT = (args.iT).strip()
 
 attribute.initializeInstDetails(args.iT,args.sP,args.oT)
+
+if(args.dayWise == "yes"):
+    args.dayWise = True
+else:
+    args.daywise = False
+
 if(args.sequence == "dp"):
     import dp
 if args.g == None:
@@ -59,73 +67,49 @@ def prepare_design_file(pExpDirectory):
     l_target_list = (args.TargetParam).split("_")
     fp_for_design_file.write("buy = tWALTPComparedToColBestBidPInFuture" + l_target_list[0] +"QtyWithDiff"+ l_target_list[1] +"Pip\n")
     fp_for_design_file.write("sell = tWALTPComparedToColBestAskPInFuture" + l_target_list[0] +"QtyWithDiff"+ l_target_list[1] +"Pip\n")
-    l_feature_qty_in_lots = int(args.fQL)
+    if(args.fQL != None):
+        l_feature_qty_in_lots = int(args.fQL)
     l_lot_size = int(args.lSz)
     l_count = 1
     g_Ltp_Feature_qty_list = []
     l_target_qty = int(l_target_list[0])
-    g_Ltp_Feature_qty_list.append(l_target_qty)
-    g_feature_qty.append(l_feature_qty_in_lots*l_lot_size)
-    l_mean_qty = l_feature_qty_in_lots*l_lot_size
-    l_LTP_coef = 1.0
-    while l_count < 5:
-        l_lower_qty = l_mean_qty - (5*l_count*l_lot_size)
-        l_upper_qty = l_mean_qty + (5*l_count*l_lot_size)
-        if(l_lower_qty > 0):
-            g_feature_qty.append(l_lower_qty)
-            g_feature_qty.append(l_upper_qty)
-        
-            
-        l_ltp_qty1 = int((l_LTP_coef-(l_count*0.25))*l_target_qty)
-        l_ltp_qty2 = int((l_LTP_coef+(l_count*0.25))*l_target_qty)
-        if(l_ltp_qty1%l_lot_size != 0):
-            l_ltp_qty1 = (l_ltp_qty1/l_lot_size+1)*l_lot_size
-        if(l_ltp_qty1>0):
-            g_Ltp_Feature_qty_list.append(l_ltp_qty1)
-        if(l_ltp_qty2%l_lot_size != 0):
-            l_ltp_qty2 = (l_ltp_qty2/l_lot_size+1)*l_lot_size
-        if(l_ltp_qty2>0):
-            g_Ltp_Feature_qty_list.append(l_ltp_qty2)    
-        l_count = l_count +1
-    g_feature_qty.sort()
-    g_Ltp_Feature_qty_list.sort()
     g_list_of_features = []
     g_list_of_intermediate_features = []
-    l_count = 0
-    for l_qty in g_feature_qty:   #500QtyWithDiff2.5Pip
-      try:
-        g_list_of_features.append("A"+str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
-        g_list_of_features.append("B"+str(l_count) +"= fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
-        g_list_of_intermediate_features.append("FeatureA"+ str(l_count)+"= fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty")
-        g_list_of_intermediate_features.append("FeatureB"+ str(l_count)+"= fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
-        g_list_of_features.append("C"+str(l_count)+"=(fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty)[DivideBy]fMovingAverageOfCol_FeatureA"+str(l_count)+"_InLast1000Rows")
-        g_list_of_features.append("D"+str(l_count)+"=(fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty)[DivideBy]fMovingAverageOfCol_FeatureB"+str(l_count)+"_InLast1000Rows")
-        g_list_of_features.append("E"+str(l_count)+"=(fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty)[MultiplyBy](fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty)")
-        g_list_of_intermediate_features.append("FeatureAmB"+ str(l_count)+"=fColBidP0InCurrentRow[DivideBy]fWAPriceOfColBidInLast"+str(l_qty)+"Qty[MultiplyBy]fColAskP0InCurrentRow[DivideBy]fWAPriceOfColAskInLast"+str(l_qty)+"Qty")
-        g_list_of_features.append("F"+str(l_count)+"=fCol_FeatureAmB"+str(l_count)+"_InCurrentRow[DivideBy]fMovingAverageOfCol_FeatureAmB"+str(l_count)+"_InLast1000Rows")
-      except:
-        pass
-      try:
-        g_list_of_features.append("G"+str(l_count)+"=fWALTPInLast"+str(g_Ltp_Feature_qty_list[l_count])+"Qty[DivideBy]fWALTPInLast"+str(2*g_Ltp_Feature_qty_list[l_count])+"Qty")
-      except:
-        pass
-      l_count = l_count+1
-    g_list_of_intermediate_features.append('midPrice = (fColBidP0InCurrentRow[Add]fColAskP0InCurrentRow)[DivideBy]2')
-    g_list_of_intermediate_features.append('midPriceBest = (fColBestBidPInCurrentRow[Add]fColBestAskPInCurrentRow)[DivideBy]2')
-    g_list_of_features.append("T=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow[Pow]2")
-    g_list_of_features.append("H=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow")
-    g_list_of_features.append("I=fSmartPriceTransformOfCol_fInverseWAInLast2Levels_InCurrentRow")
-    g_list_of_features.append("J=fSmartPriceTransformOfCol_fInverseWAInLast3Levels_InCurrentRow")
-    g_list_of_features.append("K=fSmartPriceTransformOfCol_fInverseWAInLast4Levels_InCurrentRow")
-    g_list_of_features.append("L=fSmartPriceTransformOfCol_fInverseWAInLast5Levels_InCurrentRow")
-    g_list_of_features.append("Q=fColBidP0InCurrentRow[DivideBy]fInverseWAInLast2Levels")
-    g_list_of_features.append("R=fColAskP0InCurrentRow[DivideBy]fInverseWAInLast2Levels")
-    g_list_of_features.append("O=fCol_midPriceBest_InCurrentRow[DivideBy]fInverseWAInLast2Levels")
     index = 0
-    for volatility in [60,300,600]:
-        g_list_of_features.append("M"+str(index)+"= fVarianceOfCol_midPrice_InLast"+str(volatility)+"Secs[Pow].5") 
-        g_list_of_features.append("N"+str(index)+"= fVarianceOfCol_midPriceBest_InLast"+str(volatility)+"Secs[Pow].5") 
-        index += 1
+    l_count = 0
+#    for lots in [1250,2500,5000,12500]:
+#        g_list_of_features.append("A_"+str(lots)+"Qty = fColNiftyLTPInCurrentRow[DivideBy]fWALTPOfNiftyInLast"+str(lots)+"Qty")
+    for l_secs in [300 ,600,1200,1800]:
+#        g_list_of_features.append("B_"+str(l_secs)+"Secs =fColNiftyLTPInCurrentRow[DivideBy]fWALTPOfNiftyInLast"+str(l_secs)+"Secs")
+        g_list_of_intermediate_features.append("FeatureBQAvgFor"+ str(l_secs)+" = fMovingAverageOfCol_fColBidQInCurrentRowSum_InLast"+str(l_secs)+"Secs")
+        g_list_of_intermediate_features.append("FeatureAQAvgFor"+str(l_secs)+" = fMovingAverageOfCol_fColAskQInCurrentRowSum_InLast"+str(l_secs)+"Secs")
+        for l_multilpier in [1.5, 1.8 ,2.1,2.4,2.7,3.0]:
+            g_list_of_features.append("A"+str(l_multilpier)+"_"+str(l_secs)+" = fColBidP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureBQAvgFor"+str(l_secs)+"_InLast"+str(l_multilpier)+"Secs")
+            g_list_of_features.append("AmB"+str(l_multilpier)+"_"+str(l_secs)+" = (fColBidP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureBQAvgFor"+str(l_secs)+"_InLast"+str(l_multilpier)+"Secs)[MultiplyBy](fColAskP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureAQAvgFor"+str(l_secs)+"_InLast"+str(l_multilpier)+"Secs)")
+            g_list_of_features.append("B"+str(l_multilpier)+"_"+str(l_secs)+" = fColAskP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureAQAvgFor"+str(l_secs)+"_InLast"+str(l_multilpier)+"Secs")
+            for l_rows in [500,1000,2000,5000]:
+                g_list_of_features.append("RAmB"+str(l_multilpier)+"_"+str(l_secs)+"_"+str(l_rows)+" = fCol_Feature"+str(l_multilpier)+"AmB"+str(l_secs)+"_InCurrentRow[DivideBy]fMovingAverageOfCol_Feature"+str(l_multilpier)+"AmB"+str(l_secs)+"_InLast"+str(l_rows)+"Rows)")
+            g_list_of_intermediate_features.append("Feature"+str(l_multilpier)+"AmB"+str(l_secs)+" = (fColBidP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureBQAvgFor"+str(l_secs)+"_InLast"+str(l_multilpier)+"Secs)[MultiplyBy](fColAskP0InCurrentRow[DivideBy]fWAPriceOfCol_FeatureAQAvgFor"+str(l_secs)+"_InLast"+str(l_multilpier)+"Secs)")
+
+#    	g_list_of_features.append("BWLTP_"+str(l_secs)+"=fColBidP0InCurrentRow[DivideBy]fWALTPInLast"+str(l_secs)+"Secs")
+#	g_list_of_features.append("AWLTP_"+str(l_secs)+"=fColAskP0InCurrentRow[DivideBy]fWALTPInLast"+str(l_secs)+"Secs")
+#	g_list_of_features.append("MWLTP_"+str(l_secs)+"=fCol_midPrice_InCurrentRow[DivideBy]fWALTPInLast"+str(l_secs)+"Secs")
+#     g_list_of_intermediate_features.append('midPrice = (fColBidP0InCurrentRow[Add]fColAskP0InCurrentRow)[DivideBy]2')
+#     g_list_of_intermediate_features.append('midPriceBest = (fColBestBidPInCurrentRow[Add]fColBestAskPInCurrentRow)[DivideBy]2')
+#    g_list_of_features.append("T=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow[Pow]2")
+#    g_list_of_features.append("H=fSmartPriceTransformOfCol_fInverseWAInLast1Levels_InCurrentRow")
+#    g_list_of_features.append("I=fSmartPriceTransformOfCol_fInverseWAInLast2Levels_InCurrentRow")
+#    g_list_of_features.append("J=fSmartPriceTransformOfCol_fInverseWAInLast3Levels_InCurrentRow")
+#    g_list_of_features.append("K=fSmartPriceTransformOfCol_fInverseWAInLast4Levels_InCurrentRow")
+#    g_list_of_features.append("L=fSmartPriceTransformOfCol_fInverseWAInLast5Levels_InCurrentRow")
+#    g_list_of_features.append("Q=fColBidP0InCurrentRow[DivideBy]fInverseWAInLast2Levels")
+#    g_list_of_features.append("R=fColAskP0InCurrentRow[DivideBy]fInverseWAInLast2Levels")
+#    g_list_of_features.append("O=fCol_midPriceBest_InCurrentRow[DivideBy]fInverseWAInLast2Levels")
+#    index = 0
+#    for volatility in [60,300,600]:
+#        g_list_of_features.append("M"+str(index)+"= fVarianceOfCol_midPrice_InLast"+str(volatility)+"Secs[Pow].5") 
+#        g_list_of_features.append("N"+str(index)+"= fVarianceOfCol_midPriceBest_InLast"+str(volatility)+"Secs[Pow].5") 
+#        index += 1
     fp_for_design_file.write("\n\n[features-buy]\n\n")
     for l_feature in g_list_of_features:
         fp_for_design_file.write(l_feature+"\n")
@@ -140,7 +124,7 @@ def prepare_design_file(pExpDirectory):
 
 #===================Feature Design File=============================
 if args.autoDesign.lower() == "yes":
-    l_exp_dir = args.e + "/CorExp"+args.iT.strip()+"/"
+    l_exp_dir = args.e + "/CorExpNewRAmB1"+args.iT.strip()+"/"
     prepare_design_file(l_exp_dir)
 else:
     l_exp_dir = args.e
@@ -154,42 +138,172 @@ generatorsFolder = args.g
 commandList = []
 # Seperate into 2 different list one for aGen and another for operateOnAttribute
 if args.sequence=="dp":
-    for directories in allDataDirectories:
+    for directories in allDataDirectories :
         commandList.append(["aGenForE.py","-e",l_exp_dir,"-d",directories,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-        pass    
-
-    for chunkNum in range(0,len(commandList),int(args.nComputers)):
-        lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-        utility.runCommandList(lSubGenList,args)
-        print dp.printGroupStatus() 
+        pass        
+    utility.runListOfCommandsWithMaxUtlilizationOfWorkers(commandList,args,"CorrelationFeature Generation",int(args.nComputers))
 else:
     def scriptWrapperForFeatureGeneration(trainingDirectory):
-        utility.runCommand(["aGenForE.py","-e",l_exp_dir,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',args.tickSize,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+        utility.runCommand(["aGenForE.py","-e",l_exp_dir,"-d",trainingDirectory,"-g",args.g,"-run",args.run,"-sequence",args.sequence,'-tickSize',str(tickSize),"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
         pass
     results = map(scriptWrapperForFeatureGeneration,allDataDirectories) 
     pass
 
-#==========R Code formation to find correlation between faetures and atrget file ==============================
-utility.runCommand(["corrRGenForE.py","-e",l_exp_dir,"-td",args.td,"-dt",args.nDays,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+#==========R Code formation to find correlation between features and target file ==============================0
+utility.runCommand(["corrRGenForEForAllDays.py","-e",l_exp_dir,"-td",args.td,"-dt",args.dt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
 if args.sequence=="dp": 
     print dp.printGroupStatus()
 
 #========Running the correlation R program=========================
-lFileName = l_exp_dir + "/corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
 allWorkingFileDirectories =  attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td.replace('/ro/','/wf/') ,args.iT)
 allWorkingFileDirectoriesString = ";".join(allWorkingFileDirectories)
-utility.runCommand([lFileName,'-d',allWorkingFileDirectoriesString],args.run,"serial")
-
-#=======MAiling the correlateion file==============================
+lCorrCommandList = []
+if args.sequence == "dp":
+    for l_training_day in allWorkingFileDirectories:
+        lDate = os.path.basename(os.path.abspath(l_training_day))
+        lFileName = l_exp_dir + "/corr-date-" + lDate + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
+        lCorrCommandList.append([lFileName,'-d',l_training_day])
+    utility.runListOfCommandsWithMaxUtlilizationOfWorkers(lCorrCommandList,args,"Day-wise Correlation",int(args.nComputers))
+else:
+    def scriptWrapperForDayWiseCorrelation(pTrainingDay):
+        lDate = os.path.basename(os.path.abspath(pTrainingDay))
+        lFileName = l_exp_dir + "/corr-date-" + lDate + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
+        utility.runCommand([lFileName,'-d',pTrainingDay],args.run,args.sequence)
+    results = map(scriptWrapperForDayWiseCorrelation,allWorkingFileDirectories)
+    
 summary_file_name = l_exp_dir + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 
-l_files_to_be_mailed = [ summary_file_name , l_exp_dir + "design.ini" ]
-print "Files being mailed are = " , l_files_to_be_mailed
-email_accumulated_results.start_mail(l_files_to_be_mailed,os.path.basename(os.path.abspath(l_exp_dir)),"CoeffientOf"+args.iT.strip())
+wfo = open(summary_file_name, 'w')
 
+lBuyDict = {}
+lSellDict = {}
+lDayWiseBuy = {}
+lDayWiseSell = {}
+lDummyBuy = {}
+lDummySell = {}
+lDateList = []
+for l_training_day in allWorkingFileDirectories:
+    lDate = os.path.basename(os.path.abspath(l_training_day))
+    print(lDate)
+    lDateList.append(lDate)
+    lDummyBuy = {}
+    lDummySell = {}
+    lFileName = l_exp_dir + "/correlation-coef-date-" + lDate + "-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".coef"
+    rfo = open(lFileName, 'r')
+    buy = "Start"
+    sell = "Start"
+    for line in rfo.readlines():
+        if buy == "Start":
+            buy = "Ongoing"
+            continue
+        elif line.strip() == "" and buy == "Ongoing":
+            buy = "End"
+        elif line.strip() == "" and buy == "End":
+            sell = "Ongoing"
+        if buy == "Ongoing":
+            lFeatureVar, lValue = line.split("=")
+            lVariable = lFeatureVar.split("_")[-1]
+            lFeature = lFeatureVar[:lFeatureVar.rindex(lVariable)-1]
+            if lFeature not in lBuyDict:
+                lBuyDict[lFeature] = {}
+            if lFeature not in lDummyBuy:                
+                lDummyBuy[lFeature] = {}
 
+            if lVariable in lBuyDict[lFeature]:
+                lBuyDict[lFeature][lVariable] += float(lValue)
+            else:
+                lBuyDict[lFeature][lVariable] = float(lValue)
 
+            if lVariable in lDummyBuy[lFeature]:
+                lDummyBuy[lFeature][lVariable] += float(lValue)
+            else:
+                lDummyBuy[lFeature][lVariable] = float(lValue)
+            
+        if sell == "Ongoing" and "=" in line:
+            lFeatureVar, lValue = line.split("=")
+            lVariable = lFeatureVar.split("_")[-1]
+            lFeature = lFeatureVar[:lFeatureVar.rindex(lVariable)-1]
+            if lFeature not in lSellDict:
+                lSellDict[lFeature] = {}
+            if lFeature not in lDummySell:
+                lDummySell[lFeature] = {}
+
+            if lVariable in lSellDict[lFeature]:
+                lSellDict[lFeature][lVariable] += float(lValue)
+            else:
+                lSellDict[lFeature][lVariable] = float(lValue)
+
+            if lVariable in lDummySell[lFeature]:
+                lDummySell[lFeature][lVariable] += float(lValue)
+            else:
+                lDummySell[lFeature][lVariable] = float(lValue)
+                
+    if args.dayWise:
+        for key in lDummyBuy.keys():
+            lMeanX = (lDummyBuy[key]["X"]/lDummyBuy[key]["n"])
+            lMeanY = (lDummyBuy[key]["Y"]/lDummyBuy[key]["n"])
+            lCov = (lDummyBuy[key]["XY"]/lDummyBuy[key]["n"]) - (lMeanX * lMeanY)
+            lVarX = (lDummyBuy[key]["X2"]/lDummyBuy[key]["n"]) - math.pow(lMeanX, 2)
+            lVarY = (lDummyBuy[key]["Y2"]/lDummyBuy[key]["n"]) - math.pow(lMeanY, 2)
+            lCor = lCov / math.sqrt(lVarX * lVarY)
+            if key in lDayWiseBuy:
+                lDayWiseBuy[key].append(lCor)
+            else:
+                lDayWiseBuy[key] = [lCor]
+            
+        for key in lDummySell.keys():
+            lMeanX = (lDummySell[key]["X"]/lDummySell[key]["n"])
+            lMeanY = (lDummySell[key]["Y"]/lDummySell[key]["n"])
+            lCov = (lDummySell[key]["XY"]/lDummySell[key]["n"]) - (lMeanX * lMeanY)
+            lVarX = (lDummySell[key]["X2"]/lDummySell[key]["n"]) - math.pow(lMeanX, 2)
+            lVarY = (lDummySell[key]["Y2"]/lDummySell[key]["n"]) - math.pow(lMeanY, 2)
+            lCor = lCov / math.sqrt(lVarX * lVarY)
+            if key in lDayWiseSell:
+                lDayWiseSell[key].append(lCor)
+            else:
+                lDayWiseSell[key] = [lCor]
+                    
+if args.dayWise:
+    fileName = l_exp_dir + 'Daywise_correlation_file.csv'
+    dwfo = open(fileName, 'w')
+
+    dwfo.write("BuyMatrix:\n")
+    lBuyKeys = lDayWiseBuy.keys()
+    dwfo.write("Date;" + ";".join(lBuyKeys) + "\n")
+    for i in xrange(len(lDateList)):
+        lLine = str(lDateList[i]) + ";" + ";".join([str(lDayWiseBuy[key][i]) for key in lBuyKeys]) + "\n"
+        dwfo.write(lLine)
+        
+    dwfo.write("\nSellMatrix:\n")
+    lSellKeys = lDayWiseSell.keys()
+    dwfo.write("Date;" + ";".join(lSellKeys) + "\n")
+    for i in xrange(len(lDateList)):
+        lLine = str(lDateList[i]) + ";" + ";".join([str(lDayWiseSell[key][i]) for key in lSellKeys]) + "\n"
+        dwfo.write(lLine)
+
+    dwfo.close()
+
+                
+wfo.write("CorrelationCoefficient Of buy:-\n")
+for key in lBuyDict.keys():
+    lMeanX = (lBuyDict[key]["X"]/lBuyDict[key]["n"])
+    lMeanY = (lBuyDict[key]["Y"]/lBuyDict[key]["n"])
+    lCov = (lBuyDict[key]["XY"]/lBuyDict[key]["n"]) - (lMeanX * lMeanY)
+    lVarX = (lBuyDict[key]["X2"]/lBuyDict[key]["n"]) - math.pow(lMeanX, 2)
+    lVarY = (lBuyDict[key]["Y2"]/lBuyDict[key]["n"]) - math.pow(lMeanY, 2)
+    lCor = lCov / math.sqrt(lVarX * lVarY)
+    lLine = key + " = " + str(lCor)
+    wfo.write(lLine + "\n")
+wfo.write("\nCorrelationCoefficent of sell:-\n")
+for key in lSellDict.keys():
+    lMeanX = (lSellDict[key]["X"]/lSellDict[key]["n"])
     
 
 
 
 
+
+
+
+l_files_to_be_mailed = [ summary_file_name , l_exp_dir + "design.ini" ]
+print "Files being mailed are = " , l_files_to_be_mailed
+email_accumulated_results.start_mail(l_files_to_be_mailed,os.path.basename(os.path.abspath(l_exp_dir)),"CoeffientOf"+args.iT.strip())

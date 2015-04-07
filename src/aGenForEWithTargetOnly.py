@@ -69,7 +69,7 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
             if  "[DivideBy]" not in firstAttributeName and "[Add]" not in firstAttributeName and "[Subtract]" not in firstAttributeName and "[Exp]" not in firstAttributeName \
                 and "[Pow]" not in firstAttributeName and "[Log]" not in firstAttributeName : 
                 commandLine.append(getCommandLineForSingleAttribute(firstAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig))        
-    return commandLine                     
+    return commandLine
 
 def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
     """

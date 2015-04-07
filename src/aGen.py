@@ -8,7 +8,8 @@ attribute generator
 
 import os, sys, importlib, traceback
 
-import dataFile,argparse
+import dataFile
+import argparse
 import attribute
 
 
@@ -58,10 +59,22 @@ def main():
           dataFile.getSelectedDataIntoMatrix(args.d)
       else:
           if(args.cType == "synthetic"):
-              dataFile.getDataIntoMatrix(args.d,args.c)
+              if "For6Levels" not in args.g:
+                  dataFile.getDataIntoMatrix(args.d,args.c , level=5)
+              else:
+                  try:
+                      dataFile.getDataIntoMatrix(args.d,args.c, level=5)
+                  except:
+                      dataFile.getDataIntoMatrix(args.d,args.c, level=6)
           else:
-              dataFile.getDataIntoMatrix(args.d)
-      
+              if "For6Levels" not in args.g:
+                  dataFile.getDataIntoMatrix(args.d , level=5)
+              else:
+                  try:
+                      dataFile.getDataIntoMatrix(args.d, level=5)
+                  except:
+                      dataFile.getDataIntoMatrix(args.d, level=6)
+
       attribute.initList()
       lHeaderColumnNamesList = userModule.extractAttributeFromDataMatrix(args)
       if args.i is not None:

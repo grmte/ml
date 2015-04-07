@@ -16,8 +16,29 @@ def printMatrix():
     for dataRow in matrix:
         print "The data row is" , dataRow
 
+def getNewDataFileName(pDirName):
+    command = "ls -1  " +  pDirName + " | grep " + "\"\-WD\-"+ attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType +"\""
+    print command
+    dataFile = commands.getoutput(command)
+    if dataFile != "":
+        foundFile = True
+        fileName = pDirName+"/"+ dataFile
+    else:
+        command = "ls -1  " +  pDirName + " | grep " + "\"\-"+ attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType +"\""
+        print command
+        dataFile = commands.getoutput(command)
+        #M11-D21-Expiry-27NovY14-SBIN--1-0-bandPrice-depth-5.txt
+        #M11-D21-Expiry-27NovY14-WD-SBIN--1-0-bandPrice-depth-5.txt
+        if dataFile != None:
+            fileName = dataFile.replace(attribute.instType, "WD-" + attribute.instType)
+            print "File Name " , fileName
+        else:
+            print "Error : original data file not found"
+            os._exit(1)
+    return pDirName  + fileName
 
-def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
+
+def getFileNameFromCommandLineParam(pDirName,level,pSyntheticColName=""):
     foundFile=False
     fileName =""
     print pSyntheticColName
@@ -38,9 +59,23 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
     else: 
         try:   
             if(attribute.instType!=''):
-                command = "ls -1  " +  pDirName + " | grep " +  attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType
+                #import pdb
+                #pdb.set_trace()
+                status =1
+                if(level == 5):
+                    command = "ls -1  " +  pDirName + " | grep " + "\"\-"+ attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType +"-bandPrice-depth-10" + "\""
+                    print command
+                    status,dataFile = commands.getstatusoutput(command)
+                    if(status!= 0):
+                        command = "ls -1  " +  pDirName + " | grep " + "\"\-"+ attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType +"-bandPrice-depth-6" + "\""
+                        status,dataFile = commands.getstatusoutput(command)
+                if(status!= 0):
+                    command = "ls -1  " +  pDirName + " | grep " + "\"\-WD\-"+ attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType +"-bandPrice-depth-" + str(level) + "\""
                 print command
-                dataFile = commands.getoutput(command)
+                status,dataFile = commands.getstatusoutput(command)
+                if status != 0:
+                    command = "ls -1  " +  pDirName + " | grep " + "\"\-"+ attribute.instType + "-" + attribute.strikePrice + "-" +  attribute.optionsType +"-bandPrice-depth-" + str(level) + "\""
+                    status,dataFile = commands.getstatusoutput(command)
                 if dataFile != None:
                     foundFile = True
                     fileName = pDirName+"/"+ dataFile
@@ -61,9 +96,9 @@ def getFileNameFromCommandLineParam(pDirName,pSyntheticColName=""):
         sys.stdout.flush()
         return fileName
 
-def getDataIntoMatrix(pDirName,pSyntheticColName=""):
+def getDataIntoMatrix(pDirName,pSyntheticColName="", level=5):
     if len(pSyntheticColName) == 0:
-        fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
+        fileName = getFileNameFromCommandLineParam(pDirName,level, pSyntheticColName)
         fileHasHeader = 1
         headerSkipped = 0
         for dataRow in open(fileName):
@@ -73,8 +108,8 @@ def getDataIntoMatrix(pDirName,pSyntheticColName=""):
             dataRow=dataRow.rstrip('\n')
             addDataRowToMatrix(dataRow)
     else:
-        fileName = getFileNameFromCommandLineParam(pDirName,pSyntheticColName)
-        dataFileName = getFileNameFromCommandLineParam(pDirName)
+        fileName = getFileNameFromCommandLineParam(pDirName,level, pSyntheticColName)
+        dataFileName = getFileNameFromCommandLineParam(pDirName,level)
         print "File Name = " , fileName , "Data File Name = " , dataFileName
         fileHasHeader = 1
         headerSkipped = 0

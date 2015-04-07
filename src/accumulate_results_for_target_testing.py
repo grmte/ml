@@ -59,9 +59,12 @@ for dirN in allDataDirectories :
     tradeFileNameDirectory = dirName+"/r/"+os.path.basename(os.path.abspath(args.e))+"/"
     command_output = commands.getoutput("ls -1 "+tradeFileNameDirectory)
     file_list = command_output.split("\n")
+
     filtered_file_list = [file_name for file_name in file_list if (file_name[-13:] == ".targetResult")]
     for file_name in filtered_file_list:
         print "Filename " , file_name
+#        import pdb
+#        pdb.set_trace()
 #         r/targetExperimnet/DummyTradeEngine-d.20140610-l.16h00-17h00-tq.300-tarType20-dte.7.targetResult
         dataDirectory = file_name[file_name.index("-d.") + 3:file_name.index("-l.")]
         startAndEndTime = file_name[file_name.index("-l.") + 3:file_name.index("-tq.")]

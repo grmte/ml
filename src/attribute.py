@@ -139,6 +139,10 @@ def operateOnAttributes(pFirstAttributeName,pSecondAttributeName,pOperand,dataFo
             value = float(firstMatrix[currentRowCount][1]) - float(secondMatrix[currentRowCount][1])
          elif(pOperand == "MultiplyBy"):
             value = float(firstMatrix[currentRowCount][1]) * float(secondMatrix[currentRowCount][1])
+         elif(pOperand == "Max"):
+            value = max( float(firstMatrix[currentRowCount][1]), float(secondMatrix[currentRowCount][1]))
+         elif(pOperand == "Min"):
+            value = min( float(firstMatrix[currentRowCount][1]), float(secondMatrix[currentRowCount][1]))
          elif(pOperand == "Exp"):
             try: 
                 value = math.exp( float(firstMatrix[currentRowCount][1])  * float(secondMatrix[currentRowCount][1]))
@@ -267,6 +271,7 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
     l_start_training_date = datetime.strptime(l_training_day_folder_base_date, '%Y%m%d')
     index = 0
     countOfDaysTaken = 0
+
     while(1):
         l_training_date = l_start_training_date + timedelta(days = index)
         index = index + 1 
@@ -274,21 +279,21 @@ def getListOfTrainingDirectoriesNames(pNumOfTrainingDays,pStartTrainingDirectory
             continue
         l_training_date_in_string = l_training_date.strftime('%Y%m%d')
         l_training_date_full_path_name = pStartTrainingDirectory.replace(l_training_day_folder_base_date,l_training_date_in_string)
-#        print l_training_date_full_path_name , l_training_date_full_path_name+"/*ICICI*"
+        #print l_training_date_full_path_name , l_training_date_full_path_name+"/*ITC*"
+
         if (os.path.exists(l_training_date_full_path_name)):
             lRoDir = l_training_date_full_path_name.replace('/wf/','/ro/')
             lRoDir = lRoDir.replace('/rs/','/ro/')
             listOfFiles = commands.getoutput('ls -1 '+ lRoDir).split("\n")
             for file in listOfFiles:
-                #print file
-                if pInstType.strip() in file:
+#                print file
+                if pInstType.strip() in file : # and file.find("6") >= 0:
                     lTrainingDirectoryList.append(l_training_date_full_path_name)
                     countOfDaysTaken += 1
                     break
                     
         if countOfDaysTaken == int(pNumOfTrainingDays):
             break
-    print lTrainingDirectoryList
     return lTrainingDirectoryList
 
 def callRProgramToConvertToBinary(pFileName):
@@ -305,6 +310,13 @@ def callRProgramToConvertToBinary(pFileName):
     
     os.system(lCommandToConvertToBinary)
 
+def checkIfNewDataFileExists(dataDirectory):
+    dataFile1 = dataFile.getNewDataFileName(dataDirectory)
+    if (os.path.isfile(dataFile1)):
+        print "Data file allready exist " , dataFile1
+        os._exit(0)
+    
+        
 def checkIfAttributeOutputFileExists(pGeneratorName,number,columnName,orderType,diffPip,dataFolder):
     attributeFile = getOutputFileNameFromGeneratorName(pGeneratorName,number,columnName,orderType,diffPip,dataFolder)
     print "Checking if attribute file exists " + attributeFile 

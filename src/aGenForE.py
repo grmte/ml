@@ -56,6 +56,10 @@ def genAttribute(attributeName,dataFolder,generatorsFolder,pTickSize,pConfig):
                 commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Subtract",dataFolder))
             elif "[MultiplyBy]" in operatorName:
                 commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"MultiplyBy",dataFolder))
+            elif "[Max]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Max",dataFolder))
+            elif "[Min]" in operatorName:
+                commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Min",dataFolder))
             elif "[Exp]" in operatorName:
                 commandLine.append(attribute.getCommandLineToOperateOnAttributes(firstAttributeName,secondAttributeName,"Exp",dataFolder))
             elif "[Pow]" in operatorName:
@@ -75,6 +79,7 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
     """
     paramList = ["aGen.py","-d",dataFolder,"-tickSize",pTickSize]
     # Getting the moduleName from the attributeName
+
     if "Col" in pUserFriendlyAttributeName:
         startPos = pUserFriendlyAttributeName.find("Col") + 3
         # There are 2 types of columns. real or synthetic. The following if block finds what type of column do we have.
@@ -119,7 +124,8 @@ def getCommandLineForSingleAttribute(pUserFriendlyAttributeName,dataFolder,gener
             startPos = pUserFriendlyAttributeName.find("Diff") + 4
             endPos = pUserFriendlyAttributeName.find("Pip",startPos + 1)
             colName = pUserFriendlyAttributeName[startPos:endPos]
-            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"M")
+            pUserFriendlyAttributeName= pUserFriendlyAttributeName[0:startPos]+"M"+pUserFriendlyAttributeName[endPos:]
+#            pUserFriendlyAttributeName = pUserFriendlyAttributeName.replace(colName,"M")
             paramList.append("-m")
             paramList.append(colName) 
 

@@ -124,10 +124,10 @@ if args.targetClass == "multinomial" :
 else:
     utility.runCommand(["./ob/quality/tradeE7Optimized.py","-e",args.e,"-a",algo,"-entryCL",args.entryCL,"-exitCL",args.exitCL,"-orderQty",args.orderQty,"-skipT",args.skipT,'-dt',args.dt,"-targetClass",args.targetClass,"-td",args.td , "-pd",predictionDirectory,'-tickSize',args.tickSize,'-wt',args.wt,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     pass
-'''  
+  
 if((args.e).find("nsefut") >= 0):
-    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsefut/20140724/", "-dt" , str(args.dt) ,"-nD", "22", "-m" , "NSE FUT ICICI RESULTS " , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
+    utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td",args.td, "-dt" , str(args.dt) ,"-pd",args.pd, "-m" , "NEW_FWATURE_TRY " , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
     print "NSEFUT"
 else:
     utility.runCommand(["accumulate_results.py","-e",args.e,"-a",algo,"-t",args.t,"-td","ob/data/ro/nsecur/20140903/", "-dt" , str(args.dt) ,"-nD", "26", "-m" , "NSE_CURRENCY_RESULTS_FOR_AB_And_SmartPrice" , "-f" , "1","-iT",args.iT,"-oT",args.oT,"-sP",args.sP],args.run,args.sequence)
-'''
+

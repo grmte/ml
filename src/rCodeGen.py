@@ -230,7 +230,55 @@ def ToFindCorrelationAndPrintingToFile(rScript,config,pTargetVariableKey,pFileNa
         rScript.write('rm('+ feature+pTargetVariableKey + ')\n')
     rScript.write('string_intercept = paste("\\n","\\n",sep="")\n')
     rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
-
+    
+def ToFindCorrelationDatewiseAndPrintingToFile(rScript,config,pTargetVariableKey,pFileName):
+    features = config["features-"+pTargetVariableKey]
+    rScript.write('\nprint ("Section6: To Find Correlation For ' +pTargetVariableKey  +'") \n')
+    rScript.write('string_intercept = paste("CorrelationCoeficient Of ","' + pTargetVariableKey + '" , ":- ","\\n",sep="")\n')
+    rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
+    for feature in features:
+        userFriendlyName = features[feature]
+        userFriendlyName = userFriendlyName.replace('[','')
+        userFriendlyName = userFriendlyName.replace(']','')
+        userFriendlyName = userFriendlyName.replace('(','')
+        userFriendlyName = userFriendlyName.replace(')','')
+        featureNameWithoutBrackets = features[feature].replace('(','').replace(')','') + attribute.generateExtension() 
+        rScript.write('lFlag=FALSE\n')
+        rScript.write('for (file in lDirectorySet[[1]]){\n')
+        rScript.write('    if (!lFlag){\n')
+        rScript.write('        load(paste(file,"/f/'+featureNameWithoutBrackets+'.bin",sep=""))\n')
+        rScript.write('        '+feature+pTargetVariableKey+'<-get("'+userFriendlyName+'")' + skipRowCode + ' \n')
+        rScript.write('        rm("' + userFriendlyName + '")\n')
+        rScript.write('        lFlag=TRUE\n')
+        rScript.write('    }\n')
+        rScript.write('    else {\n')  
+        rScript.write('        load(paste(file,"/f/'+featureNameWithoutBrackets+'.bin",sep=""))\n')
+        rScript.write('        temp<-get("'+userFriendlyName+ '")' + skipRowCode + '\n')  
+        rScript.write('        rm("' + userFriendlyName + '")\n')
+        rScript.write('        '+feature+pTargetVariableKey+'<-rbind('+feature+pTargetVariableKey+',temp)\n')    
+        rScript.write('        rm(temp)\n')
+        rScript.write('    }\n')
+        rScript.write('    print ("Reading '+ featureNameWithoutBrackets +'.feature' + '") \n')
+        rScript.write('}\n')
+        userFriendlyName = features[feature] 
+        rScript.write('tempXY <- sum('+pTargetVariableKey+'[,2] * '+ feature+pTargetVariableKey+'[,2] )\n')
+        rScript.write('tempY2 <- sum('+pTargetVariableKey+'[,2] ^ 2 )\n')
+        rScript.write('tempX2 <- sum('+feature+pTargetVariableKey+'[,2] ^ 2 )\n')
+        rScript.write('tempY <- sum('+pTargetVariableKey+'[,2] )\n')
+        rScript.write('tempX <- sum('+feature+pTargetVariableKey+'[,2] )\n')
+        rScript.write('n <- length('+feature+pTargetVariableKey+'[,2] )\n')
+        rScript.write('string_intercept = paste("'+ userFriendlyName +'_XY" ,"=",toString(tempXY),"\\n"')
+        rScript.write(',"'+ userFriendlyName +'_Y2" ,"=",toString(tempY2),"\\n"')
+        rScript.write(',"'+ userFriendlyName +'_X2" ,"=",toString(tempX2),"\\n"')
+        rScript.write(',"'+ userFriendlyName +'_Y" ,"=",toString(tempY),"\\n"')
+        rScript.write(',"'+ userFriendlyName +'_X" ,"=",toString(tempX),"\\n"')
+        rScript.write(',"'+ userFriendlyName +'_n" ,"=",toString(n),"\\n"')
+        rScript.write(',sep="")\n')
+        rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
+        rScript.write('rm('+ feature+pTargetVariableKey + ')\n')
+    rScript.write('string_intercept = paste("\\n","\\n",sep="")\n')
+    rScript.write('cat(string_intercept,file="'+ pFileName + '",sep="",append=TRUE)\n')
+    
 def saveTrainingModel(rScript,args,path,pTargetVariableKey,pDouble="", treeOrNot = "", treeFileName = ""):
     algo = getAlgoName(args)    
     if len(pDouble)==0:

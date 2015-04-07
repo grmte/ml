@@ -57,16 +57,16 @@ def start_mail(p_files,pExperimentNo,message):
     l_subject = "Machine Learning Accumulated results of experiment :- " + pExperimentNo 
 
     if "/live_experiment/" in p_files[0]:
-        l_send_to = ["dipika@spalgo.com"]
-        l_send_cc = ['saptarshi@spalgo.com', 'tulasi@spalgo.com' , 'rahul@spalgo.com', 'arabinda@spalgo.com']
+        l_send_to = ["tulasi@spalgo.com"]
+        l_send_cc = ['saptarshi@spalgo.com', 'tulasi@spalgo.com' , 'rahul@spalgo.com', 'nikhil@spalgo.com' , 'mimi@spalgo.com']
 #        l_send_cc = []
         l_send_from = "MLDailyExperiment"
     else:
         l_send_to = ['ajay@spalgo.com', 'vikas@spalgo.com', 'mike@mbowles.com']
-        l_send_to = ["dipika@spalgo.com","tulasi@spalgo.com"]
-        l_send_to = ["tulasi@spalgo.com"]
-        l_send_cc = ['rahul@spalgo.com','saptarshi@spalgo.com', 'parth@spalgo.com' ]
-        l_send_cc = []
+        l_send_to = ["rahul@spalgo.com"]
+#        l_send_to = ["tulasi@spalgo.com"]
+        l_send_cc = ['rahul@spalgo.com','saptarshi@spalgo.com', 'nikhil@spalgo.com', 'parth@spalgo.com', 'tulasi@spalgo.com' , 'mimi@spalgo.com' ]
+#        l_send_cc = []
         l_send_from = "liveExperiment"
      
     
@@ -76,5 +76,5 @@ def start_mail(p_files,pExperimentNo,message):
 if __name__ == '__main__':
     import os
 
-    start_mail(['ob/e/nsecur/NewABAAvgBAvgHist//Accumulated_Results_for_experiment_NewABAAvgBAvgHist_on_date_11_09_2014.csv.gz'],"ABFeaturesResults","Exp")
+    start_mail(['DLF.csv','HINDALCO.csv'],"TotalStats","Exp")
                 

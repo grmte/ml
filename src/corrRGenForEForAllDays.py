@@ -23,18 +23,21 @@ def main():
     print "The config parameters that I am working with are"
     print config
     dirName=os.path.dirname(args.e)+"/"
-    rProgName = "corr-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
-    rProgLocation = dirName+'/'+rProgName
-    rScript = open(rProgLocation,'w')
-    rScript.write('#!/usr/bin/Rscript \n')
-    rCodeGen.ForSetUpChecks(rScript)
-    lCorrelationFileName = dirName + '/correlation-coef' + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 
-    rCodeGen.ToReadTargetFile(rScript,config)
-    for target in config['target']:
-        rCodeGen.ToFindCorrelationAndPrintingToFile(rScript,config,target,lCorrelationFileName)
-    rScript.close()
-    print "Finished generating R training program: " + rProgLocation
-    os.system("chmod +x "+rProgLocation)
+    trainingDaysDirectory = attribute.getListOfTrainingDirectoriesNames( int(args.dt) , args.td ,args.iT)
+    for l_trainingday in trainingDaysDirectory:
+        rProgName = "corr-date-"+ os.path.basename(os.path.abspath(l_trainingday)) +"-td." + os.path.basename(os.path.abspath(args.td)) + "-dt." + args.dt + attribute.generateExtension() +".r"
+        rProgLocation = dirName+'/'+rProgName
+        rScript = open(rProgLocation,'w')
+        rScript.write('#!/usr/bin/Rscript \n')
+        rCodeGen.ForSetUpChecks(rScript)
+        lCorrelationFileName = dirName + '/correlation-coef-date-'+  os.path.basename(os.path.abspath(l_trainingday)) + '-td.' + os.path.basename(os.path.abspath(args.td))+ '-dt.' + args.dt + attribute.generateExtension() + ".coef" 
+        rCodeGen.ToReadTargetFile(rScript,config)
+        for target in config['target']:
+            rCodeGen.ToFindCorrelationDatewiseAndPrintingToFile(rScript,config,target,lCorrelationFileName)
+        rScript.close()
+        os.system("chmod +x "+rProgLocation)
+#     print "Finished generating R training program: " + rProgLocation
+    
 
 if __name__ == "__main__":
     main()

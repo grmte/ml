@@ -25,7 +25,7 @@ if args.insType == None:
     args.insType = "opt"
     
 g_start_execution_time = time.time()
-g_mother_directory = "/home/vikas/nselogdata/"
+g_mother_directory = "/home/nselogdata_August/"
 g_ml_base_directory = args.td
 g_file_location = ""
 g_NSE_filename = ""
@@ -33,9 +33,10 @@ g_unique_instrument_identifier_dict = {}
 g_list_of_instrument_wise_global_containers = []
 g_file_token = ""
 if args.pD == None:
-    g_price_depth = 5
+    g_price_depth = 6
 else:
     g_price_depth = int(args.pD)
+print g_price_depth
 g_price_distance = [30, 60, 100]    
 
 #-------------- [ Instrument wise global containers ] --------------
@@ -104,13 +105,13 @@ def get_header():
     l_idx_askorbid = 0
     while l_idx_askorbid < len(l_list_askorbid):
         l_idx = 0
-        while l_idx < g_price_depth:
+        while l_idx < g_price_depth-1:
             l_header += l_list_askorbid[l_idx_askorbid] + "Q" + str(l_idx) + ";"
             l_header += l_list_askorbid[l_idx_askorbid] + "P" + str(l_idx) + ";"
             l_idx += 1
         l_idx_askorbid += 1
         
-    l_header += "TTQ;LTP;LTQ;LTT;ATP;TBQ;TSQ;CP;OP;HP;LP;TimeStamp;SerialNo;MsgCode;OrderType;Quantity1;Price1;Quantity2;Price2;ExchangeTS;BestBidQ;BestBidP;BestAskQ;BestAskP"
+    l_header += "TTQ;LTP;LTQ;LTT;ATP;TBQ;TSQ;CP;OP;HP;LP;TimeStamp;SerialNo;MsgCode;OrderType;Quantity1;Price1;Quantity2;Price2;ExchangeTS;BestBidQ;BestBidP;BestAskQ;BestAskP;BestAskQ1;BestAskP1;BestBidQ1;BestBidP1;AskQ5;AskP5;BidQ5;BidP5"
     return l_header
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -127,10 +128,14 @@ def generate_final_orderbook_records_and_print_into_file():
     l_current_ob_string = ""
     l_flag_indicating_to_be_printed_or_not = 1
     try:
-        l_idx = g_price_depth
+        l_idx = 6
+        l_6thlevel_str= ""
         l_all_key_values_list_for_ask = sorted(g_ask_price_quantity_dict.items())
         for l_key, l_value in l_all_key_values_list_for_ask:
-            l_current_ob_string += (str(l_value[0]) + ";" + str(l_key) + ";") 
+            if(l_idx>1):
+                l_current_ob_string += (str(l_value[0]) + ";" + str(l_key) + ";") 
+            else:
+                l_6thlevel_str+=(str(l_value[0]) + ";" + str(l_key) + ";")
             l_idx -= 1
             if l_idx == 0: break
         for index in range(0,l_idx):
@@ -140,7 +145,10 @@ def generate_final_orderbook_records_and_print_into_file():
         l_all_key_values_list_for_bid = sorted(g_bid_price_quantity_dict.items(), reverse = True)
         
         for l_key, l_value in l_all_key_values_list_for_bid:
-            l_current_ob_string += (str(l_value[0]) + ";" + str(l_key) + ";")
+            if(l_idx<5):
+                l_current_ob_string += (str(l_value[0]) + ";" + str(l_key) + ";")
+            else:
+                l_6thlevel_str+=(str(l_value[0]) + ";" + str(l_key) + ";")
             l_idx += 1
             if l_idx == g_price_depth: break
         for index in range(l_idx,g_price_depth):
@@ -152,6 +160,10 @@ def generate_final_orderbook_records_and_print_into_file():
         l_bestBidQ = ""
         l_bestAskP = ""
         l_bestAskQ = ""
+        l_bestBidP1 = ""
+        l_bestBidQ1 = ""
+        l_bestAskP1 = ""
+        l_bestAskQ1 = ""
         if(l_all_key_values_list_for_bid != []):
             import pdb
             #pdb.set_trace()
@@ -159,6 +171,15 @@ def generate_final_orderbook_records_and_print_into_file():
             l_all_prices_in_bid_band = sorted(l_best_bid_bandlist.items(), reverse = True)
             l_bestBidP= str(l_all_prices_in_bid_band[0][0])
             l_bestBidQ= str(l_all_prices_in_bid_band[0][1])
+            if(len(l_all_prices_in_bid_band) > 1):
+                l_bestBidP1= str(l_all_prices_in_bid_band[1][0])
+                l_bestBidQ1= str(l_all_prices_in_bid_band[1][1])
+            else:
+                l_best_bid_bandlist = l_all_key_values_list_for_bid[1][1][1]
+                l_all_prices_in_bid_band = sorted(l_best_bid_bandlist.items(), reverse = True)
+                l_bestBidP1= str(l_all_prices_in_bid_band[0][0])
+                l_bestBidQ1= str(l_all_prices_in_bid_band[0][1])
+                
         if(l_all_key_values_list_for_ask != []):
             import pdb
             #pdb.set_trace()
@@ -166,11 +187,19 @@ def generate_final_orderbook_records_and_print_into_file():
             l_all_prices_in_ask_band = sorted(l_best_ask_bandlist.items())
             l_bestAskP = str(l_all_prices_in_ask_band[0][0])
             l_bestAskQ = str(l_all_prices_in_ask_band[0][1])
+            if(len(l_all_prices_in_ask_band)>1):
+                l_bestAskP1 = str(l_all_prices_in_ask_band[1][0])
+                l_bestAskQ1 = str(l_all_prices_in_ask_band[1][1])
+            else:
+                l_best_ask_bandlist = l_all_key_values_list_for_ask[1][1][1]
+                l_all_prices_in_ask_band = sorted(l_best_ask_bandlist.items())
+                l_bestAskP1 = str(l_all_prices_in_ask_band[0][0])
+                l_bestAskQ1 = str(l_all_prices_in_ask_band[0][1])
         l_temp_str = ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)
         if g_previous_ob_string <> l_current_ob_string :
             if l_flag_indicating_to_be_printed_or_not == 1 :
                 l_ob_string_to_be_printed = g_instrument_fullname + ";" + l_current_ob_string + ";0;0;0;0;0;0;0;0;0;" + g_timestamp + ";" + str(g_serial_no) + ";" + g_messagecode + ";" + g_ordertype + ";" + \
-                                            g_quantity_1 + ";" + g_price_1 + ";" + g_quantity_2 + ";" + g_price_2 + ";" + g_exchange_timestamp + ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)      
+                                            g_quantity_1 + ";" + g_price_1 + ";" + g_quantity_2 + ";" + g_price_2 + ";" + g_exchange_timestamp + ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)+ ";" + str(l_bestAskQ1) + ";" + str(l_bestAskP1)+ ";" + str(l_bestBidQ1) + ";" + str(l_bestBidP1)  + ";"+l_6thlevel_str      
                 g_fp_output_orderbook_price_list.write(l_ob_string_to_be_printed + "\n")
                 g_previous_ob_string = l_current_ob_string 
                      
@@ -623,6 +652,7 @@ def main():
     print l_instrument_ticker
     l_expirydate = return_expiry_string(l_expiry)
     l_output_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt"
+    print l_output_file_name
     if os.path.exists(args.td +l_output_file_name):
         print "File Exist , delete and rerun it ", args.td +l_output_file_name
         return

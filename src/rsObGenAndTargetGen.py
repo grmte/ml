@@ -23,7 +23,7 @@ parser.add_argument('-sequence', required=True,help='lp (Local parallel) / dp (D
 parser.add_argument('-skipM',required=False,help="yes or no , If you want to regenerate already generated algorithm model file then make this value No.  Defaults to yes")
 parser.add_argument('-skipP',required=False,help="yes or no , If you want to regenerate already generated algorithm prediction file then make this value No.  Defaults to yes")
 parser.add_argument('-skipT',required=False,help="yes or no , If you want to regenerated trade files then make this value no.  Defaults to yes")
-parser.add_argument('-orderQty',required=True,help="lot size of futures experiment")
+parser.add_argument('-orderQty',required=True,help="= n*lot size , where n is number of lots we want to trade with")
 parser.add_argument('-tQL',required=True,help='target qty in lots')
 parser.add_argument('-lSz',required=True,help='lot size in qty')
 parser.add_argument('-e',required=False,help='Experiment directory')
@@ -55,7 +55,7 @@ elif "/nsefut/" in args.td:
     transactionCost = 0.00015
     tickSize = 5 
     
-allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td,"M" )
+allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.td,args.iT )
 dataFolder = args.td
 generatorsFolder = args.g
 commandList = []
@@ -63,22 +63,23 @@ commandList = []
         
 if args.sequence == "dp":
     for directories in allDataDirectories:
-        commandList.append(["generate_orderbook_with_bands.py","-td",directories,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'])
-
+#        commandList.append(["generate_orderbook_with_bands.py","-td",directories,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'])
+        pass
     for chunkNum in range(0,len(commandList),int(args.nComputers)):
         lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
         utility.runCommandList(lSubGenList,args)
         print dp.printGroupStatus() 
 else:
     def scriptWrapperForGeneratingOrderBook(trainingDirectory):
-        utility.runCommand(["generate_orderbook_with_bands.py","-td",trainingDirectory,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'],args.run,args.sequence)
+#        utility.runCommand(["generate_orderbook_with_bands.py","-td",trainingDirectory,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP,'-bGap',args.bGap,'-uGE','no'],args.run,args.sequence)
+        pass
     results = map(scriptWrapperForGeneratingOrderBook,allDataDirectories)
 
 def generate_target_exp_design_file():
-    g_Diff_pip = [1.5,2.0,2.5]
+    g_Diff_pip = [1.5]
     g_future_target_qty = []
     targetType = ""
-    targetExp = args.e + "/targetExperiment" + args.iT.strip() + "/"
+    targetExp = args.e + "/targetExperimentNew4" + args.iT.strip() + "/"
     os.system("mkdir "+ targetExp)
     fp_for_design_file = open(targetExp+"/design.ini" , 'w')
     fp_for_design_file.write("[target]\n")
@@ -90,7 +91,7 @@ def generate_target_exp_design_file():
     while l_count < 10:
         l_lower_qty = l_mean_qty - (5*l_count*l_lot_size)
         l_upper_qty = l_mean_qty + (5*l_count*l_lot_size)
-        if(l_lower_qty > 10*l_lot_size):
+        if(l_lower_qty >= 10*l_lot_size):
            g_future_target_qty.append(l_lower_qty)
         else:
             break
@@ -99,7 +100,10 @@ def generate_target_exp_design_file():
         l_count = l_count +1
     g_future_target_qty.sort()
     for l_pip in g_Diff_pip:
-        for l_qty in g_future_target_qty:   #500QtyWithDiff2.5Pip                                                                                                                                                                                                             
+        for l_qty in g_future_target_qty:   #500QtyWithDiff2.5Pip
+#            fp_for_design_file.write("buy"+str(l_qty)+ "  =  tWALTPComparedToColBestBidPInFuture"+str(l_qty)+ "Qty\n")
+#            fp_for_design_file.write("sell"+str(l_qty) + "  =  tWALTPComparedToColBestAskPInFuture"+str(l_qty)+"Qty\n")
+#            targetType = targetType + (str(l_qty))+";"                                                                                                                                     
             fp_for_design_file.write("buy"+str(l_qty)+"_"+str(l_pip) + "  =  tWALTPComparedToColBestBidPInFuture"+str(l_qty)+"QtyWithDiff"+str(l_pip) +"Pip"+ "\n")
             fp_for_design_file.write("sell"+str(l_qty)+"_"+str(l_pip) + "  =  tWALTPComparedToColBestAskPInFuture"+str(l_qty)+"QtyWithDiff"+str(l_pip) +"Pip"+ "\n")
             targetType = targetType + (str(l_qty)+"_"+str(l_pip)+";")
@@ -109,9 +113,11 @@ def generate_target_exp_design_file():
     return targetType , targetExp
 
 commandList = []
-#targetType,l_exp_dir = generate_target_exp_design_file()
-#targetType = '\'' + targetType + '\''
-#os.system(" ".join(['src/runningTargetExperimentAllTogather.py','-e',l_exp_dir, '-d', args.td , '-run' , args.run , '-sequence', args.sequence , '-tickSize' , str(tickSize),'-nDays',args.nDays,'-nComputers',args.nComputers,'-t',str(transactionCost),'-targetType',targetType, '-orderQty',args.orderQty,'-iT',args.iT,'-sP',args.sP,'-oT',args.oT]))
+targetType,l_exp_dir = generate_target_exp_design_file()
+#targetType="40000_1.5;80000_1.5"
+#l_exp_dir=args.e
+targetType = '\'' + targetType + '\''
+os.system(" ".join(['src/runningTargetExperimentAllTogather.py','-e',l_exp_dir, '-d', args.td , '-run' , args.run , '-sequence', args.sequence , '-tickSize' , str(tickSize),'-nDays',args.nDays,'-nComputers',args.nComputers,'-t',str(transactionCost),'-targetType',targetType, '-orderQty',args.orderQty,'-iT',args.iT,'-sP',args.sP,'-oT',args.oT]))
 
 
 

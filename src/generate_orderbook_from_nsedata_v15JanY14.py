@@ -1,41 +1,47 @@
-#!/usr/bin/python
-
+#!/usr/bin/python 
 #============================================================[ Import Modules ]============================================================
-import inspect
+
 import calendar,datetime, time, os, sys, commands, gc
 from multiprocessing import Process
+
 #===========================================================[ Global Declarations ]========================================================
 import argparse
 
 parser = argparse.ArgumentParser(description='This program will run generate order book from raw tbt file \n', formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-exp', required=False,help='Instruments_expiry_List')
-parser.add_argument('-iT', required=True,help='Instrument_symbol_list')
-parser.add_argument('-sP', required=True,help='Instrument_strikeprice_list')
-parser.add_argument('-oT', required=True,help='instrument_option_list')
+parser.add_argument('-insEL', required=False,help='Instruments_expiry_List')
+parser.add_argument('-iT', required=False,help='Instrument_symbol_list')
+parser.add_argument('-sP', required=False,help='Instrument_strikeprice_list')
+parser.add_argument('-oT', required=False,help='instrument_option_list')
+parser.add_argument('-td',required=False,help="date list for which it has top be run")
 parser.add_argument('-insType',required=False,help="Opt/Cur")
+parser.add_argument('-priceDepth',required=False,help="price depth")
 parser.add_argument('-uGE',required=False,help="yes:-Expiry list given No:- expiry list taken automatically")
-parser.add_argument('-bGap',required=True,help="Band gap price = ceil(price*TC*2)")
-parser.add_argument('-td',required=True,help="Base directory Where output is to be moved")
-parser.add_argument('-pD',required=False,help="Price depth order book required")
+
+g_instrument_symbol_list = ["RELIANCE  ",
+                            ]
+
+
+g_instrument_expiry_list = ["1096122600",
+                            ]   # 1072535400 - 26Dec # 1075559400 - 30Jan
+
+g_instrument_strikeprice_list = ["-1",
+                                 ]
+
+g_instrument_option_list =      ["0",
+                                 ]
 args = parser.parse_args()
 
-if args.uGE == None:
-    args.uGE = "yes"
-if args.insType == None:
-    args.insType = "opt"
-    
 g_start_execution_time = time.time()
 g_mother_directory = "/home/vikas/nselogdata/"
-g_ml_base_directory = args.td
 g_file_location = ""
 g_NSE_filename = ""
 g_unique_instrument_identifier_dict = {}
 g_list_of_instrument_wise_global_containers = []
 g_file_token = ""
-if args.pD == None:
-    g_price_depth = 5
+if args.priceDepth != None:
+    g_price_depth = int(args.priceDepth)
 else:
-    g_price_depth = int(args.pD)
+    g_price_depth = 5
 g_price_distance = [30, 60, 100]    
 
 #-------------- [ Instrument wise global containers ] --------------
@@ -110,7 +116,7 @@ def get_header():
             l_idx += 1
         l_idx_askorbid += 1
         
-    l_header += "TTQ;LTP;LTQ;LTT;ATP;TBQ;TSQ;CP;OP;HP;LP;TimeStamp;SerialNo;MsgCode;OrderType;Quantity1;Price1;Quantity2;Price2;ExchangeTS;BestBidQ;BestBidP;BestAskQ;BestAskP"
+    l_header += "TTQ;LTP;LTQ;LTT;ATP;TBQ;TSQ;CP;OP;HP;LP;TimeStamp;SerialNo;MsgCode;OrderType;Quantity1;Price1;Quantity2;Price2;ExchangeTS"
     return l_header
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -129,8 +135,9 @@ def generate_final_orderbook_records_and_print_into_file():
     try:
         l_idx = g_price_depth
         l_all_key_values_list_for_ask = sorted(g_ask_price_quantity_dict.items())
+        
         for l_key, l_value in l_all_key_values_list_for_ask:
-            l_current_ob_string += (str(l_value[0]) + ";" + str(l_key) + ";") 
+            l_current_ob_string += (str(l_value) + ";" + str(l_key) + ";") 
             l_idx -= 1
             if l_idx == 0: break
         for index in range(0,l_idx):
@@ -140,63 +147,25 @@ def generate_final_orderbook_records_and_print_into_file():
         l_all_key_values_list_for_bid = sorted(g_bid_price_quantity_dict.items(), reverse = True)
         
         for l_key, l_value in l_all_key_values_list_for_bid:
-            l_current_ob_string += (str(l_value[0]) + ";" + str(l_key) + ";")
+            l_current_ob_string += (str(l_value) + ";" + str(l_key) + ";")
             l_idx += 1
             if l_idx == g_price_depth: break
         for index in range(l_idx,g_price_depth):
             l_current_ob_string += ";;"
             l_flag_indicating_to_be_printed_or_not = 0
         l_current_ob_string += str(g_TTQ) + ";" + str(g_LTP)  
-       
-        l_bestBidP = "" 
-        l_bestBidQ = ""
-        l_bestAskP = ""
-        l_bestAskQ = ""
-        if(l_all_key_values_list_for_bid != []):
-            import pdb
-            #pdb.set_trace()
-            l_best_bid_bandlist = l_all_key_values_list_for_bid[0][1][1]
-            l_all_prices_in_bid_band = sorted(l_best_bid_bandlist.items(), reverse = True)
-            l_bestBidP= str(l_all_prices_in_bid_band[0][0])
-            l_bestBidQ= str(l_all_prices_in_bid_band[0][1])
-        if(l_all_key_values_list_for_ask != []):
-            import pdb
-            #pdb.set_trace()
-            l_best_ask_bandlist = l_all_key_values_list_for_ask[0][1][1]
-            l_all_prices_in_ask_band = sorted(l_best_ask_bandlist.items())
-            l_bestAskP = str(l_all_prices_in_ask_band[0][0])
-            l_bestAskQ = str(l_all_prices_in_ask_band[0][1])
-        l_temp_str = ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)
-        if g_previous_ob_string <> l_current_ob_string :
-            if l_flag_indicating_to_be_printed_or_not == 1 :
+        
+        if g_previous_ob_string <> l_current_ob_string:
+              if l_flag_indicating_to_be_printed_or_not == 1 :
                 l_ob_string_to_be_printed = g_instrument_fullname + ";" + l_current_ob_string + ";0;0;0;0;0;0;0;0;0;" + g_timestamp + ";" + str(g_serial_no) + ";" + g_messagecode + ";" + g_ordertype + ";" + \
-                                            g_quantity_1 + ";" + g_price_1 + ";" + g_quantity_2 + ";" + g_price_2 + ";" + g_exchange_timestamp + ";" + str(l_bestBidQ) + ";" + str(l_bestBidP) + ";" + str(l_bestAskQ)+ ";" + str(l_bestAskP)      
+                                            g_quantity_1 + ";" + g_price_1 + ";" + g_quantity_2 + ";" + g_price_2 + ";" + g_exchange_timestamp
                 g_fp_output_orderbook_price_list.write(l_ob_string_to_be_printed + "\n")
-                g_previous_ob_string = l_current_ob_string 
+                g_previous_ob_string = l_current_ob_string
                      
     except Exception, e:
         print "Exception @Print: ", e
     return
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-def get_max_frequency_occuring_expiry():
-    global g_NSE_filename,g_file_location
-    temp_str = "head -100000 " + g_file_location + g_NSE_filename + " | awk 'BEGIN {FS=\",\"};{print $7}' | sort | uniq -c | sort -n | tail -1"
-    import pdb
-    #pdb.set_trace()
-    return (commands.getoutput(temp_str)).split()[1]
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-
-def get_band_given_price_and_side(p_price, p_band_gap, p_order_side):
-    l_value = 0.0
-    if p_order_side == "B":
-        l_value = float(int(p_price/p_band_gap)*p_band_gap)
-    else:
-        if(p_price % p_band_gap == 0):
-            l_value = p_price
-        else:
-            l_value = float((int(p_price/p_band_gap)+1)*p_band_gap)
-    return str(l_value)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 '''
 Q: Why this function is required?
@@ -206,14 +175,13 @@ Ans: This is the main logic behind the TBT-OB is coded here. Based upon the mess
 def prepare_orderbook_pricelist(p_nse_temp_list):
     global g_ask_price_quantity_dict, g_bid_price_quantity_dict, g_TTQ, g_LTP, g_timestamp, g_serial_no, g_messagecode, g_ordertype, g_quantity_1, g_quantity_2
     global g_list_of_instrument_wise_global_containers, g_fp_output_orderbook_price_list, g_previous_ob_string, g_instrument_fullname, g_price_1, g_price_2 , g_exchange_timestamp
-    
+ 
     generate_final_orderbook_records_and_print_into_file()    #<----------- Print OB File
-    g_serial_no = p_nse_temp_list[-3]
+    
+    g_serial_no = p_nse_temp_list[-2]
     g_messagecode = p_nse_temp_list[0]
     g_timestamp = p_nse_temp_list[1]
-    g_exchange_timestamp = p_nse_temp_list[-2]
-    l_band_price_gap = p_nse_temp_list[-1]
-    l_flag =  0
+    g_exchange_timestamp = p_nse_temp_list[-1]
     if p_nse_temp_list[0] == "M":
         g_price_1 = p_nse_temp_list[3]
         g_quantity_1 = p_nse_temp_list[4]
@@ -234,148 +202,85 @@ def prepare_orderbook_pricelist(p_nse_temp_list):
         g_ordertype = p_nse_temp_list[2]
     else:
         g_ordertype = ""
-    import pdb
-    if p_nse_temp_list[0] <> "T":
-        l_band_price1 = get_band_given_price_and_side(float(g_price_1),l_band_price_gap,p_nse_temp_list[2])
-        if(g_price_2 != ""):
-            l_band_price2 = get_band_given_price_and_side(float(g_price_2),l_band_price_gap,p_nse_temp_list[2])
+    
     #________________________________________ [ NORMAL (N) ] ________________________________________
     if p_nse_temp_list[0] == "N":
-        try:
-            if p_nse_temp_list[2] == "B":
-                if float(l_band_price1) in g_bid_price_quantity_dict: 
-                    (g_bid_price_quantity_dict[float(l_band_price1)])[0] = ((g_bid_price_quantity_dict.get(float(l_band_price1)))[0] + int(p_nse_temp_list[4]))
-                    if(float(p_nse_temp_list[3]) in g_bid_price_quantity_dict[float(l_band_price1)][1]):
-                        (g_bid_price_quantity_dict[float(l_band_price1)])[1][float(p_nse_temp_list[3])] = ((g_bid_price_quantity_dict.get(float(l_band_price1)))[1][float(p_nse_temp_list[3])] + int(p_nse_temp_list[4]))
-                    else:
-                        (g_bid_price_quantity_dict[float(l_band_price1)])[1][float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
-                else:
-                    (g_bid_price_quantity_dict[float(l_band_price1)]) = [int(p_nse_temp_list[4]), {}]
-                    (g_bid_price_quantity_dict[float(l_band_price1)])[1][float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
+        if p_nse_temp_list[2] == "B":
+            if float(p_nse_temp_list[3]) in g_bid_price_quantity_dict: 
+                g_bid_price_quantity_dict[float(p_nse_temp_list[3])] = (g_bid_price_quantity_dict.get(float(p_nse_temp_list[3])) + int(p_nse_temp_list[4]))
             else:
-                if float(l_band_price1) in g_ask_price_quantity_dict: 
-                    (g_ask_price_quantity_dict[float(l_band_price1)])[0] = (g_ask_price_quantity_dict.get(float(l_band_price1))[0] + int(p_nse_temp_list[4]))
-                    if(float(p_nse_temp_list[3]) in g_ask_price_quantity_dict[float(l_band_price1)][1] ):
-                        (g_ask_price_quantity_dict[float(l_band_price1)])[1][float(p_nse_temp_list[3])] = (g_ask_price_quantity_dict.get(float(l_band_price1))[1][float(p_nse_temp_list[3])] + int(p_nse_temp_list[4]))
-                    else:
-                        (g_ask_price_quantity_dict[float(l_band_price1)])[1][float(p_nse_temp_list[3])] = (int(p_nse_temp_list[4]))
-                else:
-                    g_ask_price_quantity_dict[float(l_band_price1)] = [int(p_nse_temp_list[4]) , {}]
-                    (g_ask_price_quantity_dict[float(l_band_price1)])[1][float(p_nse_temp_list[3])] = (int(p_nse_temp_list[4]))
-        except:
-            pdb.set_trace()
-            print "Exception in New"
+                g_bid_price_quantity_dict[float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
+        else:
+            if float(p_nse_temp_list[3]) in g_ask_price_quantity_dict: 
+                g_ask_price_quantity_dict[float(p_nse_temp_list[3])] = (g_ask_price_quantity_dict.get(float(p_nse_temp_list[3])) + int(p_nse_temp_list[4]))
+            else:
+                g_ask_price_quantity_dict[float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
+    
     #________________________________________ [ CANCEL (X) ] ________________________________________
     elif p_nse_temp_list[0] == "X":
-        try:
-            if p_nse_temp_list[2] == "B":
-                if float(l_band_price1) in g_bid_price_quantity_dict: 
-                    g_bid_price_quantity_dict[float(l_band_price1)][0] = (g_bid_price_quantity_dict.get(float(l_band_price1))[0] - int(p_nse_temp_list[4]))
-                    if(float(p_nse_temp_list[3]) in g_bid_price_quantity_dict[float(l_band_price1)][1] ):
-                        g_bid_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] = (g_bid_price_quantity_dict.get(float(l_band_price1))[1][float(p_nse_temp_list[3])] - int(p_nse_temp_list[4]))
-                        if g_bid_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] <= 0:
-                            del g_bid_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])]
-                    else:
-                        pdb.set_trace()
-                        print "\nException Cancel:"
-                    if g_bid_price_quantity_dict[float(l_band_price1)][0] <= 0:
-                        del g_bid_price_quantity_dict[float(l_band_price1)]
-                else:
-                    pdb.set_trace()
-                    print "\nException Cancel: Price not found ...!!", float(l_band_price1), int(p_nse_temp_list[4]), p_nse_temp_list[0], p_nse_temp_list[2]
+        if p_nse_temp_list[2] == "B":
+            if float(p_nse_temp_list[3]) in g_bid_price_quantity_dict: 
+                g_bid_price_quantity_dict[float(p_nse_temp_list[3])] = (g_bid_price_quantity_dict.get(float(p_nse_temp_list[3])) - int(p_nse_temp_list[4]))
+                
+                if g_bid_price_quantity_dict[float(p_nse_temp_list[3])] <= 0:
+                    del g_bid_price_quantity_dict[float(p_nse_temp_list[3])]
             else:
-                if float(l_band_price1) in g_ask_price_quantity_dict: 
-                    g_ask_price_quantity_dict[float(l_band_price1)][0] = (g_ask_price_quantity_dict.get(float(l_band_price1))[0] - int(p_nse_temp_list[4]))
-                    if(float(p_nse_temp_list[3]) in g_ask_price_quantity_dict[float(l_band_price1)][1]):
-                        g_ask_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] = (g_ask_price_quantity_dict.get(float(l_band_price1))[1][float(p_nse_temp_list[3])] - int(p_nse_temp_list[4]))
-                        if g_ask_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] <= 0:
-                            del g_ask_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])]
-                    else:
-                        pdb.set_trace()
-                        print "\nException Cancel:"
-                    if g_ask_price_quantity_dict[float(l_band_price1)][0] <= 0:
-                        del g_ask_price_quantity_dict[float(l_band_price1)]
-                else:
-                    pdb.set_trace()
-                    print "\nException Cancel: Price not found ...!!", float(l_band_price1), int(p_nse_temp_list[4]), p_nse_temp_list[0], p_nse_temp_list[2]
-        except:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]     
-            print "Error type: %s, File name: %s, Line no: %s" %(str(exc_type), str(fname), str(exc_tb.tb_lineno))
-            pdb.set_trace()
+                print "\nException Cancel: Price not found ...!!", float(p_nse_temp_list[3]), int(p_nse_temp_list[4]), p_nse_temp_list[0], p_nse_temp_list[2]
+        else:
+            if float(p_nse_temp_list[3]) in g_ask_price_quantity_dict: 
+                g_ask_price_quantity_dict[float(p_nse_temp_list[3])] = (g_ask_price_quantity_dict.get(float(p_nse_temp_list[3])) - int(p_nse_temp_list[4]))
+                
+                if g_ask_price_quantity_dict[float(p_nse_temp_list[3])] <= 0:
+                    del g_ask_price_quantity_dict[float(p_nse_temp_list[3])]
+            else:
+                print "\nException Cancel: Price not found ...!!", float(p_nse_temp_list[3]), int(p_nse_temp_list[4]), p_nse_temp_list[0], p_nse_temp_list[2]
     
     #________________________________________ [ MODIFY (M) ] ________________________________________
     elif p_nse_temp_list[0] == "M":
         if p_nse_temp_list[2] == "B":
-            if float(l_band_price1) in g_bid_price_quantity_dict: 
-                g_bid_price_quantity_dict[float(l_band_price1)][0] = (g_bid_price_quantity_dict.get(float(l_band_price1))[0] + int(p_nse_temp_list[4]))
-                if(float(p_nse_temp_list[3]) in g_bid_price_quantity_dict[float(l_band_price1)][1]):
-                    g_bid_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] = (g_bid_price_quantity_dict.get(float(l_band_price1))[1][float(p_nse_temp_list[3])] + int(p_nse_temp_list[4]))
-                else:
-                    g_bid_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
+            if float(p_nse_temp_list[3]) in g_bid_price_quantity_dict: 
+                g_bid_price_quantity_dict[float(p_nse_temp_list[3])] = (g_bid_price_quantity_dict.get(float(p_nse_temp_list[3])) + int(p_nse_temp_list[4]))
             else:
-                g_bid_price_quantity_dict[float(l_band_price1)] = [int(p_nse_temp_list[4]), {}]
-                g_bid_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
-            if float(l_band_price2) in g_bid_price_quantity_dict: 
-                g_bid_price_quantity_dict[float(l_band_price2)][0] = (g_bid_price_quantity_dict.get(float(l_band_price2))[0] - int(p_nse_temp_list[6]))
-                if(float(p_nse_temp_list[5]) in g_bid_price_quantity_dict[float(l_band_price2)][1] ):
-                    g_bid_price_quantity_dict[float(l_band_price2)][1][float(p_nse_temp_list[5])] = (g_bid_price_quantity_dict.get(float(l_band_price2))[1][float(p_nse_temp_list[5])] - int(p_nse_temp_list[6]))
-                    if g_bid_price_quantity_dict[float(l_band_price2)][1][float(p_nse_temp_list[5])] <= 0:
-                        del g_bid_price_quantity_dict[float(l_band_price2)][1][float(p_nse_temp_list[5])]
-                if g_bid_price_quantity_dict[float(l_band_price2)][0] <= 0:
-                    del g_bid_price_quantity_dict[float(l_band_price2)]
-            else:
-                print "\nException Modify: Price not found ...!!", float(l_band_price2), int(p_nse_temp_list[6]), p_nse_temp_list[0], p_nse_temp_list[2]
-        else:
-            if float(l_band_price1) in g_ask_price_quantity_dict: 
-                g_ask_price_quantity_dict[float(l_band_price1)][0] = (g_ask_price_quantity_dict.get(float(l_band_price1))[0] + int(p_nse_temp_list[4]))
-                if(float(p_nse_temp_list[3]) in g_ask_price_quantity_dict[float(l_band_price1)][1]):
-                    g_ask_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])] = (g_ask_price_quantity_dict.get(float(l_band_price1))[1][float(p_nse_temp_list[3])] + int(p_nse_temp_list[4]))
-                else:
-                    g_ask_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])]  = int(p_nse_temp_list[4])
-            else:
-                g_ask_price_quantity_dict[float(l_band_price1)] = [int(p_nse_temp_list[4]), {}]
-                g_ask_price_quantity_dict[float(l_band_price1)][1][float(p_nse_temp_list[3])]  = int(p_nse_temp_list[4])
+                g_bid_price_quantity_dict[float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
                     
-            if float(l_band_price2) in g_ask_price_quantity_dict: 
-                g_ask_price_quantity_dict[float(l_band_price2)][0] = (g_ask_price_quantity_dict.get(float(l_band_price2))[0] - int(p_nse_temp_list[6]))
-                if(float(p_nse_temp_list[5]) in g_ask_price_quantity_dict[float(l_band_price2)][1]):
-                    g_ask_price_quantity_dict[float(l_band_price2)][1][float(p_nse_temp_list[5])] = (g_ask_price_quantity_dict.get(float(l_band_price2))[1][float(p_nse_temp_list[5])] - int(p_nse_temp_list[6]))
-                    if g_ask_price_quantity_dict[float(l_band_price2)][1][float(p_nse_temp_list[5])] <= 0:
-                        del g_ask_price_quantity_dict[float(l_band_price2)][1][float(p_nse_temp_list[5])]
-                if g_ask_price_quantity_dict[float(l_band_price2)][0] <= 0:
-                    del g_ask_price_quantity_dict[float(l_band_price2)]
+            if float(p_nse_temp_list[5]) in g_bid_price_quantity_dict: 
+                g_bid_price_quantity_dict[float(p_nse_temp_list[5])] = (g_bid_price_quantity_dict.get(float(p_nse_temp_list[5])) - int(p_nse_temp_list[6]))
+                
+                if g_bid_price_quantity_dict[float(p_nse_temp_list[5])] <= 0:
+                    del g_bid_price_quantity_dict[float(p_nse_temp_list[5])]
             else:
-                print "\nException Modify: Price not found ...!!", float(l_band_price2), int(p_nse_temp_list[6]), p_nse_temp_list[0], p_nse_temp_list[2] 
+                print "\nException Modify: Price not found ...!!", float(p_nse_temp_list[5]), int(p_nse_temp_list[6]), p_nse_temp_list[0], p_nse_temp_list[2]
+        else:
+            if float(p_nse_temp_list[3]) in g_ask_price_quantity_dict: 
+                g_ask_price_quantity_dict[float(p_nse_temp_list[3])] = (g_ask_price_quantity_dict.get(float(p_nse_temp_list[3])) + int(p_nse_temp_list[4]))
+            else:
+                g_ask_price_quantity_dict[float(p_nse_temp_list[3])] = int(p_nse_temp_list[4])
+                    
+            if float(p_nse_temp_list[5]) in g_ask_price_quantity_dict: 
+                g_ask_price_quantity_dict[float(p_nse_temp_list[5])] = (g_ask_price_quantity_dict.get(float(p_nse_temp_list[5])) - int(p_nse_temp_list[6]))
+
+                if g_ask_price_quantity_dict[float(p_nse_temp_list[5])] <= 0:
+                    del g_ask_price_quantity_dict[float(p_nse_temp_list[5])]
+            else:
+                print "\nException Modify: Price not found ...!!", float(p_nse_temp_list[5]), int(p_nse_temp_list[6]), p_nse_temp_list[0], p_nse_temp_list[2] 
                     
     #________________________________________ [ TRADE (T) ] ________________________________________
     elif p_nse_temp_list[0] == "T":
-        l_band_price1_bid_side = get_band_given_price_and_side(float(g_price_1),l_band_price_gap,"B")
-        l_band_price1_ask_side = get_band_given_price_and_side(float(g_price_1),l_band_price_gap,"S")
-        if float(l_band_price1_bid_side) in g_bid_price_quantity_dict: 
-            if( float(p_nse_temp_list[2]) in g_bid_price_quantity_dict[float(l_band_price1_bid_side)][1]):
-                l_flag = 1
-                g_bid_price_quantity_dict[float(l_band_price1_bid_side)][0] = (g_bid_price_quantity_dict.get(float(l_band_price1_bid_side))[0] - int(p_nse_temp_list[3]))
-                g_bid_price_quantity_dict[float(l_band_price1_bid_side)][1][float(p_nse_temp_list[2])] = (g_bid_price_quantity_dict.get(float(l_band_price1_bid_side))[1][float(p_nse_temp_list[2])] - int(p_nse_temp_list[3]))
-                if g_bid_price_quantity_dict[float(l_band_price1_bid_side)][1][float(p_nse_temp_list[2])]  <= 0:
-                    del g_bid_price_quantity_dict[float(l_band_price1_bid_side)][1][float(p_nse_temp_list[2])]
-                if g_bid_price_quantity_dict[float(l_band_price1_bid_side)][0] <= 0:
-                    del g_bid_price_quantity_dict[float(l_band_price1_bid_side)]
+        if float(p_nse_temp_list[2]) in g_bid_price_quantity_dict: 
+            g_bid_price_quantity_dict[float(p_nse_temp_list[2])] = (g_bid_price_quantity_dict.get(float(p_nse_temp_list[2])) - int(p_nse_temp_list[3]))
+            
+            if g_bid_price_quantity_dict[float(p_nse_temp_list[2])] <= 0:
+                del g_bid_price_quantity_dict[float(p_nse_temp_list[2])]
         
-        if l_flag == 0 and float(l_band_price1_ask_side) in g_ask_price_quantity_dict: 
-            if( float(p_nse_temp_list[2]) in g_ask_price_quantity_dict[float(l_band_price1_ask_side)][1]):
-                l_flag = 1
-                g_ask_price_quantity_dict[float(l_band_price1_ask_side)][0]= (g_ask_price_quantity_dict.get(float(l_band_price1_ask_side))[0] - int(p_nse_temp_list[3]))
-                g_ask_price_quantity_dict[float(l_band_price1_ask_side)][1][float(p_nse_temp_list[2])]= (g_ask_price_quantity_dict.get(float(l_band_price1_ask_side))[1][float(p_nse_temp_list[2])] - int(p_nse_temp_list[3]))
-                if g_ask_price_quantity_dict[float(l_band_price1_ask_side)][1][float(p_nse_temp_list[2])] <= 0:
-                    del g_ask_price_quantity_dict[float(l_band_price1_ask_side)][1][float(p_nse_temp_list[2])] 
-                if g_ask_price_quantity_dict[float(l_band_price1_ask_side)][0] <= 0:
-                    del g_ask_price_quantity_dict[float(l_band_price1_ask_side)]
+        elif float(p_nse_temp_list[2]) in g_ask_price_quantity_dict: 
+            g_ask_price_quantity_dict[float(p_nse_temp_list[2])] = (g_ask_price_quantity_dict.get(float(p_nse_temp_list[2])) - int(p_nse_temp_list[3]))
+            
+            if g_ask_price_quantity_dict[float(p_nse_temp_list[2])] <= 0:
+                del g_ask_price_quantity_dict[float(p_nse_temp_list[2])]
         
-        if l_flag == 0:
+        else:
             print "\nException Trade: Price not found ...!!", float(p_nse_temp_list[2]), int(p_nse_temp_list[3]), p_nse_temp_list[0], p_nse_temp_list[2]
-            import pdb
-            pdb.set_trace()
+        
         g_LTP = float(p_nse_temp_list[2])
         g_TTQ = (g_TTQ + int(p_nse_temp_list[3]))
     else:
@@ -417,7 +322,7 @@ Q: Why this function is required?
 Ans: This is the main function which reads the Raw-TBT data by a chunk each time and passes each of the logs from that chunk for further
      processing to generate Order Book log. Also maintains a dictionary to hold the whole Order-Book logs. 
 '''
-def read_the_filtered_file_and_generate_object(p_file_name):
+def read_the_filtered_file_and_generate_object():
     global g_file_location, g_NSE_filename, g_unique_instrument_identifier_dict, g_list_of_instrument_wise_global_containers
     global g_fp_output_orderbook_price_list, g_ask_price_quantity_dict, g_bid_price_quantity_dict, g_timestamp, g_LTP, g_TTQ
     global g_previous_ob_string, g_instrument_fullname, g_serial_no, g_messagecode, g_ordertype, g_quantity_1, g_quantity_2, g_price_1, g_price_2 , g_exchange_timestamp
@@ -427,7 +332,7 @@ def read_the_filtered_file_and_generate_object(p_file_name):
     
     from itertools import islice
     
-    with open(g_file_location + p_file_name, "r") as l_fp_nse_file:
+    with open(g_file_location + g_NSE_filename, "r") as l_fp_nse_file:
         
         while True:
             l_next_n_lines = list(islice(l_fp_nse_file, 100000))
@@ -438,13 +343,12 @@ def read_the_filtered_file_and_generate_object(p_file_name):
             print "Processing %s lines."%l_counter
             
             for l_line in l_next_n_lines:
-                l_line_list = l_line.split(",")
+                
                 try:
+                    l_line_list = l_line.split(",")
                     l_instrument_key = l_line_list[5] + "," + l_line_list[6] + "," + l_line_list[7] + "," + l_line_list[8] 
-                except:
-                    continue
-                if l_instrument_key in g_unique_instrument_identifier_dict:
-                    try:
+                    
+                    if l_instrument_key in g_unique_instrument_identifier_dict:
                         g_list_of_instrument_wise_global_containers = g_unique_instrument_identifier_dict[l_instrument_key]
                         
                         #[ Initialize the global containers ]===============================================
@@ -457,7 +361,6 @@ def read_the_filtered_file_and_generate_object(p_file_name):
                         g_previous_ob_string = g_list_of_instrument_wise_global_containers[6]
                         g_instrument_fullname = g_list_of_instrument_wise_global_containers[7]
                         g_serial_no = g_list_of_instrument_wise_global_containers[8]
-                        
                         g_messagecode = g_list_of_instrument_wise_global_containers[9]
                         g_ordertype = g_list_of_instrument_wise_global_containers[10]
                         g_quantity_1 = g_list_of_instrument_wise_global_containers[11]
@@ -465,7 +368,6 @@ def read_the_filtered_file_and_generate_object(p_file_name):
                         g_quantity_2 = g_list_of_instrument_wise_global_containers[13]
                         g_price_2 = g_list_of_instrument_wise_global_containers[14]
                         g_exchange_timestamp = g_list_of_instrument_wise_global_containers[15]
-                        g_band_price_gap = g_list_of_instrument_wise_global_containers[16]
                         #===================================================================================
                         l_nse_temp_list = [l_line_list[1], l_line_list[0] , l_line_list[9], l_line_list[10], l_line_list[11].strip()]
                         
@@ -474,19 +376,15 @@ def read_the_filtered_file_and_generate_object(p_file_name):
                         
                         try: l_nse_temp_list.append(l_line_list[13].strip())
                         except: pass
+                        
                         l_nse_temp_list.append(l_line_list[2])
                         l_nse_temp_list.append( "%.6f" %(int(l_line_list[3])/1000.000))
-                        l_nse_temp_list.append(g_band_price_gap)
-                        
                         prepare_orderbook_pricelist(l_nse_temp_list)
                         
                         g_unique_instrument_identifier_dict[l_instrument_key] = g_list_of_instrument_wise_global_containers
                         
-                    except Exception, e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]    
-                        print "Error type: %s, File name: %s, Line no: %s" %(str(exc_type), str(fname), str(exc_tb.tb_lineno))
-                        print "EXCEPTION in :- ",e, l_line
+                except Exception, e:
+                    print "EXCEPTION in :- ", l_line
             
             gc.collect()
             
@@ -500,17 +398,30 @@ Q: Why this function is required?
 Ans: It generates the folder name in yyyy-mm-dd format according to the date being used in the program. Also prepares
      the name of the Raw-TBT data as NSE_M1-D12-Y14.txt, as the initial name of the raw file is not used.
 '''
-def get_current_date_folder(p_date):
-    import pdb
-    #pdb.set_trace()
-    global g_file_token,g_ml_base_directory, g_NSE_filename , g_day , g_month , g_year
+def get_current_date_folder(p_date = ""):
+    global g_file_token, g_NSE_filename , g_day , g_month , g_year
     l_current_month = 0 
     l_current_day = 0
     l_current_year= 0
+    if p_date == "":
+        l_current_day = int(commands.getoutput('date +%d'))
+        l_current_month = int(commands.getoutput('date +%m'))
+        l_current_year = int(commands.getoutput('date +%Y'))
+        l_execution_date = datetime.date(l_current_year, l_current_month, l_current_day)
+        from datetime import timedelta
+        if( l_execution_date.weekday() == 0): # Day is monday
+            l_execution_date = l_execution_date - timedelta(days = 3)
+        else:
+            l_execution_date = l_execution_date - timedelta(days = 1)
+        l_current_day = l_execution_date.day
+        l_current_month = l_execution_date.month
+        l_current_year = l_execution_date.year
         
-    l_current_day = int(p_date[6:8])
-    l_current_month = int(p_date[4:6])
-    l_current_year = int(p_date[0:4])
+    else:
+        
+        l_current_day = int(p_date.split("-")[2])
+        l_current_month = int(p_date.split("-")[1])
+        l_current_year = int(p_date.split("-")[0])
 
     g_file_token = "M" + str(l_current_month) + "-" + "D" + str(l_current_day)
     
@@ -521,8 +432,6 @@ def get_current_date_folder(p_date):
     else: l_month = str(l_current_month)
     
     last_modified_folder = str(l_current_year) + "-" + l_month + "-" + l_day
-    if not os.path.exists(g_ml_base_directory):
-        os.mkdir(g_ml_base_directory)
     g_day = l_day
     g_month = l_month
     g_year = l_current_year  
@@ -530,7 +439,6 @@ def get_current_date_folder(p_date):
         g_NSE_filename = "NSE_" + g_file_token + "-Y" + str(l_current_year)[-2:] + ".txt"
     elif args.insType.lower() == "cur":
         g_NSE_filename = "NSE_" + g_file_token + "-Y" + str(l_current_year)[-2:] + "_Curr.txt"
-    print "FILE READ IS " , g_NSE_filename
         
     return last_modified_folder
 
@@ -584,22 +492,31 @@ def get_epoch_time_of_last_thursday_of_given_date():
     l_epoch_secs = l_epoch_secs - 315513000.0
     return str(int(l_epoch_secs))
     
+    
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
+def get_max_frequency_occuring_expiry():
+    global g_NSE_filename,g_file_location
+    temp_str = "head -100000 " + g_file_location + g_NSE_filename + " | awk 'BEGIN {FS=\",\"};{print $7}' | sort | uniq -c | sort -n | tail -1"
+    import pdb
+    #pdb.set_trace()
+    return (commands.getoutput(temp_str)).split()[1]
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
 '''
 Q: Why this function is required?
-Ans: This is the main program which initialize all the local variables with the global variables' value set earlier in
+Ans: This is the main program which initialize all the local variables with the global variables' value set earlier in py module.
      Then initiates/invokes the function which reads the Raw-TBT file and does the other processing. 
 '''
 def main():
-    global g_unique_instrument_identifier_dict, g_file_location, g_file_token, g_ml_base_directory ,g_price_distance, g_NSE_filename, g_mother_directory
+    global g_unique_instrument_identifier_dict, g_file_location, g_file_token, g_price_distance, g_NSE_filename, g_mother_directory
     print "\nExecution started ..."
     
-    if os.path.exists(g_file_location+"/" + g_NSE_filename) == False:
+    if os.path.exists(g_file_location + g_NSE_filename) == False:
         print "\nThe file %s is not present.\n\nExecution is terminated ...\n"%(g_file_location + g_NSE_filename)
         return
     else:
         print "\nThe Raw TBT Data file %s has been identified at %s"%(g_NSE_filename, g_file_location)
-        
+    
     l_str_p_dep = ""
     for l_pd in g_price_distance:
         l_str_p_dep += str(l_pd) + "-"
@@ -608,57 +525,70 @@ def main():
     
     print "\nNo. of lines to be processed: ", l_total_no_of_lines 
     print "\nInstruments to be filtered are ..."
-    
-    l_input_file_name = ''
-        
-    l_symbol = args.iT
     if args.uGE == "no":
         l_expiry = get_max_frequency_occuring_expiry()#get_epoch_time_of_last_thursday_of_given_date()
     else:
-        l_expiry = args.exp
+        l_expiry = args.insEL
     print l_expiry
-    l_strikeprice = args.sP
-    l_option = args.oT
-    l_instrument_ticker = l_symbol.strip() + "-" + l_strikeprice + "-" + l_option
-    print l_instrument_ticker
-    l_expirydate = return_expiry_string(l_expiry)
-    l_output_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + ".txt"
-    if os.path.exists(args.td +l_output_file_name):
-        print "File Exist , delete and rerun it ", args.td +l_output_file_name
-        return
-    l_fp_output_orderbook_price_list = open(g_file_location + l_output_file_name, 'w')
-    l_fp_output_orderbook_price_list.write(get_header() + "\n")
+    l_index = 0
+    g_instrument_symbol_list = args.iT.split(";")
+    g_instrument_expiry_list = l_expiry
+    if(args.sP == None):
+        g_instrument_strikeprice_list = ["-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1"]
+    else:
+        g_instrument_strikeprice_list = args.sP.split(";")
+    g_instrument_option_list = args.oT.split(";")
     
-    l_input_file_name =  g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-bandPrice-depth-" + str(g_price_depth) + "temp.txt"
-    l_symbol = "%-10s" %l_symbol
-    print 'grep  \'' + l_symbol + ',' + l_expiry + ',' + l_strikeprice + ',' + l_option + '\' ' + g_file_location + g_NSE_filename + ' > ' + g_file_location + l_input_file_name
-    os.system('grep  \'' + l_symbol + ',' + l_expiry + ',' + l_strikeprice + ',' + l_option + '\' ' + g_file_location + g_NSE_filename + ' > ' + g_file_location + l_input_file_name)
+    
+    print g_instrument_symbol_list , g_instrument_expiry_list , g_instrument_strikeprice_list , g_instrument_option_list
+    while l_index < len(g_instrument_symbol_list):
+        
+        l_symbol = g_instrument_symbol_list[l_index]
 
-    l_ask_price_quantity_dict = {}
-    l_bid_price_quantity_dict = {}
-    l_timestamp = ""
-    l_LTP = 0
-    l_TTQ = 0
-    l_previous_ob_string = "" 
-    l_instrument_fullname = l_instrument_ticker + "-" + l_expirydate
-    l_serial_no = 0
-    l_messagecode = ""
-    l_ordertype = ""
-    l_quantity_1 = ""
-    l_quantity_2 = ""
-    l_price_1 = ""
-    l_price_2 = ""
-    l_exchange_time_stamp = ""
-    l_band_gap_price = int(args.bGap)
-    print l_instrument_fullname , l_band_gap_price
+        l_expiry = g_instrument_expiry_list
+        print l_expiry
+        l_strikeprice = g_instrument_strikeprice_list[l_index]
+        l_option = g_instrument_option_list[l_index]
+        l_instrument_ticker = l_symbol.strip() + "-" + l_strikeprice + "-" + l_option
+        print l_instrument_ticker
+        l_expirydate = return_expiry_string(l_expiry)
+        '''
+        if os.path.exists(g_file_location + g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-pdepth-" + str(g_price_depth) + ".txt"):
+            print "File Exist , delete and rerun it ", g_file_location + g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-pdepth-" + str(g_price_depth) + ".txt" 
+            l_index += 1
+            continue
+        '''
+        l_fp_output_orderbook_price_list = open(g_file_location + g_file_token + "-Expiry-" + l_expirydate + "-" + l_instrument_ticker + "-pdepth-" + str(g_price_depth) + ".txt", 'w')
+        l_fp_output_orderbook_price_list.write(get_header() + "\n")
+        
+        l_ask_price_quantity_dict = {}
+        l_bid_price_quantity_dict = {}
+        l_timestamp = ""
+        l_LTP = 0
+        l_TTQ = 0
+        l_previous_ob_string = "" 
+        l_instrument_fullname = l_instrument_ticker + "-" + l_expirydate
+        l_serial_no = 0
+        l_messagecode = ""
+        l_ordertype = ""
+        l_quantity_1 = ""
+        l_quantity_2 = ""
+        l_price_1 = ""
+        l_price_2 = ""
+        l_exchange_time_stamp = ""
+        
+        print l_instrument_fullname
+        
+        l_list_of_instrument_wise_global_containers = [l_fp_output_orderbook_price_list, l_ask_price_quantity_dict, l_bid_price_quantity_dict, l_timestamp,\
+                                                       l_LTP, l_TTQ, l_previous_ob_string, l_instrument_fullname, l_serial_no, l_messagecode, l_ordertype,\
+                                                       l_quantity_1, l_price_1, l_quantity_2, l_price_2 , l_exchange_time_stamp]
+        
+        g_unique_instrument_identifier_dict[l_symbol + "," + str(l_expiry) + "," + str(l_strikeprice) + "," + str(l_option)] = l_list_of_instrument_wise_global_containers
+        print l_symbol + "," + str(l_expiry) + "," + str(l_strikeprice) + "," + str(l_option)
+        l_index += 1 
+
+    read_the_filtered_file_and_generate_object()        # <----- Read the File and generate a Python Object
     
-    l_list_of_instrument_wise_global_containers = [l_fp_output_orderbook_price_list, l_ask_price_quantity_dict, l_bid_price_quantity_dict, l_timestamp,\
-                                                   l_LTP, l_TTQ, l_previous_ob_string, l_instrument_fullname, l_serial_no, l_messagecode, l_ordertype,\
-                                                   l_quantity_1, l_price_1, l_quantity_2, l_price_2 , l_exchange_time_stamp , l_band_gap_price]
-    
-    g_unique_instrument_identifier_dict[l_symbol + "," + l_expiry + "," + l_strikeprice + "," + l_option] = l_list_of_instrument_wise_global_containers
-    print l_input_file_name
-    read_the_filtered_file_and_generate_object(l_input_file_name)        # <----- Read the File and generate a Python Object
     print "\nTime elapsed to create the OB file: ", elapsed()
     
     for l_key in g_unique_instrument_identifier_dict:
@@ -666,20 +596,6 @@ def main():
         l_value_list[0].flush()
         l_value_list[0].close()
     
-    os.system('rm -rf ' + g_file_location + l_input_file_name)
-    os.system('mv '+ g_file_location + l_output_file_name + ' ' + g_ml_base_directory)
-    ml_working_file_directory = g_ml_base_directory.replace("/ro/",'/wf/')
-    if not os.path.exists(ml_working_file_directory):
-        os.mkdir(ml_working_file_directory)
-        os.mkdir(ml_working_file_directory+"/f/")
-        os.mkdir(ml_working_file_directory+"/t/")
-        os.mkdir(ml_working_file_directory+"/p/")
-    ml_results_file_directory = g_ml_base_directory.replace("/ro/",'/rs/')
-    if not os.path.exists(ml_results_file_directory):
-        os.mkdir(ml_results_file_directory)
-        os.mkdir(ml_results_file_directory+"/r/")
-        os.mkdir(ml_results_file_directory+"/t/")
-
     print "\nExecution is completed ..."
     destructor()
     gc.collect()

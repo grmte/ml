@@ -32,24 +32,21 @@ commandList = []
 allDataDirectories = attribute.getListOfTrainingDirectoriesNames( int(args.nDays) , args.d,args.iT )
 for directories in allDataDirectories:
     commandList.append(['src/aGenForEWithTargetOnly.py','-d',directories,'-g','ob/generators/','-run',args.run,'-sequence',args.sequence,'-tickSize',args.tickSize,'-e',args.e  ,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
+    pass
 if(args.sequence != "dp"):
     utility.runCommandList(commandList,args)
+    pass
 else:
-    for chunkNum in range(0,len(commandList),int(args.nComputers)):
-        lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-        utility.runCommandList(lSubGenList,args)
-        print dp.printGroupStatus() 
-
+    utility.runListOfCommandsWithMaxUtlilizationOfWorkers(commandList,args,"Target Generation",int(args.nComputers))
 commandList = []
 for directories in allDataDirectories:
     commandList.append(['src/targetVariableRun.py','-orderQty',args.orderQty,'-d',directories,'-tickSize',args.tickSize,'-targetType',args.targetType,'-e',args.e,'-run',args.run,'-sequence',args.sequence,"-iT",args.iT,"-oT",args.oT,"-sP",args.sP])
-
+    pass
 if(args.sequence != "dp"):
     utility.runCommandList(commandList,args)
 else:
-    for chunkNum in range(0,len(commandList),int(args.nComputers)):
-        lSubGenList = commandList[chunkNum:chunkNum+int(args.nComputers)]
-        utility.runCommandList(lSubGenList,args)
-        print dp.printGroupStatus() 
-
-utility.runCommand(["src/accumulate_results_for_target_testing.py","-e",args.e,"-t",args.t,"-d",args.d, '-nD' , str(args.nDays) , "-m" , "ResultOfNewTargetVariableWhereWeForBuyWeCheckGreaterThanAskAndSellLessThanBid"],args.run,args.sequence)
+    utility.runListOfCommandsWithMaxUtlilizationOfWorkers(commandList,args,"Trade OnTarget Variable",int(args.nComputers))
+  
+utility.runCommand(["src/accumulate_results_for_target_testing.py","-e",args.e,"-t",args.t,"-d",args.d, '-nD' , str(args.nDays) , "-m" , "ResultOfNewTargetVariableWhereWeForBuyWeCheckGreaterThanAskAndSellLessThanBid","-iT",args.iT,"-sP",args.sP,"-oT",args.oT],args.run,args.sequence)
+if(args.sequence == 'dp'):
+    print dp.printGroupStatus() 
